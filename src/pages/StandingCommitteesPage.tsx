@@ -136,7 +136,11 @@ export const StandingCommitteesPage: React.FC = () => {
                       <img
                         src={getAssetUrl(m.person.photoUrl)}
                         alt={m.person.fullName}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover transition-all"
+                        style={{
+                          objectPosition: m.person.photoPosition || 'center 15%',
+                          transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
+                        }}
                       />
                     ) : (
                       <Users className="w-14 h-14 text-teal-300/70" />
@@ -186,7 +190,11 @@ export const StandingCommitteesPage: React.FC = () => {
                       <img
                         src={getAssetUrl(m.person.photoUrl)}
                         alt={m.person.fullName}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover transition-all"
+                        style={{
+                          objectPosition: m.person.photoPosition || 'center 15%',
+                          transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
+                        }}
                       />
                     ) : (
                       <Users className="w-12 h-12 text-slate-400" />
@@ -237,7 +245,11 @@ export const StandingCommitteesPage: React.FC = () => {
                         <img
                           src={getAssetUrl(m.person.photoUrl)}
                           alt={m.person.fullName}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover transition-all"
+                          style={{
+                            objectPosition: m.person.photoPosition || 'center 15%',
+                            transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
+                          }}
                         />
                       ) : (
                         <Users className="w-10 h-10 text-slate-400" />
@@ -339,7 +351,11 @@ export const StandingCommitteesPage: React.FC = () => {
                   <img
                     src={getAssetUrl(selectedMember.person.photoUrl)}
                     alt={selectedMember.person.fullName}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover transition-all"
+                    style={{
+                      objectPosition: selectedMember.person.photoPosition || 'center 15%',
+                      transform: selectedMember.person.photoZoom ? `scale(${selectedMember.person.photoZoom})` : undefined
+                    }}
                   />
                 ) : (
                   <Users className="w-12 h-12 text-teal-800/60" />

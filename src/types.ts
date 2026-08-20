@@ -290,6 +290,8 @@ export interface Person {
   banglaName: string;
   englishName: string;
   photoUrl?: string;
+  photoPosition?: string; // e.g. 'center top', '50% 15%', 'center center'
+  photoZoom?: number; // scale multiplier e.g. 1.0 to 2.0
   shortBio?: BilingualText;
   fullBio?: BilingualText;
   district?: string;

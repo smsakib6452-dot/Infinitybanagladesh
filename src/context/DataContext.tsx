@@ -113,13 +113,13 @@ interface DataContextType {
   deleteContactMessage: (id: string) => void;
 
   // Committee & Leadership Mutations
-  addCommittee: (committee: Omit<Committee, 'id'>) => void;
+  addCommittee: (committee: Omit<Committee, 'id'>) => Committee;
   updateCommittee: (id: string, committee: Partial<Committee>) => void;
   deleteCommittee: (id: string) => void;
   archiveCommittee: (id: string) => void;
   setActiveCommittee: (id: string) => void;
 
-  addPerson: (person: Omit<Person, 'id'>) => void;
+  addPerson: (person: Omit<Person, 'id'>) => Person;
   updatePerson: (id: string, person: Partial<Person>) => void;
   deletePerson: (id: string) => void;
 
@@ -650,10 +650,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // Committees & Leadership Operations
-  const addCommittee = (item: Omit<Committee, 'id'>) => {
+  const addCommittee = (item: Omit<Committee, 'id'>): Committee => {
     const newItem: Committee = { ...item, id: `comm-${Date.now()}` };
     setCommittees(prev => [...prev, newItem]);
     addAudit('Committee Created', 'Committee', newItem.id, `Created committee "${item.name.en}"`);
+    return newItem;
   };
 
   const updateCommittee = (id: string, updated: Partial<Committee>) => {
@@ -683,10 +684,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // Persons
-  const addPerson = (item: Omit<Person, 'id'>) => {
+  const addPerson = (item: Omit<Person, 'id'>): Person => {
     const newItem: Person = { ...item, id: `person-${Date.now()}` };
     setPersons(prev => [...prev, newItem]);
     addAudit('Person Added', 'Person', newItem.id, `Added person "${item.fullName}"`);
+    return newItem;
   };
 
   const updatePerson = (id: string, updated: Partial<Person>) => {

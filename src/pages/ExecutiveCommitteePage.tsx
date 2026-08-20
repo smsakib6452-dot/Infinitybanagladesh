@@ -154,7 +154,11 @@ export const ExecutiveCommitteePage: React.FC = () => {
                       <img
                         src={getAssetUrl(m.person.photoUrl)}
                         alt={m.person.fullName}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover transition-all"
+                        style={{
+                          objectPosition: m.person.photoPosition || 'center 15%',
+                          transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
+                        }}
                       />
                     ) : (
                       <Users className="w-16 h-16 text-emerald-300/60" />
@@ -205,7 +209,11 @@ export const ExecutiveCommitteePage: React.FC = () => {
                       <img
                         src={getAssetUrl(m.person.photoUrl)}
                         alt={m.person.fullName}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover transition-all"
+                        style={{
+                          objectPosition: m.person.photoPosition || 'center 15%',
+                          transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
+                        }}
                       />
                     ) : (
                       <Users className="w-12 h-12 text-slate-500" />
@@ -252,7 +260,11 @@ export const ExecutiveCommitteePage: React.FC = () => {
                       <img
                         src={getAssetUrl(m.person.photoUrl)}
                         alt={m.person.fullName}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover transition-all"
+                        style={{
+                          objectPosition: m.person.photoPosition || 'center 15%',
+                          transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
+                        }}
                       />
                     ) : (
                       <Users className="w-16 h-16 text-rose-300/60" />
@@ -305,7 +317,11 @@ export const ExecutiveCommitteePage: React.FC = () => {
                         <img
                           src={getAssetUrl(m.person.photoUrl)}
                           alt={m.person.fullName}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover transition-all"
+                          style={{
+                            objectPosition: m.person.photoPosition || 'center 15%',
+                            transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
+                          }}
                         />
                       ) : (
                         <Users className="w-8 h-8 text-rose-200/70" />
@@ -353,7 +369,11 @@ export const ExecutiveCommitteePage: React.FC = () => {
                   <img
                     src={getAssetUrl(selectedMember.person.photoUrl)}
                     alt={selectedMember.person.fullName}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover transition-all"
+                    style={{
+                      objectPosition: selectedMember.person.photoPosition || 'center 15%',
+                      transform: selectedMember.person.photoZoom ? `scale(${selectedMember.person.photoZoom})` : undefined
+                    }}
                   />
                 ) : (
                   <Users className="w-12 h-12 text-teal-800/60" />

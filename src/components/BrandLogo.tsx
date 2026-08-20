@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { ShieldCheck, Info } from 'lucide-react';
+import { getAssetUrl } from '../lib/utils/assetHelper';
 
 interface BrandLogoProps {
   variant?: 'dark' | 'light';
@@ -42,7 +43,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
         >
           {!imgError ? (
             <img
-              src="/brand/infinity-logo.png"
+              src={getAssetUrl('/brand/infinity-logo.png')}
               alt="Infinity Bangladesh Official Logo"
               className="w-full h-full object-cover rounded-xl"
               onError={() => setImgError(true)}

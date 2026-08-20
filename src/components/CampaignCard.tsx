@@ -3,6 +3,7 @@ import { Campaign } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 import { useRouter } from '../context/RouterContext';
 import { MapPin, Calendar, ArrowRight, Heart } from 'lucide-react';
+import { getAssetUrl } from '../lib/utils/assetHelper';
 
 interface CampaignCardProps {
   campaign: Campaign;
@@ -34,7 +35,7 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({ campaign, featured =
       {/* Campaign Image Container */}
       <div className="relative aspect-16/10 overflow-hidden bg-slate-100">
         <img
-          src={campaign.imageUrl}
+          src={getAssetUrl(campaign.imageUrl)}
           alt={tText(campaign.title)}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           loading="lazy"

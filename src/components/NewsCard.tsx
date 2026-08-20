@@ -3,6 +3,7 @@ import { NewsArticle } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 import { useRouter } from '../context/RouterContext';
 import { Calendar, User, ArrowRight, Tag } from 'lucide-react';
+import { getAssetUrl } from '../lib/utils/assetHelper';
 
 interface NewsCardProps {
   article: NewsArticle;
@@ -16,7 +17,7 @@ export const NewsCard: React.FC<NewsCardProps> = ({ article }) => {
     <article className="group bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col">
       <div className="relative aspect-16/9 overflow-hidden bg-slate-100">
         <img
-          src={article.imageUrl}
+          src={getAssetUrl(article.imageUrl)}
           alt={tText(article.title)}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           loading="lazy"

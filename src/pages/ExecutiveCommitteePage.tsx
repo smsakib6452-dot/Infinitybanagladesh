@@ -21,6 +21,7 @@ import {
   Info
 } from 'lucide-react';
 import { CommitteeMember, Person, Position } from '../types';
+import { getAssetUrl } from '../lib/utils/assetHelper';
 
 export const ExecutiveCommitteePage: React.FC = () => {
   const { isBn, tText } = useLanguage();
@@ -151,7 +152,7 @@ export const ExecutiveCommitteePage: React.FC = () => {
                   <div className="relative mx-auto w-32 h-36 sm:w-36 sm:h-40 rounded-t-full rounded-b-2xl overflow-hidden bg-emerald-900/60 border-2 border-emerald-400/50 shadow-inner mb-4 flex items-center justify-center">
                     {m.person.photoUrl ? (
                       <img
-                        src={m.person.photoUrl}
+                        src={getAssetUrl(m.person.photoUrl)}
                         alt={m.person.fullName}
                         className="w-full h-full object-cover"
                       />
@@ -202,7 +203,7 @@ export const ExecutiveCommitteePage: React.FC = () => {
                   <div className="relative mx-auto w-24 h-28 sm:w-28 sm:h-32 rounded-t-full rounded-b-xl overflow-hidden bg-slate-800 border border-slate-700 mb-3 flex items-center justify-center">
                     {m.person.photoUrl ? (
                       <img
-                        src={m.person.photoUrl}
+                        src={getAssetUrl(m.person.photoUrl)}
                         alt={m.person.fullName}
                         className="w-full h-full object-cover"
                       />
@@ -249,7 +250,7 @@ export const ExecutiveCommitteePage: React.FC = () => {
                   <div className="relative mx-auto w-32 h-36 sm:w-36 sm:h-40 rounded-t-full rounded-b-2xl overflow-hidden bg-rose-900/60 border-2 border-rose-400/50 shadow-inner mb-4 flex items-center justify-center">
                     {m.person.photoUrl ? (
                       <img
-                        src={m.person.photoUrl}
+                        src={getAssetUrl(m.person.photoUrl)}
                         alt={m.person.fullName}
                         className="w-full h-full object-cover"
                       />
@@ -302,7 +303,7 @@ export const ExecutiveCommitteePage: React.FC = () => {
                     <div className="mx-auto w-16 h-20 sm:w-20 sm:h-24 rounded-t-full rounded-b-lg overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2.5 flex items-center justify-center">
                       {m.person.photoUrl ? (
                         <img
-                          src={m.person.photoUrl}
+                          src={getAssetUrl(m.person.photoUrl)}
                           alt={m.person.fullName}
                           className="w-full h-full object-cover"
                         />
@@ -350,7 +351,7 @@ export const ExecutiveCommitteePage: React.FC = () => {
               <div className="mx-auto w-24 h-28 rounded-t-full rounded-b-xl overflow-hidden bg-slate-100 border-2 border-teal-600 shadow-md flex items-center justify-center">
                 {selectedMember.person.photoUrl ? (
                   <img
-                    src={selectedMember.person.photoUrl}
+                    src={getAssetUrl(selectedMember.person.photoUrl)}
                     alt={selectedMember.person.fullName}
                     className="w-full h-full object-cover"
                   />

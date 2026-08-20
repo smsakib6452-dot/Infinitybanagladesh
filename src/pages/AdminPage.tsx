@@ -64,6 +64,7 @@ import {
   Position,
   CommitteeMember
 } from '../types';
+import { getAssetUrl } from '../lib/utils/assetHelper';
 import { formatBDT } from '../lib/utils/formatters';
 import { Toast } from '../components/Toast';
 
@@ -1153,7 +1154,7 @@ export const AdminPage: React.FC = () => {
                                 <div className="flex items-center gap-3">
                                   <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center font-bold text-slate-600 shrink-0">
                                     {m.person.photoUrl ? (
-                                      <img src={m.person.photoUrl} alt="" className="w-full h-full object-cover" />
+                                      <img src={getAssetUrl(m.person.photoUrl)} alt="" className="w-full h-full object-cover" />
                                     ) : (
                                       <span>{m.person.fullName.charAt(0)}</span>
                                     )}

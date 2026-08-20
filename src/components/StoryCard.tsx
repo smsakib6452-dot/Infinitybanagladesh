@@ -3,6 +3,7 @@ import { ImpactStory } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 import { useRouter } from '../context/RouterContext';
 import { Heart, MapPin, ArrowRight, ShieldCheck } from 'lucide-react';
+import { getAssetUrl } from '../lib/utils/assetHelper';
 
 interface StoryCardProps {
   story: ImpactStory;
@@ -16,7 +17,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({ story }) => {
     <div className="group bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col">
       <div className="relative aspect-16/10 overflow-hidden bg-slate-100">
         <img
-          src={story.imageUrl}
+          src={getAssetUrl(story.imageUrl)}
           alt={tText(story.title)}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           loading="lazy"

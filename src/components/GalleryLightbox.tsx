@@ -3,6 +3,7 @@ import { GalleryPhoto } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 import { useRouter } from '../context/RouterContext';
 import { X, ChevronLeft, ChevronRight, Calendar, Flag } from 'lucide-react';
+import { getAssetUrl } from '../lib/utils/assetHelper';
 
 interface GalleryLightboxProps {
   photos: GalleryPhoto[];
@@ -76,7 +77,7 @@ export const GalleryLightbox: React.FC<GalleryLightboxProps> = ({
         {/* Image */}
         <div className="relative flex-1 bg-black flex items-center justify-center min-h-[300px] max-h-[65vh] overflow-hidden">
           <img
-            src={currentPhoto.imageUrl}
+            src={getAssetUrl(currentPhoto.imageUrl)}
             alt={tText(currentPhoto.title)}
             className="max-h-full max-w-full object-contain select-none"
           />

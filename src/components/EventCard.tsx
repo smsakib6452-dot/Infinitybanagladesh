@@ -3,6 +3,7 @@ import { EventItem } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 import { useRouter } from '../context/RouterContext';
 import { Calendar, Clock, MapPin, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { getAssetUrl } from '../lib/utils/assetHelper';
 
 interface EventCardProps {
   event: EventItem;
@@ -17,7 +18,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
       {/* Event Image */}
       <div className="relative md:w-5/12 aspect-16/9 md:aspect-auto overflow-hidden bg-slate-100 shrink-0">
         <img
-          src={event.imageUrl}
+          src={getAssetUrl(event.imageUrl)}
           alt={tText(event.title)}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           loading="lazy"

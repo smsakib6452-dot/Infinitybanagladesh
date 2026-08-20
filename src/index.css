@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --brand-green: #006A4E;
+    --brand-green-dark: #00523C;
+    --brand-green-light: #008562;
+    --brand-red: #F42A41;
+    --brand-red-dark: #D4182E;
+    --brand-dark: #0F172A;
+    --brand-surface: #F8FAFC;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', 'Hind Siliguri', system-ui, -apple-system, sans-serif;
+    color: #0F172A;
+    background-color: #F8FAFC;
+    letter-spacing: -0.01em;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Plus Jakarta Sans', 'Hind Siliguri', system-ui, sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+  }
+}
+
+.font-display {
+  font-family: 'Plus Jakarta Sans', 'Hind Siliguri', system-ui, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.font-bengali {
+  font-family: 'Hind Siliguri', 'Plus Jakarta Sans', system-ui, sans-serif;
+}

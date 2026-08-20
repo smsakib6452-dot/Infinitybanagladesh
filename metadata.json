@@ -1,0 +1,7 @@
+{
+  "name": "Infinity Bangladesh",
+  "description": "Official digital platform for Infinity Bangladesh (Team Infinity — United for Humanity), featuring campaigns, volunteer recruitment, impact reporting, transparency, and bilingual support.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+

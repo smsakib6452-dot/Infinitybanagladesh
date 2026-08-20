@@ -9,3 +9,8 @@ if (fs.existsSync(indexPath)) {
   fs.copyFileSync(indexPath, notFoundPath);
   console.log('Copied dist/index.html to dist/404.html for GitHub Pages SPA support.');
 }
+
+const noJekyllPath = path.join(distPath, '.nojekyll');
+fs.writeFileSync(noJekyllPath, '');
+console.log('Created dist/.nojekyll to disable Jekyll processing on GitHub Pages.');
+

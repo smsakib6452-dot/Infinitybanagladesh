@@ -11,6 +11,7 @@ import { NewsCard } from '../components/NewsCard';
 import { EventCard } from '../components/EventCard';
 import { GalleryLightbox } from '../components/GalleryLightbox';
 import { VerifiedOrganizationPledge } from '../components/OfficialInfoBadge';
+import { getAssetUrl } from '../lib/utils/assetHelper';
 import {
   Heart,
   Users,
@@ -41,12 +42,12 @@ export const HomePage: React.FC = () => {
         {/* Background authentic humanitarian photography */}
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=2000&q=85"
-            alt="Infinity Bangladesh Volunteer Drive"
-            className="w-full h-full object-cover opacity-25 filter brightness-90"
+            src={getAssetUrl('/images/infinity-cover-hero.jpg')}
+            alt="Infinity Bangladesh Volunteer Drive Cover"
+            className="w-full h-full object-cover opacity-35 filter brightness-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/90 to-transparent" />
-          <div className="absolute inset-0 bg-radial from-transparent via-slate-950/60 to-slate-950" />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/85 to-transparent" />
+          <div className="absolute inset-0 bg-radial from-transparent via-slate-950/50 to-slate-950" />
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">

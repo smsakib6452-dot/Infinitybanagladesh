@@ -316,14 +316,13 @@ export const Footer: React.FC = () => {
             >
               {isBn ? 'ব্যবহারের শর্তাবলী' : 'Terms & Conditions'}
             </button>
-            <span>&bull;</span>
             <button
               type="button"
               onClick={() => handleNav('admin')}
-              className="hover:text-teal-400 transition-colors inline-flex items-center gap-1"
+              className="text-slate-800 hover:text-slate-500 transition-colors p-1 cursor-default opacity-40 hover:opacity-100"
+              title=""
             >
-              <Lock className="w-3 h-3" />
-              <span>{isBn ? 'অ্যাডমিন' : 'Admin'}</span>
+              <Lock className="w-2.5 h-2.5" />
             </button>
           </div>
         </div>

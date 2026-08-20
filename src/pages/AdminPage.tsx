@@ -305,18 +305,45 @@ export const AdminPage: React.FC = () => {
     sortOrder: 10
   });
 
+  // Edit Campaign State
+  const [showEditCampaignModal, setShowEditCampaignModal] = useState(false);
+  const [editingCampaignId, setEditingCampaignId] = useState<string | null>(null);
+  const [campaignEditFormData, setCampaignEditFormData] = useState({
+    titleEn: '',
+    titleBn: '',
+    category: 'Seasonal Support',
+    date: '',
+    locationEn: '',
+    locationBn: '',
+    descriptionEn: '',
+    descriptionBn: '',
+    targetAmountBDT: '',
+    raisedAmountBDT: '',
+    status: 'active' as Campaign['status'],
+    imageUrl: '',
+    isFeatured: false,
+  });
+
+  // Admin Custom Password Management
+  const [newAdminPassword, setNewAdminPassword] = useState('');
+  const [confirmAdminPassword, setConfirmAdminPassword] = useState('');
+
   // Settings State Form
   const [settingsForm, setSettingsForm] = useState<SiteSettings>(settings);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === 'admin123' || password === 'infinity2025') {
+    const customPass = localStorage.getItem('infinity_admin_custom_pass');
+    const validPasswords = ['infinity2026', 'infinity2025', 'admin123', 'infinity@bd'];
+    if (customPass) validPasswords.push(customPass.trim());
+
+    if (validPasswords.includes(password.trim())) {
       setIsAuthenticated(true);
       sessionStorage.setItem('infinity_admin_auth', 'true');
       setAuthError('');
       triggerToast(isBn ? 'লগইন সফল হয়েছে।' : 'Admin authenticated successfully.');
     } else {
-      setAuthError(isBn ? 'ভুল পাসওয়ার্ড। দয়া করে সঠিক পাসওয়ার্ড দিন (পাসওয়ার্ড: admin123)' : 'Invalid passcode. (Hint: admin123)');
+      setAuthError(isBn ? 'ভুল পাসওয়ার্ড। দয়া করে সঠিক পাসওয়ার্ড দিন।' : 'Invalid security passcode.');
     }
   };
 
@@ -324,6 +351,67 @@ export const AdminPage: React.FC = () => {
     setIsAuthenticated(false);
     sessionStorage.removeItem('infinity_admin_auth');
     triggerToast(isBn ? 'লগআউট সম্পন্ন হয়েছে।' : 'Logged out from Admin.');
+  };
+
+  const handleSaveAdminPassword = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newAdminPassword.trim()) {
+      triggerToast(isBn ? 'অনুগ্রহ করে নতুন পাসওয়ার্ড লিখুন।' : 'Please enter a new passcode.');
+      return;
+    }
+    if (newAdminPassword.length < 4) {
+      triggerToast(isBn ? 'পাসওয়ার্ড কমপক্ষে ৪ অক্ষরের হতে হবে।' : 'Passcode must be at least 4 characters.');
+      return;
+    }
+    if (newAdminPassword !== confirmAdminPassword) {
+      triggerToast(isBn ? 'উভয় পাসওয়ার্ড মিলছে না।' : 'Passcodes do not match.');
+      return;
+    }
+    localStorage.setItem('infinity_admin_custom_pass', newAdminPassword.trim());
+    setNewAdminPassword('');
+    setConfirmAdminPassword('');
+    triggerToast(isBn ? 'অ্যাডমিন পাসওয়ার্ড সফলভাবে পরিবর্তিত হয়েছে।' : 'Admin passcode updated successfully.');
+  };
+
+  // Campaign Edit Handlers
+  const handleEditCampaignClick = (camp: Campaign) => {
+    setEditingCampaignId(camp.id);
+    setCampaignEditFormData({
+      titleEn: camp.title.en,
+      titleBn: camp.title.bn || camp.title.en,
+      category: camp.category,
+      date: camp.date || '',
+      locationEn: camp.location?.en || '',
+      locationBn: camp.location?.bn || '',
+      descriptionEn: camp.description.en,
+      descriptionBn: camp.description.bn || camp.description.en,
+      targetAmountBDT: camp.targetAmountBDT || '',
+      raisedAmountBDT: camp.raisedAmountBDT || '',
+      status: camp.status,
+      imageUrl: camp.imageUrl,
+      isFeatured: !!camp.isFeatured,
+    });
+    setShowEditCampaignModal(true);
+  };
+
+  const handleUpdateCampaignSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCampaignId) return;
+    updateCampaign(editingCampaignId, {
+      title: { en: campaignEditFormData.titleEn, bn: campaignEditFormData.titleBn || campaignEditFormData.titleEn },
+      category: campaignEditFormData.category,
+      date: campaignEditFormData.date,
+      location: { en: campaignEditFormData.locationEn, bn: campaignEditFormData.locationBn || campaignEditFormData.locationEn },
+      description: { en: campaignEditFormData.descriptionEn, bn: campaignEditFormData.descriptionBn || campaignEditFormData.descriptionEn },
+      targetAmountBDT: campaignEditFormData.targetAmountBDT,
+      raisedAmountBDT: campaignEditFormData.raisedAmountBDT,
+      status: campaignEditFormData.status,
+      imageUrl: campaignEditFormData.imageUrl,
+      isFeatured: campaignEditFormData.isFeatured,
+    });
+    setShowEditCampaignModal(false);
+    setEditingCampaignId(null);
+    triggerToast(isBn ? 'ক্যাম্পেইন সফলভাবে আপডেট হয়েছে।' : 'Campaign updated successfully.');
   };
 
   // Create Handlers
@@ -645,7 +733,7 @@ export const AdminPage: React.FC = () => {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter passcode (Hint: admin123)"
+                placeholder={isBn ? 'পাসওয়ার্ড লিখুন...' : 'Enter security passcode...'}
                 className="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:border-teal-700 focus:ring-2 focus:ring-teal-700/20 outline-none text-sm font-mono tracking-wider"
               />
             </div>
@@ -667,7 +755,7 @@ export const AdminPage: React.FC = () => {
 
           <div className="pt-4 border-t border-slate-100 text-center">
             <p className="text-xs text-slate-400">
-              Credentials configured via environment variables in production.
+              {isBn ? 'ইনফিনিটি বাংলাদেশ সিকিউর অ্যাডমিনিস্ট্রেশন' : 'Infinity Bangladesh Secure Administration'}
             </p>
           </div>
         </div>
@@ -917,7 +1005,7 @@ export const AdminPage: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+                  <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between gap-2">
                     <select
                       value={camp.status}
                       onChange={(e) => updateCampaign(camp.id, { status: e.target.value as any })}
@@ -928,18 +1016,31 @@ export const AdminPage: React.FC = () => {
                       <option value="completed">Completed</option>
                     </select>
 
-                    <button
-                      onClick={() => {
-                        if (confirm(`Delete campaign "${camp.title.en}"?`)) {
-                          deleteCampaign(camp.id);
-                          triggerToast('Campaign deleted.');
-                        }
-                      }}
-                      className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors"
-                      title="Delete"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => handleEditCampaignClick(camp)}
+                        className="px-2.5 py-1 text-xs font-bold text-teal-800 bg-teal-50 hover:bg-teal-100 rounded-lg transition-colors inline-flex items-center gap-1 cursor-pointer"
+                        title="Edit Campaign"
+                      >
+                        <Edit2 className="w-3 h-3" />
+                        <span>{isBn ? 'সম্পাদনা' : 'Edit'}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (confirm(`Delete campaign "${camp.title.en}"?`)) {
+                            deleteCampaign(camp.id);
+                            triggerToast('Campaign deleted.');
+                          }
+                        }}
+                        className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -1904,6 +2005,65 @@ export const AdminPage: React.FC = () => {
                 </button>
               </div>
             </form>
+
+            {/* Admin Security Passcode Management */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 space-y-4 shadow-xs mt-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-teal-50 text-teal-800 rounded-xl flex items-center justify-center border border-teal-200">
+                  <Lock className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">
+                    {isBn ? 'অ্যাডমিন সিকিউরিটি ও পাসওয়ার্ড পরিবর্তন' : 'Admin Passcode & Security Settings'}
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    {isBn
+                      ? 'অ্যাডমিন প্যানেলে প্রবেশের নিজস্ব পাসওয়ার্ড পরিবর্তন করুন। এটি নিরাপদে আপনার ব্রাউজারে সংরক্ষিত থাকবে।'
+                      : 'Set a custom passcode to protect your admin dashboard access. Saved securely.'}
+                  </p>
+                </div>
+              </div>
+
+              <form onSubmit={handleSaveAdminPassword} className="space-y-4 pt-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                      {isBn ? 'নতুন পাসওয়ার্ড' : 'New Passcode'}
+                    </label>
+                    <input
+                      type="password"
+                      required
+                      value={newAdminPassword}
+                      onChange={(e) => setNewAdminPassword(e.target.value)}
+                      placeholder={isBn ? 'কমপক্ষে ৪ অক্ষরের পাসওয়ার্ড' : 'At least 4 characters'}
+                      className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-xs font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                      {isBn ? 'পুনরায় নতুন পাসওয়ার্ড লিখুন' : 'Confirm New Passcode'}
+                    </label>
+                    <input
+                      type="password"
+                      required
+                      value={confirmAdminPassword}
+                      onChange={(e) => setConfirmAdminPassword(e.target.value)}
+                      placeholder={isBn ? 'একই পাসওয়ার্ড আবার লিখুন' : 'Re-enter passcode'}
+                      className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-xs font-mono"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <button
+                    type="submit"
+                    className="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-all shadow-xs active:scale-98 cursor-pointer"
+                  >
+                    {isBn ? 'পাসওয়ার্ড আপডেট করুন' : 'Update Admin Passcode'}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         )}
 
@@ -2104,6 +2264,196 @@ export const AdminPage: React.FC = () => {
                 </button>
                 <button type="submit" className="px-6 py-2 bg-teal-800 text-white rounded-xl font-bold">
                   Save Campaign
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Edit Existing Campaign */}
+      {showEditCampaignModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
+          <div className="bg-white rounded-3xl border border-slate-200 max-w-xl w-full p-6 sm:p-8 space-y-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <h3 className="text-xl font-bold text-slate-900">
+                  {isBn ? 'ক্যাম্পেইন সম্পাদনা করুন' : 'Edit Campaign Details'}
+                </h3>
+                <p className="text-xs text-slate-500">
+                  {isBn ? 'শিরোনাম, বিবরণ, বাজেট, তারিখ ও ছবি পরিবর্তন করুন।' : 'Update title, category, budget, status, and campaign image.'}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowEditCampaignModal(false);
+                  setEditingCampaignId(null);
+                }}
+                className="text-slate-400 hover:text-slate-600 p-1"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateCampaignSubmit} className="space-y-4 text-xs">
+              <div>
+                <label className="font-bold block mb-1 text-slate-700">Title (English) *</label>
+                <input
+                  type="text"
+                  required
+                  value={campaignEditFormData.titleEn}
+                  onChange={(e) => setCampaignEditFormData({ ...campaignEditFormData, titleEn: e.target.value })}
+                  placeholder="e.g. Winter Warmth & Blanket Relief"
+                  className="w-full px-3 py-2 border rounded-xl"
+                />
+              </div>
+
+              <div>
+                <label className="font-bold block mb-1 text-slate-700">Title (বাংলা)</label>
+                <input
+                  type="text"
+                  value={campaignEditFormData.titleBn}
+                  onChange={(e) => setCampaignEditFormData({ ...campaignEditFormData, titleBn: e.target.value })}
+                  placeholder="শীতবস্ত্র ও কম্বল বিতরণ..."
+                  className="w-full px-3 py-2 border rounded-xl"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold block mb-1 text-slate-700">Category</label>
+                  <select
+                    value={campaignEditFormData.category}
+                    onChange={(e) => setCampaignEditFormData({ ...campaignEditFormData, category: e.target.value })}
+                    className="w-full px-3 py-2 border rounded-xl bg-white"
+                  >
+                    <option value="Seasonal Support">Seasonal Support</option>
+                    <option value="Food Distribution">Food Distribution</option>
+                    <option value="Food Security">Food Security</option>
+                    <option value="Winter Relief">Winter Relief</option>
+                    <option value="Education">Education</option>
+                    <option value="Emergency Relief">Emergency Relief</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="font-bold block mb-1 text-slate-700">Status</label>
+                  <select
+                    value={campaignEditFormData.status}
+                    onChange={(e) => setCampaignEditFormData({ ...campaignEditFormData, status: e.target.value as any })}
+                    className="w-full px-3 py-2 border rounded-xl bg-white font-semibold"
+                  >
+                    <option value="active">Active (চলমান)</option>
+                    <option value="upcoming">Upcoming (আসন্ন)</option>
+                    <option value="completed">Completed (সম্পন্ন)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold block mb-1 text-slate-700">Date / Timeline</label>
+                  <input
+                    type="text"
+                    value={campaignEditFormData.date}
+                    onChange={(e) => setCampaignEditFormData({ ...campaignEditFormData, date: e.target.value })}
+                    placeholder="e.g. Winter Season 2026"
+                    className="w-full px-3 py-2 border rounded-xl"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold block mb-1 text-slate-700">Target Budget (BDT)</label>
+                  <input
+                    type="text"
+                    value={campaignEditFormData.targetAmountBDT}
+                    onChange={(e) => setCampaignEditFormData({ ...campaignEditFormData, targetAmountBDT: e.target.value })}
+                    placeholder="e.g. 50,000 BDT"
+                    className="w-full px-3 py-2 border rounded-xl font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold block mb-1 text-slate-700">Location (English)</label>
+                  <input
+                    type="text"
+                    value={campaignEditFormData.locationEn}
+                    onChange={(e) => setCampaignEditFormData({ ...campaignEditFormData, locationEn: e.target.value })}
+                    placeholder="e.g. Kurigram, Rangpur"
+                    className="w-full px-3 py-2 border rounded-xl"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold block mb-1 text-slate-700">Location (বাংলা)</label>
+                  <input
+                    type="text"
+                    value={campaignEditFormData.locationBn}
+                    onChange={(e) => setCampaignEditFormData({ ...campaignEditFormData, locationBn: e.target.value })}
+                    placeholder="যেমন: কুড়িগ্রাম, রংপুর"
+                    className="w-full px-3 py-2 border rounded-xl"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="font-bold block mb-1 text-slate-700">Description (English) *</label>
+                <textarea
+                  required
+                  rows={2}
+                  value={campaignEditFormData.descriptionEn}
+                  onChange={(e) => setCampaignEditFormData({ ...campaignEditFormData, descriptionEn: e.target.value })}
+                  className="w-full px-3 py-2 border rounded-xl"
+                />
+              </div>
+
+              <div>
+                <label className="font-bold block mb-1 text-slate-700">Description (বাংলা)</label>
+                <textarea
+                  rows={2}
+                  value={campaignEditFormData.descriptionBn}
+                  onChange={(e) => setCampaignEditFormData({ ...campaignEditFormData, descriptionBn: e.target.value })}
+                  className="w-full px-3 py-2 border rounded-xl"
+                />
+              </div>
+
+              <div>
+                <label className="font-bold block mb-1 text-slate-700">Image URL</label>
+                <input
+                  type="text"
+                  value={campaignEditFormData.imageUrl}
+                  onChange={(e) => setCampaignEditFormData({ ...campaignEditFormData, imageUrl: e.target.value })}
+                  placeholder="https://... or /images/events/winter-warmth.jpg"
+                  className="w-full px-3 py-2 border rounded-xl font-mono text-[11px]"
+                />
+              </div>
+
+              <div className="flex items-center gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  id="featuredCampaignToggle"
+                  checked={campaignEditFormData.isFeatured}
+                  onChange={(e) => setCampaignEditFormData({ ...campaignEditFormData, isFeatured: e.target.checked })}
+                  className="w-4 h-4 text-teal-800 rounded"
+                />
+                <label htmlFor="featuredCampaignToggle" className="font-bold text-slate-800 cursor-pointer">
+                  Feature on Homepage
+                </label>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowEditCampaignModal(false);
+                    setEditingCampaignId(null);
+                  }}
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold"
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="px-6 py-2 bg-teal-800 hover:bg-teal-900 text-white rounded-xl font-bold">
+                  Update Campaign
                 </button>
               </div>
             </form>

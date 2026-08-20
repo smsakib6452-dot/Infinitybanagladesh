@@ -86,16 +86,6 @@ export const Navbar: React.FC = () => {
                 <span>{isBn ? 'স্বচ্ছতা ও রিপোর্ট' : 'Transparency'}</span>
               </button>
 
-              <button
-                type="button"
-                onClick={() => handleNavClick('admin')}
-                className="hover:text-white hidden md:inline-flex items-center gap-1 transition-colors text-slate-400"
-                title="Admin Management Portal"
-              >
-                <Lock className="w-3 h-3 text-slate-400" />
-                <span>{isBn ? 'অ্যাডমিন' : 'Admin'}</span>
-              </button>
-
               {/* Language Switcher Button */}
               <button
                 type="button"
@@ -500,13 +490,6 @@ export const Navbar: React.FC = () => {
               className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-800 hover:bg-teal-50 hover:text-teal-800"
             >
               {isBn ? 'যোগাযোগ' : 'Contact Us'}
-            </button>
-            <button
-              type="button"
-              onClick={() => handleNavClick('admin')}
-              className="w-full text-left px-3 py-2.5 rounded-lg text-xs font-semibold text-slate-500 hover:bg-slate-100"
-            >
-              {isBn ? 'অ্যাডমিন পোর্টাল' : 'Admin Portal'}
             </button>
           </div>
         )}

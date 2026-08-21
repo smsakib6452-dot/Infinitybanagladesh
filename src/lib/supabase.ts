@@ -1,0 +1,116 @@
+/**
+ * Supabase Client & Service Integration for Infinity Bangladesh
+ * Organization: Infinity Bangladesh (Team Infinity — United for Humanity)
+ * 
+ * Supports both Live Supabase Backend (PostgreSQL + Auth + Storage + RLS)
+ * and Seamless Local/Offline Fallback mode for local development and instant resilience.
+ */
+
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
+
+// Environment variables
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+
+export const isSupabaseConfigured = Boolean(
+  supabaseUrl &&
+  supabaseAnonKey &&
+  supabaseUrl !== 'https://your-project.supabase.co' &&
+  !supabaseUrl.includes('placeholder')
+);
+
+// Singleton Supabase Client instance (or null if unconfigured)
+export const supabase: SupabaseClient | null = isSupabaseConfigured
+  ? createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true
+      }
+    })
+  : null;
+
+/**
+ * Storage Helpers
+ */
+export async function uploadFileToSupabase(
+  bucketName: 'infinity-media' | 'infinity-documents',
+  file: File,
+  customPath?: string
+): Promise<{ success: boolean; url?: string; fileName?: string; error?: string }> {
+  try {
+    if (!supabase || !isSupabaseConfigured) {
+      // Local fallback: convert to Data URL
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          resolve({
+            success: true,
+            url: reader.result as string,
+            fileName: file.name
+          });
+        };
+        reader.onerror = () => {
+          resolve({ success: false, error: 'Failed to read local file.' });
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    const fileExt = file.name.split('.').pop() || 'jpg';
+    const cleanFileName = `${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
+    const filePath = customPath || cleanFileName;
+
+    const { data, error } = await supabase.storage
+      .from(bucketName)
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: true
+      });
+
+    if (error) {
+      console.error('Supabase storage upload error:', error);
+      return { success: false, error: error.message };
+    }
+
+    const { data: publicUrlData } = supabase.storage
+      .from(bucketName)
+      .getPublicUrl(data.path);
+
+    return {
+      success: true,
+      url: publicUrlData.publicUrl,
+      fileName: file.name
+    };
+  } catch (err: any) {
+    console.error('File upload exception:', err);
+    return { success: false, error: err.message || 'Storage error' };
+  }
+}
+
+/**
+ * Auth Helpers
+ */
+export async function signInWithEmail(email: string, password: string) {
+  if (!supabase) {
+    throw new Error('Supabase is not configured yet. Using local admin fallback.');
+  }
+  return await supabase.auth.signInWithPassword({ email, password });
+}
+
+export async function signOutAdmin() {
+  if (supabase) {
+    await supabase.auth.signOut();
+  }
+  sessionStorage.removeItem('infinity_admin_auth');
+  sessionStorage.removeItem('infinity_admin_user');
+}
+
+export async function resetAdminPassword(email: string) {
+  if (!supabase) {
+    throw new Error('Supabase credentials required for automated password reset emails.');
+  }
+  return await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/#/admin`
+  });
+}

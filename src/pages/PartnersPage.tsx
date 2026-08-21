@@ -59,18 +59,18 @@ export const PartnersPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-12 md:py-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+    <div className="py-10 sm:py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 sm:space-y-16">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal-50 border border-teal-200/80 rounded-full text-teal-800 text-xs font-bold uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#E6F3EF] border border-[#C2E2D7] rounded-full text-[#00523C] text-xs font-extrabold uppercase tracking-wider">
             <Handshake className="w-3.5 h-3.5" />
-            {isBn ? 'সহযোগী ও অংশীদারিত্ব' : 'Partners & Institutional Alliances'}
+            <span>{isBn ? 'সহযোগী ও অংশীদারিত্ব' : 'Partners & Institutional Alliances'}</span>
           </div>
-          <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+          <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight font-display">
             {isBn ? 'ঐক্যের শক্তিতে মানবিক পরিবর্তন' : 'Collaborating for Greater Humanitarian Impact'}
           </h1>
-          <p className="text-slate-600 text-base md:text-lg leading-relaxed">
+          <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
             {isBn
               ? 'টিম ইনফিনিটি বিশ্বাস করে পারস্পরিক সহযোগিতা ও তরুণদের ঐক্যবদ্ধ প্রচেষ্টায় যেকোনো কঠিন মানবিক সংকট মোকাবিলা সম্ভব।'
               : 'Team Infinity partners with youth clubs, academic institutions, and verified social organizations across Bangladesh to amplify community service.'}
@@ -82,11 +82,12 @@ export const PartnersPage: React.FC = () => {
           {categories.map((cat) => (
             <button
               key={cat.key}
+              type="button"
               onClick={() => setActiveCategory(cat.key)}
-              className={`px-4 py-2 rounded-xl text-xs md:text-sm font-semibold transition-all ${
+              className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                 activeCategory === cat.key
-                  ? 'bg-teal-800 text-white shadow-md'
-                  : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                  ? 'bg-[#006A4E] text-white shadow-warm-sm'
+                  : 'bg-white text-slate-700 border border-[#EAE3D9] hover:bg-[#FAF7F2]'
               }`}
             >
               {isBn ? cat.labelBn : cat.labelEn}
@@ -98,204 +99,145 @@ export const PartnersPage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredPartners.map((partner) => {
             const Icon = getPartnerIcon(partner.type);
-            const isPlaceholder = partner.name.includes('[OFFICIAL');
-
             return (
               <div
                 key={partner.id}
-                className="bg-white rounded-2xl border border-slate-200/90 p-6 md:p-8 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between space-y-6"
+                className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 shadow-warm-sm hover:shadow-warm-md transition-all flex flex-col justify-between space-y-6 group"
               >
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <div className="w-12 h-12 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center text-teal-700">
+                    <div className="w-12 h-12 rounded-2xl bg-[#E6F3EF] border border-[#C2E2D7] text-[#006A4E] flex items-center justify-center">
                       <Icon className="w-6 h-6" />
                     </div>
-                    <span className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-semibold">
+                    <span className="text-[11px] font-bold text-[#006A4E] bg-[#E6F3EF] px-3 py-0.5 rounded-full border border-[#C2E2D7]">
                       {partner.type}
                     </span>
                   </div>
 
                   <div>
-                    <h3 className="text-xl font-bold text-slate-900 leading-snug">
-                      {partner.name}
+                    <h3 className="text-xl font-bold text-slate-900 group-hover:text-[#006A4E] transition-colors font-display">
+                      {tText(partner.name)}
                     </h3>
-                    <p className="text-xs text-teal-700 font-medium mt-0.5">
-                      {isBn ? 'সহযোগিতার বছর:' : 'Partnership Year:'} {partner.partnershipYear}
+                    <p className="text-xs text-slate-500 mt-1 flex items-center gap-1 font-medium">
+                      <span>{isBn ? 'সহযোগিতা বর্ষ:' : 'Alliance Since:'}</span>
+                      <strong className="text-slate-700">{partner.since}</strong>
                     </p>
                   </div>
 
-                  <p className="text-slate-600 text-sm leading-relaxed">
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                     {tText(partner.description)}
                   </p>
                 </div>
 
-                <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-                  {isPlaceholder ? (
-                    <span className="text-xs font-mono text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md">
-                      [OFFICIAL PARTNER SLOT]
-                    </span>
+                <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
+                  {partner.website && partner.website !== '#' ? (
+                    <a
+                      href={partner.website}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1.5 font-bold text-[#006A4E] hover:underline"
+                    >
+                      <span>{isBn ? 'ওয়েবসাইট দেখুন' : 'Visit Website'}</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
                   ) : (
-                    partner.website && (
-                      <a
-                        href={partner.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-teal-700 hover:text-teal-900 transition-colors"
-                      >
-                        <Globe className="w-3.5 h-3.5" />
-                        {isBn ? 'ওয়েবসাইট ভিজিট করুন' : 'Visit Website'}
-                        <ExternalLink className="w-3 h-3" />
-                      </a>
-                    )
+                    <span className="text-slate-400 font-medium">{isBn ? 'স্থানীয় সহযোগী সংস্থা' : 'Local Community Partner'}</span>
                   )}
-                  <span className="text-xs text-slate-400">Team Infinity Alliance</span>
                 </div>
               </div>
             );
           })}
         </div>
 
-        {/* Partnership Principles & Ethics */}
-        <div className="bg-slate-900 text-white rounded-3xl p-8 md:p-12 border border-slate-800 shadow-xl space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-white/10 rounded-xl text-teal-300">
-              <ShieldCheck className="w-6 h-6" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-white">
-                {isBn ? 'পার্টনারশিপ নীতি ও স্বচ্ছতা নীতিমালা' : 'Partnership Transparency & Ethics Policy'}
-              </h2>
-              <p className="text-xs text-slate-400">Infinity Bangladesh Collaboration Standards</p>
-            </div>
-          </div>
-          <p className="text-slate-300 text-sm md:text-base leading-relaxed">
-            {isBn
-              ? 'ইনফিনিটি বাংলাদেশ কোনো বাণিজ্যিক বিজ্ঞাপন বা স্বার্থের বিনিময় ব্যতীত কেবলমাত্র নিঃস্বার্থ মানবিক সেবা ও সামাজিক উন্নয়নের লক্ষ্যে অন্যান্য দায়িত্বশীল সংগঠনের সাথে যৌথ কার্যক্রম পরিচালনা করে। সকল যৌথ ক্যাম্পেইনে অনুদানের শতভাগ ব্যবহার ও সমন্বিত নিরীক্ষা প্রতিবেদন নিশ্চিত করা হয়।'
-              : 'Team Infinity partners with organizations and student bodies exclusively for ethical humanitarian delivery. We never compromise on dignity, zero-leakage relief auditing, or non-commercial community empowerment.'}
-          </p>
-        </div>
-
-        {/* Partnership Inquiry Form */}
-        <div className="bg-white rounded-3xl border border-slate-200 p-8 md:p-12 shadow-sm max-w-3xl mx-auto space-y-8">
+        {/* Partnership Proposal Form */}
+        <div className="bg-white rounded-3xl border border-[#EAE3D9] p-8 sm:p-12 shadow-warm-md max-w-4xl mx-auto space-y-8">
           <div className="text-center space-y-2">
-            <h2 className="text-2xl md:text-3xl font-black text-slate-900">
-              {isBn ? 'আমাদের সাথে পার্টনারশিপ করুন' : 'Initiate a Collaborative Partnership'}
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-display">
+              {isBn ? 'আমাদের সাথে যৌথভাবে কাজ করতে চান?' : 'Interested in Partnering With Us?'}
             </h2>
-            <p className="text-slate-600 text-sm">
+            <p className="text-xs sm:text-sm text-slate-600 max-w-xl mx-auto">
               {isBn
-                ? 'আপনার শিক্ষা প্রতিষ্ঠান, যুব সংগঠন বা ক্লাবের সাথে যৌথ ক্যাম্পেইন আয়োজনে ফর্মটি পূরণ করুন।'
-                : 'Submit a collaboration proposal for joint seasonal drives, student volunteering, or humanitarian relief.'}
+                ? 'শিক্ষা প্রতিষ্ঠান, স্বেচ্ছাসেবী ক্লাব বা করপোরেট সিএসআর উদ্যোগে আমাদের সাথে যুক্ত হতে নিচের তথ্যগুলো পূরণ করুন।'
+                : 'Send an institutional collaboration inquiry to align our grassroots campaigns with your community vision.'}
             </p>
           </div>
 
           <form onSubmit={handleInquirySubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                  {isBn ? 'সংগঠন / প্রতিষ্ঠানের নাম *' : 'Organization / Institution Name *'}
-                </label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700">{isBn ? 'সংস্থার নাম *' : 'Organization Name *'}</label>
                 <input
                   type="text"
                   required
                   value={partnerOrgName}
                   onChange={(e) => setPartnerOrgName(e.target.value)}
-                  placeholder="e.g. University Youth Club"
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-teal-700 focus:ring-2 focus:ring-teal-700/20 outline-none text-sm"
+                  className="w-full px-4 py-2.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-2xl text-xs sm:text-sm focus:ring-2 focus:ring-[#006A4E]"
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                  {isBn ? 'দায়িত্বপ্রাপ্ত ব্যক্তির নাম *' : 'Contact Person Full Name *'}
-                </label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700">{isBn ? 'যোগাযোগকারী ব্যক্তি *' : 'Contact Person *'}</label>
                 <input
                   type="text"
                   required
                   value={contactPerson}
                   onChange={(e) => setContactPerson(e.target.value)}
-                  placeholder="e.g. President / General Secretary"
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-teal-700 focus:ring-2 focus:ring-teal-700/20 outline-none text-sm"
+                  className="w-full px-4 py-2.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-2xl text-xs sm:text-sm focus:ring-2 focus:ring-[#006A4E]"
                 />
               </div>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                  {isBn ? 'অফিসিয়াল ইমেইল *' : 'Official Email Address *'}
-                </label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700">{isBn ? 'অফিসিয়াল ইমেইল *' : 'Official Email *'}</label>
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="contact@org.org"
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-teal-700 focus:ring-2 focus:ring-teal-700/20 outline-none text-sm"
+                  className="w-full px-4 py-2.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-2xl text-xs sm:text-sm focus:ring-2 focus:ring-[#006A4E]"
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                  {isBn ? 'যোগাযোগের ফোন নম্বর *' : 'Phone / WhatsApp *'}
-                </label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700">{isBn ? 'ফোন নম্বর *' : 'Phone Number *'}</label>
                 <input
                   type="tel"
                   required
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+880 1..."
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-teal-700 focus:ring-2 focus:ring-teal-700/20 outline-none text-sm"
+                  className="w-full px-4 py-2.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-2xl text-xs sm:text-sm focus:ring-2 focus:ring-[#006A4E]"
                 />
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                {isBn ? 'পার্টনারশিপের ধরন' : 'Collaboration Type'}
-              </label>
-              <select
-                value={partnershipType}
-                onChange={(e) => setPartnershipType(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-teal-700 focus:ring-2 focus:ring-teal-700/20 outline-none text-sm bg-white"
-              >
-                <option value="Institutional">Institutional / NGO Collaboration</option>
-                <option value="Academic">University / College Student Club</option>
-                <option value="Community Alliance">Community Service Alliance</option>
-                <option value="Resource Partner">Resource / Logistics Partnership</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                {isBn ? 'প্রস্তাবনা বা সহযোগিতার সংক্ষিপ্ত বিবরণ *' : 'Brief Collaboration Proposal *'}
-              </label>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-700">{isBn ? 'প্রস্তাবনার বিবরণ *' : 'Collaboration Proposal *'}</label>
               <textarea
-                required
                 rows={4}
+                required
                 value={proposalDetails}
                 onChange={(e) => setProposalDetails(e.target.value)}
-                placeholder={isBn ? 'কী ধরনের যৌথ কার্যক্রমে আগ্রহী তা উল্লেখ করুন...' : 'Outline your proposed campaign, location, or joint initiative...'}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-teal-700 focus:ring-2 focus:ring-teal-700/20 outline-none text-sm resize-none"
+                placeholder={isBn ? 'কীভাবে একসাথে কাজ করতে চান সংক্ষেপে লিখুন...' : 'Briefly describe how you envision partnering with Team Infinity...'}
+                className="w-full px-4 py-2.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-2xl text-xs sm:text-sm focus:ring-2 focus:ring-[#006A4E]"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full flex items-center justify-center gap-2 py-4 bg-teal-800 hover:bg-teal-900 text-white font-bold text-sm rounded-xl transition-all shadow-md active:scale-98"
+              className="w-full py-3.5 rounded-2xl bg-[#006A4E] hover:bg-[#00523C] text-white font-extrabold text-xs sm:text-sm shadow-warm-sm transition-all flex items-center justify-center gap-2 cursor-pointer transform hover:-translate-y-0.5"
             >
               <Send className="w-4 h-4" />
-              {isBn ? 'প্রস্তাবনা জমা দিন' : 'Submit Partnership Proposal'}
+              <span>{isBn ? 'পার্টনারশিপ প্রস্তাবনা পাঠান' : 'Submit Partnership Inquiry'}</span>
             </button>
           </form>
         </div>
-      </div>
 
-      <Toast
-        isOpen={showToast}
-        message={toastMessage}
-        onClose={() => setShowToast(false)}
-        type="success"
-      />
+        {/* Toast */}
+        <Toast
+          message={toastMessage}
+          isVisible={showToast}
+          onClose={() => setShowToast(false)}
+        />
+      </div>
     </div>
   );
 };

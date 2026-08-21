@@ -14,7 +14,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({ story }) => {
   const { navigate } = useRouter();
 
   return (
-    <div className="group bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col">
+    <div className="group bg-white rounded-3xl border border-[#EAE3D9] overflow-hidden shadow-warm-sm hover:shadow-warm-lg transition-all duration-300 flex flex-col hover:-translate-y-1">
       <div className="relative aspect-16/10 overflow-hidden bg-slate-100">
         <img
           src={getAssetUrl(story.imageUrl)}
@@ -22,44 +22,46 @@ export const StoryCard: React.FC<StoryCardProps> = ({ story }) => {
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
         />
-        <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-white/95 text-slate-800 backdrop-blur-xs shadow-xs">
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent" />
+
+        <div className="absolute top-3 left-3 flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-white/95 text-slate-900 backdrop-blur-xs shadow-xs border border-slate-200">
           <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
           <span>{tText(story.personOrCommunity)}</span>
         </div>
 
-        <div className="absolute bottom-3 left-3 text-xs text-white/90 bg-slate-900/60 px-2 py-0.5 rounded backdrop-blur-xs flex items-center gap-1">
-          <MapPin className="w-3 h-3 text-teal-300" />
+        <div className="absolute bottom-3 left-3 text-xs text-white/95 bg-slate-950/70 px-2.5 py-0.5 rounded-full backdrop-blur-xs flex items-center gap-1">
+          <MapPin className="w-3 h-3 text-amber-300" />
           <span>{tText(story.location)}</span>
         </div>
       </div>
 
-      <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+      <div className="p-6 sm:p-7 flex-1 flex flex-col justify-between space-y-4">
         <div className="space-y-2">
-          <h3 className="text-lg sm:text-xl font-bold text-slate-900 group-hover:text-teal-800 transition-colors line-clamp-2">
+          <h3 className="text-lg sm:text-xl font-bold text-slate-900 group-hover:text-[#006A4E] transition-colors line-clamp-2 font-display">
             {tText(story.title)}
           </h3>
-          <p className="text-sm text-slate-600 line-clamp-3 leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-600 line-clamp-3 leading-relaxed">
             {tText(story.story)}
           </p>
         </div>
 
-        <div className="p-3 bg-teal-50/60 rounded-xl border border-teal-100 text-xs text-teal-900 space-y-1">
-          <strong className="block font-bold">{isBn ? 'বাস্তব প্রভাব:' : 'Impact Created:'}</strong>
-          <span className="line-clamp-2">{tText(story.impact)}</span>
+        <div className="p-3.5 bg-[#E6F3EF] rounded-2xl border border-[#C2E2D7] text-xs text-[#00523C] space-y-1">
+          <strong className="block font-bold">{isBn ? 'বাস্তব মানবিক প্রভাব:' : 'Verified Human Impact:'}</strong>
+          <span className="line-clamp-2 leading-relaxed">{tText(story.impact)}</span>
         </div>
 
         <div className="pt-2 flex items-center justify-between">
           <button
             type="button"
             onClick={() => navigate('stories/detail', story.slug)}
-            className="text-sm font-bold text-teal-800 hover:text-teal-900 inline-flex items-center gap-1.5 cursor-pointer"
+            className="text-xs sm:text-sm font-bold text-[#006A4E] hover:text-[#00523C] inline-flex items-center gap-1.5 cursor-pointer"
           >
             <span>{isBn ? 'সম্পূর্ণ গল্প পড়ুন' : 'Read Full Story'}</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </button>
 
-          <span className="text-[11px] text-slate-400 flex items-center gap-1">
-            <ShieldCheck className="w-3.5 h-3.5 text-teal-600" />
+          <span className="text-[11px] text-slate-400 flex items-center gap-1 font-medium">
+            <ShieldCheck className="w-3.5 h-3.5 text-[#006A4E]" />
             {isBn ? 'সম্মতিমূলক' : 'Consent-based'}
           </span>
         </div>

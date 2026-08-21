@@ -32,22 +32,23 @@ export const DonationReceiptModal: React.FC<DonationReceiptModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden print:shadow-none print:border-none">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-[#EAE3D9] overflow-hidden print:shadow-none print:border-none">
         {/* Header Ribbon */}
-        <div className="bg-gradient-to-r from-teal-800 to-emerald-800 px-6 py-5 text-white flex items-center justify-between">
+        <div className="bg-gradient-to-r from-[#006A4E] to-[#0F4C3A] px-6 py-5 text-white flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-white/10 rounded-xl">
-              <ShieldCheck className="w-6 h-6 text-teal-200" />
+            <div className="p-2 bg-white/10 rounded-2xl">
+              <ShieldCheck className="w-6 h-6 text-emerald-200" />
             </div>
             <div>
-              <h3 className="font-bold text-lg leading-tight">Infinity Bangladesh</h3>
-              <p className="text-xs text-teal-200 font-medium">Team Infinity — United for Humanity</p>
+              <h3 className="font-extrabold text-lg leading-tight font-display">Infinity Bangladesh</h3>
+              <p className="text-xs text-emerald-100 font-bold">Team Infinity — United for Humanity</p>
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition-colors text-white print:hidden"
+            className="p-1.5 rounded-xl bg-white/10 hover:bg-white/20 transition-colors text-white print:hidden cursor-pointer"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -55,32 +56,32 @@ export const DonationReceiptModal: React.FC<DonationReceiptModalProps> = ({
         </div>
 
         {/* Receipt Content */}
-        <div className="p-6 md:p-8 space-y-6">
+        <div className="p-6 sm:p-8 space-y-6">
           <div className="text-center pb-4 border-b border-slate-100">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-xs font-semibold uppercase tracking-wider mb-2">
-              <CheckCircle2 className="w-3.5 h-3.5" />
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 bg-[#E6F3EF] text-[#00523C] rounded-full text-xs font-bold uppercase tracking-wider mb-2 border border-[#C2E2D7]">
+              <CheckCircle2 className="w-3.5 h-3.5 text-[#006A4E]" />
               {isBn ? 'অনুদান নিশ্চিতকরণ রসিদ' : 'Official Donation Receipt'}
             </span>
-            <h4 className="text-2xl font-black text-slate-900 mt-1">
+            <h4 className="text-3xl font-extrabold text-slate-900 mt-1 font-display">
               {formatBDT(donationData.amountBDT, isBn)}
             </h4>
             <p className="text-xs text-slate-500 font-mono mt-1">
-              {isBn ? 'রসিদ নং:' : 'Receipt No:'} <strong className="text-slate-800">{donationData.receiptNumber}</strong>
+              {isBn ? 'রসিদ নং:' : 'Receipt No:'} <strong className="text-[#006A4E]">{donationData.receiptNumber}</strong>
             </p>
           </div>
 
-          <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 space-y-3 text-sm">
+          <div className="bg-[#FAF7F2] rounded-2xl p-4 border border-[#EAE3D9] space-y-3 text-xs sm:text-sm">
             <div className="flex justify-between items-center py-1 border-b border-slate-200/60">
               <span className="text-slate-500">{isBn ? 'দাতার নাম:' : 'Donor Name:'}</span>
-              <span className="font-semibold text-slate-900">{donationData.donorName}</span>
+              <span className="font-bold text-slate-900">{donationData.donorName}</span>
             </div>
             <div className="flex justify-between items-center py-1 border-b border-slate-200/60">
               <span className="text-slate-500">{isBn ? 'ক্যাম্পেইন:' : 'Campaign / Purpose:'}</span>
-              <span className="font-medium text-slate-900 text-right max-w-[220px] truncate">{donationData.campaignTitle}</span>
+              <span className="font-semibold text-slate-900 text-right max-w-[220px] truncate">{donationData.campaignTitle}</span>
             </div>
             <div className="flex justify-between items-center py-1 border-b border-slate-200/60">
               <span className="text-slate-500">{isBn ? 'পেমেন্ট মেথড:' : 'Payment Method:'}</span>
-              <span className="font-medium text-teal-800">{donationData.paymentMethod}</span>
+              <span className="font-bold text-[#006A4E]">{donationData.paymentMethod}</span>
             </div>
             {donationData.transactionId && (
               <div className="flex justify-between items-center py-1 border-b border-slate-200/60">
@@ -94,27 +95,28 @@ export const DonationReceiptModal: React.FC<DonationReceiptModalProps> = ({
             </div>
           </div>
 
-          <div className="bg-teal-50/60 border border-teal-100 rounded-xl p-3.5 flex items-start gap-3 text-xs text-teal-900">
-            <Heart className="w-4 h-4 text-teal-700 flex-shrink-0 mt-0.5" />
+          <div className="bg-[#E6F3EF] border border-[#C2E2D7] rounded-2xl p-3.5 flex items-start gap-3 text-xs text-[#00523C]">
+            <Heart className="w-4 h-4 text-[#006A4E] shrink-0 mt-0.5" />
             <p className="leading-relaxed">
               {isBn
-                ? 'আপনার এই আন্তরিক অনুদান সুবিধাবঞ্চিত মানুষের কাছে সরাসরি ও স্বচ্ছতার সাথে পৌঁছাতে আমাদের তরুণ স্বেচ্ছাসেবকদের সহায়তা করবে। ধন্যবাদ।'
-                : 'Thank you for your generous support. Your contribution directly empowers youth volunteers to deliver relief with complete transparency and dignity.'}
+                ? 'আপনার সহায়তা সরাসরি মাঠপর্যায়ে মানুষের মুখে হাসি ফোটাতে ব্যবহৃত হবে। শতভাগ স্বচ্ছতার সাথে আমরা প্রতিটি টাকার হিসাব সংরক্ষণ করি।'
+                : 'Your support directly reaches vulnerable people. Infinity Bangladesh maintains transparent audits for every fund.'}
             </p>
           </div>
 
-          {/* Action Buttons */}
           <div className="flex items-center gap-3 pt-2 print:hidden">
             <button
+              type="button"
               onClick={handlePrint}
-              className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm"
+              className="flex-1 py-3 px-4 rounded-2xl bg-[#006A4E] hover:bg-[#00523C] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-warm-sm"
             >
               <Printer className="w-4 h-4" />
-              {isBn ? 'রসিদ প্রিন্ট করুন' : 'Print Receipt'}
+              <span>{isBn ? 'রসিদ প্রিন্ট করুন' : 'Print Official Receipt'}</span>
             </button>
             <button
+              type="button"
               onClick={onClose}
-              className="px-5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-xl transition-colors"
+              className="py-3 px-5 rounded-2xl bg-[#FAF7F2] hover:bg-[#F2ECE1] text-slate-700 font-bold text-xs sm:text-sm border border-[#EAE3D9] transition-colors cursor-pointer"
             >
               {isBn ? 'বন্ধ করুন' : 'Close'}
             </button>

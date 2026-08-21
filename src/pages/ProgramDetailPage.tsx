@@ -9,7 +9,8 @@ import {
   Heart,
   Users,
   ShieldCheck,
-  Calendar
+  Calendar,
+  Sparkles
 } from 'lucide-react';
 
 export const ProgramDetailPage: React.FC = () => {
@@ -28,7 +29,7 @@ export const ProgramDetailPage: React.FC = () => {
         <button
           type="button"
           onClick={() => navigate('programs')}
-          className="px-4 py-2 bg-teal-800 text-white rounded-lg text-sm font-bold"
+          className="px-5 py-2.5 bg-[#006A4E] text-white rounded-2xl text-sm font-bold shadow-warm-sm cursor-pointer"
         >
           {isBn ? 'সকল কর্মসূচিতে ফিরে যান' : 'Back to Programs'}
         </button>
@@ -40,12 +41,12 @@ export const ProgramDetailPage: React.FC = () => {
   const relatedCampaigns = campaigns.filter(c => c.category === program.category || c.slug.includes(program.slug.slice(0, 4)));
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-12">
       {/* Back Button */}
       <button
         type="button"
         onClick={() => navigate('programs')}
-        className="inline-flex items-center gap-2 text-sm font-bold text-teal-800 hover:text-teal-900 transition-colors"
+        className="inline-flex items-center gap-2 text-sm font-bold text-[#006A4E] hover:text-[#00523C] transition-colors cursor-pointer"
       >
         <ArrowLeft className="w-4 h-4" />
         <span>{isBn ? 'সকল কার্যক্রমে ফিরে যান' : 'Back to All Programs'}</span>
@@ -54,13 +55,13 @@ export const ProgramDetailPage: React.FC = () => {
       {/* Program Hero */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
         <div className="lg:col-span-7 space-y-5">
-          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-teal-100 text-teal-800 border border-teal-200">
+          <span className="inline-flex items-center px-3.5 py-1 rounded-full text-xs font-extrabold bg-[#E6F3EF] text-[#00523C] border border-[#C2E2D7]">
             {program.category}
           </span>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight font-display">
             {tText(program.title)}
           </h1>
-          <p className="text-base sm:text-lg text-slate-700 leading-relaxed font-medium">
+          <p className="text-base sm:text-lg text-slate-700 leading-relaxed font-normal">
             {tText(program.shortDescription)}
           </p>
 
@@ -68,7 +69,7 @@ export const ProgramDetailPage: React.FC = () => {
             <button
               type="button"
               onClick={() => navigate('donate')}
-              className="px-6 py-3 rounded-xl bg-teal-800 hover:bg-teal-900 text-white font-bold text-sm inline-flex items-center gap-2 shadow-xs transition-colors cursor-pointer"
+              className="px-6 py-3.5 rounded-2xl bg-[#006A4E] hover:bg-[#00523C] text-white font-extrabold text-sm inline-flex items-center gap-2 shadow-warm-sm transition-all cursor-pointer transform hover:-translate-y-0.5"
             >
               <Heart className="w-4 h-4 fill-white" />
               <span>{isBn ? 'এই উদ্যোগে সহায়তা দিন' : 'Support This Program'}</span>
@@ -77,16 +78,16 @@ export const ProgramDetailPage: React.FC = () => {
             <button
               type="button"
               onClick={() => navigate('volunteer')}
-              className="px-6 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-sm inline-flex items-center gap-2 transition-colors cursor-pointer"
+              className="px-6 py-3.5 rounded-2xl bg-[#FAF7F2] hover:bg-[#F2ECE1] text-slate-800 font-bold text-sm border border-[#EAE3D9] inline-flex items-center gap-2 transition-all cursor-pointer"
             >
-              <Users className="w-4 h-4 text-teal-700" />
+              <Users className="w-4 h-4 text-[#006A4E]" />
               <span>{isBn ? 'স্বেচ্ছাসেবী হিসেবে যোগ দিন' : 'Volunteer With Us'}</span>
             </button>
           </div>
         </div>
 
         <div className="lg:col-span-5">
-          <div className="aspect-4/3 rounded-3xl overflow-hidden shadow-xl border border-slate-200 bg-slate-100">
+          <div className="aspect-4/3 rounded-[2.5rem] overflow-hidden shadow-warm-xl border-4 border-white bg-slate-100">
             <img
               src={program.imageUrl}
               alt={tText(program.title)}
@@ -97,63 +98,62 @@ export const ProgramDetailPage: React.FC = () => {
       </div>
 
       {/* Program Details & Impact Points */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 pt-6">
-        <div className="lg:col-span-2 space-y-6">
-          <div className="p-8 bg-white rounded-3xl border border-slate-200 space-y-4 shadow-xs">
-            <h2 className="text-2xl font-bold text-slate-900 font-display">
-              {isBn ? 'কর্মসূচির বিস্তারিত বিবরণ' : 'In-depth Overview & Implementation'}
-            </h2>
-            <p className="text-slate-700 leading-relaxed text-sm sm:text-base whitespace-pre-line">
-              {tText(program.fullDetails)}
-            </p>
-          </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-4">
+        <div className="lg:col-span-2 bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-4 shadow-warm-sm">
+          <h3 className="text-xl font-bold text-slate-900 font-display">
+            {isBn ? 'কর্মসূচির বিশদ বিবরণ ও কৌশল' : 'Program Scope & Approach'}
+          </h3>
+          <p className="text-slate-700 leading-relaxed text-sm">
+            {tText(program.fullDescription)}
+          </p>
 
-          {/* Highlights & Ethics */}
-          <div className="p-8 bg-white rounded-3xl border border-slate-200 space-y-4 shadow-xs">
-            <h3 className="text-xl font-bold text-slate-900 font-display">
-              {isBn ? 'কাজের মূল বৈশিষ্ট্য ও প্রভাব' : 'Key Highlights & Methodologies'}
-            </h3>
-            <div className="space-y-3">
-              {(isBn ? program.impactHighlights.bn : program.impactHighlights.en).map((hl, idx) => (
-                <div key={idx} className="flex items-start gap-3 p-3 rounded-xl bg-teal-50/50 border border-teal-100">
-                  <CheckCircle2 className="w-5 h-5 text-teal-700 mt-0.5 shrink-0" />
-                  <span className="text-sm text-slate-800 font-medium">{hl}</span>
+          <div className="space-y-3 pt-4 border-t border-slate-100">
+            <h4 className="font-bold text-slate-900 text-sm">
+              {isBn ? 'মূল কার্যপদ্ধতি ও লক্ষ্যসমূহ:' : 'Key Methodologies & Goals:'}
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {(isBn ? program.impactPoints.bn : program.impactPoints.en).map((point, index) => (
+                <div key={index} className="flex items-start gap-2.5 p-3 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] text-xs text-slate-700">
+                  <CheckCircle2 className="w-4 h-4 text-[#006A4E] shrink-0 mt-0.5" />
+                  <span>{point}</span>
                 </div>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Sidebar Info */}
+        {/* Sidebar info */}
         <div className="space-y-6">
-          <div className="p-6 bg-slate-900 text-white rounded-3xl space-y-4 shadow-md">
-            <h3 className="text-lg font-bold text-white flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-teal-400" />
-              {isBn ? 'স্বচ্ছতা ও মাঠপর্যায়ের হিসাব' : 'Field Auditing Policy'}
-            </h3>
-            <p className="text-xs text-slate-300 leading-relaxed">
-              {isBn
-                ? 'এই কর্মসূচির আওতায় সংগৃহীত সকল অনুদান সরাসরি সামগ্রী ক্রয়ে ব্যবহৃত হয়। প্রতি ধাপের বিতরণ তালিকা অডিট কমিটি দ্বারা সংরক্ষিত থাকে।'
-                : 'All donations allocated to this program are directly utilized for procurement and logistics without administrative leaks.'}
-            </p>
-            <button
-              type="button"
-              onClick={() => navigate('transparency')}
-              className="w-full py-2.5 rounded-xl bg-teal-700 hover:bg-teal-600 text-white font-bold text-xs transition-colors"
-            >
-              {isBn ? 'স্বচ্ছতা রিপোর্ট দেখুন' : 'View Transparency Policy'}
-            </button>
+          <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 space-y-4 shadow-warm-sm">
+            <h4 className="font-bold text-slate-900 text-base font-display">
+              {isBn ? 'কর্মসূচি সম্পর্কিত তথ্য' : 'Program Metadata'}
+            </h4>
+
+            <div className="space-y-3 text-xs text-slate-600">
+              <div className="flex justify-between py-2 border-b border-slate-100">
+                <span className="text-slate-500">{isBn ? 'ক্যাটাগরি:' : 'Category:'}</span>
+                <span className="font-bold text-slate-900">{program.category}</span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-slate-100">
+                <span className="text-slate-500">{isBn ? 'মডেল:' : 'Model:'}</span>
+                <span className="font-bold text-[#006A4E]">{isBn ? 'স্বেচ্ছাসেবী পরিচালিত' : 'Volunteer-Driven'}</span>
+              </div>
+              <div className="flex justify-between py-2">
+                <span className="text-slate-500">{isBn ? 'জবাবদিহিতা:' : 'Auditing:'}</span>
+                <span className="font-bold text-emerald-700">{isBn ? 'শতভাগ নিরীক্ষিত' : '100% Verified'}</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Related Campaigns */}
       {relatedCampaigns.length > 0 && (
-        <div className="pt-10 border-t border-slate-200 space-y-6">
-          <h3 className="text-2xl font-bold text-slate-900">
-            {isBn ? 'সম্পর্কিত ক্যাম্পেইনসমূহ' : 'Related Campaigns Under This Pillar'}
+        <div className="pt-8 border-t border-slate-200 space-y-6">
+          <h3 className="text-2xl font-extrabold text-slate-900 font-display">
+            {isBn ? 'এই কর্মসূচির আওতায় পরিচালিত ক্যাম্পেইন' : 'Campaigns Under This Program'}
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {relatedCampaigns.map(c => (
               <CampaignCard key={c.id} campaign={c} />
             ))}

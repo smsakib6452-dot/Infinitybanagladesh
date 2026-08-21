@@ -23,26 +23,26 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-4">
+    <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-7 shadow-warm-sm hover:shadow-warm-md transition-all flex flex-col justify-between space-y-4">
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-teal-50 text-teal-800 border border-teal-200">
+          <span className="text-[11px] font-extrabold uppercase tracking-wider px-3 py-0.5 rounded-full bg-[#E6F3EF] text-[#00523C] border border-[#C2E2D7]">
             {report.type}
           </span>
-          <span className="text-xs font-semibold text-slate-500">
+          <span className="text-xs font-bold text-slate-500">
             {report.year}
           </span>
         </div>
 
         <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
-            <FileText className="w-5 h-5 text-teal-700" />
+          <div className="w-10 h-10 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] text-[#006A4E] flex items-center justify-center shrink-0">
+            <FileText className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-slate-900 leading-snug">
+            <h3 className="text-base font-bold text-slate-900 font-display leading-snug">
               {tText(report.title)}
             </h3>
-            <span className="text-xs text-slate-400">
+            <span className="text-[11px] text-slate-400">
               {isBn ? 'আপলোড:' : 'Uploaded:'} {report.uploadDate}
             </span>
           </div>
@@ -55,16 +55,16 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
 
       {/* Footer / Download Button */}
       <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-1.5 text-xs text-slate-500">
+        <div className="flex items-center gap-1.5 text-xs">
           {report.status === 'official' ? (
             <>
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span className="text-emerald-700 font-semibold">{isBn ? 'সার্টিফাইড অডিট' : 'Certified Audit'}</span>
+              <ShieldCheck className="w-4 h-4 text-[#006A4E]" />
+              <span className="text-[#00523C] font-bold text-[11px]">{isBn ? 'সার্টিফাইড অডিট' : 'Certified Audit'}</span>
             </>
           ) : (
             <>
               <AlertCircle className="w-4 h-4 text-amber-600" />
-              <span className="text-amber-800 font-medium text-[11px]">{isBn ? 'যাচাই প্রক্রিয়াধীন' : 'Verification Underway'}</span>
+              <span className="text-amber-800 font-medium text-[11px]">{isBn ? 'যাচাই প্রক্রিয়াধীন' : 'Under Review'}</span>
             </>
           )}
         </div>
@@ -72,10 +72,10 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
         <button
           type="button"
           onClick={handleDownload}
-          className="px-3 py-1.5 rounded-lg bg-teal-800 hover:bg-teal-900 text-white text-xs font-bold inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+          className="px-3.5 py-1.5 rounded-xl bg-[#006A4E] hover:bg-[#00523C] text-white text-xs font-bold inline-flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
         >
           <Download className="w-3.5 h-3.5" />
-          <span>{isBn ? 'ডাউনলোড / দেখুন' : 'View / Download'}</span>
+          <span>{isBn ? 'ডাউনলোড' : 'Download'}</span>
         </button>
       </div>
     </div>

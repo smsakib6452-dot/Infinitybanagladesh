@@ -13,7 +13,7 @@ export const ImpactPage: React.FC = () => {
   const { metrics, stories } = useData();
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 space-y-16">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-14 sm:space-y-16">
       <SectionHeading
         badge={isBn ? 'বাস্তব পরিবর্তন ও মূল্যায়ন' : 'Measurable Change'}
         title={isBn ? 'আমাদের কাজের প্রভাব ও পরিসংখ্যান' : 'Our Measured Community Impact'}
@@ -37,10 +37,10 @@ export const ImpactPage: React.FC = () => {
       {/* Human Stories Section */}
       <div className="space-y-8 pt-4">
         <div className="text-center max-w-2xl mx-auto space-y-2">
-          <span className="text-xs font-bold uppercase tracking-widest text-teal-800 bg-teal-100 px-3 py-1 rounded-full">
+          <span className="text-xs font-extrabold uppercase tracking-widest text-[#00523C] bg-[#E6F3EF] px-3.5 py-1 rounded-full border border-[#C2E2D7]">
             {isBn ? 'মানবিক দলিল' : 'Human Stories'}
           </span>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-display">
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 font-display">
             {isBn ? 'বাস্তব জীবনের অমলিন গল্প' : 'Stories of Hope and Transformation'}
           </h2>
           <p className="text-sm text-slate-600">
@@ -70,13 +70,13 @@ export const StoryDetailPage: React.FC = () => {
   if (!story) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-20 text-center space-y-4">
-        <h2 className="text-2xl font-bold text-slate-900">
+        <h2 className="text-2xl font-bold text-slate-900 font-display">
           {isBn ? 'গল্পটি পাওয়া যায়নি' : 'Story Not Found'}
         </h2>
         <button
           type="button"
           onClick={() => navigate('impact')}
-          className="px-4 py-2 bg-teal-800 text-white rounded-lg text-sm font-bold"
+          className="px-5 py-2.5 bg-[#006A4E] text-white rounded-2xl text-sm font-bold cursor-pointer"
         >
           {isBn ? 'ইমপ্যাক্ট পাতায় ফিরে যান' : 'Back to Impact'}
         </button>
@@ -85,12 +85,12 @@ export const StoryDetailPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-10">
       {/* Back button */}
       <button
         type="button"
         onClick={() => navigate('impact')}
-        className="inline-flex items-center gap-2 text-sm font-bold text-teal-800 hover:text-teal-900 transition-colors"
+        className="inline-flex items-center gap-2 text-sm font-bold text-[#006A4E] hover:text-[#00523C] transition-colors cursor-pointer"
       >
         <ArrowLeft className="w-4 h-4" />
         <span>{isBn ? 'সকল গল্পে ফিরে যান' : 'Back to Stories & Impact'}</span>
@@ -98,56 +98,54 @@ export const StoryDetailPage: React.FC = () => {
 
       {/* Header */}
       <div className="space-y-4">
-        <div className="flex flex-wrap items-center gap-3">
-          <span className="px-3 py-1 rounded-full text-xs font-bold bg-teal-100 text-teal-800 border border-teal-200">
-            {tText(story.personOrCommunity)}
-          </span>
-          <span className="flex items-center gap-1 text-xs text-slate-500 font-medium">
-            <MapPin className="w-3.5 h-3.5 text-teal-700" />
+        <div className="flex items-center gap-3 text-xs text-slate-500 font-medium">
+          <span className="flex items-center gap-1 text-[#006A4E] font-bold">
+            <MapPin className="w-3.5 h-3.5" />
             {tText(story.location)}
           </span>
-          <span className="text-xs text-slate-400">&bull; {story.date}</span>
+          <span>&bull;</span>
+          <span>{story.date}</span>
         </div>
 
-        <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight font-display">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight font-display">
           {tText(story.title)}
         </h1>
+
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E6F3EF] text-[#00523C] text-xs font-bold border border-[#C2E2D7]">
+          <span>{tText(story.personOrCommunity)}</span>
+        </div>
       </div>
 
-      {/* Featured Photo */}
-      <div className="rounded-3xl overflow-hidden shadow-xl aspect-16/9 bg-slate-100 border border-slate-200">
+      {/* Image with Consent Badge */}
+      <div className="relative rounded-[2.5rem] overflow-hidden shadow-warm-xl border-4 border-white aspect-16/9 bg-slate-100">
         <img
           src={story.imageUrl}
           alt={tText(story.title)}
           className="w-full h-full object-cover"
         />
+        {story.consentConfirmed && (
+          <div className="absolute bottom-4 right-4 bg-emerald-950/80 backdrop-blur-md text-emerald-300 text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 border border-emerald-500/30">
+            <ShieldCheck className="w-4 h-4" />
+            <span>{isBn ? 'সম্মতি নিশ্চিতকৃত' : 'Consent Verified'}</span>
+          </div>
+        )}
       </div>
 
-      {/* Story Narrative */}
-      <div className="p-8 sm:p-10 bg-white rounded-3xl border border-slate-200 space-y-6 shadow-xs">
-        <div className="prose prose-slate max-w-none text-slate-700 leading-relaxed text-base sm:text-lg whitespace-pre-line">
-          {tText(story.story)}
+      {/* Story Content */}
+      <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-10 space-y-6 shadow-warm-sm">
+        <div className="prose prose-slate max-w-none text-slate-700 leading-relaxed text-sm sm:text-base">
+          <p>{tText(story.story)}</p>
         </div>
 
         {/* Impact Box */}
-        <div className="p-6 bg-teal-50 rounded-2xl border border-teal-200 space-y-2">
-          <div className="flex items-center gap-2 text-teal-950 font-bold text-base">
-            <Sparkles className="w-5 h-5 text-teal-700" />
-            <span>{isBn ? 'সৃষ্ট পরিবর্তন ও বাস্তব ফলাফল' : 'Direct Impact & Outcomes'}</span>
-          </div>
-          <p className="text-sm text-teal-900 leading-relaxed">
+        <div className="p-5 sm:p-6 bg-[#FAF7F2] rounded-2xl border border-[#EAE3D9] space-y-2">
+          <span className="text-xs font-bold text-[#006A4E] flex items-center gap-1.5 uppercase tracking-wider">
+            <Sparkles className="w-4 h-4 text-amber-500" />
+            {isBn ? 'বাস্তব প্রভাব ও পরিবর্তন' : 'Documented Impact'}
+          </span>
+          <p className="text-xs sm:text-sm text-slate-900 font-semibold leading-relaxed">
             {tText(story.impact)}
           </p>
-        </div>
-
-        {/* Dignity & Ethics declaration */}
-        <div className="pt-4 border-t border-slate-100 flex items-center gap-2 text-xs text-slate-500">
-          <ShieldCheck className="w-4 h-4 text-teal-700 shrink-0" />
-          <span>
-            {isBn
-              ? 'এই তথ্য ও ছবি সম্পূর্ণ সম্মতি এবং আত্মমর্যাদা বজায় রেখে প্রকাশ করা হয়েছে।'
-              : 'This story and photography were documented with explicit consent, upholding full dignity and privacy.'}
-          </span>
         </div>
       </div>
     </div>

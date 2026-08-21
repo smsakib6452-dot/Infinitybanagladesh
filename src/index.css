@@ -2,35 +2,190 @@
 
 @layer base {
   :root {
+    /* Primary Brand Colors (matching the official logo) */
     --brand-green: #006A4E;
-    --brand-green-dark: #00523C;
-    --brand-green-light: #008562;
-    --brand-red: #F42A41;
-    --brand-red-dark: #D4182E;
+    --brand-green-dark: #004D38;
+    --brand-green-light: #008764;
+    --brand-green-subtle: #E6F3EF;
+    
+    --brand-red: #D4182E;
+    --brand-red-dark: #B31224;
+    --brand-red-light: #F42A41;
+    --brand-red-subtle: #FDF1F2;
+
+    /* Secondary & Supporting Colors */
+    --brand-teal: #0F4C3A;
+    --brand-teal-dark: #0A3629;
+    --brand-teal-light: #166B53;
+
+    /* Warm Humanitarian Palette */
+    --bg-cream: #FAF7F2;
+    --bg-cream-dark: #F2ECE1;
+    --bg-cream-light: #FDFBF7;
+    --bg-warm-card: #FFFFFF;
+    
+    --border-warm: #EAE3D9;
+    --border-warm-light: #F3EFE9;
+
+    /* Gold / Amber Accents */
+    --accent-gold: #D97706;
+    --accent-gold-light: #F59E0B;
+    --accent-gold-subtle: #FEF3C7;
+
+    /* Dark Neutral & Text */
     --brand-dark: #0F172A;
-    --brand-surface: #F8FAFC;
+    --brand-navy: #132238;
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
+    --text-muted: #64748B;
   }
 
   body {
-    font-family: 'Plus Jakarta Sans', 'Hind Siliguri', system-ui, -apple-system, sans-serif;
-    color: #0F172A;
-    background-color: #F8FAFC;
+    font-family: 'Plus Jakarta Sans', 'Hind Siliguri', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: var(--text-primary);
+    background-color: var(--bg-cream);
     letter-spacing: -0.01em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Plus Jakarta Sans', 'Hind Siliguri', system-ui, sans-serif;
+    font-family: 'Plus Jakarta Sans', 'Hind Siliguri', 'Outfit', system-ui, sans-serif;
     font-weight: 800;
     letter-spacing: -0.025em;
+    color: var(--brand-dark);
   }
 }
 
+/* Typography Helpers */
 .font-display {
-  font-family: 'Plus Jakarta Sans', 'Hind Siliguri', system-ui, sans-serif;
+  font-family: 'Plus Jakarta Sans', 'Outfit', 'Hind Siliguri', system-ui, sans-serif;
   font-weight: 800;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.025em;
 }
 
 .font-bengali {
   font-family: 'Hind Siliguri', 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+/* Custom Warm Organic UI Styles */
+.bg-cream {
+  background-color: #FAF7F2;
+}
+
+.bg-cream-subtle {
+  background-color: #F6F1EA;
+}
+
+.bg-ivory-card {
+  background-color: #FFFFFF;
+  border: 1px solid #EAE3D9;
+}
+
+/* Organic Image Frame & Shapes */
+.organic-frame {
+  border-radius: 2.5rem 1.5rem 3rem 1.5rem;
+}
+
+.organic-frame-lg {
+  border-radius: 3.5rem 2rem 4rem 2rem;
+}
+
+.organic-blob {
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+}
+
+/* Warm Ambient Glow & Shadows */
+.shadow-warm-sm {
+  box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.05), 0 1px 4px -1px rgba(0, 106, 78, 0.04);
+}
+
+.shadow-warm-md {
+  box-shadow: 0 6px 16px -4px rgba(15, 23, 42, 0.07), 0 2px 6px -2px rgba(0, 106, 78, 0.05);
+}
+
+.shadow-warm-lg {
+  box-shadow: 0 12px 28px -6px rgba(15, 23, 42, 0.09), 0 4px 12px -2px rgba(0, 106, 78, 0.06);
+}
+
+.shadow-warm-xl {
+  box-shadow: 0 20px 35px -8px rgba(15, 23, 42, 0.12), 0 8px 16px -4px rgba(0, 106, 78, 0.08);
+}
+
+/* Gold & Green Glow Badges */
+.badge-gold {
+  background-color: #FEF3C7;
+  color: #92400E;
+  border: 1px solid #FDE68A;
+}
+
+.badge-green {
+  background-color: #E6F3EF;
+  color: #00523C;
+  border: 1px solid #C2E2D7;
+}
+
+.badge-red {
+  background-color: #FDF1F2;
+  color: #B31224;
+  border: 1px solid #FCD3D7;
+}
+
+/* Brand Button Styles */
+.btn-primary-green {
+  background-color: #006A4E;
+  color: #FFFFFF;
+  font-weight: 700;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-primary-green:hover {
+  background-color: #00523C;
+  box-shadow: 0 6px 18px -3px rgba(0, 106, 78, 0.35);
+  transform: translateY(-1px);
+}
+
+.btn-primary-green:active {
+  background-color: #00402E;
+  transform: translateY(0);
+}
+
+.btn-secondary-warm {
+  background-color: #FFFFFF;
+  color: #0F172A;
+  border: 1.5px solid #D8CFC4;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary-warm:hover {
+  background-color: #FAF7F2;
+  border-color: #006A4E;
+  color: #006A4E;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.06);
+}
+
+/* Paper Cut Decorative Border */
+.border-paper {
+  border-color: #E8E1D5;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #FAF7F2;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
 }

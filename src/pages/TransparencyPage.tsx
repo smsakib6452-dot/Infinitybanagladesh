@@ -3,16 +3,12 @@ import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
 import { SectionHeading } from '../components/SectionHeading';
 import { ReportCard } from '../components/ReportCard';
-import { VerifiedOrganizationPledge, OfficialInfoBadge } from '../components/OfficialInfoBadge';
+import { VerifiedOrganizationPledge } from '../components/OfficialInfoBadge';
 import {
   ShieldCheck,
   FileText,
-  Lock,
   Eye,
-  CheckCircle2,
-  AlertTriangle,
-  Scale,
-  Download
+  Scale
 } from 'lucide-react';
 
 export const TransparencyPage: React.FC = () => {
@@ -27,7 +23,7 @@ export const TransparencyPage: React.FC = () => {
   });
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 space-y-16">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-12 sm:space-y-16">
       <SectionHeading
         badge={isBn ? 'দায়বদ্ধতা ও সততা' : 'Radical Transparency'}
         title={isBn ? 'স্বচ্ছতা ও অডিট রিপোর্ট' : 'Transparency & Governance'}
@@ -43,11 +39,11 @@ export const TransparencyPage: React.FC = () => {
 
       {/* Ethical Code of Transparency */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="p-6 bg-white rounded-2xl border border-slate-200 space-y-3 shadow-xs">
-          <div className="w-12 h-12 rounded-xl bg-teal-50 text-teal-800 flex items-center justify-center font-bold">
+        <div className="p-6 sm:p-7 bg-white rounded-3xl border border-[#EAE3D9] space-y-3 shadow-warm-sm hover:-translate-y-1 transition-all">
+          <div className="w-12 h-12 rounded-2xl bg-[#E6F3EF] text-[#006A4E] flex items-center justify-center font-bold">
             <Scale className="w-6 h-6" />
           </div>
-          <h3 className="text-lg font-bold text-slate-900">
+          <h3 className="text-lg font-bold text-slate-900 font-display">
             {isBn ? 'শূন্য অপচয় ও সঠিক ব্যবহার' : 'Zero Waste Policy'}
           </h3>
           <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
@@ -57,11 +53,11 @@ export const TransparencyPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="p-6 bg-white rounded-2xl border border-slate-200 space-y-3 shadow-xs">
-          <div className="w-12 h-12 rounded-xl bg-teal-50 text-teal-800 flex items-center justify-center font-bold">
+        <div className="p-6 sm:p-7 bg-white rounded-3xl border border-[#EAE3D9] space-y-3 shadow-warm-sm hover:-translate-y-1 transition-all">
+          <div className="w-12 h-12 rounded-2xl bg-[#E6F3EF] text-[#006A4E] flex items-center justify-center font-bold">
             <Eye className="w-6 h-6" />
           </div>
-          <h3 className="text-lg font-bold text-slate-900">
+          <h3 className="text-lg font-bold text-slate-900 font-display">
             {isBn ? 'উন্মুক্ত অডিট নিরীক্ষা' : 'Public Audit Access'}
           </h3>
           <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
@@ -71,11 +67,11 @@ export const TransparencyPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="p-6 bg-white rounded-2xl border border-slate-200 space-y-3 shadow-xs">
-          <div className="w-12 h-12 rounded-xl bg-teal-50 text-teal-800 flex items-center justify-center font-bold">
+        <div className="p-6 sm:p-7 bg-white rounded-3xl border border-[#EAE3D9] space-y-3 shadow-warm-sm hover:-translate-y-1 transition-all">
+          <div className="w-12 h-12 rounded-2xl bg-[#E6F3EF] text-[#006A4E] flex items-center justify-center font-bold">
             <ShieldCheck className="w-6 h-6" />
           </div>
-          <h3 className="text-lg font-bold text-slate-900">
+          <h3 className="text-lg font-bold text-slate-900 font-display">
             {isBn ? 'সততা নীতি (Anti-Fabrication)' : 'Anti-Fabrication Pledge'}
           </h3>
           <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
@@ -88,9 +84,9 @@ export const TransparencyPage: React.FC = () => {
 
       {/* Reports Directory & Download Center */}
       <div className="space-y-6">
-        <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-white rounded-2xl border border-slate-200 shadow-xs">
+        <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-white rounded-3xl border border-[#EAE3D9] shadow-warm-sm">
           <div className="flex items-center gap-2 text-xs font-bold text-slate-700 uppercase tracking-wider">
-            <FileText className="w-4 h-4 text-teal-700" />
+            <FileText className="w-4 h-4 text-[#006A4E]" />
             <span>{isBn ? 'রিপোর্ট ক্যাটাগরি:' : 'Report Types:'}</span>
           </div>
 
@@ -100,10 +96,10 @@ export const TransparencyPage: React.FC = () => {
                 key={type}
                 type="button"
                 onClick={() => setTypeFilter(type)}
-                className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                className={`px-4 py-1.5 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
                   typeFilter === type
-                    ? 'bg-teal-800 text-white'
-                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                    ? 'bg-[#006A4E] text-white shadow-warm-sm'
+                    : 'bg-[#FAF7F2] hover:bg-[#F2ECE1] text-slate-700 border border-[#EAE3D9]'
                 }`}
               >
                 {type === 'all' ? (isBn ? 'সকল রিপোর্ট' : 'All Reports') : type}
@@ -112,29 +108,10 @@ export const TransparencyPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Report Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredReports.map(report => (
             <ReportCard key={report.id} report={report} />
           ))}
-        </div>
-      </div>
-
-      {/* Official Registration & Governance Notice */}
-      <div className="p-8 bg-slate-900 text-white rounded-3xl space-y-4 border border-slate-800">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <h3 className="text-xl font-bold text-white font-display">
-              {isBn ? 'প্রাতিষ্ঠানিক ও সরকারি নিবন্ধন তথ্যাবলী' : 'Statutory & Governance Disclosures'}
-            </h3>
-            <p className="text-xs text-slate-400 mt-1">
-              {isBn
-                ? 'আইনি স্বচ্ছতা ও তথ্যের নির্ভুলতা রক্ষার্থে আমাদের আইনি উপদেষ্টা প্যানেল সর্বদা সচেষ্ট।'
-                : 'Maintained in compliance with NGO Affairs Bureau and Department of Social Services statutory protocols.'}
-            </p>
-          </div>
-
-          <OfficialInfoBadge className="shrink-0" />
         </div>
       </div>
     </div>

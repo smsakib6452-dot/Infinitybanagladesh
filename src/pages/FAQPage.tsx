@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { SectionHeading } from '../components/SectionHeading';
-import { ChevronDown, HelpCircle, ShieldCheck, Heart, Users, FileText } from 'lucide-react';
+import { ChevronDown, HelpCircle } from 'lucide-react';
 
 export const FAQPage: React.FC = () => {
   const { isBn } = useLanguage();
@@ -12,8 +12,8 @@ export const FAQPage: React.FC = () => {
     {
       qEn: 'What is Infinity Bangladesh and who runs it?',
       qBn: 'ইনফিনিটি বাংলাদেশ কী এবং কারা এটি পরিচালনা করেন?',
-      aEn: 'Infinity Bangladesh (Team Infinity) is an authentic, youth-driven humanitarian and social organization founded in Bangladesh. It is operated entirely by passionate youth volunteers, student leaders, and young professionals dedicated to upholding human dignity through transparent relief, education support, and community welfare.',
-      aBn: 'ইনফিনিটি বাংলাদেশ (টিম ইনফিনিটি) একটি তারুণ্যনির্ভর সামাজিক ও মানবিক সংগঠন। দেশের সচেতন ছাত্রসমাজ ও তরুণ পেশাজীবীদের নিঃস্বার্থ স্বেচ্ছাসেবার মাধ্যমে সুবিধাবঞ্চিত শিশু, শ্রমজীবী মানুষ এবং প্রান্তিক জনগোষ্ঠীর মুখে হাসি ফোটানো এবং মর্যাদা রক্ষায় এটি পরিচালিত হয়।'
+      aEn: 'Infinity Bangladesh (Team Infinity) is an authentic, youth-driven humanitarian and social organization founded in Hathazari, Chattogram in 2015. It is operated entirely by passionate youth volunteers, student leaders, and young professionals dedicated to upholding human dignity through transparent relief, education support, and community welfare.',
+      aBn: 'ইনফিনিটি বাংলাদেশ (টিম ইনফিনিটি) ২০১৫ সালে চট্টগ্রামের হাটহাজারী থেকে যাত্রা শুরু করা একটি তারুণ্যনির্ভর সামাজিক ও মানবিক সংগঠন। দেশের সচেতন ছাত্রসমাজ ও তরুণ পেশাজীবীদের নিঃস্বার্থ স্বেচ্ছাসেবার মাধ্যমে সুবিধাবঞ্চিত শিশু, শ্রমজীবী মানুষ এবং প্রান্তিক জনগোষ্ঠীর মুখে হাসি ফোটানো এবং মর্যাদা রক্ষায় এটি পরিচালিত হয়।'
     },
     {
       qEn: 'How does Team Infinity ensure 100% financial transparency?',
@@ -40,15 +40,15 @@ export const FAQPage: React.FC = () => {
       aBn: 'হ্যাঁ! আমাদের অনুদান পাতায় গিয়ে আপনি নির্দিষ্ট ক্যাম্পেইন বা সাধারণ তহবিল নির্বাচন করতে পারেন। আপনার প্রদত্ত অনুদান নির্দিষ্ট সেই খাতেই ব্যয় করা হবে এবং একটি ডিজিটাল প্রাপ্তিস্বীকার রসিদ প্রদান করা হবে।'
     },
     {
-      qEn: 'Why are some organizational registration numbers marked as "[OFFICIAL INFORMATION REQUIRED]"?',
-      qBn: 'কিছু প্রাতিষ্ঠানিক তথ্য "[অফিসিয়াল তথ্য হালনাগাদ আবশ্যক]" হিসেবে কেন চিহ্নিত?',
-      aEn: 'In strict compliance with our organization charter, Infinity Bangladesh never publishes fabricated, unverified, or placeholder registration facts. Statutory documentation is updated solely upon formal board certification.',
-      aBn: 'আমাদের সাংগঠনিক সত্যতা নীতি অনুযায়ী, ইনফিনিটি বাংলাদেশ কোনো অসত্য বা মনগড়া আইনি তথ্য প্রচার করে না। যথাযথ প্রাতিষ্ঠানিক সনদ অনুমোদনের পরই কেবল তা অফিসিয়ালভাবে হালনাগাদ করা হয়।'
+      qEn: 'Where is Infinity Bangladesh headquartered?',
+      qBn: 'ইনফিনিটি বাংলাদেশ-এর কেন্দ্রীয় কার্যালয় কোথায়?',
+      aEn: 'Infinity Bangladesh was established in 2015 and is proudly rooted in Hathazari, Chattogram, Bangladesh, carrying out verified humanitarian relief operations throughout the region and country.',
+      aBn: 'ইনফিনিটি বাংলাদেশ ২০১৫ সালে প্রতিষ্ঠিত হয়ে চট্টগ্রামের হাটহাজারীতে কেন্দ্রীয় কার্যালয় রেখে দেশব্যাপী মানবিক ও সামাজিক সেবামূলক কার্যক্রম পরিচালনা করছে।'
     }
   ];
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 space-y-12">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-12 sm:space-y-14">
       <SectionHeading
         badge={isBn ? 'সাধারণ প্রশ্নোত্তর' : 'Knowledge Base'}
         title={isBn ? 'সচরাচর জিজ্ঞাসিত প্রশ্নাবলী (FAQ)' : 'Frequently Asked Questions'}
@@ -65,26 +65,26 @@ export const FAQPage: React.FC = () => {
           return (
             <div
               key={index}
-              className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs transition-all"
+              className="bg-white rounded-3xl border border-[#EAE3D9] overflow-hidden shadow-warm-sm transition-all"
             >
               <button
                 type="button"
                 onClick={() => setOpenIndex(isOpen ? null : index)}
-                className="w-full p-5 sm:p-6 text-left flex items-center justify-between gap-4 font-bold text-slate-900 hover:text-teal-800 transition-colors cursor-pointer"
+                className="w-full p-5 sm:p-6 text-left flex items-center justify-between gap-4 font-bold text-slate-900 hover:text-[#006A4E] transition-colors cursor-pointer"
               >
-                <span className="text-base sm:text-lg flex items-center gap-3">
-                  <HelpCircle className="w-5 h-5 text-teal-700 shrink-0" />
+                <span className="text-base sm:text-lg flex items-center gap-3 font-display">
+                  <HelpCircle className="w-5 h-5 text-[#006A4E] shrink-0" />
                   <span>{isBn ? faq.qBn : faq.qEn}</span>
                 </span>
                 <ChevronDown
                   className={`w-5 h-5 text-slate-400 shrink-0 transition-transform duration-300 ${
-                    isOpen ? 'rotate-180 text-teal-700' : ''
+                    isOpen ? 'rotate-180 text-[#006A4E]' : ''
                   }`}
                 />
               </button>
 
               {isOpen && (
-                <div className="px-5 sm:px-6 pb-6 pt-1 text-sm sm:text-base text-slate-600 leading-relaxed border-t border-slate-100 bg-slate-50/50">
+                <div className="px-5 sm:px-6 pb-6 pt-1 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 bg-[#FAF7F2]">
                   {isBn ? faq.aBn : faq.aEn}
                 </div>
               )}

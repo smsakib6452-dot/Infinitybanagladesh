@@ -25,17 +25,18 @@ export const SectionHeading: React.FC<SectionHeadingProps> = ({
           : 'flex flex-col md:flex-row md:items-end md:justify-between gap-4'
       }`}
     >
-      <div className="space-y-2.5">
+      <div className="space-y-3">
         {badge && (
-          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-teal-100 text-teal-800 border border-teal-200">
-            {badge}
-          </span>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-[#E6F3EF] text-[#00523C] border border-[#C2E2D7] shadow-2xs">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#006A4E]" />
+            <span>{badge}</span>
+          </div>
         )}
-        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight font-display">
           {title}
         </h2>
         {subtitle && (
-          <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+          <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-2xl">
             {subtitle}
           </p>
         )}

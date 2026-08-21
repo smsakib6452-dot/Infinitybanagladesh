@@ -3,8 +3,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
 import { SectionHeading } from '../components/SectionHeading';
 import { GalleryLightbox } from '../components/GalleryLightbox';
-import { GalleryPhoto } from '../types';
-import { Image as ImageIcon, Video, Filter, Sparkles } from 'lucide-react';
+import { Image as ImageIcon } from 'lucide-react';
 
 export const GalleryPage: React.FC = () => {
   const { isBn, tText } = useLanguage();
@@ -21,10 +20,10 @@ export const GalleryPage: React.FC = () => {
   });
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 space-y-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-12 sm:space-y-14">
       <SectionHeading
         badge={isBn ? 'মাঠপর্যায়ের স্মৃতি ও তথ্যচিত্র' : 'Visual Archives'}
-        title={isBn ? 'আলোকচিত্র ও ভিডিও গ্যালারি' : 'Photo & Media Gallery'}
+        title={isBn ? 'আলোকচিত্র ও মাঠপর্যায়ের গ্যালারি' : 'Photo Documentation Gallery'}
         subtitle={
           isBn
             ? 'আমাদের বিভিন্ন কার্যক্রম, বিতরণ ও মানবিক মুহূর্তের সংরক্ষিত আলোকচিত্র।'
@@ -39,10 +38,10 @@ export const GalleryPage: React.FC = () => {
             key={cat}
             type="button"
             onClick={() => setActiveCategory(cat)}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
               activeCategory === cat
-                ? 'bg-teal-800 text-white shadow-xs'
-                : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
+                ? 'bg-[#006A4E] text-white shadow-warm-sm'
+                : 'bg-white border border-[#EAE3D9] text-slate-700 hover:bg-[#FAF7F2]'
             }`}
           >
             {cat}
@@ -56,7 +55,7 @@ export const GalleryPage: React.FC = () => {
           <div
             key={photo.id}
             onClick={() => setSelectedImageIndex(index)}
-            className="group bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-lg transition-all cursor-pointer flex flex-col"
+            className="group bg-white rounded-3xl border border-[#EAE3D9] overflow-hidden shadow-warm-sm hover:shadow-warm-md transition-all cursor-pointer flex flex-col"
           >
             <div className="relative aspect-4/3 overflow-hidden bg-slate-100">
               <img
@@ -65,16 +64,16 @@ export const GalleryPage: React.FC = () => {
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 loading="lazy"
               />
-              <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded text-[10px] font-bold bg-slate-900/70 text-white backdrop-blur-xs">
+              <span className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#006A4E]/90 text-white backdrop-blur-xs">
                 {photo.category}
               </span>
-              <div className="absolute inset-0 bg-teal-950/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+              <div className="absolute inset-0 bg-[#006A4E]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
                 <ImageIcon className="w-6 h-6" />
               </div>
             </div>
 
-            <div className="p-3.5 space-y-1 flex-1 flex flex-col justify-between">
-              <h4 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-teal-800 transition-colors line-clamp-1">
+            <div className="p-4 space-y-1 flex-1 flex flex-col justify-between">
+              <h4 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-[#006A4E] transition-colors line-clamp-1 font-display">
                 {tText(photo.title)}
               </h4>
               <div className="flex items-center justify-between text-[11px] text-slate-500">

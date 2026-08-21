@@ -17,7 +17,7 @@ export const CampaignsPage: React.FC = () => {
   });
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 space-y-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-10">
       <SectionHeading
         badge={isBn ? 'মাঠপর্যায়ের উদ্যোগ' : 'Field Initiatives'}
         title={isBn ? 'আমাদের ক্যাম্পেইনসমূহ' : 'Our Campaigns'}
@@ -29,9 +29,9 @@ export const CampaignsPage: React.FC = () => {
       />
 
       {/* Filter Tabs */}
-      <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-white rounded-2xl border border-slate-200 shadow-xs">
-        <div className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
-          <Filter className="w-4 h-4 text-teal-700" />
+      <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-white rounded-3xl border border-[#EAE3D9] shadow-warm-sm">
+        <div className="flex items-center gap-2 text-xs font-extrabold text-slate-700 uppercase tracking-wider">
+          <Filter className="w-4 h-4 text-[#006A4E]" />
           <span>{isBn ? 'ফিল্টার করুন:' : 'Filter Status:'}</span>
         </div>
 
@@ -39,10 +39,10 @@ export const CampaignsPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setStatusFilter('all')}
-            className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+            className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
               statusFilter === 'all'
-                ? 'bg-teal-800 text-white'
-                : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                ? 'bg-[#006A4E] text-white shadow-warm-sm'
+                : 'bg-[#FAF7F2] hover:bg-[#F2ECE1] text-slate-700 border border-[#EAE3D9]'
             }`}
           >
             {isBn ? 'সকল ক্যাম্পেইন' : 'All Campaigns'} ({campaigns.length})
@@ -50,10 +50,10 @@ export const CampaignsPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setStatusFilter('active')}
-            className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+            className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
               statusFilter === 'active'
-                ? 'bg-emerald-700 text-white'
-                : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                ? 'bg-[#006A4E] text-white shadow-warm-sm'
+                : 'bg-[#FAF7F2] hover:bg-[#F2ECE1] text-slate-700 border border-[#EAE3D9]'
             }`}
           >
             {isBn ? 'চলমান' : 'Active'} ({campaigns.filter(c => c.status === 'active').length})
@@ -61,10 +61,10 @@ export const CampaignsPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setStatusFilter('upcoming')}
-            className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+            className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
               statusFilter === 'upcoming'
-                ? 'bg-blue-700 text-white'
-                : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                ? 'bg-[#D97706] text-white shadow-warm-sm'
+                : 'bg-[#FAF7F2] hover:bg-[#F2ECE1] text-slate-700 border border-[#EAE3D9]'
             }`}
           >
             {isBn ? 'আসন্ন' : 'Upcoming'} ({campaigns.filter(c => c.status === 'upcoming').length})
@@ -72,10 +72,10 @@ export const CampaignsPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setStatusFilter('completed')}
-            className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+            className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
               statusFilter === 'completed'
-                ? 'bg-slate-800 text-white'
-                : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                ? 'bg-slate-800 text-white shadow-warm-sm'
+                : 'bg-[#FAF7F2] hover:bg-[#F2ECE1] text-slate-700 border border-[#EAE3D9]'
             }`}
           >
             {isBn ? 'সম্পন্ন' : 'Completed'} ({campaigns.filter(c => c.status === 'completed').length})
@@ -85,7 +85,7 @@ export const CampaignsPage: React.FC = () => {
 
       {/* Grid of campaigns */}
       {filteredCampaigns.length === 0 ? (
-        <div className="text-center py-16 p-6 bg-white rounded-3xl border border-slate-200 space-y-2">
+        <div className="text-center py-16 p-6 bg-white rounded-3xl border border-[#EAE3D9] space-y-2">
           <Flag className="w-10 h-10 text-slate-300 mx-auto" />
           <p className="font-bold text-slate-700">
             {isBn ? 'এই ক্যাটাগরিতে কোনো ক্যাম্পেইন নেই।' : 'No campaigns found for this filter.'}

@@ -20,7 +20,7 @@ export const EventsPage: React.FC = () => {
   const { events } = useData();
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 space-y-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-12 sm:space-y-14">
       <SectionHeading
         badge={isBn ? 'কর্মশালা ও সভা' : 'Upcoming Gatherings'}
         title={isBn ? 'ইভেন্ট ও সম্মিলন' : 'Events & Volunteer Meetups'}
@@ -56,13 +56,13 @@ export const EventDetailPage: React.FC = () => {
   if (!event) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-20 text-center space-y-4">
-        <h2 className="text-2xl font-bold text-slate-900">
+        <h2 className="text-2xl font-bold text-slate-900 font-display">
           {isBn ? 'ইভেন্ট পাওয়া যায়নি' : 'Event Not Found'}
         </h2>
         <button
           type="button"
           onClick={() => navigate('events')}
-          className="px-4 py-2 bg-teal-800 text-white rounded-lg text-sm font-bold"
+          className="px-5 py-2.5 bg-[#006A4E] text-white rounded-2xl text-sm font-bold cursor-pointer"
         >
           {isBn ? 'সকল ইভেন্টে ফিরে যান' : 'Back to Events'}
         </button>
@@ -76,12 +76,12 @@ export const EventDetailPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-10">
       {/* Back button */}
       <button
         type="button"
         onClick={() => navigate('events')}
-        className="inline-flex items-center gap-2 text-sm font-bold text-teal-800 hover:text-teal-900 transition-colors"
+        className="inline-flex items-center gap-2 text-sm font-bold text-[#006A4E] hover:text-[#00523C] transition-colors cursor-pointer"
       >
         <ArrowLeft className="w-4 h-4" />
         <span>{isBn ? 'সকল ইভেন্টে ফিরে যান' : 'Back to All Events'}</span>
@@ -89,43 +89,34 @@ export const EventDetailPage: React.FC = () => {
 
       {/* Hero Header */}
       <div className="space-y-4">
-        <span className="px-3 py-1 rounded-full text-xs font-bold bg-teal-100 text-teal-800 border border-teal-200">
+        <span className="px-3.5 py-1 rounded-full text-xs font-extrabold bg-[#E6F3EF] text-[#00523C] border border-[#C2E2D7]">
           {event.status === 'upcoming' ? (isBn ? 'আসন্ন ইভেন্ট' : 'Upcoming Event') : event.status}
         </span>
 
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight font-display">
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight font-display">
           {tText(event.title)}
         </h1>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-          <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 flex items-center gap-3">
-            <Calendar className="w-5 h-5 text-teal-700 shrink-0" />
-            <div>
-              <span className="text-[11px] text-slate-500 font-bold block">{isBn ? 'তারিখ' : 'Date'}</span>
-              <span className="text-xs sm:text-sm font-semibold text-slate-900">{event.date}</span>
-            </div>
+          <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-white border border-[#EAE3D9] text-xs text-slate-700 shadow-2xs">
+            <Calendar className="w-4 h-4 text-[#006A4E]" />
+            <span>{event.date}</span>
           </div>
 
-          <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 flex items-center gap-3">
-            <Clock className="w-5 h-5 text-teal-700 shrink-0" />
-            <div>
-              <span className="text-[11px] text-slate-500 font-bold block">{isBn ? 'সময়' : 'Time'}</span>
-              <span className="text-xs sm:text-sm font-semibold text-slate-900">{event.time}</span>
-            </div>
+          <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-white border border-[#EAE3D9] text-xs text-slate-700 shadow-2xs">
+            <Clock className="w-4 h-4 text-amber-600" />
+            <span>{event.time}</span>
           </div>
 
-          <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 flex items-center gap-3">
-            <MapPin className="w-5 h-5 text-rose-600 shrink-0" />
-            <div className="truncate">
-              <span className="text-[11px] text-slate-500 font-bold block">{isBn ? 'স্থান' : 'Location'}</span>
-              <span className="text-xs sm:text-sm font-semibold text-slate-900 truncate block">{tText(event.location)}</span>
-            </div>
+          <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-white border border-[#EAE3D9] text-xs text-slate-700 shadow-2xs">
+            <MapPin className="w-4 h-4 text-rose-600" />
+            <span>{tText(event.location)}</span>
           </div>
         </div>
       </div>
 
-      {/* Featured Photo */}
-      <div className="rounded-3xl overflow-hidden shadow-xl aspect-16/9 bg-slate-100 border border-slate-200">
+      {/* Featured Banner */}
+      <div className="rounded-[2.5rem] overflow-hidden shadow-warm-xl border-4 border-white aspect-16/9 bg-slate-100">
         <img
           src={event.imageUrl}
           alt={tText(event.title)}
@@ -133,82 +124,69 @@ export const EventDetailPage: React.FC = () => {
         />
       </div>
 
-      {/* Details & RSVP */}
+      {/* Description & RSVP Form */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <div className="lg:col-span-7 space-y-6">
-          <div className="p-8 bg-white rounded-3xl border border-slate-200 space-y-4 shadow-xs">
-            <h2 className="text-xl font-bold text-slate-900 font-display">
-              {isBn ? 'ইভেন্টের বিবরণ ও উদ্দেশ্য' : 'Event Overview & Agenda'}
-            </h2>
-            <p className="text-slate-700 leading-relaxed text-sm sm:text-base whitespace-pre-line">
-              {tText(event.description)}
-            </p>
-          </div>
+        <div className="lg:col-span-7 bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-4 shadow-warm-sm">
+          <h3 className="text-lg font-bold text-slate-900 font-display">
+            {isBn ? 'ইভেন্টের বিবরণ ও উদ্দেশ্য' : 'Event Purpose & Schedule'}
+          </h3>
+          <p className="text-slate-700 leading-relaxed text-sm">
+            {tText(event.description)}
+          </p>
         </div>
 
-        {/* RSVP Card */}
         <div className="lg:col-span-5">
-          <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 space-y-5 shadow-sm">
-            <div className="space-y-1">
-              <h3 className="text-lg font-bold text-slate-900 font-display">
-                {isBn ? 'ইভেন্টে অংশগ্রহণের নিবন্ধন' : 'RSVP & Event Registration'}
-              </h3>
-              <p className="text-xs text-slate-500">
-                {isBn ? 'সীমিত আসন। দ্রুত নিবন্ধন সম্পন্ন করুন।' : 'Limited slots. Reserve your seat.'}
+          {isRsvpDone ? (
+            <div className="bg-white rounded-3xl border border-emerald-200 p-6 sm:p-8 text-center space-y-4 shadow-warm-md">
+              <div className="w-12 h-12 bg-[#E6F3EF] text-[#006A4E] rounded-full flex items-center justify-center mx-auto">
+                <CheckCircle2 className="w-8 h-8" />
+              </div>
+              <h4 className="font-bold text-slate-900 text-base font-display">
+                {isBn ? 'রেজিস্ট্রেশন নিশ্চিত হয়েছে!' : 'RSVP Confirmed!'}
+              </h4>
+              <p className="text-xs text-slate-600">
+                {isBn ? 'ইভেন্টের বিস্তারিত তথ্য ইমেইলে পাঠানো হবে।' : 'Check your email for access instructions.'}
               </p>
             </div>
+          ) : (
+            <form
+              onSubmit={handleRsvpSubmit}
+              className="bg-white rounded-3xl border border-[#EAE3D9] p-6 space-y-4 shadow-warm-md"
+            >
+              <h4 className="font-bold text-slate-900 text-base font-display">
+                {isBn ? 'উপস্থিতি নিশ্চিত করুন (RSVP)' : 'Reserve Your Seat'}
+              </h4>
 
-            {isRsvpDone ? (
-              <div className="p-6 bg-teal-50 rounded-2xl border border-teal-200 text-center space-y-3">
-                <CheckCircle2 className="w-10 h-10 text-teal-700 mx-auto" />
-                <h4 className="font-bold text-teal-900 text-sm">
-                  {isBn ? 'আপনার রেজিস্ট্রেশন নিশ্চিত হয়েছে!' : 'Seat Confirmed!'}
-                </h4>
-                <p className="text-xs text-teal-800">
-                  {isBn
-                    ? 'আপনার ফোনে বিস্তারিত সময়সূচি ও দিকনির্দেশনা পাঠানো হবে।'
-                    : 'We have reserved your spot. Orientation details will be sent via SMS/Email.'}
-                </p>
-              </div>
-            ) : (
-              <form onSubmit={handleRsvpSubmit} className="space-y-3">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700">{isBn ? 'আপনার নাম *' : 'Your Name *'}</label>
                 <input
                   type="text"
                   required
                   value={rsvpName}
-                  onChange={e => setRsvpName(e.target.value)}
-                  placeholder={isBn ? 'আপনার নাম' : 'Your Name'}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-teal-700 focus:outline-hidden"
+                  onChange={(e) => setRsvpName(e.target.value)}
+                  className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs focus:ring-2 focus:ring-[#006A4E]"
                 />
+              </div>
 
-                <input
-                  type="email"
-                  required
-                  value={rsvpEmail}
-                  onChange={e => setRsvpEmail(e.target.value)}
-                  placeholder="Email Address"
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-teal-700 focus:outline-hidden"
-                />
-
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700">{isBn ? 'মোবাইল নম্বর *' : 'Phone *'}</label>
                 <input
                   type="tel"
                   required
                   value={rsvpPhone}
-                  onChange={e => setRsvpPhone(e.target.value)}
-                  placeholder={isBn ? 'মোবাইল নম্বর' : 'Phone Number'}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-teal-700 focus:outline-hidden"
+                  onChange={(e) => setRsvpPhone(e.target.value)}
+                  className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs focus:ring-2 focus:ring-[#006A4E]"
                 />
+              </div>
 
-                <button
-                  type="submit"
-                  className="w-full py-2.5 rounded-xl bg-teal-800 hover:bg-teal-900 text-white font-bold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>{isBn ? 'নিবন্ধন নিশ্চিত করুন' : 'Confirm RSVP'}</span>
-                </button>
-              </form>
-            )}
-          </div>
+              <button
+                type="submit"
+                className="w-full py-2.5 rounded-xl bg-[#006A4E] hover:bg-[#00523C] text-white text-xs font-bold shadow-2xs transition-colors cursor-pointer"
+              >
+                {isBn ? 'উপস্থিতি নিশ্চিত করুন' : 'Confirm RSVP'}
+              </button>
+            </form>
+          )}
         </div>
       </div>
     </div>

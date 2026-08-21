@@ -12,6 +12,7 @@ import {
   ChevronUp,
   ArrowRight
 } from 'lucide-react';
+import { getAssetUrl } from '../lib/utils/assetHelper';
 
 export const PastCommitteesPage: React.FC = () => {
   const { isBn, tText } = useLanguage();
@@ -26,11 +27,11 @@ export const PastCommitteesPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 space-y-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-10 sm:space-y-14">
       {/* Header Banner */}
       <div className="text-center space-y-4 max-w-4xl mx-auto">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100 text-slate-800 text-xs font-bold uppercase tracking-wider border border-slate-200">
-          <History className="w-3.5 h-3.5 text-slate-700" />
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E6F3EF] text-[#00523C] text-xs font-extrabold uppercase tracking-wider border border-[#C2E2D7]">
+          <History className="w-3.5 h-3.5 text-[#006A4E]" />
           <span>{isBn ? 'সাংগঠনিক ইতিহাস ও নেতৃত্ব' : 'Leadership Archive'}</span>
         </div>
 
@@ -38,18 +39,18 @@ export const PastCommitteesPage: React.FC = () => {
           {isBn ? 'প্রাক্তন কার্যনির্বাহী কমিটি আর্কাইভ' : 'Past Committees & Leadership Archive'}
         </h1>
 
-        <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-3xl mx-auto">
+        <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-3xl mx-auto">
           {isBn
-            ? 'ইনফিনিটি বাংলাদেশ-এর সূচনালগ্ন থেকে বিভিন্ন বর্ষে নিষ্ঠা ও সততার সাথে দায়িত্ব পালনকারী প্রাক্তন নেতৃবৃন্দের গৌরবময় অবদান।'
-            : 'Preserving the historic legacy and humanitarian contributions of previous executive leadership councils across service years.'}
+            ? 'ইনফিনিটি বাংলাদেশ-এর সূচনালগ্ন (২০১৫) থেকে বিভিন্ন বর্ষে নিষ্ঠা ও সততার সাথে দায়িত্ব পালনকারী প্রাক্তন নেতৃবৃন্দের গৌরবময় অবদান।'
+            : 'Preserving the historic legacy and humanitarian contributions of previous executive leadership councils across service years since 2015.'}
         </p>
 
         {/* Sub-navigation */}
-        <div className="pt-4 flex flex-wrap justify-center items-center gap-3">
+        <div className="pt-3 flex flex-wrap justify-center items-center gap-2.5 sm:gap-3">
           <button
             type="button"
             onClick={() => navigate('about/executive-committee')}
-            className="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-bold transition-all cursor-pointer"
+            className="px-5 py-2.5 rounded-2xl bg-white hover:bg-[#FAF7F2] text-slate-700 text-xs sm:text-sm font-bold border border-[#EAE3D9] transition-all cursor-pointer"
           >
             {isBn ? 'বর্তমান কার্যনির্বাহী পরিষদ (২০২৬)' : 'Current Executive Committee (2026)'}
           </button>
@@ -57,14 +58,14 @@ export const PastCommitteesPage: React.FC = () => {
           <button
             type="button"
             onClick={() => navigate('about/standing-committees')}
-            className="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-bold transition-all cursor-pointer"
+            className="px-5 py-2.5 rounded-2xl bg-white hover:bg-[#FAF7F2] text-slate-700 text-xs sm:text-sm font-bold border border-[#EAE3D9] transition-all cursor-pointer"
           >
             {isBn ? 'স্থায়ী কমিটিসমূহ' : 'Standing Committees'}
           </button>
 
           <button
             type="button"
-            className="px-5 py-2.5 rounded-xl bg-teal-800 text-white text-xs sm:text-sm font-bold shadow-xs cursor-default"
+            className="px-5 py-2.5 rounded-2xl bg-[#006A4E] text-white text-xs sm:text-sm font-extrabold shadow-warm-sm cursor-default"
           >
             {isBn ? 'প্রাক্তন কমিটি আর্কাইভ' : 'Past Committees Archive'}
           </button>
@@ -81,15 +82,15 @@ export const PastCommitteesPage: React.FC = () => {
             return (
               <div
                 key={comm.id}
-                className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs transition-all"
+                className="bg-white rounded-3xl border border-[#EAE3D9] overflow-hidden shadow-warm-sm transition-all"
               >
                 <div
                   onClick={() => toggleExpand(comm.id)}
-                  className="p-6 sm:p-8 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/70 transition-colors"
+                  className="p-6 sm:p-8 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-[#FAF7F2] transition-colors"
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-slate-100 text-slate-800 border border-slate-200">
+                      <span className="inline-block px-3 py-0.5 rounded-full text-[11px] font-extrabold bg-[#E6F3EF] text-[#00523C] border border-[#C2E2D7]">
                         {isBn ? 'আর্কাইভ বর্ষ:' : 'Service Term:'} {comm.year}
                       </span>
                     </div>
@@ -101,60 +102,54 @@ export const PastCommitteesPage: React.FC = () => {
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-3 self-end sm:self-center">
-                    <span className="text-xs font-semibold text-teal-800 bg-teal-50 px-3 py-1 rounded-full border border-teal-200">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-bold text-slate-500">
                       {members.length} {isBn ? 'জন সদস্য' : 'Members'}
                     </span>
-                    <div className="p-2 rounded-full bg-slate-100 text-slate-600">
-                      {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                    <div className="w-8 h-8 rounded-full bg-[#FAF7F2] border border-[#EAE3D9] flex items-center justify-center text-slate-700">
+                      {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                     </div>
                   </div>
                 </div>
 
                 {isExpanded && (
-                  <div className="p-6 sm:p-8 border-t border-slate-100 bg-slate-50/50 space-y-6 animate-in fade-in">
-                    {members.length > 0 ? (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                        {members.map(m => (
-                          <div
-                            key={m.id}
-                            className="p-4 rounded-2xl bg-white border border-slate-200 text-center space-y-1 shadow-2xs"
-                          >
-                            <span className="text-[10px] font-mono font-bold text-slate-400">
-                              #{String(m.serialNumber).padStart(2, '0')}
-                            </span>
-                            <h4 className="text-sm font-bold text-slate-900">
+                  <div className="p-6 sm:p-8 pt-0 border-t border-slate-100 bg-[#FAF7F2]">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-6">
+                      {members.map(m => (
+                        <div
+                          key={m.id}
+                          className="bg-white rounded-2xl p-4 border border-[#EAE3D9] shadow-2xs text-center space-y-2"
+                        >
+                          <div className="mx-auto w-16 h-20 rounded-t-full rounded-b-xl overflow-hidden bg-slate-100 border border-slate-200 flex items-center justify-center">
+                            {m.person.photoUrl ? (
+                              <img
+                                src={getAssetUrl(m.person.photoUrl)}
+                                alt={m.person.fullName}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <Users className="w-8 h-8 text-slate-400" />
+                            )}
+                          </div>
+                          <div>
+                            <h4 className="text-xs sm:text-sm font-bold text-slate-900 font-display">
                               {isBn ? m.person.banglaName : m.person.fullName}
                             </h4>
-                            <p className="text-xs text-teal-800 font-semibold">
+                            <span className="text-[11px] font-bold text-[#006A4E] block">
                               {isBn ? m.position.name.bn : m.position.name.en}
-                            </p>
+                            </span>
                           </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="p-6 text-center text-xs text-slate-500 bg-white rounded-2xl border border-dashed border-slate-300">
-                        {isBn
-                          ? 'এই বর্ষের সদস্য তালিকা আর্কাইভ নথি থেকে অ্যাডমিন প্যানেলের মাধ্যমে হালনাগাদ করা যাবে।'
-                          : 'Roster records for this past term can be added or restored from the Admin Panel.'}
-                      </div>
-                    )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
             );
           })
         ) : (
-          <div className="p-12 text-center bg-white rounded-3xl border border-slate-200 space-y-3">
-            <History className="w-12 h-12 text-slate-300 mx-auto" />
-            <h3 className="text-lg font-bold text-slate-800">
-              {isBn ? 'কোনো পূর্ববর্তী আর্কাইভ কমিটি পাওয়া যায়নি' : 'No Archived Committees Found'}
-            </h3>
-            <p className="text-xs text-slate-500 max-w-sm mx-auto">
-              {isBn
-                ? 'ভবিষ্যতে নতুন কমিটি গঠনের সময় পূর্ববর্তী কমিটিগুলো স্বয়ংক্রিয়ভাবে এখানে সংরক্ষিত থাকবে।'
-                : 'When new annual executive committees are elected in future years, previous terms are archived here.'}
-            </p>
+          <div className="bg-white rounded-3xl border border-[#EAE3D9] p-12 text-center text-slate-500 text-sm">
+            {isBn ? 'কোনো সংরক্ষিত আর্কাইভ তথ্য পাওয়া যায়নি।' : 'No past committees archived yet.'}
           </div>
         )}
       </div>

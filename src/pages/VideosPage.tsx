@@ -27,18 +27,18 @@ export const VideosPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-12 md:py-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+    <div className="py-10 sm:py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 sm:space-y-14">
         {/* Page Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal-50 border border-teal-200/80 rounded-full text-teal-800 text-xs font-bold uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#E6F3EF] border border-[#C2E2D7] rounded-full text-[#00523C] text-xs font-extrabold uppercase tracking-wider">
             <Video className="w-3.5 h-3.5" />
-            {isBn ? 'ভিডিও গ্যালারি ও তথ্যচিত্র' : 'Video Gallery & Field Footage'}
+            <span>{isBn ? 'ভিডিও গ্যালারি ও তথ্যচিত্র' : 'Video Gallery & Field Footage'}</span>
           </div>
-          <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+          <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight font-display">
             {isBn ? 'আমাদের মাঠপর্যায়ের বাস্তব চিত্র' : 'Ground Realities & Campaign Stories'}
           </h1>
-          <p className="text-slate-600 text-base md:text-lg leading-relaxed">
+          <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
             {isBn
               ? 'টিম ইনফিনিটির স্বেচ্ছাসেবী কার্যক্রম, ত্রাণ বিতরণ মুহূর্ত ও যুব নেতৃত্বের ভিডিওচিত্র এক নজরে দেখুন।'
               : 'Watch authentic glimpses of Team Infinity field drives, seasonal relief efforts, and youth volunteer leadership in Bangladesh.'}
@@ -47,12 +47,12 @@ export const VideosPage: React.FC = () => {
 
         {/* Video Grid */}
         {videos.length === 0 ? (
-          <div className="bg-white rounded-2xl p-12 text-center border border-slate-200 shadow-sm max-w-lg mx-auto">
+          <div className="bg-white rounded-3xl p-12 text-center border border-[#EAE3D9] shadow-warm-sm max-w-lg mx-auto">
             <Video className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-            <h3 className="font-bold text-slate-700 text-lg">
+            <h3 className="font-bold text-slate-700 text-base">
               {isBn ? 'কোনো ভিডিও পাওয়া যায়নি' : 'No Videos Published Yet'}
             </h3>
-            <p className="text-slate-500 text-sm mt-1">
+            <p className="text-slate-500 text-xs mt-1">
               {isBn ? '[অফিসিয়াল ভিডিও লিঙ্ক অ্যাডমিন প্যানেল থেকে যুক্ত করুন]' : '[Official verified video links to be added via Admin]'}
             </p>
           </div>
@@ -61,7 +61,7 @@ export const VideosPage: React.FC = () => {
             {videos.map((item) => (
               <div
                 key={item.id}
-                className="group bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col cursor-pointer"
+                className="group bg-white rounded-3xl border border-[#EAE3D9] overflow-hidden shadow-warm-sm hover:shadow-warm-md transition-all duration-300 flex flex-col cursor-pointer"
                 onClick={() => setSelectedVideo(item)}
               >
                 {/* Thumbnail with Play Overlay */}
@@ -73,7 +73,7 @@ export const VideosPage: React.FC = () => {
                     loading="lazy"
                   />
                   <div className="absolute inset-0 bg-slate-950/30 group-hover:bg-slate-950/10 transition-colors flex items-center justify-center">
-                    <div className="w-14 h-14 rounded-full bg-teal-600/90 text-white flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-teal-600 transition-all">
+                    <div className="w-14 h-14 rounded-full bg-[#006A4E]/90 text-white flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-[#006A4E] transition-all">
                       <Play className="w-6 h-6 fill-current ml-0.5" />
                     </div>
                   </div>
@@ -82,7 +82,7 @@ export const VideosPage: React.FC = () => {
                       {item.duration}
                     </span>
                   )}
-                  <span className="absolute top-3 left-3 bg-slate-950/75 text-teal-300 text-xs px-2.5 py-1 rounded-md font-semibold capitalize backdrop-blur-sm">
+                  <span className="absolute top-3 left-3 bg-[#006A4E]/90 text-white text-[11px] px-2.5 py-1 rounded-full font-bold capitalize backdrop-blur-sm">
                     {item.platform}
                   </span>
                 </div>
@@ -90,21 +90,21 @@ export const VideosPage: React.FC = () => {
                 {/* Video Info */}
                 <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
                   <div>
-                    <h3 className="font-bold text-lg text-slate-900 group-hover:text-teal-700 transition-colors line-clamp-2">
+                    <h3 className="font-bold text-lg text-slate-900 group-hover:text-[#006A4E] transition-colors line-clamp-2 font-display">
                       {tText(item.title)}
                     </h3>
-                    <p className="text-slate-600 text-sm mt-2 line-clamp-2 leading-relaxed">
+                    <p className="text-slate-600 text-xs mt-2 line-clamp-2 leading-relaxed">
                       {tText(item.description)}
                     </p>
                   </div>
 
                   <div className="flex items-center justify-between text-xs text-slate-500 pt-3 border-t border-slate-100">
-                    <span className="flex items-center gap-1.5 font-medium">
+                    <span className="flex items-center gap-1">
                       <Calendar className="w-3.5 h-3.5" />
                       {item.date}
                     </span>
-                    <span className="text-teal-700 font-semibold flex items-center gap-1">
-                      {isBn ? 'ভিডিও চালান' : 'Watch Video'}
+                    <span className="text-[#006A4E] font-bold inline-flex items-center gap-1 group-hover:underline">
+                      <span>{isBn ? 'ভিডিও চালান' : 'Watch Now'}</span>
                       <Play className="w-3 h-3 fill-current" />
                     </span>
                   </div>
@@ -116,47 +116,65 @@ export const VideosPage: React.FC = () => {
 
         {/* Video Player Modal */}
         {selectedVideo && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-200">
-            <div className="relative w-full max-w-4xl bg-slate-900 rounded-2xl overflow-hidden shadow-2xl border border-slate-800">
-              <div className="flex items-center justify-between px-6 py-4 bg-slate-950 border-b border-slate-800 text-white">
-                <div className="flex items-center gap-2">
-                  <Video className="w-5 h-5 text-teal-400" />
-                  <h3 className="font-bold text-sm md:text-base line-clamp-1">
-                    {tText(selectedVideo.title)}
-                  </h3>
-                </div>
+          <div
+            className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setSelectedVideo(null)}
+          >
+            <div
+              className="bg-white rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl border border-slate-200 relative animate-in fade-in zoom-in-95"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="p-4 sm:p-5 flex items-center justify-between border-b border-slate-100 bg-[#FAF7F2]">
+                <h3 className="font-bold text-slate-900 text-sm sm:text-base font-display truncate max-w-[80%]">
+                  {tText(selectedVideo.title)}
+                </h3>
                 <button
+                  type="button"
                   onClick={() => setSelectedVideo(null)}
-                  className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
+                  className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              {/* Responsive Video Frame */}
-              <div className="relative aspect-video w-full bg-black">
+              {/* Video Embed Frame */}
+              <div className="aspect-video bg-black">
                 <iframe
                   src={getEmbedUrl(selectedVideo.videoUrl)}
                   title={tText(selectedVideo.title)}
-                  className="w-full h-full border-0"
+                  className="w-full h-full"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                 />
               </div>
 
-              <div className="p-6 bg-slate-900 text-white space-y-3">
-                <p className="text-sm text-slate-300 leading-relaxed">
+              {/* Modal Footer Info */}
+              <div className="p-5 space-y-3">
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                   {tText(selectedVideo.description)}
                 </p>
-                <div className="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-800">
-                  <span>Infinity Bangladesh Official Video Archive</span>
+                <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100">
+                  <div className="flex items-center gap-4 text-xs text-slate-500">
+                    <span className="flex items-center gap-1">
+                      <Calendar className="w-3.5 h-3.5 text-[#006A4E]" />
+                      {selectedVideo.date}
+                    </span>
+                    {selectedVideo.duration && (
+                      <span className="flex items-center gap-1 font-mono">
+                        <Clock className="w-3.5 h-3.5" />
+                        {selectedVideo.duration}
+                      </span>
+                    )}
+                  </div>
+
                   <a
                     href={selectedVideo.videoUrl}
                     target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-teal-400 hover:text-teal-300 transition-colors"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#FAF7F2] hover:bg-[#F2ECE1] text-[#006A4E] text-xs font-bold rounded-xl border border-[#EAE3D9] transition-colors"
                   >
-                    {isBn ? 'মূল প্ল্যাটফর্মে দেখুন' : 'Open in New Tab'}
+                    <span>{isBn ? 'মূল প্ল্যাটফর্মে দেখুন' : 'Open in New Tab'}</span>
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                 </div>
@@ -164,35 +182,6 @@ export const VideosPage: React.FC = () => {
             </div>
           </div>
         )}
-
-        {/* CTA Card */}
-        <div className="bg-gradient-to-r from-teal-900 to-slate-900 rounded-3xl p-8 md:p-12 text-white text-center max-w-4xl mx-auto shadow-xl space-y-6">
-          <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mx-auto">
-            <Heart className="w-6 h-6 text-teal-300" />
-          </div>
-          <h2 className="text-2xl md:text-3xl font-black">
-            {isBn ? 'আপনিও হতে পারেন পরবর্তী পরিবর্তনের সারথি' : 'Be Part of Our Next Humanitarian Drive'}
-          </h2>
-          <p className="text-slate-300 text-sm md:text-base max-w-xl mx-auto leading-relaxed">
-            {isBn
-              ? 'টিম ইনফিনিটি দেশের প্রতিটি প্রান্তে অসহায় মানুষের মুখে হাসি ফোটাতে নিরন্তর কাজ করছে। যোগ দিন আমাদের স্বেচ্ছাসেবী পরিবারে।'
-              : 'Join Team Infinity as an active volunteer and stand with us on the ground for humanity.'}
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
-            <button
-              onClick={() => navigate('volunteer')}
-              className="px-6 py-3 bg-teal-600 hover:bg-teal-500 text-white text-sm font-bold rounded-xl transition-colors shadow-md"
-            >
-              {isBn ? 'স্বেচ্ছাসেবক হিসেবে যোগ দিন' : 'Become a Volunteer'}
-            </button>
-            <button
-              onClick={() => navigate('campaigns')}
-              className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white text-sm font-semibold rounded-xl transition-colors"
-            >
-              {isBn ? 'চলমান ক্যাম্পেইনসমূহ দেখুন' : 'Explore Active Campaigns'}
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   );

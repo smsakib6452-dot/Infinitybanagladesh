@@ -15,9 +15,9 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({ campaign, featured =
   const { navigate } = useRouter();
 
   const statusColors = {
-    active: 'bg-emerald-100 text-emerald-800 border-emerald-300',
-    upcoming: 'bg-blue-100 text-blue-800 border-blue-300',
-    completed: 'bg-slate-100 text-slate-700 border-slate-300'
+    active: 'bg-[#E6F3EF] text-[#00523C] border-[#C2E2D7]',
+    upcoming: 'bg-amber-50 text-amber-800 border-amber-200',
+    completed: 'bg-slate-100 text-slate-700 border-slate-200'
   };
 
   const statusLabels = {
@@ -28,11 +28,11 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({ campaign, featured =
 
   return (
     <div
-      className={`group bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col ${
-        featured ? 'ring-2 ring-teal-600/30' : ''
+      className={`group bg-white rounded-3xl border border-[#EAE3D9] overflow-hidden shadow-warm-sm hover:shadow-warm-lg transition-all duration-300 flex flex-col hover:-translate-y-1 ${
+        featured ? 'ring-2 ring-[#006A4E]/30' : ''
       }`}
     >
-      {/* Campaign Image Container */}
+      {/* Campaign Image */}
       <div className="relative aspect-16/10 overflow-hidden bg-slate-100">
         <img
           src={getAssetUrl(campaign.imageUrl)}
@@ -40,7 +40,7 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({ campaign, featured =
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           loading="lazy"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
 
         {/* Status Badge & Category */}
         <div className="absolute top-3 left-3 flex items-center gap-2">
@@ -51,19 +51,19 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({ campaign, featured =
           >
             {statusLabels[campaign.status]}
           </span>
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-900/70 text-white backdrop-blur-xs">
+          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-950/70 text-white backdrop-blur-xs">
             {campaign.category}
           </span>
         </div>
 
-        {/* Date / Time */}
-        <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-xs text-white/90 font-medium">
+        {/* Date & Location Overlay */}
+        <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-xs text-white/95 font-medium">
           <span className="flex items-center gap-1">
-            <Calendar className="w-3.5 h-3.5 text-teal-300" />
+            <Calendar className="w-3.5 h-3.5 text-amber-300" />
             {campaign.date}
           </span>
           <span className="flex items-center gap-1 truncate max-w-[50%]">
-            <MapPin className="w-3.5 h-3.5 text-teal-300 shrink-0" />
+            <MapPin className="w-3.5 h-3.5 text-emerald-300 shrink-0" />
             <span className="truncate">{tText(campaign.location)}</span>
           </span>
         </div>
@@ -72,10 +72,10 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({ campaign, featured =
       {/* Card Content */}
       <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between space-y-4">
         <div className="space-y-2">
-          <h3 className="text-lg sm:text-xl font-bold text-slate-900 group-hover:text-teal-800 transition-colors line-clamp-2">
+          <h3 className="text-lg sm:text-xl font-bold text-slate-900 group-hover:text-[#006A4E] transition-colors line-clamp-2 font-display">
             {tText(campaign.title)}
           </h3>
-          <p className="text-sm text-slate-600 line-clamp-3 leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-600 line-clamp-3 leading-relaxed">
             {tText(campaign.description)}
           </p>
         </div>
@@ -91,7 +91,7 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({ campaign, featured =
           <button
             type="button"
             onClick={() => navigate('campaigns/detail', campaign.slug)}
-            className="text-sm font-bold text-teal-800 hover:text-teal-900 inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="text-xs sm:text-sm font-bold text-[#006A4E] hover:text-[#00523C] inline-flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             <span>{isBn ? 'বিস্তারিত দেখুন' : 'View Campaign'}</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -100,11 +100,11 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({ campaign, featured =
           <button
             type="button"
             onClick={() => navigate('donate')}
-            className="p-2 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 transition-colors inline-flex items-center gap-1 text-xs font-bold cursor-pointer"
+            className="px-3 py-1.5 rounded-xl bg-[#E6F3EF] hover:bg-[#006A4E] text-[#006A4E] hover:text-white transition-all inline-flex items-center gap-1.5 text-xs font-bold cursor-pointer"
             title="Support this campaign"
           >
-            <Heart className="w-3.5 h-3.5 fill-teal-700 text-teal-700" />
-            <span className="hidden sm:inline">{isBn ? 'সহায়তা' : 'Support'}</span>
+            <Heart className="w-3.5 h-3.5 fill-current" />
+            <span>{isBn ? 'সহায়তা' : 'Support'}</span>
           </button>
         </div>
       </div>

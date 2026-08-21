@@ -1,33 +1,33 @@
 import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { FileCheck, Shield, Heart, Scale, Users, AlertCircle } from 'lucide-react';
+import { FileCheck, Shield, Heart, Scale, Users } from 'lucide-react';
 
 export const TermsPage: React.FC = () => {
   const { isBn } = useLanguage();
 
   return (
-    <div className="min-h-screen bg-slate-50 py-12 md:py-16">
+    <div className="py-10 sm:py-16">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         {/* Header */}
         <div className="text-center space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal-50 border border-teal-200/80 rounded-full text-teal-800 text-xs font-bold uppercase tracking-wider">
-            <FileCheck className="w-3.5 h-3.5" />
-            {isBn ? 'ব্যবহারের শর্তাবলী ও নীতিমালা' : 'Terms of Service & Code of Conduct'}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#E6F3EF] border border-[#C2E2D7] rounded-full text-[#00523C] text-xs font-extrabold uppercase tracking-wider">
+            <FileCheck className="w-3.5 h-3.5 text-[#006A4E]" />
+            <span>{isBn ? 'ব্যবহারের শর্তাবলী ও নীতিমালা' : 'Terms of Service & Code of Conduct'}</span>
           </div>
-          <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
+          <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight font-display">
             {isBn ? 'নীতিমালা ও স্বেচ্ছাসেবা আচরণবিধি' : 'Terms & Volunteer Ethics'}
           </h1>
-          <p className="text-slate-500 text-sm">
-            {isBn ? 'ইনফিনিটি বাংলাদেশ (টিম ইনফিনিটি) | ২০২৫' : 'Infinity Bangladesh | Team Infinity — United for Humanity (2025)'}
+          <p className="text-slate-500 text-xs sm:text-sm">
+            {isBn ? 'ইনফিনিটি বাংলাদেশ (টিম ইনফিনিটি) | প্রতিষ্ঠিত ২০১৫, হাটহাজারী' : 'Infinity Bangladesh | Team Infinity — United for Humanity (Est. 2015, Hathazari)'}
           </p>
         </div>
 
         {/* Content Box */}
-        <div className="bg-white rounded-3xl p-8 md:p-12 border border-slate-200/90 shadow-sm space-y-8 text-slate-700 text-sm leading-relaxed">
+        <div className="bg-white rounded-3xl p-8 md:p-12 border border-[#EAE3D9] shadow-warm-sm space-y-8 text-slate-700 text-xs sm:text-sm leading-relaxed">
           <section className="space-y-3">
-            <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-              <Scale className="w-5 h-5 text-teal-700" />
-              {isBn ? '১. সাধারণ ব্যবহারের শর্তাবলী' : '1. Website Terms & General Use'}
+            <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2 font-display">
+              <Scale className="w-5 h-5 text-[#006A4E]" />
+              <span>{isBn ? '১. সাধারণ ব্যবহারের শর্তাবলী' : '1. Website Terms & General Use'}</span>
             </h2>
             <p>
               {isBn
@@ -37,11 +37,11 @@ export const TermsPage: React.FC = () => {
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-              <Users className="w-5 h-5 text-teal-700" />
-              {isBn ? '২. স্বেচ্ছাসেবকদের আচরণবিধি (Code of Conduct)' : '2. Volunteer Code of Conduct & Ethics'}
+            <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2 font-display">
+              <Users className="w-5 h-5 text-[#006A4E]" />
+              <span>{isBn ? '২. স্বেচ্ছাসেবকদের আচরণবিধি (Code of Conduct)' : '2. Volunteer Code of Conduct & Ethics'}</span>
             </h2>
-            <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-5 space-y-2.5">
+            <div className="bg-[#FAF7F2] border border-[#EAE3D9] rounded-2xl p-5 space-y-2.5">
               <p className="font-semibold text-slate-900">
                 {isBn ? 'টিম ইনফিনিটির প্রতিটি সদস্য ও স্বেচ্ছাসেবীকে নিম্নের মূলনীতিগুলো মেনে চলতে হবে:' : 'All registered Team Infinity volunteers pledge to uphold the following standards:'}
               </p>
@@ -63,9 +63,9 @@ export const TermsPage: React.FC = () => {
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-              <Heart className="w-5 h-5 text-teal-700" />
-              {isBn ? '৩. অনুদান ও হিসাব নিরীক্ষা নীতিমালা' : '3. Donation & Utilization Integrity'}
+            <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2 font-display">
+              <Heart className="w-5 h-5 text-[#006A4E]" />
+              <span>{isBn ? '৩. অনুদান ও হিসাব নিরীক্ষা নীতিমালা' : '3. Donation & Utilization Integrity'}</span>
             </h2>
             <p>
               {isBn
@@ -75,14 +75,14 @@ export const TermsPage: React.FC = () => {
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-              <Shield className="w-5 h-5 text-teal-700" />
-              {isBn ? '৪. ব্র্যান্ড পরিচিতি ও অফিসিয়াল লোগো' : '4. Official Brand Identity & Logo Protection'}
+            <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2 font-display">
+              <Shield className="w-5 h-5 text-[#006A4E]" />
+              <span>{isBn ? '৪. ব্র্যান্ড পরিচিতি ও অফিসিয়াল লোগো' : '4. Official Brand Identity & Logo Protection'}</span>
             </h2>
             <p>
               {isBn
-                ? '“Infinity Bangladesh”, “Team Infinity” এবং “United for Humanity” সংগঠনের অফিসিয়াল স্বত্বাধিকারভুক্ত ট্রেডমার্ক ও পরিচয়। সংগঠনের অফিশিয়াল অনুমতি ছাড়া এর লোগো বা নাম ব্যবহার করে কোনো বাণিজ্যিক বা অননুমোদিত প্রচারণা করা আইনত নিষিদ্ধ।'
-                : 'The official logos, name "Infinity Bangladesh", identity "Team Infinity", and tagline "United for Humanity" represent the authentic intellectual property of the organization. Unauthorized reproduction or commercial impersonation is prohibited.'}
+                ? '“Infinity Bangladesh”, “Team Infinity” এবং “United for Humanity” সংগঠনের অফিসিয়াল স্বত্বাধিকারভুক্ত পরিচয়। সংগঠনের অফিশিয়াল অনুমতি ছাড়া এর লোগো বা নাম ব্যবহার করে কোনো বাণিজ্যিক বা অননুমোদিত প্রচারণা করা আইনত নিষিদ্ধ।'
+                : 'The official logos, name "Infinity Bangladesh", identity "Team Infinity", and tagline "United for Humanity" represent the authentic property of the organization. Unauthorized reproduction or commercial impersonation is prohibited.'}
             </p>
           </section>
         </div>

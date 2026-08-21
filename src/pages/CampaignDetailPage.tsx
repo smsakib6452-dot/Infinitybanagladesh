@@ -11,8 +11,6 @@ import {
   Heart,
   CheckCircle2,
   Share2,
-  FileText,
-  Video,
   ShieldCheck,
   Sparkles,
   Users
@@ -36,7 +34,7 @@ export const CampaignDetailPage: React.FC = () => {
         <button
           type="button"
           onClick={() => navigate('campaigns')}
-          className="px-4 py-2 bg-teal-800 text-white rounded-lg text-sm font-bold"
+          className="px-5 py-2.5 bg-[#006A4E] text-white rounded-2xl text-sm font-bold shadow-warm-sm cursor-pointer"
         >
           {isBn ? 'সকল ক্যাম্পেইনে ফিরে যান' : 'Back to Campaigns'}
         </button>
@@ -76,7 +74,7 @@ export const CampaignDetailPage: React.FC = () => {
         <button
           type="button"
           onClick={() => navigate('campaigns')}
-          className="inline-flex items-center gap-2 text-sm font-bold text-teal-800 hover:text-teal-900 transition-colors"
+          className="inline-flex items-center gap-2 text-sm font-bold text-[#006A4E] hover:text-[#00523C] transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>{isBn ? 'সকল ক্যাম্পেইনে ফিরে যান' : 'Back to All Campaigns'}</span>
@@ -85,7 +83,7 @@ export const CampaignDetailPage: React.FC = () => {
         <button
           type="button"
           onClick={handleShare}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors"
+          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-2xl bg-white hover:bg-[#FAF7F2] text-slate-700 text-xs font-bold border border-[#EAE3D9] transition-colors cursor-pointer"
         >
           <Share2 className="w-3.5 h-3.5" />
           <span>{isBn ? 'শেয়ার করুন' : 'Share Campaign'}</span>
@@ -95,125 +93,84 @@ export const CampaignDetailPage: React.FC = () => {
       {/* Hero Section */}
       <div className="space-y-6">
         <div className="flex flex-wrap items-center gap-3">
-          <span className="px-3 py-1 rounded-full text-xs font-bold bg-teal-100 text-teal-800 border border-teal-200">
+          <span className="px-3.5 py-1 rounded-full text-xs font-extrabold bg-[#E6F3EF] text-[#00523C] border border-[#C2E2D7]">
             {campaign.category}
           </span>
-          <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700">
-            {campaign.status === 'active' ? (isBn ? 'চলমান' : 'Active') : campaign.status}
+          <span className="flex items-center gap-1 text-xs text-slate-500 font-medium">
+            <Calendar className="w-3.5 h-3.5 text-[#006A4E]" />
+            <span>{campaign.date}</span>
+          </span>
+          <span className="flex items-center gap-1 text-xs text-slate-500 font-medium">
+            <MapPin className="w-3.5 h-3.5 text-amber-600" />
+            <span>{tText(campaign.location)}</span>
           </span>
         </div>
 
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight font-display leading-tight">
+        <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight font-display">
           {tText(campaign.title)}
         </h1>
 
-        <div className="flex flex-wrap items-center gap-6 text-sm text-slate-600 font-medium">
-          <span className="flex items-center gap-1.5">
-            <Calendar className="w-4 h-4 text-teal-700" />
-            {campaign.date}
-          </span>
-          <span className="flex items-center gap-1.5">
-            <MapPin className="w-4 h-4 text-teal-700" />
-            {tText(campaign.location)}
-          </span>
-        </div>
-
-        {/* Featured Image */}
-        <div className="rounded-3xl overflow-hidden shadow-xl aspect-16/9 max-h-[520px] bg-slate-100 border border-slate-200">
-          <img
-            src={campaign.imageUrl}
-            alt={tText(campaign.title)}
-            className="w-full h-full object-cover"
-          />
-        </div>
+        <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-4xl font-normal">
+          {tText(campaign.description)}
+        </p>
       </div>
 
-      {/* Campaign Storytelling Body */}
+      {/* Main Content Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-        {/* Main Column */}
-        <div className="lg:col-span-8 space-y-8">
-          {/* Overview */}
-          <div className="p-8 bg-white rounded-3xl border border-slate-200 space-y-4 shadow-xs">
-            <h2 className="text-2xl font-bold text-slate-900 font-display">
-              {isBn ? 'ক্যাম্পেইনের পটভূমি ও বিবরণ' : 'Campaign Overview & Story'}
-            </h2>
-            <p className="text-slate-700 leading-relaxed text-base sm:text-lg">
-              {tText(campaign.description)}
-            </p>
+        {/* Left Column: Media & Story */}
+        <div className="lg:col-span-8 space-y-10">
+          <div className="rounded-[2.5rem] overflow-hidden shadow-warm-xl border-4 border-white aspect-16/9 bg-slate-100">
+            <img
+              src={campaign.imageUrl}
+              alt={tText(campaign.title)}
+              className="w-full h-full object-cover"
+            />
           </div>
 
           {/* Objectives */}
-          <div className="p-8 bg-white rounded-3xl border border-slate-200 space-y-4 shadow-xs">
-            <h3 className="text-xl font-bold text-slate-900 font-display">
-              {isBn ? 'মূল উদ্দেশ্যসমূহ' : 'Key Campaign Objectives'}
+          <div className="p-6 sm:p-8 bg-white rounded-3xl border border-[#EAE3D9] space-y-4 shadow-warm-sm">
+            <h3 className="text-lg font-bold text-slate-900 font-display flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-[#006A4E]" />
+              <span>{isBn ? 'ক্যাম্পেইনের মূল লক্ষ্যসমূহ' : 'Key Campaign Objectives'}</span>
             </h3>
-            <div className="space-y-3">
-              {(isBn ? campaign.objectives.bn : campaign.objectives.en).map((obj, i) => (
-                <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-teal-50/60 border border-teal-100">
-                  <CheckCircle2 className="w-5 h-5 text-teal-700 shrink-0 mt-0.5" />
-                  <span className="text-sm text-slate-800 font-medium">{obj}</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+              {(isBn ? campaign.objectives.bn : campaign.objectives.en).map((obj, index) => (
+                <div key={index} className="flex items-start gap-2.5 p-3 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] text-xs sm:text-sm text-slate-700">
+                  <Sparkles className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                  <span>{obj}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Activities */}
-          <div className="p-8 bg-white rounded-3xl border border-slate-200 space-y-4 shadow-xs">
-            <h3 className="text-xl font-bold text-slate-900 font-display">
-              {isBn ? 'মাঠপর্যায়ে পরিচালিত কার্যক্রম' : 'Activities & Ground Execution'}
+          {/* Detailed Narrative */}
+          <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-4 shadow-warm-sm">
+            <h3 className="text-lg font-bold text-slate-900 font-display">
+              {isBn ? 'ক্যাম্পেইন বিবরণ ও বাস্তবায়ন পরিকল্পনা' : 'Implementation Narrative & Impact'}
             </h3>
-            <div className="space-y-3">
-              {(isBn ? campaign.activities.bn : campaign.activities.en).map((act, i) => (
-                <div key={i} className="flex items-start gap-3 text-sm text-slate-700">
-                  <span className="w-2 h-2 rounded-full bg-teal-600 mt-2 shrink-0" />
-                  <span>{act}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Beneficiaries & Impact */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
-              <span className="text-xs font-bold text-teal-800 uppercase tracking-wider block">
-                {isBn ? 'উপকারভোগী গোষ্ঠী' : 'Target Beneficiaries'}
-              </span>
-              <p className="text-sm text-slate-800 font-medium leading-relaxed">
-                {tText(campaign.beneficiaries)}
-              </p>
-            </div>
-
-            <div className="p-6 bg-teal-50 rounded-2xl border border-teal-200 space-y-2">
-              <span className="text-xs font-bold text-teal-900 uppercase tracking-wider block">
-                {isBn ? 'বাস্তব প্রভাব ও পরিবর্তন' : 'Measured Impact & Dignity'}
-              </span>
-              <p className="text-sm text-teal-950 font-medium leading-relaxed">
-                {tText(campaign.impact)}
-              </p>
-            </div>
+            <p className="text-slate-700 leading-relaxed text-sm">
+              {tText(campaign.details)}
+            </p>
           </div>
 
           {/* Photo Gallery Grid */}
-          {campaign.galleryImages && campaign.galleryImages.length > 0 && (
-            <div className="space-y-4 pt-4">
-              <h3 className="text-xl font-bold text-slate-900">
-                {isBn ? 'ক্যাম্পেইনের আলোকচিত্র' : 'Field Photo Documentation'}
+          {campaign.galleryImages.length > 0 && (
+            <div className="space-y-4">
+              <h3 className="text-xl font-bold text-slate-900 font-display">
+                {isBn ? 'মাঠপর্যায়ের আলোকচিত্র' : 'Field Photo Documentation'}
               </h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                {campaign.galleryImages.map((img, idx) => (
+                {campaign.galleryImages.map((img, i) => (
                   <div
-                    key={idx}
-                    onClick={() => setLightboxIndex(idx)}
-                    className="relative aspect-4/3 rounded-2xl overflow-hidden bg-slate-100 cursor-pointer shadow-xs hover:shadow-md group"
+                    key={i}
+                    onClick={() => setLightboxIndex(i)}
+                    className="aspect-square rounded-2xl overflow-hidden bg-slate-100 cursor-pointer shadow-warm-sm border border-[#EAE3D9] group"
                   >
                     <img
                       src={img}
-                      alt={`${tText(campaign.title)} photo ${idx + 1}`}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      alt={`Gallery ${i + 1}`}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                     />
-                    <div className="absolute inset-0 bg-slate-900/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold">
-                      {isBn ? 'বড় করে দেখুন' : 'Click to View'}
-                    </div>
                   </div>
                 ))}
               </div>
@@ -221,70 +178,63 @@ export const CampaignDetailPage: React.FC = () => {
           )}
         </div>
 
-        {/* Sidebar Actions */}
+        {/* Right Column: Support / Donation Box */}
         <div className="lg:col-span-4 space-y-6">
-          {/* Donation Support Box */}
-          <div className="bg-gradient-to-br from-teal-900 to-slate-900 text-white rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl border border-teal-800">
+          <div className="p-6 sm:p-8 bg-white rounded-3xl border border-[#EAE3D9] space-y-6 shadow-warm-md sticky top-24">
             <div className="space-y-2">
-              <span className="text-xs font-bold uppercase tracking-widest text-teal-300">
-                {isBn ? 'সহায়তার সুযোগ' : 'Make a Difference'}
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#006A4E] bg-[#E6F3EF] px-3 py-1 rounded-full border border-[#C2E2D7]">
+                {isBn ? 'সহায়তার সুযোগ' : 'Get Involved'}
               </span>
-              <h3 className="text-xl font-extrabold text-white">
-                {isBn ? 'এই ক্যাম্পেইনে পাশে দাঁড়ান' : 'Support This Campaign'}
+              <h3 className="text-xl font-extrabold text-slate-900 font-display">
+                {isBn ? 'এই উদ্যোগে সহায়তা দিন' : 'Support This Campaign'}
               </h3>
-              <p className="text-xs text-teal-100/80 leading-relaxed">
+              <p className="text-xs text-slate-600 leading-relaxed">
                 {isBn
-                  ? 'আপনার আন্তরিক সহযোগিতা সরাসরি শিশুদের নতুন পোশাক ও পরিবারের প্রয়োজনীয় খাদ্য সরবরাহে ব্যবহৃত হবে।'
-                  : 'Your contribution is directly mapped to transparent procurement for this specific field campaign.'}
+                  ? 'আপনার সহযোগিতা সরাসরি মাঠপর্যায়ে উপকারভোগীদের কাছে পৌঁছে দেওয়া হবে।'
+                  : 'Your contribution is directly transformed into verified aid on the ground.'}
               </p>
             </div>
 
-            <button
-              type="button"
-              onClick={() => navigate('donate')}
-              className="w-full py-3.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-extrabold text-sm shadow-md transition-colors flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <Heart className="w-4 h-4 fill-slate-950" />
-              <span>{isBn ? 'অনুদানের তথ্য দেখুন' : 'Donate to Campaign'}</span>
-            </button>
+            <div className="space-y-3 pt-2">
+              <button
+                type="button"
+                onClick={() => navigate('donate')}
+                className="w-full py-3.5 rounded-2xl bg-[#006A4E] hover:bg-[#00523C] text-white font-extrabold text-sm shadow-warm-sm transition-all flex items-center justify-center gap-2 cursor-pointer transform hover:-translate-y-0.5"
+              >
+                <Heart className="w-4 h-4 fill-white" />
+                <span>{isBn ? 'অনলাইন অনুদান প্রদান' : 'Donate to Campaign'}</span>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => navigate('volunteer')}
-              className="w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-teal-200 font-bold text-xs border border-slate-700 transition-colors flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <Users className="w-4 h-4" />
-              <span>{isBn ? 'স্বেচ্ছাসেবী হিসেবে যোগ দিন' : 'Volunteer in this Drive'}</span>
-            </button>
-          </div>
-
-          {/* Transparency & Audit Box */}
-          <div className="p-6 bg-white rounded-3xl border border-slate-200 space-y-4 shadow-xs text-xs">
-            <div className="flex items-center gap-2 text-teal-900 font-bold text-sm">
-              <ShieldCheck className="w-5 h-5 text-teal-700" />
-              {isBn ? 'ক্যাম্পেইন অডিট নীতিমালা' : 'Audited Campaign Protocol'}
+              <button
+                type="button"
+                onClick={() => navigate('volunteer')}
+                className="w-full py-3.5 rounded-2xl bg-[#FAF7F2] hover:bg-[#F2ECE1] text-slate-800 font-bold text-sm border border-[#EAE3D9] transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Users className="w-4 h-4 text-[#006A4E]" />
+                <span>{isBn ? 'স্বেচ্ছাসেবী হিসেবে যোগ দিন' : 'Volunteer for this Drive'}</span>
+              </button>
             </div>
-            <p className="text-slate-600 leading-relaxed">
-              {isBn
-                ? 'ক্যাম্পেইনের প্রতিটি ব্যয় রসিদ ও বিতরণ তালিকা স্বচ্ছতার সাথে অডিট সেলে সংরক্ষিত রয়েছে।'
-                : 'All expenditures, distribution logs, and donor receipts for this campaign are preserved in our central audit records.'}
-            </p>
-            <button
-              type="button"
-              onClick={() => navigate('transparency')}
-              className="text-xs font-bold text-teal-800 hover:underline block"
-            >
-              {isBn ? 'স্বচ্ছতা ও রিপোর্ট পাতায় যান &rarr;' : 'Go to Transparency Portal &rarr;'}
-            </button>
+
+            <div className="p-4 bg-[#FAF7F2] rounded-2xl border border-[#EAE3D9] space-y-2 text-xs text-slate-600">
+              <div className="flex items-center gap-2 font-bold text-[#00523C]">
+                <ShieldCheck className="w-4 h-4 text-[#006A4E]" />
+                <span>{isBn ? '১০০% স্বচ্ছতা অঙ্গীকার' : '100% Transparency Pledge'}</span>
+              </div>
+              <p className="text-[11px] text-slate-500 leading-relaxed">
+                {isBn
+                  ? 'ক্যাম্পেইন সমাপ্তির পর সকল ব্যয়ের ভাউচার এবং নিরীক্ষা রিপোর্ট প্রকাশ করা হয়।'
+                  : 'Comprehensive expense reports and distribution logs are published for complete public auditing.'}
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Related Campaigns */}
+      {/* Other campaigns */}
       {otherCampaigns.length > 0 && (
-        <div className="pt-10 border-t border-slate-200 space-y-6">
-          <h3 className="text-2xl font-bold text-slate-900">
-            {isBn ? 'অন্যান্য ক্যাম্পেইনসমূহ' : 'Other Verified Campaigns'}
+        <div className="pt-8 border-t border-slate-200 space-y-6">
+          <h3 className="text-2xl font-extrabold text-slate-900 font-display">
+            {isBn ? 'অন্যান্য ক্যাম্পেইনসমূহ' : 'Other Active Initiatives'}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {otherCampaigns.map(c => (

@@ -10,16 +10,14 @@ import {
   Heart,
   FileText,
   Calendar,
-  Image,
-  ArrowRight,
-  ShieldCheck
+  ArrowRight
 } from 'lucide-react';
 import { PageRoute } from '../types';
 
 export const GlobalSearchModal: React.FC = () => {
   const { isSearchOpen, setIsSearchOpen, navigate } = useRouter();
   const { isBn, tText } = useLanguage();
-  const { campaigns, programs, news, stories, events, reports, gallery } = useData();
+  const { campaigns, programs, news, stories, events, reports } = useData();
 
   const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -113,16 +111,16 @@ export const GlobalSearchModal: React.FC = () => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 px-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in"
+      className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 px-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in"
       onClick={() => setIsSearchOpen(false)}
     >
       <div
-        className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[80vh] animate-in zoom-in-95"
+        className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-[#EAE3D9] overflow-hidden flex flex-col max-h-[80vh] animate-in zoom-in-95"
         onClick={e => e.stopPropagation()}
       >
         {/* Search Input Bar */}
-        <div className="p-4 border-b border-slate-200 flex items-center gap-3 bg-slate-50">
-          <Search className="w-5 h-5 text-teal-700 shrink-0" />
+        <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center gap-3 bg-[#FAF7F2]">
+          <Search className="w-5 h-5 text-[#006A4E] shrink-0" />
           <input
             ref={inputRef}
             type="text"
@@ -133,7 +131,7 @@ export const GlobalSearchModal: React.FC = () => {
                 ? 'ক্যাম্পেইন, প্রোগ্রাম, সংবাদ, গল্প কিংবা রিপোর্ট খুঁজুন...'
                 : 'Search campaigns, programs, news, stories, reports...'
             }
-            className="w-full bg-transparent text-slate-900 placeholder:text-slate-400 text-base focus:outline-hidden"
+            className="w-full bg-transparent text-slate-900 placeholder:text-slate-400 text-sm sm:text-base focus:outline-hidden"
           />
           {query && (
             <button
@@ -147,7 +145,7 @@ export const GlobalSearchModal: React.FC = () => {
           <button
             type="button"
             onClick={() => setIsSearchOpen(false)}
-            className="px-2.5 py-1 text-xs bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-md font-medium"
+            className="px-2.5 py-1 text-xs bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl font-bold"
           >
             ESC
           </button>
@@ -157,7 +155,7 @@ export const GlobalSearchModal: React.FC = () => {
         <div className="flex-1 overflow-y-auto p-4 space-y-4 divide-y divide-slate-100">
           {!cleanQuery && (
             <div className="py-8 text-center text-slate-500 text-sm space-y-2">
-              <p className="font-medium text-slate-700">
+              <p className="font-bold text-slate-800">
                 {isBn ? 'ইনফিনিটি বাংলাদেশ-এর তথ্যাবলী খুঁজুন' : 'Search Infinity Bangladesh Knowledge Base'}
               </p>
               <p className="text-xs text-slate-400">
@@ -182,7 +180,7 @@ export const GlobalSearchModal: React.FC = () => {
           {/* Campaigns */}
           {matchingCampaigns.length > 0 && (
             <div className="pt-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-teal-800 flex items-center gap-1.5 mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#006A4E] flex items-center gap-1.5 mb-2">
                 <Flag className="w-3.5 h-3.5" />
                 {isBn ? 'ক্যাম্পেইনসমূহ' : 'Campaigns'} ({matchingCampaigns.length})
               </span>
@@ -192,15 +190,15 @@ export const GlobalSearchModal: React.FC = () => {
                     key={c.id}
                     type="button"
                     onClick={() => handleSelect('campaigns/detail', c.slug)}
-                    className="w-full text-left p-2.5 rounded-xl hover:bg-teal-50/80 transition-colors flex items-center justify-between group"
+                    className="w-full text-left p-2.5 rounded-2xl hover:bg-[#E6F3EF] transition-colors flex items-center justify-between group cursor-pointer"
                   >
                     <div>
-                      <div className="text-sm font-bold text-slate-900 group-hover:text-teal-800">
+                      <div className="text-sm font-bold text-slate-900 group-hover:text-[#006A4E]">
                         {tText(c.title)}
                       </div>
                       <div className="text-xs text-slate-500 line-clamp-1">{tText(c.description)}</div>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-teal-700 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#006A4E] opacity-0 group-hover:opacity-100 transition-opacity" />
                   </button>
                 ))}
               </div>
@@ -210,7 +208,7 @@ export const GlobalSearchModal: React.FC = () => {
           {/* Programs */}
           {matchingPrograms.length > 0 && (
             <div className="pt-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-teal-800 flex items-center gap-1.5 mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#006A4E] flex items-center gap-1.5 mb-2">
                 <BookOpen className="w-3.5 h-3.5" />
                 {isBn ? 'কার্যক্রম / প্রোগ্রাম' : 'Programs'} ({matchingPrograms.length})
               </span>
@@ -220,15 +218,15 @@ export const GlobalSearchModal: React.FC = () => {
                     key={p.id}
                     type="button"
                     onClick={() => handleSelect('programs/detail', p.slug)}
-                    className="w-full text-left p-2.5 rounded-xl hover:bg-teal-50/80 transition-colors flex items-center justify-between group"
+                    className="w-full text-left p-2.5 rounded-2xl hover:bg-[#E6F3EF] transition-colors flex items-center justify-between group cursor-pointer"
                   >
                     <div>
-                      <div className="text-sm font-bold text-slate-900 group-hover:text-teal-800">
+                      <div className="text-sm font-bold text-slate-900 group-hover:text-[#006A4E]">
                         {tText(p.title)}
                       </div>
                       <div className="text-xs text-slate-500 line-clamp-1">{tText(p.shortDescription)}</div>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-teal-700 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#006A4E] opacity-0 group-hover:opacity-100 transition-opacity" />
                   </button>
                 ))}
               </div>
@@ -238,8 +236,8 @@ export const GlobalSearchModal: React.FC = () => {
           {/* Stories */}
           {matchingStories.length > 0 && (
             <div className="pt-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-teal-800 flex items-center gap-1.5 mb-2">
-                <Heart className="w-3.5 h-3.5" />
+              <span className="text-xs font-bold uppercase tracking-wider text-[#006A4E] flex items-center gap-1.5 mb-2">
+                <Heart className="w-3.5 h-3.5 text-rose-600" />
                 {isBn ? 'মানবিক গল্প' : 'Impact Stories'} ({matchingStories.length})
               </span>
               <div className="space-y-1.5">
@@ -248,15 +246,15 @@ export const GlobalSearchModal: React.FC = () => {
                     key={s.id}
                     type="button"
                     onClick={() => handleSelect('stories/detail', s.slug)}
-                    className="w-full text-left p-2.5 rounded-xl hover:bg-teal-50/80 transition-colors flex items-center justify-between group"
+                    className="w-full text-left p-2.5 rounded-2xl hover:bg-[#E6F3EF] transition-colors flex items-center justify-between group cursor-pointer"
                   >
                     <div>
-                      <div className="text-sm font-bold text-slate-900 group-hover:text-teal-800">
+                      <div className="text-sm font-bold text-slate-900 group-hover:text-[#006A4E]">
                         {tText(s.title)}
                       </div>
                       <div className="text-xs text-slate-500 line-clamp-1">{tText(s.story)}</div>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-teal-700 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#006A4E] opacity-0 group-hover:opacity-100 transition-opacity" />
                   </button>
                 ))}
               </div>
@@ -266,9 +264,9 @@ export const GlobalSearchModal: React.FC = () => {
           {/* News */}
           {matchingNews.length > 0 && (
             <div className="pt-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-teal-800 flex items-center gap-1.5 mb-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#006A4E] flex items-center gap-1.5 mb-2">
                 <FileText className="w-3.5 h-3.5" />
-                {isBn ? 'সংবাদ ও আপডেট' : 'News Articles'} ({matchingNews.length})
+                {isBn ? 'সংবাদ' : 'News'} ({matchingNews.length})
               </span>
               <div className="space-y-1.5">
                 {matchingNews.map(n => (
@@ -276,54 +274,48 @@ export const GlobalSearchModal: React.FC = () => {
                     key={n.id}
                     type="button"
                     onClick={() => handleSelect('news/detail', n.slug)}
-                    className="w-full text-left p-2.5 rounded-xl hover:bg-teal-50/80 transition-colors flex items-center justify-between group"
+                    className="w-full text-left p-2.5 rounded-2xl hover:bg-[#E6F3EF] transition-colors flex items-center justify-between group cursor-pointer"
                   >
                     <div>
-                      <div className="text-sm font-bold text-slate-900 group-hover:text-teal-800">
+                      <div className="text-sm font-bold text-slate-900 group-hover:text-[#006A4E]">
                         {tText(n.title)}
                       </div>
                       <div className="text-xs text-slate-500 line-clamp-1">{tText(n.excerpt)}</div>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-teal-700 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#006A4E] opacity-0 group-hover:opacity-100 transition-opacity" />
                   </button>
                 ))}
               </div>
             </div>
           )}
 
-          {/* Transparency Reports */}
-          {matchingReports.length > 0 && (
+          {/* Events */}
+          {matchingEvents.length > 0 && (
             <div className="pt-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-teal-800 flex items-center gap-1.5 mb-2">
-                <ShieldCheck className="w-3.5 h-3.5" />
-                {isBn ? 'স্বচ্ছতা ও রিপোর্ট' : 'Transparency Reports'} ({matchingReports.length})
+              <span className="text-xs font-bold uppercase tracking-wider text-[#006A4E] flex items-center gap-1.5 mb-2">
+                <Calendar className="w-3.5 h-3.5" />
+                {isBn ? 'ইভেন্ট' : 'Events'} ({matchingEvents.length})
               </span>
               <div className="space-y-1.5">
-                {matchingReports.map(r => (
+                {matchingEvents.map(e => (
                   <button
-                    key={r.id}
+                    key={e.id}
                     type="button"
-                    onClick={() => handleSelect('transparency')}
-                    className="w-full text-left p-2.5 rounded-xl hover:bg-teal-50/80 transition-colors flex items-center justify-between group"
+                    onClick={() => handleSelect('events/detail', e.slug)}
+                    className="w-full text-left p-2.5 rounded-2xl hover:bg-[#E6F3EF] transition-colors flex items-center justify-between group cursor-pointer"
                   >
                     <div>
-                      <div className="text-sm font-bold text-slate-900 group-hover:text-teal-800">
-                        {tText(r.title)}
+                      <div className="text-sm font-bold text-slate-900 group-hover:text-[#006A4E]">
+                        {tText(e.title)}
                       </div>
-                      <div className="text-xs text-slate-500">{r.type} &bull; {r.year}</div>
+                      <div className="text-xs text-slate-500 line-clamp-1">{tText(e.description)}</div>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-teal-700 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#006A4E] opacity-0 group-hover:opacity-100 transition-opacity" />
                   </button>
                 ))}
               </div>
             </div>
           )}
-        </div>
-
-        {/* Modal Footer */}
-        <div className="p-3 bg-slate-50 border-t border-slate-200 text-xs text-slate-500 flex items-center justify-between">
-          <span>{isBn ? 'টিম ইনফিনিটি — মানবতার জন্য একতাবদ্ধ' : 'Team Infinity — United for Humanity'}</span>
-          <span>Press ESC to close</span>
         </div>
       </div>
     </div>

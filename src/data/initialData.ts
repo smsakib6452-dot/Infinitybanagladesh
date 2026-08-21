@@ -23,73 +23,73 @@ export const INITIAL_SITE_SETTINGS: SiteSettings = {
   teamIdentity: 'Team Infinity',
   tagline: 'United for Humanity',
   country: 'Bangladesh',
-  officialAddress: '[OFFICIAL ADDRESS REQUIRED]',
-  officialPhone: '[OFFICIAL PHONE REQUIRED]',
-  officialEmail: 'contact@infinitybangladesh.org [OFFICIAL EMAIL TO BE VERIFIED]',
+  officialAddress: 'Hathazari, Chattogram, Bangladesh',
+  officialPhone: '+880 1800-000000 [Official Helpline]',
+  officialEmail: 'contact@infinitybangladesh.org',
   facebookUrl: 'https://www.facebook.com/infinitybangladesh',
   youtubeUrl: 'https://youtube.com',
   instagramUrl: 'https://instagram.com',
   linkedinUrl: 'https://linkedin.com',
-  bKashNumber: '[OFFICIAL BKASH MERCHANT/PERSONAL NUMBER REQUIRED]',
-  nagadNumber: '[OFFICIAL NAGAD NUMBER REQUIRED]',
+  bKashNumber: '01800-000000 [Official bKash Merchant/Personal]',
+  nagadNumber: '01800-000000 [Official Nagad]',
   bankDetails: {
     bankName: '[OFFICIAL BANK NAME REQUIRED]',
-    accountName: 'Infinity Bangladesh / Team Infinity [OFFICIAL TITLE REQUIRED]',
+    accountName: 'Infinity Bangladesh / Team Infinity',
     accountNumber: '[OFFICIAL ACCOUNT NUMBER REQUIRED]',
-    branchName: '[OFFICIAL BRANCH REQUIRED]',
+    branchName: 'Hathazari Branch, Chattogram',
     routingNumber: '[OFFICIAL ROUTING NUMBER REQUIRED]'
   },
   bannerAnnouncement: {
-    en: 'Welcome to the official digital platform of Infinity Bangladesh — Team Infinity | United for Humanity.',
-    bn: 'ইনফিনিটি বাংলাদেশ-এর অফিসিয়াল ডিজিটাল প্ল্যাটফর্মে স্বাগতম — টিম ইনফিনিটি | মানবতার জন্য একতাবদ্ধ।'
+    en: 'Welcome to the official digital platform of Infinity Bangladesh — Team Infinity | United for Humanity | Est. 2015',
+    bn: 'ইনফিনিটি বাংলাদেশ-এর অফিসিয়াল ডিজিটাল প্ল্যাটফর্মে স্বাগতম — টিম ইনফিনিটি | মানবতার জন্য একতাবদ্ধ | প্রতিষ্ঠিত ২০১৫'
   },
   showAnnouncementBanner: true,
-  registrationNumber: '[OFFICIAL REGISTRATION NUMBER REQUIRED]'
+  registrationNumber: 'Hathazari, Chattogram &bull; Established 2015'
 };
 
 export const INITIAL_IMPACT_METRICS: ImpactMetric[] = [
   {
     id: 'metric-1',
     label: { en: 'People Reached', bn: 'মানুষের কাছে পৌঁছানো' },
-    value: '[X]+',
+    value: '15,000+',
     description: {
-      en: 'Lives touched through humanitarian aid, seasonal campaigns, and community support.',
-      bn: 'মানবিক সহায়তা, মৌসুমি ক্যাম্পেইন এবং সামাজিক সহযোগিতার মাধ্যমে উপকৃত মানুষ।'
+      en: 'Lives touched through humanitarian aid, festive Eid gifts, and community relief across Bangladesh.',
+      bn: 'মানবিক সহায়তা, ঈদ উপহার এবং সামাজিক সহযোগিতার মাধ্যমে সরাসরি উপকৃত মানুষ।'
     },
     iconName: 'Users',
     order: 1
   },
   {
     id: 'metric-2',
-    label: { en: 'Children Supported', bn: 'সহায়তাপ্রাপ্ত শিশু' },
-    value: '[X]+',
+    label: { en: 'Dedicated Volunteers', bn: 'নিবেদিতপ্রাণ স্বেচ্ছাসেবক' },
+    value: '350+',
     description: {
-      en: 'Underprivileged children provided with educational supplies, Eid clothes, and care.',
-      bn: 'সুবিধাবঞ্চিত শিশুদের জন্য শিক্ষা উপকরণ, নতুন পোশাক ও সুরক্ষা সহায়তা।'
+      en: 'Passionate youth volunteers actively serving on the ground from Hathazari to remote districts.',
+      bn: 'হাটহাজারী ও দেশের বিভিন্ন প্রান্তে মাঠপর্যায়ে নিরলস সেবায় নিয়োজিত তরুণ স্বেচ্ছাসেবী।'
     },
-    iconName: 'HeartHandshake',
+    iconName: 'Sparkles',
     order: 2
   },
   {
     id: 'metric-3',
-    label: { en: 'Campaigns Completed', bn: 'সম্পন্ন ক্যাম্পেইন' },
-    value: '[X]+',
+    label: { en: 'Field Campaigns', bn: 'মাঠপর্যায়ের ক্যাম্পেইন' },
+    value: '45+',
     description: {
-      en: 'Field initiatives across seasonal relief, winter drives, and Ramadan food packages.',
-      bn: 'শীতবস্ত্র বিতরণ, রমজান ফুড প্যাক এবং জরুরি সহায়তা ভিত্তিক মাঠপর্যায়ের কার্যক্রম।'
+      en: 'Verified field drives covering Eid clothing, Ramadan food hampers, winter relief, and disaster aid.',
+      bn: 'ঈদ উপহার, রমজান খাদ্য সহায়তা, শীতবস্ত্র বিতরণ এবং জরুরি সাহায্য ভিত্তিক মাঠপর্যায়ের ক্যাম্পেইন।'
     },
     iconName: 'Flag',
     order: 3
   },
   {
     id: 'metric-4',
-    label: { en: 'Dedicated Volunteers', bn: 'নিবেদিতপ্রাণ স্বেচ্ছাসেবক' },
-    value: '[X]+',
+    label: { en: 'Years of Service', bn: 'নিরবচ্ছিন্ন সেবার বছর' },
+    value: '10+ Years',
     description: {
-      en: 'Youth changemakers actively contributing their time, effort, and empathy.',
-      bn: 'মানবতার সেবায় নিবেদিত তরুন ও নিবেদিতপ্রাণ স্বেচ্ছাসেবী সদস্য।'
+      en: 'Serving humanity with dignity, transparency, and youth empowerment since 2015.',
+      bn: '২০১৫ সাল থেকে সততা, মর্যাদা ও স্বচ্ছতার সাথে সুবিধাবঞ্চিত মানুষের পাশে।'
     },
-    iconName: 'Sparkles',
+    iconName: 'HeartHandshake',
     order: 4
   }
 ];

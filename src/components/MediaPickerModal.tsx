@@ -18,10 +18,11 @@ import {
 import { StorageService } from '../lib/storage/storageService';
 import { uploadFileToSupabase, isSupabaseConfigured } from '../lib/supabase';
 
-interface MediaPickerModalProps {
+export interface MediaPickerModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSelect: (imageUrl: string, mediaItem?: MediaItem) => void;
+  onSelect?: (imageUrl: string, mediaItem?: MediaItem) => void;
+  onSelectMedia?: (imageUrl: string, mediaItem?: MediaItem) => void;
   currentImageUrl?: string;
   defaultCategory?: MediaCategory;
   title?: string;
@@ -45,6 +46,7 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
   isOpen,
   onClose,
   onSelect,
+  onSelectMedia,
   currentImageUrl = '',
   defaultCategory = 'General',
   title
@@ -57,6 +59,25 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null);
   const [customUrl, setCustomUrl] = useState(currentImageUrl);
+
+  // Safe callback dispatcher preventing any TypeError if onSelect or onSelectMedia is undefined
+  const dispatchSelect = (url: string, mediaItem?: MediaItem) => {
+    try {
+      if (typeof onSelect === 'function') {
+        onSelect(url, mediaItem);
+      } else if (typeof onSelectMedia === 'function') {
+        onSelectMedia(url, mediaItem);
+      }
+    } catch (err) {
+      console.error('Failed to execute media picker callback:', err);
+    }
+  };
+
+  const safeClose = () => {
+    if (typeof onClose === 'function') {
+      onClose();
+    }
+  };
 
   // Upload Tab State
   const [uploadCategory, setUploadCategory] = useState<MediaCategory>(defaultCategory);
@@ -79,18 +100,18 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
   const handleConfirmSelection = () => {
     if (activeTab === 'url') {
       if (customUrl.trim()) {
-        onSelect(customUrl.trim());
-        onClose();
+        dispatchSelect(customUrl.trim());
+        safeClose();
       }
       return;
     }
 
     if (selectedItem) {
-      onSelect(selectedItem.url, selectedItem);
-      onClose();
+      dispatchSelect(selectedItem.url, selectedItem);
+      safeClose();
     } else if (currentImageUrl) {
-      onSelect(currentImageUrl);
-      onClose();
+      dispatchSelect(currentImageUrl);
+      safeClose();
     }
   };
 
@@ -128,9 +149,9 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
 
       const created = addMediaItem(newMedia);
       setSelectedItem(created);
-      onSelect(created.url, created);
+      dispatchSelect(created.url, created);
       setIsUploading(false);
-      onClose();
+      safeClose();
     } catch (err: any) {
       setUploadError(err.message || 'Error occurred during file upload.');
       setIsUploading(false);

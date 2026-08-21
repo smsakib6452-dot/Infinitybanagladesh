@@ -3901,8 +3901,14 @@ export const AdminPage: React.FC = () => {
       <MediaPickerModal
         isOpen={mediaPickerOpen}
         onClose={() => setMediaPickerOpen(false)}
+        onSelect={(url) => {
+          if (typeof mediaPickerCallback === 'function') {
+            mediaPickerCallback(url);
+          }
+          setMediaPickerOpen(false);
+        }}
         onSelectMedia={(url) => {
-          if (mediaPickerCallback) {
+          if (typeof mediaPickerCallback === 'function') {
             mediaPickerCallback(url);
           }
           setMediaPickerOpen(false);

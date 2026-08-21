@@ -32,7 +32,8 @@ import {
   BannerItem,
   MediaItem,
   GalleryAlbum,
-  AdminProfile
+  AdminProfile,
+  FAQItem
 } from '../types';
 import {
   INITIAL_CAMPAIGNS,
@@ -65,7 +66,8 @@ import {
   INITIAL_BANNERS,
   INITIAL_MEDIA_LIBRARY,
   INITIAL_GALLERY_ALBUMS,
-  INITIAL_ADMIN_PROFILES
+  INITIAL_ADMIN_PROFILES,
+  INITIAL_FAQS
 } from '../data/initialData';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
@@ -84,6 +86,7 @@ interface DataContextType {
   volunteers: VolunteerApplication[];
   donations: DonationRecord[];
   messages: ContactMessage[];
+  faqs: FAQItem[];
   settings: SiteSettings;
   homepageConfig: HomepageConfig;
   aboutSettings: AboutSettings;
@@ -120,6 +123,14 @@ interface DataContextType {
   updateContactSettings: (newSettings: Partial<ContactSettings>) => void;
   updateSEOSettings: (newSettings: Partial<GlobalSEOSettings>) => void;
   updateSettings: (newSettings: Partial<SiteSettings>) => void;
+
+  // FAQs
+  addFAQ: (faq: Omit<FAQItem, 'id'>) => FAQItem;
+  updateFAQ: (id: string, faq: Partial<FAQItem>) => void;
+  deleteFAQ: (id: string) => void;
+
+  // Contact Messages
+  addContactMessage: (msg: Omit<ContactMessage, 'id' | 'submittedAt' | 'status'>) => ContactMessage;
 
   // Social Links
   addSocialLink: (link: Omit<SocialLink, 'id'>) => void;
@@ -282,6 +293,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [volunteers, setVolunteers] = useState<VolunteerApplication[]>(() => getStoredOrDefault('volunteers', INITIAL_VOLUNTEER_APPLICATIONS));
   const [donations, setDonations] = useState<DonationRecord[]>(() => getStoredOrDefault('donations', INITIAL_DONATIONS));
   const [messages, setMessages] = useState<ContactMessage[]>(() => getStoredOrDefault('messages', []));
+  const [faqs, setFaqs] = useState<FAQItem[]>(() => getStoredOrDefault('faqs', INITIAL_FAQS));
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>(() => getStoredOrDefault('auditLogs', []));
 
   // 3. Committees & Leadership
@@ -320,6 +332,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem(`${STORAGE_PREFIX}volunteers`, JSON.stringify(volunteers));
     localStorage.setItem(`${STORAGE_PREFIX}donations`, JSON.stringify(donations));
     localStorage.setItem(`${STORAGE_PREFIX}messages`, JSON.stringify(messages));
+    localStorage.setItem(`${STORAGE_PREFIX}faqs`, JSON.stringify(faqs));
     localStorage.setItem(`${STORAGE_PREFIX}auditLogs`, JSON.stringify(auditLogs));
     localStorage.setItem(`${STORAGE_PREFIX}committees`, JSON.stringify(committees));
     localStorage.setItem(`${STORAGE_PREFIX}persons`, JSON.stringify(persons));
@@ -330,7 +343,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     socialLinks, volunteerSettings, supportSettings, contactSettings, seoSettings,
     navigationItems, banners, mediaLibrary, galleryAlbums, adminProfiles,
     campaigns, programs, metrics, stories, news, events, gallery, videos,
-    reports, partners, volunteers, donations, messages, auditLogs,
+    reports, partners, volunteers, donations, messages, faqs, auditLogs,
     committees, persons, positions, committeeMembers
   ]);
 
@@ -956,7 +969,39 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     logAudit('UPDATE', 'DonationRecord', id, `Updated donation status to: ${status}`);
   }, [logAudit]);
 
+  // MUTATIONS: FAQs
+  const addFAQ = useCallback((faq: Omit<FAQItem, 'id'>) => {
+    const id = `faq-${Date.now()}`;
+    const newFAQ: FAQItem = { ...faq, id };
+    setFaqs(prev => [...prev, newFAQ]);
+    logAudit('CREATE', 'FAQItem', id, `Added FAQ: ${faq.question.en}`);
+    return newFAQ;
+  }, [logAudit]);
+
+  const updateFAQ = useCallback((id: string, updated: Partial<FAQItem>) => {
+    setFaqs(prev => prev.map(f => f.id === id ? { ...f, ...updated } : f));
+    logAudit('UPDATE', 'FAQItem', id, 'Updated FAQ content');
+  }, [logAudit]);
+
+  const deleteFAQ = useCallback((id: string) => {
+    setFaqs(prev => prev.filter(f => f.id !== id));
+    logAudit('DELETE', 'FAQItem', id, 'Deleted FAQ');
+  }, [logAudit]);
+
   // MUTATIONS: Contact Messages
+  const addContactMessage = useCallback((msg: Omit<ContactMessage, 'id' | 'submittedAt' | 'status'>) => {
+    const id = `msg-${Date.now()}`;
+    const newMsg: ContactMessage = {
+      ...msg,
+      id,
+      submittedAt: new Date().toISOString().replace('T', ' ').substring(0, 16),
+      status: 'Unread'
+    };
+    setMessages(prev => [newMsg, ...prev]);
+    logAudit('CREATE', 'ContactMessage', id, `New contact message from ${msg.name} (${msg.email})`);
+    return newMsg;
+  }, [logAudit]);
+
   const submitContactMessage = useCallback((msg: Omit<ContactMessage, 'id' | 'submittedAt' | 'status'>) => {
     const id = `msg-${Date.now()}`;
     const newMsg: ContactMessage = {
@@ -1287,6 +1332,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         volunteers,
         donations,
         messages,
+        faqs,
         settings,
         homepageConfig,
         aboutSettings,
@@ -1321,6 +1367,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updateContactSettings,
         updateSEOSettings,
         updateSettings,
+
+        addFAQ,
+        updateFAQ,
+        deleteFAQ,
+
+        addContactMessage,
 
         addSocialLink,
         updateSocialLink,

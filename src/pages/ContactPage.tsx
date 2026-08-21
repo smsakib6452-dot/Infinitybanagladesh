@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import { useData } from '../context/DataContext';
 import { SectionHeading } from '../components/SectionHeading';
 import { VerifiedOrganizationPledge } from '../components/OfficialInfoBadge';
 import {
@@ -15,7 +16,8 @@ import {
 } from 'lucide-react';
 
 export const ContactPage: React.FC = () => {
-  const { isBn } = useLanguage();
+  const { isBn, tText } = useLanguage();
+  const { contactSettings, settings, addContactMessage } = useData();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -26,18 +28,30 @@ export const ContactPage: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    addContactMessage({
+      name,
+      email,
+      phone,
+      subject,
+      message
+    });
     setIsSent(true);
   };
+
+  const address = contactSettings.address || settings.officialAddress || 'Hathazari, Chattogram, Bangladesh';
+  const emailAddr = contactSettings.email || settings.officialEmail || 'contact@infinitybangladesh.org';
+  const phoneNum = contactSettings.phone || settings.officialPhone || '+880 1800-000000';
+  const hours = contactSettings.workingHours || (isBn ? 'শনিবার - বৃহস্পতিবার: সকাল ৯টা - সন্ধ্যা ৬টা' : 'Sat - Thu: 9:00 AM - 6:00 PM');
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-12 sm:space-y-16">
       <SectionHeading
         badge={isBn ? 'যোগাযোগ ও তথ্যসেবা' : 'Connect With Us'}
-        title={isBn ? 'আমাদের সাথে যোগাযোগ করুন' : 'Get in Touch with Team Infinity'}
+        title={tText(contactSettings.title) || (isBn ? 'আমাদের সাথে যোগাযোগ করুন' : 'Get in Touch with Team Infinity')}
         subtitle={
-          isBn
+          tText(contactSettings.subtitle) || (isBn
             ? 'যেকোনো পরামর্শ, সহযোগিতা বা তথ্যের প্রয়োজনে আমাদের সাথে নির্দ্বিধায় যোগাযোগ করুন।'
-            : 'Whether you want to partner with us, ask a question, or visit our volunteer hubs, we are here for you.'
+            : 'Whether you want to partner with us, ask a question, or visit our volunteer hubs, we are here for you.')
         }
       />
 
@@ -63,9 +77,12 @@ export const ContactPage: React.FC = () => {
                 type="button"
                 onClick={() => {
                   setIsSent(false);
+                  setName('');
+                  setEmail('');
+                  setPhone('');
                   setMessage('');
                 }}
-                className="px-6 py-2.5 rounded-2xl bg-[#006A4E] text-white text-xs font-bold shadow-2xs"
+                className="px-6 py-2.5 rounded-2xl bg-[#006A4E] hover:bg-[#00523C] text-white text-xs font-bold shadow-2xs cursor-pointer"
               >
                 {isBn ? 'আরেকটি বার্তা পাঠান' : 'Send Another Message'}
               </button>
@@ -172,7 +189,7 @@ export const ContactPage: React.FC = () => {
                 </div>
                 <div>
                   <strong className="block text-slate-900">{isBn ? 'হেডকোয়ার্টার:' : 'Headquarters:'}</strong>
-                  <p className="text-slate-600 text-xs">Hathazari, Chattogram, Bangladesh</p>
+                  <p className="text-slate-600 text-xs">{address}</p>
                 </div>
               </div>
 
@@ -182,7 +199,17 @@ export const ContactPage: React.FC = () => {
                 </div>
                 <div>
                   <strong className="block text-slate-900">{isBn ? 'ইমেইল:' : 'Email:'}</strong>
-                  <p className="text-slate-600 text-xs">contact@infinitybangladesh.org</p>
+                  <a href={`mailto:${emailAddr}`} className="text-[#006A4E] hover:underline text-xs">{emailAddr}</a>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-xl bg-[#E6F3EF] text-[#006A4E] flex items-center justify-center shrink-0">
+                  <Phone className="w-4 h-4" />
+                </div>
+                <div>
+                  <strong className="block text-slate-900">{isBn ? 'ফোন নম্বর:' : 'Phone:'}</strong>
+                  <a href={`tel:${phoneNum}`} className="text-[#006A4E] hover:underline text-xs">{phoneNum}</a>
                 </div>
               </div>
 
@@ -192,7 +219,7 @@ export const ContactPage: React.FC = () => {
                 </div>
                 <div>
                   <strong className="block text-slate-900">{isBn ? 'কার্যকাল:' : 'Operational Hours:'}</strong>
-                  <p className="text-slate-600 text-xs">{isBn ? 'শনিবার - বৃহস্পতিবার: সকাল ৯টা - সন্ধ্যা ৬টা' : 'Sat - Thu: 9:00 AM - 6:00 PM'}</p>
+                  <p className="text-slate-600 text-xs">{hours}</p>
                 </div>
               </div>
             </div>

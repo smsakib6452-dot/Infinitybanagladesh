@@ -4,6 +4,7 @@ import { useRouter } from '../context/RouterContext';
 import { useData } from '../context/DataContext';
 import { GalleryLightbox } from '../components/GalleryLightbox';
 import { CampaignCard } from '../components/CampaignCard';
+import { getAssetUrl } from '../lib/utils/assetHelper';
 import {
   ArrowLeft,
   Calendar,
@@ -121,7 +122,7 @@ export const CampaignDetailPage: React.FC = () => {
         <div className="lg:col-span-8 space-y-10">
           <div className="rounded-[2.5rem] overflow-hidden shadow-warm-xl border-4 border-white aspect-16/9 bg-slate-100">
             <img
-              src={campaign.imageUrl}
+              src={getAssetUrl(campaign.imageUrl)}
               alt={tText(campaign.title)}
               className="w-full h-full object-cover"
             />
@@ -167,7 +168,7 @@ export const CampaignDetailPage: React.FC = () => {
                     className="aspect-square rounded-2xl overflow-hidden bg-slate-100 cursor-pointer shadow-warm-sm border border-[#EAE3D9] group"
                   >
                     <img
-                      src={img}
+                      src={getAssetUrl(img)}
                       alt={`Gallery ${i + 1}`}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                     />

@@ -504,7 +504,8 @@ export const HomePage: React.FC = () => {
           </section>
         );
 
-      case 'volunteer':
+      case 'volunteer': {
+        const volBanner = homepageConfig.volunteerBanner;
         return (
           <section key="volunteer" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="bg-[#11241E] rounded-[2.5rem] p-8 sm:p-12 lg:p-14 text-white relative overflow-hidden shadow-warm-xl border border-emerald-900/40">
@@ -515,17 +516,17 @@ export const HomePage: React.FC = () => {
                 <div className="lg:col-span-8 space-y-4 text-left">
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-600/40 text-emerald-300 text-xs font-bold uppercase tracking-wider">
                     <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                    <span>{isBn ? 'স্বেচ্ছাসেবী পরিবারে স্বাগতম' : 'Be Part of Team Infinity'}</span>
+                    <span>{tText(volBanner?.badge) || (isBn ? 'স্বেচ্ছাসেবী পরিবারে স্বাগতম' : 'Be Part of Team Infinity')}</span>
                   </div>
 
                   <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight font-display">
-                    {isBn ? 'মানবতার সেবায় আপনিও হতে পারেন অগ্রদূত' : 'Empower Communities with Your Time & Passion'}
+                    {tText(volBanner?.title) || (isBn ? 'মানবতার সেবায় আপনিও হতে পারেন অগ্রদূত' : 'Empower Communities with Your Time & Passion')}
                   </h2>
 
                   <p className="text-sm sm:text-base text-emerald-200/90 leading-relaxed max-w-2xl font-normal">
-                    {isBn
+                    {tText(volBanner?.subtitle) || (isBn
                       ? 'টিম ইনফিনিটি একটি তারুণ্যনির্ভর স্বচ্ছ মানবিক পরিবার। আপনার মেধা ও সহমর্মিতা দিয়ে একজন মানুষের মুখে হাসি ফোটাতে আমাদের সাথে যুক্ত হোন।'
-                      : 'Join a vibrant, ethical youth community committed to transparent grassroots humanitarian action across Bangladesh.'}
+                      : 'Join a vibrant, ethical youth community committed to transparent grassroots humanitarian action across Bangladesh.')}
                   </p>
                 </div>
 
@@ -535,7 +536,7 @@ export const HomePage: React.FC = () => {
                     onClick={() => navigate('volunteer')}
                     className="w-full py-3.5 px-6 rounded-2xl bg-[#006A4E] hover:bg-[#008562] active:bg-[#004D38] text-white font-extrabold text-xs sm:text-sm shadow-warm-md transition-all flex items-center justify-center gap-2 cursor-pointer transform hover:-translate-y-0.5"
                   >
-                    <span>{isBn ? 'স্বেচ্ছাসেবী হিসেবে যোগ দিন' : 'Become a Volunteer'}</span>
+                    <span>{tText(volBanner?.primaryButtonText) || (isBn ? 'স্বেচ্ছাসেবী হিসেবে যোগ দিন' : 'Become a Volunteer')}</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
 
@@ -545,13 +546,14 @@ export const HomePage: React.FC = () => {
                     className="w-full py-3.5 px-6 rounded-2xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs sm:text-sm border border-emerald-500/30 transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <Users className="w-4 h-4 text-emerald-300" />
-                    <span>{isBn ? 'আমাদের নেতৃত্ব দেখুন' : 'Meet Our Team'}</span>
+                    <span>{tText(volBanner?.secondaryButtonText) || (isBn ? 'আমাদের নেতৃত্ব দেখুন' : 'Meet Our Team')}</span>
                   </button>
                 </div>
               </div>
             </div>
           </section>
         );
+      }
 
       case 'transparency':
         return (
@@ -560,7 +562,8 @@ export const HomePage: React.FC = () => {
           </section>
         );
 
-      case 'support':
+      case 'support': {
+        const supBanner = homepageConfig.supportBanner;
         return (
           <section key="support" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="bg-gradient-to-br from-[#FAF7F2] to-white rounded-[2.5rem] border border-[#EAE3D9] p-8 sm:p-12 text-center space-y-6 shadow-warm-md">
@@ -570,12 +573,12 @@ export const HomePage: React.FC = () => {
 
               <div className="max-w-2xl mx-auto space-y-2">
                 <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-display">
-                  {isBn ? 'সহযোগিতার হাত বাড়িয়ে দিন' : 'Stand With Infinity Bangladesh'}
+                  {tText(supBanner?.title) || (isBn ? 'সহযোগিতার হাত বাড়িয়ে দিন' : 'Stand With Infinity Bangladesh')}
                 </h3>
                 <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
-                  {isBn
+                  {tText(supBanner?.subtitle) || (isBn
                     ? 'আপনার আর্থিক সহযোগিতা সরাসরি সুবিধাবঞ্চিত শিশুদের নতুন পোশাক, রমজানের খাদ্য এবং শীতের কম্বল হিসেবে রূপান্তরিত হয়।'
-                    : 'Your contributions directly fund verified clothes, nourishment, and winter protection for those who need it most.'}
+                    : 'Your contributions directly fund verified clothes, nourishment, and winter protection for those who need it most.')}
                 </p>
               </div>
 
@@ -586,7 +589,7 @@ export const HomePage: React.FC = () => {
                   className="px-8 py-3.5 rounded-2xl bg-[#006A4E] hover:bg-[#00523C] text-white font-extrabold text-xs sm:text-sm shadow-warm-md transition-all flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5"
                 >
                   <Heart className="w-4 h-4 fill-white" />
-                  <span>{isBn ? 'অনলাইন অনুদান প্রদান' : 'Donate to Infinity Bangladesh'}</span>
+                  <span>{tText(supBanner?.primaryButtonText) || (isBn ? 'অনলাইন অনুদান প্রদান' : 'Donate to Infinity Bangladesh')}</span>
                 </button>
 
                 <button
@@ -595,12 +598,13 @@ export const HomePage: React.FC = () => {
                   className="px-6 py-3.5 rounded-2xl bg-white hover:bg-[#FAF7F2] text-slate-800 font-bold text-xs sm:text-sm border border-[#EAE3D9] transition-all flex items-center gap-2 cursor-pointer"
                 >
                   <ShieldCheck className="w-4 h-4 text-[#006A4E]" />
-                  <span>{isBn ? 'স্বচ্ছতা ও অডিট রিপোর্ট' : 'Audit & Expense Logs'}</span>
+                  <span>{tText(supBanner?.secondaryButtonText) || (isBn ? 'স্বচ্ছতা ও অডিট রিপোর্ট' : 'Audit & Expense Logs')}</span>
                 </button>
               </div>
             </div>
           </section>
         );
+      }
 
       default:
         return null;

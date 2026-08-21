@@ -29,13 +29,26 @@ import {
   BannerItem,
   MediaItem,
   GalleryAlbum,
-  AdminProfile
+  AdminProfile,
+  FAQItem
 } from '../types';
 
 export const INITIAL_SITE_SETTINGS: SiteSettings = {
   organizationName: 'Infinity Bangladesh',
   teamIdentity: 'Team Infinity',
   tagline: 'United for Humanity',
+  slogan: {
+    en: 'United for Humanity',
+    bn: 'মানবতার জন্য একতাবদ্ধ'
+  },
+  primary_slogan: {
+    en: 'United for Humanity',
+    bn: 'মানবতার জন্য একতাবদ্ধ'
+  },
+  establishedYear: '2015',
+  headquartersLocation: 'Hathazari, Chattogram, Bangladesh',
+  logoUrl: '/brand/infinity-logo.png',
+  faviconUrl: '/brand/infinity-logo.png',
   country: 'Bangladesh',
   officialAddress: 'Hathazari, Chattogram, Bangladesh',
   officialPhone: '+880 1800-000000',
@@ -136,6 +149,29 @@ export const INITIAL_HOMEPAGE_CONFIG: HomepageConfig = {
     ctaUrl: 'about',
     imageUrl: '/images/events/winter-warmth.jpg'
   },
+  volunteerBanner: {
+    eyebrow: { en: 'Be Part of Team Infinity', bn: 'স্বেচ্ছাসেবী পরিবারে স্বাগতম' },
+    title: { en: 'Empower Communities with Your Time & Passion', bn: 'মানবতার সেবায় আপনিও হতে পারেন অগ্রদূত' },
+    description: {
+      en: 'Join a vibrant, ethical youth community committed to transparent grassroots humanitarian action across Bangladesh.',
+      bn: 'টিম ইনফিনিটি একটি তারুণ্যনির্ভর স্বচ্ছ মানবিক পরিবার। আপনার মেধা ও সহমর্মিতা দিয়ে একজন মানুষের মুখে হাসি ফোটাতে আমাদের সাথে যুক্ত হোন।'
+    },
+    primaryCtaText: { en: 'Become a Volunteer', bn: 'স্বেচ্ছাসেবী হিসেবে যোগ দিন' },
+    primaryCtaUrl: 'volunteer',
+    secondaryCtaText: { en: 'Meet Our Team', bn: 'আমাদের নেতৃত্ব দেখুন' },
+    secondaryCtaUrl: 'about/executive-committee'
+  },
+  supportBanner: {
+    title: { en: 'Stand With Infinity Bangladesh', bn: 'সহযোগিতার হাত বাড়িয়ে দিন' },
+    description: {
+      en: 'Your contributions directly fund verified clothes, nourishment, and winter protection for those who need it most.',
+      bn: 'আপনার আর্থিক সহযোগিতা সরাসরি সুবিধাবঞ্চিত শিশুদের নতুন পোশাক, রমজানের খাদ্য এবং শীতের কম্বল হিসেবে রূপান্তরিত হয়।'
+    },
+    primaryCtaText: { en: 'Donate to Infinity Bangladesh', bn: 'অনলাইন অনুদান প্রদান' },
+    primaryCtaUrl: 'donate',
+    secondaryCtaText: { en: 'Audit & Expense Logs', bn: 'স্বচ্ছতা ও অডিট রিপোর্ট' },
+    secondaryCtaUrl: 'transparency'
+  },
   sectionOrder: [
     'hero',
     'impact',
@@ -223,8 +259,115 @@ export const INITIAL_FOOTER_SETTINGS: FooterSettings = {
     en: '© 2015–2026 Infinity Bangladesh. All rights reserved. United for Humanity.',
     bn: '© ২০১৫–২০২৬ ইনফিনিটি বাংলাদেশ। সর্বস্বত্ব সংরক্ষিত। মানবতার জন্য একতাবদ্ধ।'
   },
-  showNewsletter: true
+  showNewsletter: true,
+  calloutEyebrow: {
+    en: 'Team Infinity — United for Humanity',
+    bn: 'টিম ইনফিনিটি — মানবতার জন্য একতাবদ্ধ'
+  },
+  calloutTitle: {
+    en: 'Stand with us to bring dignity, joy, and hope to communities in need.',
+    bn: 'সুবিধাবঞ্চিত মানুষের মুখে হাসি ফোটাতে আমাদের সাথে যোগ দিন'
+  },
+  calloutSubtitle: {
+    en: 'Whether as an active youth volunteer or a transparent supporter, your empathy creates lasting change.',
+    bn: 'স্বেচ্ছাসেবী হিসেবে কিংবা সহযোগিতার হাত বাড়িয়ে দিয়ে আপনিও হতে পারেন মানবকল্যাণের অগ্রণী অংশ।'
+  },
+  volunteerCtaText: {
+    en: 'Become a Volunteer',
+    bn: 'স্বেচ্ছাসেবী হিসেবে যোগ দিন'
+  },
+  supportCtaText: {
+    en: 'Support Our Work',
+    bn: 'সহায়তা করুন'
+  }
 };
+
+export const INITIAL_FAQS: FAQItem[] = [
+  {
+    id: 'faq-1',
+    question: {
+      en: 'What is Infinity Bangladesh and who runs it?',
+      bn: 'ইনফিনিটি বাংলাদেশ কী এবং কারা এটি পরিচালনা করেন?'
+    },
+    answer: {
+      en: 'Infinity Bangladesh (Team Infinity) is an authentic, youth-driven humanitarian and social organization founded in Hathazari, Chattogram in 2015. It is operated entirely by passionate youth volunteers, student leaders, and young professionals dedicated to upholding human dignity through transparent relief, education support, and community welfare.',
+      bn: 'ইনফিনিটি বাংলাদেশ (টিম ইনফিনিটি) ২০১৫ সালে চট্টগ্রামের হাটহাজারী থেকে যাত্রা শুরু করা একটি তারুণ্যনির্ভর সামাজিক ও মানবিক সংগঠন। দেশের সচেতন ছাত্রসমাজ ও তরুণ পেশাজীবীদের নিঃস্বার্থ স্বেচ্ছাসেবার মাধ্যমে সুবিধাবঞ্চিত শিশু, শ্রমজীবী মানুষ এবং প্রান্তিক জনগোষ্ঠীর মুখে হাসি ফোটানো এবং মর্যাদা রক্ষায় এটি পরিচালিত হয়।'
+    },
+    category: 'Organization',
+    displayOrder: 1,
+    active: true
+  },
+  {
+    id: 'faq-2',
+    question: {
+      en: 'How does Team Infinity ensure 100% financial transparency?',
+      bn: 'টিম ইনফিনিটি কীভাবে শতভাগ আর্থিক স্বচ্ছতা নিশ্চিত করে?'
+    },
+    answer: {
+      en: 'We enforce a radical transparency protocol: every Taka collected is directly tied to verified procurement receipts and public audit summaries. We never inflate statistics, and regular financial audit summaries are published on our Transparency Portal for open inspection.',
+      bn: 'আমরা কঠোর আর্থিক সততা নীতি মেনে চলি: সংগৃহীত প্রতিটি টাকার সরাসরি ক্রয় রসিদ এবং মাঠপর্যায়ের বিতরণ রিপোর্ট সংরক্ষণ করা হয়। কোনো প্রশাসনিক অপচয় বা ভুয়া হিসাব সহ্য করা হয় না এবং আমাদের স্বচ্ছতা পোর্টালে অডিট রিপোর্ট উন্মুক্ত রাখা হয়।'
+    },
+    category: 'Transparency',
+    displayOrder: 2,
+    active: true
+  },
+  {
+    id: 'faq-3',
+    question: {
+      en: 'What is the "Dignity First" beneficiary principle?',
+      bn: 'উপকারভোগীর "মর্যাদাপূর্ণ মানবিক সেবা" নীতি কী?'
+    },
+    answer: {
+      en: 'Aid is a basic human right, not a favor. Team Infinity strictly opposes humiliating public photo ops of distressed individuals. We distribute seasonal gifts, food, and clothes with absolute respect, privacy, and beneficiary consent.',
+      bn: 'সহায়তা কোনো অনুগ্রহ নয়, মানুষের অধিকার। ক্যামেরার সামনে দরিদ্র মানুষকে অপদস্থ করে ছবি তোলার প্রচলিত ধারার বিপরীতে আমরা সম্পূর্ণ সম্মানজনক ও মর্যাদাপূর্ণ উপায়ে উপহারসামগ্রী পৌঁছে দেই।'
+    },
+    category: 'Values',
+    displayOrder: 3,
+    active: true
+  },
+  {
+    id: 'faq-4',
+    question: {
+      en: 'How can I become a volunteer with Team Infinity?',
+      bn: 'আমি কীভাবে টিম ইনফিনিটির স্বেচ্ছাসেবক হতে পারি?'
+    },
+    answer: {
+      en: 'Anyone passionate about humanitarian work can apply through our Volunteer Registration page. Select your district, areas of interest (field distribution, logistics, photography, emergency response), and agree to our code of conduct. Our coordination desk will connect with you.',
+      bn: 'মানবিক কাজে আগ্রহী যেকোনো ব্যক্তি আমাদের স্বেচ্ছাসেবী নিবন্ধন পাতার মাধ্যমে আবেদন করতে পারেন। আপনার জেলা এবং আগ্রহের ক্ষেত্র (ত্রাণ বিতরণ, লজিস্টিকস, আলোকচিত্র ইত্যাদি) নির্বাচন করে আবেদন জমা দিলে আমাদের টিম আপনার সাথে যোগাযোগ করবে।'
+    },
+    category: 'Volunteering',
+    displayOrder: 4,
+    active: true
+  },
+  {
+    id: 'faq-5',
+    question: {
+      en: 'Can I donate to a specific campaign like Eid Joy or Winter Clothes?',
+      bn: 'আমি কি নির্দিষ্ট কোনো ক্যাম্পেইনে (যেমন: ঈদ আনন্দ বা শীতবস্ত্র) অনুদান দিতে পারি?'
+    },
+    answer: {
+      en: 'Yes! On our Donate page, you can select the specific campaign or project you wish to fund. Your donation will be exclusively earmarked for that cause and documented with a digital receipt.',
+      bn: 'হ্যাঁ! আমাদের অনুদান পাতায় গিয়ে আপনি নির্দিষ্ট ক্যাম্পেইন বা সাধারণ তহবিল নির্বাচন করতে পারেন। আপনার প্রদত্ত অনুদান নির্দিষ্ট সেই খাতেই ব্যয় করা হবে এবং একটি ডিজিটাল প্রাপ্তিস্বীকার রসিদ প্রদান করা হবে।'
+    },
+    category: 'Donation',
+    displayOrder: 5,
+    active: true
+  },
+  {
+    id: 'faq-6',
+    question: {
+      en: 'Where is Infinity Bangladesh headquartered?',
+      bn: 'ইনফিনিটি বাংলাদেশ-এর কেন্দ্রীয় কার্যালয় কোথায়?'
+    },
+    answer: {
+      en: 'Infinity Bangladesh was established in 2015 and is proudly rooted in Hathazari, Chattogram, Bangladesh, carrying out verified humanitarian relief operations throughout the region and country.',
+      bn: 'ইনফিনিটি বাংলাদেশ ২০১৫ সালে প্রতিষ্ঠিত হয়ে চট্টগ্রামের হাটহাজারীতে কেন্দ্রীয় কার্যালয় রেখে দেশব্যাপী মানবিক ও সামাজিক সেবামূলক কার্যক্রম পরিচালনা করছে।'
+    },
+    category: 'Organization',
+    displayOrder: 6,
+    active: true
+  }
+];
 
 export const INITIAL_SOCIAL_LINKS: SocialLink[] = [
   { id: 'soc-1', platform: 'facebook', url: 'https://www.facebook.com/infinitybangladesh', label: 'Facebook', active: true, displayOrder: 1 },

@@ -3,6 +3,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useRouter } from '../context/RouterContext';
 import { useData } from '../context/DataContext';
 import { CampaignCard } from '../components/CampaignCard';
+import { getAssetUrl } from '../lib/utils/assetHelper';
 import {
   ArrowLeft,
   CheckCircle2,
@@ -89,7 +90,7 @@ export const ProgramDetailPage: React.FC = () => {
         <div className="lg:col-span-5">
           <div className="aspect-4/3 rounded-[2.5rem] overflow-hidden shadow-warm-xl border-4 border-white bg-slate-100">
             <img
-              src={program.imageUrl}
+              src={getAssetUrl(program.imageUrl)}
               alt={tText(program.title)}
               className="w-full h-full object-cover"
             />

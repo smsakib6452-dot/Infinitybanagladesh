@@ -109,9 +109,30 @@ export interface AboutPreviewConfig {
   imageUrl: string;
 }
 
+export interface HomepageVolunteerBanner {
+  eyebrow: BilingualText;
+  title: BilingualText;
+  description: BilingualText;
+  primaryCtaText: BilingualText;
+  primaryCtaUrl: string;
+  secondaryCtaText: BilingualText;
+  secondaryCtaUrl: string;
+}
+
+export interface HomepageSupportBanner {
+  title: BilingualText;
+  description: BilingualText;
+  primaryCtaText: BilingualText;
+  primaryCtaUrl: string;
+  secondaryCtaText: BilingualText;
+  secondaryCtaUrl: string;
+}
+
 export interface HomepageConfig {
   hero: HeroConfig;
   aboutPreview: AboutPreviewConfig;
+  volunteerBanner?: HomepageVolunteerBanner;
+  supportBanner?: HomepageSupportBanner;
   sectionOrder: string[]; // e.g. ['hero', 'impact', 'about', 'programs', 'campaigns', 'stories', 'gallery', 'volunteer', 'transparency', 'support']
   sectionVisibility: {
     hero: boolean;
@@ -164,6 +185,11 @@ export interface FooterSettings {
   copyrightText: BilingualText;
   showNewsletter?: boolean;
   navColumns?: FooterColumn[];
+  calloutEyebrow?: BilingualText;
+  calloutTitle?: BilingualText;
+  calloutSubtitle?: BilingualText;
+  volunteerCtaText?: BilingualText;
+  supportCtaText?: BilingualText;
 }
 
 export type SocialPlatform = 'facebook' | 'youtube' | 'instagram' | 'linkedin' | 'x' | 'whatsapp' | 'other';
@@ -503,6 +529,15 @@ export interface ContactMessage {
   status: 'Unread' | 'Read' | 'Replied' | 'Archived';
 }
 
+export interface FAQItem {
+  id: string;
+  question: BilingualText;
+  answer: BilingualText;
+  category?: string;
+  displayOrder?: number;
+  active?: boolean;
+}
+
 // ----------------------------------------------------
 // SITE SETTINGS, SEO & AUDIT
 // ----------------------------------------------------
@@ -510,6 +545,12 @@ export interface SiteSettings {
   organizationName: string;
   teamIdentity: string;
   tagline: string;
+  slogan?: BilingualText;
+  primary_slogan?: BilingualText;
+  establishedYear?: string;
+  headquartersLocation?: string;
+  logoUrl?: string;
+  faviconUrl?: string;
   country: string;
   officialAddress: string;
   officialPhone: string;

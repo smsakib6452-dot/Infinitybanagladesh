@@ -55,7 +55,8 @@ import {
   Tag,
   FileSpreadsheet,
   ToggleLeft,
-  ToggleRight
+  ToggleRight,
+  HelpCircle
 } from 'lucide-react';
 import {
   Campaign,
@@ -82,22 +83,29 @@ import {
   GalleryAlbum,
   AdminProfile,
   AdminRole,
-  PageRoute
+  PageRoute,
+  FAQItem
 } from '../types';
 import { getAssetUrl } from '../lib/utils/assetHelper';
 import { formatBDT } from '../lib/utils/formatters';
 import { Toast } from '../components/Toast';
 import { MediaPickerModal } from '../components/MediaPickerModal';
+import { CampaignModal } from '../components/CampaignModal';
+import { ProgramModal } from '../components/ProgramModal';
+import { StoryModal } from '../components/StoryModal';
+import { FAQModal } from '../components/FAQModal';
 import { isSupabaseConfigured, signInWithEmail, signOutAdmin } from '../lib/supabase';
 
 type AdminTab =
   | 'overview'
+  | 'brand_settings'
   | 'homepage'
   | 'about_cms'
   | 'campaigns'
   | 'programs'
   | 'impact'
   | 'stories'
+  | 'faqs'
   | 'media_library'
   | 'banners'
   | 'gallery_albums'
@@ -126,6 +134,7 @@ export const AdminPage: React.FC = () => {
     programs, addProgram, updateProgram, deleteProgram,
     metrics, addMetric, updateMetric, deleteMetric,
     stories, addStory, updateStory, deleteStory,
+    faqs, addFAQ, updateFAQ, deleteFAQ,
     news, addNews, updateNews, deleteNews,
     events, addEvent, updateEvent, deleteEvent,
     gallery, addGalleryPhoto, deleteGalleryPhoto,
@@ -184,6 +193,9 @@ export const AdminPage: React.FC = () => {
 
   const [editingStory, setEditingStory] = useState<ImpactStory | null>(null);
   const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
+
+  const [editingFAQ, setEditingFAQ] = useState<FAQItem | null>(null);
+  const [isFAQModalOpen, setIsFAQModalOpen] = useState(false);
 
   const [editingBanner, setEditingBanner] = useState<BannerItem | null>(null);
   const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
@@ -336,6 +348,7 @@ export const AdminPage: React.FC = () => {
       group: isBn ? 'মূল নিয়ন্ত্রণ' : 'Main Control',
       items: [
         { id: 'overview' as AdminTab, label: isBn ? 'ড্যাশবোর্ড ওভারভিউ' : 'Overview & Stats', icon: LayoutDashboard },
+        { id: 'brand_settings' as AdminTab, label: isBn ? 'ব্র্যান্ড ও স্লোগান CMS' : 'Brand & Slogans CMS', icon: Sparkles },
         { id: 'homepage' as AdminTab, label: isBn ? 'হোমপেজ এডিটর' : 'Homepage Editor', icon: Sliders },
         { id: 'about_cms' as AdminTab, label: isBn ? 'আমাদের সম্পর্কে' : 'About Organization', icon: BookOpen },
         { id: 'navigation' as AdminTab, label: isBn ? 'মেনু ও নেভিগেশন' : 'Navigation & Menus', icon: Compass },
@@ -349,6 +362,7 @@ export const AdminPage: React.FC = () => {
         { id: 'programs' as AdminTab, label: isBn ? 'সেবামূলক প্রোগ্রাম' : 'Programs', icon: Handshake },
         { id: 'impact' as AdminTab, label: isBn ? 'ইমপ্যাক্ট মেট্রিক্স' : 'Impact Metrics', icon: Activity },
         { id: 'stories' as AdminTab, label: isBn ? 'বাস্তব জীবনের গল্প' : 'Impact Stories', icon: Heart },
+        { id: 'faqs' as AdminTab, label: isBn ? 'সাধারণ প্রশ্নোত্তর' : 'FAQ Manager', icon: HelpCircle },
         { id: 'volunteers' as AdminTab, label: isBn ? 'স্বেচ্ছাসেবী আবেদন' : 'Volunteer CMS', icon: Users },
         { id: 'donations' as AdminTab, label: isBn ? 'অনুদান ও তহবিল' : 'Donations & Funds', icon: CreditCard },
         { id: 'transparency' as AdminTab, label: isBn ? 'স্বচ্ছতা ও অডিট' : 'Transparency', icon: FileSpreadsheet }
@@ -569,6 +583,264 @@ export const AdminPage: React.FC = () => {
             )}
 
             {/* -------------------------------------------------------- */}
+            {/* TAB: BRAND SETTINGS & CENTRAL SLOGAN */}
+            {/* -------------------------------------------------------- */}
+            {activeTab === 'brand_settings' && (
+              <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                  <div>
+                    <h2 className="text-xl font-extrabold text-slate-900 font-display flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-[#006A4E]" />
+                      <span>{isBn ? 'ব্র্যান্ড আইডেন্টিটি, স্লোগান ও প্রাতিষ্ঠানিক সেটিংস' : 'Brand Identity, Central Slogan & Official Credentials'}</span>
+                    </h2>
+                    <p className="text-xs text-slate-500">
+                      {isBn
+                        ? 'অফিসিয়াল স্লোগান, প্রাতিষ্ঠানিক নাম, প্রতিষ্ঠা সাল, ঠিকানা ও লোগো পরিবর্তন করুন (পুরো সাইটে স্বয়ংক্রিয়ভাবে আপডেট হবে)।'
+                        : 'Manage primary slogan, organization identity, established year, headquarters, and official credentials.'}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => showToast(isBn ? 'ব্র্যান্ড সেটিংস সংরক্ষিত হয়েছে' : 'Brand settings saved successfully')}
+                    className="px-5 py-2 rounded-xl bg-[#006A4E] text-white font-bold text-xs shadow-warm-sm hover:bg-[#00523C] transition-all cursor-pointer"
+                  >
+                    Save Brand Settings
+                  </button>
+                </div>
+
+                {/* Central Slogan Section */}
+                <div className="p-5 rounded-2xl bg-[#E6F3EF] border border-[#C2E2D7] space-y-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <ShieldCheck className="w-4 h-4 text-[#006A4E]" />
+                      <h3 className="text-sm font-extrabold text-[#00523C] font-display">
+                        Official Slogan: UNITED FOR HUMANITY (কেন্দ্রীয় স্লোগান)
+                      </h3>
+                    </div>
+                    <p className="text-xs text-slate-600">
+                      Changing this updates the Header, Brand Logo, Homepage Hero, Footer, and Verified Badges globally across the entire website.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-800">Primary Slogan (English) *</label>
+                      <input
+                        type="text"
+                        value={settings.primary_slogan?.en || settings.slogan?.en || 'United for Humanity'}
+                        onChange={(e) => updateSettings({
+                          primary_slogan: { ...(settings.primary_slogan || { en: '', bn: '' }), en: e.target.value },
+                          slogan: { ...(settings.slogan || { en: '', bn: '' }), en: e.target.value }
+                        })}
+                        placeholder="United for Humanity"
+                        className="w-full px-3.5 py-2 bg-white border border-[#C2E2D7] rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-[#006A4E]"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-800">মূল স্লোগান (বাংলা) *</label>
+                      <input
+                        type="text"
+                        value={settings.primary_slogan?.bn || settings.slogan?.bn || 'মানবতার জন্য একতাবদ্ধ'}
+                        onChange={(e) => updateSettings({
+                          primary_slogan: { ...(settings.primary_slogan || { en: '', bn: '' }), bn: e.target.value },
+                          slogan: { ...(settings.slogan || { en: '', bn: '' }), bn: e.target.value }
+                        })}
+                        placeholder="মানবতার জন্য একতাবদ্ধ"
+                        className="w-full px-3.5 py-2 bg-white border border-[#C2E2D7] rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-[#006A4E]"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Organization Details */}
+                <div className="space-y-4 pt-2">
+                  <h3 className="text-sm font-bold text-slate-900 font-display">Organization Identity & Metadata</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Organization Name (English)</label>
+                      <input
+                        type="text"
+                        value={settings.organizationName?.en || 'Infinity Bangladesh'}
+                        onChange={(e) => updateSettings({
+                          organizationName: { ...(settings.organizationName || { en: '', bn: '' }), en: e.target.value }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">সংস্থার নাম (বাংলা)</label>
+                      <input
+                        type="text"
+                        value={settings.organizationName?.bn || 'ইনফিনিটি বাংলাদেশ'}
+                        onChange={(e) => updateSettings({
+                          organizationName: { ...(settings.organizationName || { en: '', bn: '' }), bn: e.target.value }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Team Identity</label>
+                      <input
+                        type="text"
+                        value={settings.teamIdentity || 'Team Infinity'}
+                        onChange={(e) => updateSettings({ teamIdentity: e.target.value })}
+                        placeholder="Team Infinity"
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Established Year</label>
+                      <input
+                        type="text"
+                        value={settings.establishedYear || '2015'}
+                        onChange={(e) => updateSettings({ establishedYear: e.target.value })}
+                        placeholder="2015"
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-mono"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Headquarters Location</label>
+                      <input
+                        type="text"
+                        value={settings.headquartersLocation || 'Bogura, Bangladesh'}
+                        onChange={(e) => updateSettings({ headquartersLocation: e.target.value })}
+                        placeholder="Bogura, Bangladesh"
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Official Registration / Model</label>
+                      <input
+                        type="text"
+                        value={settings.registrationNumber || 'Non-Profit Youth Organization'}
+                        onChange={(e) => updateSettings({ registrationNumber: e.target.value })}
+                        placeholder="Non-Profit Youth Organization"
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Official Address, Phone, Email */}
+                <div className="space-y-4 pt-4 border-t border-slate-100">
+                  <h3 className="text-sm font-bold text-slate-900 font-display">Official Address & Contact Information</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Official Address (English)</label>
+                      <textarea
+                        rows={2}
+                        value={settings.officialAddress?.en || ''}
+                        onChange={(e) => updateSettings({
+                          officialAddress: { ...(settings.officialAddress || { en: '', bn: '' }), en: e.target.value }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">অফিসিয়াল ঠিকানা (বাংলা)</label>
+                      <textarea
+                        rows={2}
+                        value={settings.officialAddress?.bn || ''}
+                        onChange={(e) => updateSettings({
+                          officialAddress: { ...(settings.officialAddress || { en: '', bn: '' }), bn: e.target.value }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Official Helpline Phone</label>
+                      <input
+                        type="text"
+                        value={settings.officialPhone || '+880 1711-000000'}
+                        onChange={(e) => updateSettings({ officialPhone: e.target.value })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-mono"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Official Email Address</label>
+                      <input
+                        type="email"
+                        value={settings.officialEmail || 'contact@infinitybangladesh.org'}
+                        onChange={(e) => updateSettings({ officialEmail: e.target.value })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-mono"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Logo & Visual Assets */}
+                <div className="space-y-4 pt-4 border-t border-slate-100">
+                  <h3 className="text-sm font-bold text-slate-900 font-display">Logo & Brand Visuals</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
+                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9]">
+                      <div className="w-14 h-14 rounded-xl bg-white border border-slate-200 p-2 flex items-center justify-center shrink-0">
+                        <img
+                          src={getAssetUrl(settings.logoUrl || '/logo.png')}
+                          alt="Official Logo"
+                          className="max-h-full max-w-full object-contain"
+                        />
+                      </div>
+                      <div className="space-y-1 flex-1">
+                        <label className="text-xs font-bold text-slate-700 block">Logo URL</label>
+                        <input
+                          type="text"
+                          value={settings.logoUrl || '/logo.png'}
+                          onChange={(e) => updateSettings({ logoUrl: e.target.value })}
+                          className="w-full px-3 py-1 bg-white border border-[#EAE3D9] rounded-lg text-xs font-mono"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => openMediaPicker((url) => {
+                            updateSettings({ logoUrl: url });
+                            showToast('Logo updated');
+                          })}
+                          className="text-[11px] text-[#006A4E] font-bold hover:underline cursor-pointer"
+                        >
+                          Pick from Media Library
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9]">
+                      <div className="w-14 h-14 rounded-xl bg-white border border-slate-200 p-2 flex items-center justify-center shrink-0">
+                        <img
+                          src={getAssetUrl(settings.faviconUrl || '/favicon.ico')}
+                          alt="Favicon"
+                          className="max-h-full max-w-full object-contain"
+                        />
+                      </div>
+                      <div className="space-y-1 flex-1">
+                        <label className="text-xs font-bold text-slate-700 block">Favicon URL</label>
+                        <input
+                          type="text"
+                          value={settings.faviconUrl || '/favicon.ico'}
+                          onChange={(e) => updateSettings({ faviconUrl: e.target.value })}
+                          className="w-full px-3 py-1 bg-white border border-[#EAE3D9] rounded-lg text-xs font-mono"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => openMediaPicker((url) => {
+                            updateSettings({ faviconUrl: url });
+                            showToast('Favicon updated');
+                          })}
+                          className="text-[11px] text-[#006A4E] font-bold hover:underline cursor-pointer"
+                        >
+                          Pick from Media Library
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* -------------------------------------------------------- */}
             {/* TAB: HOMEPAGE EDITOR */}
             {/* -------------------------------------------------------- */}
             {activeTab === 'homepage' && (
@@ -576,10 +848,10 @@ export const AdminPage: React.FC = () => {
                 <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                   <div>
                     <h2 className="text-xl font-extrabold text-slate-900 font-display">
-                      {isBn ? 'হোমপেজ হিরো ও সেকশন কনফিগারেশন' : 'Homepage Hero & Section Manager'}
+                      {isBn ? 'হোমপেজ হিরো, ব্যানার ও সেকশন কনফিগারেশন' : 'Homepage Hero, Banners & Section Manager'}
                     </h2>
                     <p className="text-xs text-slate-500">
-                      {isBn ? 'হেডলাইন, স্লোগান, হিরো ইমেজ ও সেকশনের ক্রম পরিবর্তন করুন।' : 'Update headline, slogans, real cover photography, CTA buttons, and reorder sections.'}
+                      {isBn ? 'হেডলাইন, স্লোগান, হিরো ইমেজ, ভলান্টিয়ার ও অনুদান ব্যানার এবং সেকশনের ক্রম পরিবর্তন করুন।' : 'Update headline, slogans, real cover photography, CTA banners, and reorder sections.'}
                     </p>
                   </div>
                   <button
@@ -780,6 +1052,206 @@ export const AdminPage: React.FC = () => {
                           />
                         </div>
                       </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Homepage Volunteer CTA Banner Section */}
+                <div className="space-y-4 pt-4 border-t border-slate-100">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4 text-[#006A4E]" />
+                    <h3 className="text-sm font-bold text-slate-900 font-display">Homepage Volunteer CTA Banner</h3>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Banner Title (English)</label>
+                      <input
+                        type="text"
+                        value={homepageConfig.volunteerBanner?.title?.en || ''}
+                        onChange={(e) => updateHomepageConfig({
+                          volunteerBanner: {
+                            ...(homepageConfig.volunteerBanner || {
+                              eyebrow: { en: '', bn: '' },
+                              title: { en: '', bn: '' },
+                              subtitle: { en: '', bn: '' },
+                              primaryButtonText: { en: '', bn: '' },
+                              primaryButtonUrl: 'volunteer',
+                              secondaryButtonText: { en: '', bn: '' },
+                              secondaryButtonUrl: 'about'
+                            }),
+                            title: { ...(homepageConfig.volunteerBanner?.title || { en: '', bn: '' }), en: e.target.value }
+                          }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">ব্যানার শিরোনাম (বাংলা)</label>
+                      <input
+                        type="text"
+                        value={homepageConfig.volunteerBanner?.title?.bn || ''}
+                        onChange={(e) => updateHomepageConfig({
+                          volunteerBanner: {
+                            ...(homepageConfig.volunteerBanner || {
+                              eyebrow: { en: '', bn: '' },
+                              title: { en: '', bn: '' },
+                              subtitle: { en: '', bn: '' },
+                              primaryButtonText: { en: '', bn: '' },
+                              primaryButtonUrl: 'volunteer',
+                              secondaryButtonText: { en: '', bn: '' },
+                              secondaryButtonUrl: 'about'
+                            }),
+                            title: { ...(homepageConfig.volunteerBanner?.title || { en: '', bn: '' }), bn: e.target.value }
+                          }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Banner Subtitle (English)</label>
+                      <textarea
+                        rows={2}
+                        value={homepageConfig.volunteerBanner?.subtitle?.en || ''}
+                        onChange={(e) => updateHomepageConfig({
+                          volunteerBanner: {
+                            ...(homepageConfig.volunteerBanner || {
+                              eyebrow: { en: '', bn: '' },
+                              title: { en: '', bn: '' },
+                              subtitle: { en: '', bn: '' },
+                              primaryButtonText: { en: '', bn: '' },
+                              primaryButtonUrl: 'volunteer',
+                              secondaryButtonText: { en: '', bn: '' },
+                              secondaryButtonUrl: 'about'
+                            }),
+                            subtitle: { ...(homepageConfig.volunteerBanner?.subtitle || { en: '', bn: '' }), en: e.target.value }
+                          }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">ব্যানার বিবরণ (বাংলা)</label>
+                      <textarea
+                        rows={2}
+                        value={homepageConfig.volunteerBanner?.subtitle?.bn || ''}
+                        onChange={(e) => updateHomepageConfig({
+                          volunteerBanner: {
+                            ...(homepageConfig.volunteerBanner || {
+                              eyebrow: { en: '', bn: '' },
+                              title: { en: '', bn: '' },
+                              subtitle: { en: '', bn: '' },
+                              primaryButtonText: { en: '', bn: '' },
+                              primaryButtonUrl: 'volunteer',
+                              secondaryButtonText: { en: '', bn: '' },
+                              secondaryButtonUrl: 'about'
+                            }),
+                            subtitle: { ...(homepageConfig.volunteerBanner?.subtitle || { en: '', bn: '' }), bn: e.target.value }
+                          }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Homepage Support / Donation CTA Banner Section */}
+                <div className="space-y-4 pt-4 border-t border-slate-100">
+                  <div className="flex items-center gap-2">
+                    <Heart className="w-4 h-4 text-rose-600" />
+                    <h3 className="text-sm font-bold text-slate-900 font-display">Homepage Support & Donation Banner</h3>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Support Title (English)</label>
+                      <input
+                        type="text"
+                        value={homepageConfig.supportBanner?.title?.en || ''}
+                        onChange={(e) => updateHomepageConfig({
+                          supportBanner: {
+                            ...(homepageConfig.supportBanner || {
+                              title: { en: '', bn: '' },
+                              subtitle: { en: '', bn: '' },
+                              primaryButtonText: { en: '', bn: '' },
+                              primaryButtonUrl: 'donate',
+                              secondaryButtonText: { en: '', bn: '' },
+                              secondaryButtonUrl: 'transparency'
+                            }),
+                            title: { ...(homepageConfig.supportBanner?.title || { en: '', bn: '' }), en: e.target.value }
+                          }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">সাপোর্ট শিরোনাম (বাংলা)</label>
+                      <input
+                        type="text"
+                        value={homepageConfig.supportBanner?.title?.bn || ''}
+                        onChange={(e) => updateHomepageConfig({
+                          supportBanner: {
+                            ...(homepageConfig.supportBanner || {
+                              title: { en: '', bn: '' },
+                              subtitle: { en: '', bn: '' },
+                              primaryButtonText: { en: '', bn: '' },
+                              primaryButtonUrl: 'donate',
+                              secondaryButtonText: { en: '', bn: '' },
+                              secondaryButtonUrl: 'transparency'
+                            }),
+                            title: { ...(homepageConfig.supportBanner?.title || { en: '', bn: '' }), bn: e.target.value }
+                          }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Support Subtitle (English)</label>
+                      <textarea
+                        rows={2}
+                        value={homepageConfig.supportBanner?.subtitle?.en || ''}
+                        onChange={(e) => updateHomepageConfig({
+                          supportBanner: {
+                            ...(homepageConfig.supportBanner || {
+                              title: { en: '', bn: '' },
+                              subtitle: { en: '', bn: '' },
+                              primaryButtonText: { en: '', bn: '' },
+                              primaryButtonUrl: 'donate',
+                              secondaryButtonText: { en: '', bn: '' },
+                              secondaryButtonUrl: 'transparency'
+                            }),
+                            subtitle: { ...(homepageConfig.supportBanner?.subtitle || { en: '', bn: '' }), en: e.target.value }
+                          }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">সাপোর্ট বিবরণ (বাংলা)</label>
+                      <textarea
+                        rows={2}
+                        value={homepageConfig.supportBanner?.subtitle?.bn || ''}
+                        onChange={(e) => updateHomepageConfig({
+                          supportBanner: {
+                            ...(homepageConfig.supportBanner || {
+                              title: { en: '', bn: '' },
+                              subtitle: { en: '', bn: '' },
+                              primaryButtonText: { en: '', bn: '' },
+                              primaryButtonUrl: 'donate',
+                              secondaryButtonText: { en: '', bn: '' },
+                              secondaryButtonUrl: 'transparency'
+                            }),
+                            subtitle: { ...(homepageConfig.supportBanner?.subtitle || { en: '', bn: '' }), bn: e.target.value }
+                          }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
                     </div>
                   </div>
                 </div>
@@ -1044,8 +1516,1288 @@ export const AdminPage: React.FC = () => {
             )}
 
             {/* -------------------------------------------------------- */}
-            {/* TAB: MEDIA LIBRARY */}
+            {/* TAB: PROGRAMS */}
             {/* -------------------------------------------------------- */}
+            {activeTab === 'programs' && (
+              <div className="space-y-6">
+                <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-4 shadow-warm-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                      <h2 className="text-xl font-extrabold text-slate-900 font-display">
+                        {isBn ? 'সেবামূলক কর্মসূচি ও প্রোগ্রাম' : 'Humanitarian Programs Manager'}
+                      </h2>
+                      <p className="text-xs text-slate-500">
+                        {isBn ? 'শিশু কল্যাণ, শীতবস্ত্র ত্রাণ ও অন্যান্য স্থায়ী কর্মসূচি পরিচালনা করুন।' : 'Manage long-term humanitarian initiatives, child welfare, and relief missions.'}
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingProgram(null);
+                        setIsProgramModalOpen(true);
+                      }}
+                      className="px-4 py-2.5 rounded-xl bg-[#006A4E] hover:bg-[#00523C] text-white font-bold text-xs shadow-warm-sm flex items-center gap-2 cursor-pointer"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>{isBn ? 'নতুন প্রোগ্রাম যোগ করুন' : 'Add New Program'}</span>
+                    </button>
+                  </div>
+
+                  <div className="space-y-3 pt-2">
+                    {programs.map(prog => (
+                      <div
+                        key={prog.id}
+                        className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                      >
+                        <div className="flex items-center gap-3.5">
+                          <div className="w-16 h-12 rounded-xl overflow-hidden bg-slate-200 border border-slate-300 shrink-0">
+                            <img
+                              src={getAssetUrl(prog.imageUrl)}
+                              alt={prog.title.en}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-sm text-slate-900">{prog.title.en}</h4>
+                            <p className="text-xs text-slate-500">{prog.title.bn} &bull; {prog.category} &bull; Status: {prog.status}</p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingProgram(prog);
+                              setIsProgramModalOpen(true);
+                            }}
+                            className="p-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold flex items-center gap-1 cursor-pointer"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                            <span>Edit</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (confirm(`Delete program: ${prog.title.en}?`)) {
+                                deleteProgram(prog.id);
+                                showToast('Program deleted');
+                              }
+                            }}
+                            className="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-bold cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* -------------------------------------------------------- */}
+            {/* TAB: IMPACT METRICS */}
+            {/* -------------------------------------------------------- */}
+            {activeTab === 'impact' && (
+              <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                  <div>
+                    <h2 className="text-xl font-extrabold text-slate-900 font-display">
+                      {isBn ? 'ইমপ্যাক্ট মেট্রিক্স ও পরিসংখ্যান' : 'Impact Metrics & Real-time Numbers'}
+                    </h2>
+                    <p className="text-xs text-slate-500">
+                      {isBn ? 'হোমপেজ ও ইমপ্যাক্ট পেজের সংখ্যাভিত্তিক অগ্রগতি পরিবর্তন করুন।' : 'Update headline numbers, beneficiary totals, volunteer count, and active years.'}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => showToast('Impact metrics saved')}
+                    className="px-5 py-2 rounded-xl bg-[#006A4E] text-white font-bold text-xs shadow-warm-sm cursor-pointer"
+                  >
+                    Save Metrics
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {metrics.map(metric => (
+                    <div
+                      key={metric.id}
+                      className="p-5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-3"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-slate-700">Indicator #{metric.order || metric.id}</span>
+                        <span className="text-xs font-mono font-bold text-[#006A4E]">{metric.value}</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-500">Numeric Value</label>
+                          <input
+                            type="text"
+                            value={metric.value}
+                            onChange={(e) => updateMetric(metric.id, { value: e.target.value })}
+                            className="w-full px-3 py-1.5 bg-white border border-[#EAE3D9] rounded-xl text-xs font-bold font-mono"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-500">Icon Key</label>
+                          <input
+                            type="text"
+                            value={metric.iconName}
+                            onChange={(e) => updateMetric(metric.id, { iconName: e.target.value })}
+                            className="w-full px-3 py-1.5 bg-white border border-[#EAE3D9] rounded-xl text-xs"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500">Label (English)</label>
+                        <input
+                          type="text"
+                          value={metric.label.en}
+                          onChange={(e) => updateMetric(metric.id, { label: { ...metric.label, en: e.target.value } })}
+                          className="w-full px-3 py-1.5 bg-white border border-[#EAE3D9] rounded-xl text-xs"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-500">লেবেল (বাংলা)</label>
+                        <input
+                          type="text"
+                          value={metric.label.bn}
+                          onChange={(e) => updateMetric(metric.id, { label: { ...metric.label, bn: e.target.value } })}
+                          className="w-full px-3 py-1.5 bg-white border border-[#EAE3D9] rounded-xl text-xs font-bengali"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* -------------------------------------------------------- */}
+            {/* TAB: IMPACT STORIES */}
+            {/* -------------------------------------------------------- */}
+            {activeTab === 'stories' && (
+              <div className="space-y-6">
+                <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-4 shadow-warm-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                      <h2 className="text-xl font-extrabold text-slate-900 font-display">
+                        {isBn ? 'বাস্তব জীবনের রূপান্তর ও গল্প' : 'Impact Stories & Transformations'}
+                      </h2>
+                      <p className="text-xs text-slate-500">
+                        {isBn ? 'মাঠপর্যায়ের সুবিধাভোগীদের বাস্তব জীবনের গল্প ও মানবিক রূপান্তর প্রকাশ করুন।' : 'Publish verified field transformation stories with consent confirmations.'}
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingStory(null);
+                        setIsStoryModalOpen(true);
+                      }}
+                      className="px-4 py-2.5 rounded-xl bg-[#006A4E] hover:bg-[#00523C] text-white font-bold text-xs shadow-warm-sm flex items-center gap-2 cursor-pointer"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>{isBn ? 'নতুন গল্প প্রকাশ করুন' : 'Add New Story'}</span>
+                    </button>
+                  </div>
+
+                  <div className="space-y-3 pt-2">
+                    {stories.map(st => (
+                      <div
+                        key={st.id}
+                        className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                      >
+                        <div className="flex items-center gap-3.5">
+                          <div className="w-16 h-12 rounded-xl overflow-hidden bg-slate-200 border border-slate-300 shrink-0">
+                            <img
+                              src={getAssetUrl(st.imageUrl)}
+                              alt={st.title.en}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-sm text-slate-900">{st.title.en}</h4>
+                            <p className="text-xs text-slate-500">{st.title.bn} &bull; {st.personOrCommunity.en} &bull; {st.location.en}</p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingStory(st);
+                              setIsStoryModalOpen(true);
+                            }}
+                            className="p-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold flex items-center gap-1 cursor-pointer"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                            <span>Edit</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (confirm(`Delete story: ${st.title.en}?`)) {
+                                deleteStory(st.id);
+                                showToast('Story deleted');
+                              }
+                            }}
+                            className="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-bold cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* -------------------------------------------------------- */}
+            {/* TAB: FAQS */}
+            {/* -------------------------------------------------------- */}
+            {activeTab === 'faqs' && (
+              <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-xl font-extrabold text-slate-900 font-display flex items-center gap-2">
+                      <HelpCircle className="w-5 h-5 text-[#006A4E]" />
+                      <span>{isBn ? 'সাধারণ জিজ্ঞাসা ও প্রশ্নোত্তর (FAQ Manager)' : 'Frequently Asked Questions (FAQ CMS)'}</span>
+                    </h2>
+                    <p className="text-xs text-slate-500">
+                      {isBn ? 'ওয়েবসাইটের সকল প্রশ্নোত্তর, ক্যাটাগরি ও প্রদর্শন ক্রম নিয়ন্ত্রণ করুন।' : 'Manage transparent Q&As regarding operations, funding, donation policies, and volunteering.'}
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingFAQ(null);
+                      setIsFAQModalOpen(true);
+                    }}
+                    className="px-4 py-2.5 rounded-xl bg-[#006A4E] hover:bg-[#00523C] text-white font-bold text-xs shadow-warm-sm flex items-center gap-2 cursor-pointer"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>{isBn ? 'নতুন প্রশ্নোত্তর যোগ করুন' : 'Add New FAQ'}</span>
+                  </button>
+                </div>
+
+                {/* Search Bar */}
+                <div className="relative">
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={searchFilter}
+                    onChange={(e) => setSearchFilter(e.target.value)}
+                    placeholder={isBn ? 'প্রশ্ন বা উত্তর দিয়ে খুঁজুন...' : 'Search FAQs by question or keyword...'}
+                    className="w-full pl-10 pr-4 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-2xl text-xs focus:outline-none focus:bg-white"
+                  />
+                </div>
+
+                {/* FAQ List */}
+                <div className="space-y-3 pt-2">
+                  {faqs
+                    .filter(f =>
+                      searchFilter === '' ||
+                      f.question.en.toLowerCase().includes(searchFilter.toLowerCase()) ||
+                      f.question.bn.includes(searchFilter) ||
+                      f.answer.en.toLowerCase().includes(searchFilter.toLowerCase()) ||
+                      f.answer.bn.includes(searchFilter)
+                    )
+                    .map((faqItem, idx) => (
+                      <div
+                        key={faqItem.id}
+                        className="p-5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-3"
+                      >
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                          <div className="flex items-center gap-3">
+                            <span className="w-7 h-7 rounded-xl bg-white text-slate-700 font-mono font-bold text-xs flex items-center justify-center border border-slate-200">
+                              #{faqItem.displayOrder || idx + 1}
+                            </span>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <h4 className="font-bold text-sm text-slate-900">{faqItem.question.en}</h4>
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#E6F3EF] text-[#00523C]">
+                                  {faqItem.category}
+                                </span>
+                                {faqItem.active === false && (
+                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-600">
+                                    Hidden
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-xs text-slate-600 font-bengali">{faqItem.question.bn}</p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingFAQ(faqItem);
+                                setIsFAQModalOpen(true);
+                              }}
+                              className="p-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold flex items-center gap-1 cursor-pointer"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" />
+                              <span>Edit</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (confirm(`Delete FAQ: "${faqItem.question.en}"?`)) {
+                                  deleteFAQ(faqItem.id);
+                                  showToast('FAQ item deleted');
+                                }
+                              }}
+                              className="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-bold cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="text-xs text-slate-500 bg-white p-3 rounded-xl border border-slate-200/80 space-y-1">
+                          <p><strong className="text-slate-700">EN:</strong> {faqItem.answer.en}</p>
+                          <p className="font-bengali"><strong className="text-slate-700">বাং:</strong> {faqItem.answer.bn}</p>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
+
+            {/* -------------------------------------------------------- */}
+            {/* TAB: TRANSPARENCY */}
+            {/* -------------------------------------------------------- */}
+            {activeTab === 'transparency' && (
+              <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-xl font-extrabold text-slate-900 font-display">
+                      {isBn ? 'আর্থিক স্বচ্ছতা ও অডিট রিপোর্ট' : 'Financial Transparency & Audit Reports'}
+                    </h2>
+                    <p className="text-xs text-slate-500">
+                      {isBn ? 'বার্ষিক আয়-ব্যয় প্রতিবেদন ও অডিট নথি প্রকাশ করুন।' : 'Manage published annual statements, expenditure breakdowns, and verifiable audit records.'}
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newRep: Omit<TransparencyReport, 'id'> = {
+                        title: { en: `Annual Audit Report ${new Date().getFullYear()}`, bn: `বার্ষিক অডিট রিপোর্ট ${new Date().getFullYear()}` },
+                        year: `${new Date().getFullYear()}`,
+                        type: 'Financial Audit',
+                        fileUrl: '/documents/infinity-audit-report.pdf',
+                        fileSize: '1.4 MB',
+                        uploadDate: new Date().toISOString().split('T')[0],
+                        status: 'official',
+                        description: { en: 'Full independent financial review and verification.', bn: 'সম্পূর্ণ নিরপেক্ষ আর্থিক অডিট ও যাচাইকরণ।' },
+                        displayOrder: reports.length + 1
+                      };
+                      addReport(newRep);
+                      showToast('Audit report created');
+                    }}
+                    className="px-4 py-2.5 rounded-xl bg-[#006A4E] text-white font-bold text-xs shadow-warm-sm flex items-center gap-2 cursor-pointer"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Add Report</span>
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  {reports.map(rep => (
+                    <div
+                      key={rep.id}
+                      className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                    >
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-bold text-sm text-slate-900">{rep.title.en}</h4>
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#E6F3EF] text-[#00523C]">
+                            Year {rep.year}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500">{rep.title.bn} &bull; Type: {rep.type}</p>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (confirm(`Delete report: ${rep.title.en}?`)) {
+                              deleteReport(rep.id);
+                              showToast('Report deleted');
+                            }
+                          }}
+                          className="p-2 rounded-xl bg-rose-50 text-rose-600 border border-rose-200 cursor-pointer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* -------------------------------------------------------- */}
+            {/* TAB: GALLERY ALBUMS */}
+            {/* -------------------------------------------------------- */}
+            {activeTab === 'gallery_albums' && (
+              <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-xl font-extrabold text-slate-900 font-display">
+                      {isBn ? 'গ্যালারি অ্যালবাম ব্যবস্থাপনা' : 'Gallery Albums & Event Collections'}
+                    </h2>
+                    <p className="text-xs text-slate-500">
+                      {isBn ? 'ইভেন্টভিত্তিক ফটো অ্যালবাম পরিচালনা করুন।' : 'Organize and publish event-specific photo albums.'}
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newAlb: Omit<GalleryAlbum, 'id'> = {
+                        slug: `album-${Date.now()}`,
+                        title: { en: 'New Field Drive Album', bn: 'নতুন মাঠপর্যায়ের অ্যালবাম' },
+                        description: { en: 'Photographs from humanitarian drives.', bn: 'মানবিক কার্যক্রমের স্থিরচিত্র।' },
+                        coverImageUrl: '/images/infinity-cover-hero.jpg',
+                        category: 'Campaigns',
+                        date: `${new Date().getFullYear()}`,
+                        photos: [],
+                        isPublished: true,
+                        displayOrder: galleryAlbums.length + 1
+                      };
+                      addGalleryAlbum(newAlb);
+                      showToast('Gallery album created');
+                    }}
+                    className="px-4 py-2.5 rounded-xl bg-[#006A4E] text-white font-bold text-xs shadow-warm-sm flex items-center gap-2 cursor-pointer"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Create Album</span>
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {galleryAlbums.map(alb => (
+                    <div
+                      key={alb.id}
+                      className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-3"
+                    >
+                      <div className="aspect-16/9 rounded-xl overflow-hidden bg-slate-200 border border-slate-300">
+                        <img
+                          src={getAssetUrl(alb.coverImageUrl)}
+                          alt={alb.title.en}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h4 className="font-bold text-sm text-slate-900">{alb.title.en}</h4>
+                          <p className="text-xs text-slate-500">{alb.title.bn} &bull; {alb.photos?.length || 0} photos</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (confirm(`Delete album: ${alb.title.en}?`)) {
+                              deleteGalleryAlbum(alb.id);
+                              showToast('Album deleted');
+                            }
+                          }}
+                          className="p-1.5 text-rose-500 hover:text-rose-700 cursor-pointer"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* -------------------------------------------------------- */}
+            {/* TAB: NEWS & EVENTS */}
+            {/* -------------------------------------------------------- */}
+            {activeTab === 'news_events' && (
+              <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                  <div>
+                    <h2 className="text-xl font-extrabold text-slate-900 font-display">
+                      {isBn ? 'সংবাদ বিজ্ঞপ্তি ও ইভেন্ট' : 'News Releases & Community Events'}
+                    </h2>
+                    <p className="text-xs text-slate-500">
+                      {isBn ? 'সংবাদ বিজ্ঞপ্তি এবং আসন্ন ইভেন্টসমূহ প্রকাশ করুন।' : 'Publish official press updates and schedule upcoming volunteer events.'}
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newNews: Omit<NewsArticle, 'id'> = {
+                        slug: `news-${Date.now()}`,
+                        title: { en: 'New Organization Press Release', bn: 'নতুন সাংগঠনিক সংবাদ বিজ্ঞপ্তি' },
+                        excerpt: { en: 'Brief summary of the announcement.', bn: 'বিজ্ঞপ্তির সংক্ষিপ্ত সারসংক্ষেপ।' },
+                        content: { en: 'Full text content of the news article...', bn: 'সংবাদের সম্পূর্ণ বিস্তারিত বিবরণ...' },
+                        author: 'Team Infinity Media Wing',
+                        date: new Date().toISOString().split('T')[0],
+                        imageUrl: '/images/infinity-cover-hero.jpg',
+                        category: 'Press Release',
+                        tags: ['Official', 'Humanitarian'],
+                        status: 'published'
+                      };
+                      addNews(newNews);
+                      showToast('News article published');
+                    }}
+                    className="px-4 py-2.5 rounded-xl bg-[#006A4E] text-white font-bold text-xs shadow-warm-sm flex items-center gap-2 cursor-pointer"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Publish News</span>
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  {news.map(item => (
+                    <div
+                      key={item.id}
+                      className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] flex items-center justify-between gap-4"
+                    >
+                      <div>
+                        <h4 className="font-bold text-sm text-slate-900">{item.title.en}</h4>
+                        <p className="text-xs text-slate-500">{item.title.bn} &bull; {item.date}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (confirm(`Delete news: ${item.title.en}?`)) {
+                            deleteNews(item.id);
+                            showToast('News article removed');
+                          }
+                        }}
+                        className="p-2 text-rose-500 hover:text-rose-700 cursor-pointer"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* -------------------------------------------------------- */}
+            {/* TAB: NAVIGATION & MENUS */}
+            {/* -------------------------------------------------------- */}
+            {activeTab === 'navigation' && (
+              <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                  <div>
+                    <h2 className="text-xl font-extrabold text-slate-900 font-display">
+                      {isBn ? 'মেনু ও নেভিগেশন বিল্ডার' : 'Navigation & Menu Builder'}
+                    </h2>
+                    <p className="text-xs text-slate-500">
+                      {isBn ? 'ওয়েবসাইটের প্রধান মেনু আইটেমসমূহ পরিচালনা করুন।' : 'Add, rename, or reorder top navbar items and submenus.'}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newNav: Omit<NavigationItem, 'id'> = {
+                        label: { en: 'New Menu Item', bn: 'নতুন মেনু' },
+                        path: 'about',
+                        displayOrder: navigationItems.length + 1,
+                        active: true
+                      };
+                      addNavigationItem(newNav);
+                      showToast('Navigation item added');
+                    }}
+                    className="px-4 py-2 rounded-xl bg-[#006A4E] text-white font-bold text-xs shadow-warm-sm flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Add Link</span>
+                  </button>
+                </div>
+
+                <div className="space-y-2">
+                  {navigationItems.map((nav, idx) => (
+                    <div
+                      key={nav.id}
+                      className="p-3.5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] flex items-center justify-between gap-3"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="w-6 h-6 rounded-lg bg-white font-mono font-bold text-xs flex items-center justify-center border border-slate-200">
+                          {idx + 1}
+                        </span>
+                        <div>
+                          <p className="text-xs font-bold text-slate-900">{nav.label.en} ({nav.label.bn})</p>
+                          <p className="text-[11px] font-mono text-slate-500">Route: {nav.path}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (confirm(`Remove nav link: ${nav.label.en}?`)) {
+                              deleteNavigationItem(nav.id);
+                              showToast('Nav item removed');
+                            }
+                          }}
+                          className="p-1 text-rose-500 hover:text-rose-700 cursor-pointer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* -------------------------------------------------------- */}
+            {/* TAB: HEADER & FOOTER */}
+            {/* -------------------------------------------------------- */}
+            {activeTab === 'header_footer' && (
+              <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-8 shadow-warm-sm">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                  <div>
+                    <h2 className="text-xl font-extrabold text-slate-900 font-display">
+                      {isBn ? 'হেডার ও ফুটার সেটিংস' : 'Header & Footer Settings'}
+                    </h2>
+                    <p className="text-xs text-slate-500">
+                      {isBn ? 'অ্যানাউন্সমেন্ট নোটিস বার, ফুটার টপ কলআউট ব্যানার, ঠিকানা ও হেল্পলাইন পরিবর্তন করুন।' : 'Configure top notice ticker bar, footer callout banner, helpline, official address, and copyright.'}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => showToast('Header & footer saved')}
+                    className="px-5 py-2 rounded-xl bg-[#006A4E] text-white font-bold text-xs shadow-warm-sm cursor-pointer"
+                  >
+                    Save Changes
+                  </button>
+                </div>
+
+                {/* Top Notice Bar */}
+                <div className="space-y-4">
+                  <h3 className="text-sm font-bold text-slate-900 font-display">Top Announcement Notice Bar</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Notice Text (English)</label>
+                      <input
+                        type="text"
+                        value={headerSettings.noticeBarText?.en || ''}
+                        onChange={(e) => updateHeaderSettings({
+                          noticeBarText: { ...headerSettings.noticeBarText, en: e.target.value }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">নোটিস টেক্সট (বাংলা)</label>
+                      <input
+                        type="text"
+                        value={headerSettings.noticeBarText?.bn || ''}
+                        onChange={(e) => updateHeaderSettings({
+                          noticeBarText: { ...headerSettings.noticeBarText, bn: e.target.value }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer Top Callout Banner */}
+                <div className="space-y-4 pt-4 border-t border-slate-100">
+                  <h3 className="text-sm font-bold text-slate-900 font-display flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-[#006A4E]" />
+                    <span>Footer Top Callout Banner (সব পেজের নিচের ব্যানার)</span>
+                  </h3>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Callout Eyebrow (English)</label>
+                      <input
+                        type="text"
+                        value={footerSettings.calloutEyebrow?.en || ''}
+                        onChange={(e) => updateFooterSettings({
+                          calloutEyebrow: { ...(footerSettings.calloutEyebrow || { en: '', bn: '' }), en: e.target.value }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">কলআউট ব্যাজ (বাংলা)</label>
+                      <input
+                        type="text"
+                        value={footerSettings.calloutEyebrow?.bn || ''}
+                        onChange={(e) => updateFooterSettings({
+                          calloutEyebrow: { ...(footerSettings.calloutEyebrow || { en: '', bn: '' }), bn: e.target.value }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Callout Title (English)</label>
+                      <input
+                        type="text"
+                        value={footerSettings.calloutTitle?.en || ''}
+                        onChange={(e) => updateFooterSettings({
+                          calloutTitle: { ...(footerSettings.calloutTitle || { en: '', bn: '' }), en: e.target.value }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">কলআউট শিরোনাম (বাংলা)</label>
+                      <input
+                        type="text"
+                        value={footerSettings.calloutTitle?.bn || ''}
+                        onChange={(e) => updateFooterSettings({
+                          calloutTitle: { ...(footerSettings.calloutTitle || { en: '', bn: '' }), bn: e.target.value }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Callout Subtitle (English)</label>
+                      <textarea
+                        rows={2}
+                        value={footerSettings.calloutSubtitle?.en || ''}
+                        onChange={(e) => updateFooterSettings({
+                          calloutSubtitle: { ...(footerSettings.calloutSubtitle || { en: '', bn: '' }), en: e.target.value }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">কলআউট বিবরণ (বাংলা)</label>
+                      <textarea
+                        rows={2}
+                        value={footerSettings.calloutSubtitle?.bn || ''}
+                        onChange={(e) => updateFooterSettings({
+                          calloutSubtitle: { ...(footerSettings.calloutSubtitle || { en: '', bn: '' }), bn: e.target.value }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Volunteer CTA Button Text (English)</label>
+                      <input
+                        type="text"
+                        value={footerSettings.volunteerCtaText?.en || ''}
+                        onChange={(e) => updateFooterSettings({
+                          volunteerCtaText: { ...(footerSettings.volunteerCtaText || { en: '', bn: '' }), en: e.target.value }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">ভলান্টিয়ার বাটন টেক্সট (বাংলা)</label>
+                      <input
+                        type="text"
+                        value={footerSettings.volunteerCtaText?.bn || ''}
+                        onChange={(e) => updateFooterSettings({
+                          volunteerCtaText: { ...(footerSettings.volunteerCtaText || { en: '', bn: '' }), bn: e.target.value }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer Organization Description */}
+                <div className="space-y-4 pt-4 border-t border-slate-100">
+                  <h3 className="text-sm font-bold text-slate-900 font-display">Footer Organization Description</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Description (English)</label>
+                      <textarea
+                        rows={3}
+                        value={footerSettings.description?.en || ''}
+                        onChange={(e) => updateFooterSettings({
+                          description: { ...footerSettings.description, en: e.target.value }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">বিবরণ (বাংলা)</label>
+                      <textarea
+                        rows={3}
+                        value={footerSettings.description?.bn || ''}
+                        onChange={(e) => updateFooterSettings({
+                          description: { ...footerSettings.description, bn: e.target.value }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer Contact Details & Copyright */}
+                <div className="space-y-4 pt-4 border-t border-slate-100">
+                  <h3 className="text-sm font-bold text-slate-900 font-display">Footer Contact, Established Year & Copyright</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Helpline Phone</label>
+                      <input
+                        type="text"
+                        value={footerSettings.phone || ''}
+                        onChange={(e) => updateFooterSettings({ phone: e.target.value })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-mono"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Official Email</label>
+                      <input
+                        type="email"
+                        value={footerSettings.email || ''}
+                        onChange={(e) => updateFooterSettings({ email: e.target.value })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-mono"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Established Year</label>
+                      <input
+                        type="text"
+                        value={footerSettings.establishedYear || '2015'}
+                        onChange={(e) => updateFooterSettings({ establishedYear: e.target.value })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Copyright Text (English)</label>
+                      <input
+                        type="text"
+                        value={footerSettings.copyrightText?.en || ''}
+                        onChange={(e) => updateFooterSettings({
+                          copyrightText: { ...(footerSettings.copyrightText || { en: '', bn: '' }), en: e.target.value }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">কপিরাইট টেক্সট (বাংলা)</label>
+                      <input
+                        type="text"
+                        value={footerSettings.copyrightText?.bn || ''}
+                        onChange={(e) => updateFooterSettings({
+                          copyrightText: { ...(footerSettings.copyrightText || { en: '', bn: '' }), bn: e.target.value }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* -------------------------------------------------------- */}
+            {/* TAB: SEO */}
+            {/* -------------------------------------------------------- */}
+            {activeTab === 'seo' && (
+              <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                  <div>
+                    <h2 className="text-xl font-extrabold text-slate-900 font-display">
+                      {isBn ? 'এসইও ও মেটাট্যাগ কনফিগারেশন' : 'SEO & Social OpenGraph Settings'}
+                    </h2>
+                    <p className="text-xs text-slate-500">
+                      {isBn ? 'গুগল সার্চ ও সোশ্যাল শেয়ার প্রিভিউ কার্ড পরিবর্তন করুন।' : 'Configure search engine meta titles, descriptions, canonical URL, and OG preview image.'}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => showToast('SEO settings saved')}
+                    className="px-5 py-2 rounded-xl bg-[#006A4E] text-white font-bold text-xs shadow-warm-sm cursor-pointer"
+                  >
+                    Save SEO
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Meta Site Title (English)</label>
+                      <input
+                        type="text"
+                        value={seoSettings.siteTitle?.en || ''}
+                        onChange={(e) => updateSEOSettings({
+                          siteTitle: { ...seoSettings.siteTitle, en: e.target.value }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">সাইট শিরোনাম (বাংলা)</label>
+                      <input
+                        type="text"
+                        value={seoSettings.siteTitle?.bn || ''}
+                        onChange={(e) => updateSEOSettings({
+                          siteTitle: { ...seoSettings.siteTitle, bn: e.target.value }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Meta Description (English)</label>
+                      <textarea
+                        rows={3}
+                        value={seoSettings.metaDescription?.en || ''}
+                        onChange={(e) => updateSEOSettings({
+                          metaDescription: { ...seoSettings.metaDescription, en: e.target.value }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">মেটা বিবরণ (বাংলা)</label>
+                      <textarea
+                        rows={3}
+                        value={seoSettings.metaDescription?.bn || ''}
+                        onChange={(e) => updateSEOSettings({
+                          metaDescription: { ...seoSettings.metaDescription, bn: e.target.value }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* -------------------------------------------------------- */}
+            {/* TAB: SOCIAL LINKS */}
+            {/* -------------------------------------------------------- */}
+            {activeTab === 'social_links' && (
+              <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+                <div className="border-b border-slate-100 pb-4">
+                  <h2 className="text-xl font-extrabold text-slate-900 font-display">
+                    {isBn ? 'সামাজিক মাধ্যম ও চ্যানেলসমূহ' : 'Official Social Channels & Links'}
+                  </h2>
+                  <p className="text-xs text-slate-500">
+                    {isBn ? 'ফেসবুক, ইউটিউব ও হোয়াটসঅ্যাপ চ্যানেলের লিঙ্ক ম্যানেজ করুন।' : 'Update official URLs for Facebook, WhatsApp, YouTube, Instagram, and LinkedIn.'}
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  {socialLinks.map(soc => (
+                    <div
+                      key={soc.id}
+                      className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="w-8 h-8 rounded-xl bg-[#006A4E] text-white font-bold text-xs flex items-center justify-center capitalize">
+                          {soc.platform.charAt(0)}
+                        </span>
+                        <div>
+                          <p className="text-xs font-bold text-slate-900 capitalize">{soc.platform}</p>
+                          <p className="text-[11px] font-mono text-slate-500">{soc.url}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          value={soc.url}
+                          onChange={(e) => updateSocialLink(soc.id, { url: e.target.value })}
+                          className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-mono w-64"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            updateSocialLink(soc.id, { active: !soc.active });
+                            showToast('Link status updated');
+                          }}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer ${
+                            soc.active ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'
+                          }`}
+                        >
+                          {soc.active ? 'Active' : 'Inactive'}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* -------------------------------------------------------- */}
+            {/* TAB: SUPPORT CMS (PAYMENT CHANNELS) */}
+            {/* -------------------------------------------------------- */}
+            {activeTab === 'support_cms' && (
+              <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                  <div>
+                    <h2 className="text-xl font-extrabold text-slate-900 font-display">
+                      {isBn ? 'অনুদান ও পেমেন্ট চ্যানেল সেটিংস' : 'Donation & Payment Channels'}
+                    </h2>
+                    <p className="text-xs text-slate-500">
+                      {isBn ? 'বিকাশ, নগদ ও ব্যাংক একাউন্ট নম্বর পরিচালনা করুন।' : 'Configure official bKash, Nagad, and Bank payment account numbers.'}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => showToast('Payment settings saved')}
+                    className="px-5 py-2 rounded-xl bg-[#006A4E] text-white font-bold text-xs shadow-warm-sm cursor-pointer"
+                  >
+                    Save Channels
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-2">
+                    <label className="text-xs font-bold text-slate-800">bKash Official Number</label>
+                    <input
+                      type="text"
+                      value={supportSettings.bkashNumber || '01800-000000'}
+                      onChange={(e) => updateSupportSettings({ bkashNumber: e.target.value })}
+                      className="w-full px-3.5 py-2 bg-white border border-[#EAE3D9] rounded-xl text-xs font-mono font-bold text-slate-900"
+                    />
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-2">
+                    <label className="text-xs font-bold text-slate-800">Nagad Official Number</label>
+                    <input
+                      type="text"
+                      value={supportSettings.nagadNumber || '01800-000000'}
+                      onChange={(e) => updateSupportSettings({ nagadNumber: e.target.value })}
+                      className="w-full px-3.5 py-2 bg-white border border-[#EAE3D9] rounded-xl text-xs font-mono font-bold text-slate-900"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* -------------------------------------------------------- */}
+            {/* TAB: CONTACT CMS */}
+            {/* -------------------------------------------------------- */}
+            {activeTab === 'contact_cms' && (
+              <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                  <div>
+                    <h2 className="text-xl font-extrabold text-slate-900 font-display">
+                      {isBn ? 'যোগাযোগ ও অবস্থান সেটিংস' : 'Contact Details & Office Location'}
+                    </h2>
+                    <p className="text-xs text-slate-500">
+                      {isBn ? 'অফিস ঠিকানা, হেল্পলাইন নম্বর ও গুগল ম্যাপস লিঙ্ক আপডেট করুন।' : 'Update office address, phone, email, helpline, and Google Maps embed URL.'}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => showToast('Contact settings saved')}
+                    className="px-5 py-2 rounded-xl bg-[#006A4E] text-white font-bold text-xs shadow-warm-sm cursor-pointer"
+                  >
+                    Save Contact
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-700">Official Helpline Phone</label>
+                    <input
+                      type="text"
+                      value={contactSettings.phone}
+                      onChange={(e) => updateContactSettings({ phone: e.target.value })}
+                      className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-mono"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-700">Official Email</label>
+                    <input
+                      type="email"
+                      value={contactSettings.email}
+                      onChange={(e) => updateContactSettings({ email: e.target.value })}
+                      className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-mono"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-700">Office Address (English)</label>
+                    <input
+                      type="text"
+                      value={contactSettings.address.en}
+                      onChange={(e) => updateContactSettings({
+                        address: { ...contactSettings.address, en: e.target.value }
+                      })}
+                      className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-700">অফিস ঠিকানা (বাংলা)</label>
+                    <input
+                      type="text"
+                      value={contactSettings.address.bn}
+                      onChange={(e) => updateContactSettings({
+                        address: { ...contactSettings.address, bn: e.target.value }
+                      })}
+                      className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* -------------------------------------------------------- */}
+            {/* TAB: USER MESSAGES */}
+            {/* -------------------------------------------------------- */}
+            {activeTab === 'messages' && (
+              <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+                <div className="border-b border-slate-100 pb-4">
+                  <h2 className="text-xl font-extrabold text-slate-900 font-display">
+                    {isBn ? 'ওয়েবসাইট ইনকোয়ারি ও বার্তা' : 'User Messages & Inquiries'}
+                  </h2>
+                  <p className="text-xs text-slate-500">
+                    {isBn ? 'ওয়েবসাইট ভিজিটরদের পাঠানো বার্তা ও যোগাযোগ অনুরোধ।' : 'Messages and queries submitted through the website contact form.'}
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  {messages.length === 0 ? (
+                    <div className="p-8 text-center text-slate-400 text-xs">No user messages received yet.</div>
+                  ) : (
+                    messages.map(msg => (
+                      <div
+                        key={msg.id}
+                        className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                      >
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-bold text-sm text-slate-900">{msg.name}</h4>
+                            <span className="text-xs text-slate-500 font-mono">({msg.email})</span>
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white text-slate-700 border border-slate-200">
+                              {msg.status}
+                            </span>
+                          </div>
+                          <p className="text-xs font-bold text-slate-800">Subject: {msg.subject}</p>
+                          <p className="text-xs text-slate-600 italic">"{msg.message}"</p>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              updateMessageStatus(msg.id, 'Replied');
+                              showToast('Marked as replied');
+                            }}
+                            className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-bold cursor-pointer"
+                          >
+                            Mark Replied
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (confirm('Delete message?')) {
+                                deleteContactMessage(msg.id);
+                                showToast('Message removed');
+                              }
+                            }}
+                            className="p-2 text-rose-500 hover:text-rose-700 cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* -------------------------------------------------------- */}
+            {/* TAB: ADMIN USERS */}
+            {/* -------------------------------------------------------- */}
+            {activeTab === 'admin_users' && (
+              <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+                <div className="border-b border-slate-100 pb-4">
+                  <h2 className="text-xl font-extrabold text-slate-900 font-display">
+                    {isBn ? 'অ্যাডমিন ইউজার ও রোলস' : 'Administrator Accounts & Roles'}
+                  </h2>
+                  <p className="text-xs text-slate-500">
+                    {isBn ? 'সুপার অ্যাডমিন, কনটেন্ট ম্যানেজার ও মিডিয়া রোলসমূহ।' : 'Manage admin team accounts and assign granular permissions.'}
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  {adminProfiles.map(adm => (
+                    <div
+                      key={adm.id}
+                      className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] flex items-center justify-between gap-4"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-2xl bg-[#006A4E] text-white font-bold flex items-center justify-center">
+                          {adm.fullName.charAt(0)}
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-sm text-slate-900">{adm.fullName}</h4>
+                          <p className="text-xs text-slate-500 font-mono">{adm.email} &bull; Role: {adm.role}</p>
+                        </div>
+                      </div>
+                      <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-[#E6F3EF] text-[#00523C]">
+                        {adm.role.toUpperCase()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* -------------------------------------------------------- */}
+            {/* TAB: AUDIT LOGS */}
+            {/* -------------------------------------------------------- */}
+            {activeTab === 'audit' && (
+              <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+                <div className="border-b border-slate-100 pb-4">
+                  <h2 className="text-xl font-extrabold text-slate-900 font-display">
+                    {isBn ? 'সিস্টেম অডিট ও অ্যাক্টিভিটি লগ' : 'System Audit & Activity Logs'}
+                  </h2>
+                  <p className="text-xs text-slate-500">
+                    {isBn ? 'অ্যাডমিন প্যানেলে করা প্রতিটি পরিবর্তনের টাইমস্ট্যাম্পড রেকর্ড।' : 'Immutable chronological log of data modifications and system events.'}
+                  </p>
+                </div>
+
+                <div className="space-y-2 max-h-96 overflow-y-auto">
+                  {auditLogs.slice(0, 30).map(log => (
+                    <div
+                      key={log.id}
+                      className="p-3 rounded-xl bg-[#FAF7F2] border border-[#EAE3D9] flex items-center justify-between text-xs"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                          log.action === 'CREATE' ? 'bg-emerald-100 text-emerald-800' :
+                          log.action === 'UPDATE' ? 'bg-blue-100 text-blue-800' : 'bg-rose-100 text-rose-800'
+                        }`}>
+                          {log.action}
+                        </span>
+                        <span className="font-bold text-slate-800">{log.entityType}</span>
+                        <span className="text-slate-500">&bull; {log.details}</span>
+                      </div>
+                      <span className="text-[10px] text-slate-400 font-mono">{log.timestamp.split('T')[0]}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             {activeTab === 'media_library' && (
               <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -1563,6 +3315,81 @@ export const AdminPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Campaign Edit/Add Modal */}
+      <CampaignModal
+        isOpen={isCampaignModalOpen}
+        onClose={() => setIsCampaignModalOpen(false)}
+        campaign={editingCampaign}
+        onSave={(campaignData) => {
+          if (editingCampaign) {
+            updateCampaign(editingCampaign.id, campaignData);
+            showToast(isBn ? 'ক্যাম্পেইন সফলভাবে আপডেট হয়েছে' : 'Campaign successfully updated');
+          } else {
+            addCampaign(campaignData as Omit<Campaign, 'id'>);
+            showToast(isBn ? 'নতুন ক্যাম্পেইন প্রকাশিত হয়েছে' : 'New campaign published');
+          }
+          setIsCampaignModalOpen(false);
+        }}
+        onOpenMediaPicker={openMediaPicker}
+        isBn={isBn}
+      />
+
+      {/* Program Edit/Add Modal */}
+      <ProgramModal
+        isOpen={isProgramModalOpen}
+        onClose={() => setIsProgramModalOpen(false)}
+        program={editingProgram}
+        onSave={(progData) => {
+          if (editingProgram) {
+            updateProgram(editingProgram.id, progData);
+            showToast(isBn ? 'প্রোগ্রাম আপডেট হয়েছে' : 'Program updated');
+          } else {
+            addProgram(progData as Omit<Program, 'id'>);
+            showToast(isBn ? 'নতুন প্রোগ্রাম তৈরি হয়েছে' : 'New program created');
+          }
+          setIsProgramModalOpen(false);
+        }}
+        onOpenMediaPicker={openMediaPicker}
+        isBn={isBn}
+      />
+
+      {/* Story Edit/Add Modal */}
+      <StoryModal
+        isOpen={isStoryModalOpen}
+        onClose={() => setIsStoryModalOpen(false)}
+        story={editingStory}
+        onSave={(storyData) => {
+          if (editingStory) {
+            updateStory(editingStory.id, storyData);
+            showToast(isBn ? 'গল্প আপডেট হয়েছে' : 'Story updated');
+          } else {
+            addStory(storyData as Omit<ImpactStory, 'id'>);
+            showToast(isBn ? 'নতুন গল্প প্রকাশিত হয়েছে' : 'New story published');
+          }
+          setIsStoryModalOpen(false);
+        }}
+        onOpenMediaPicker={openMediaPicker}
+        isBn={isBn}
+      />
+
+      {/* FAQ Edit/Add Modal */}
+      <FAQModal
+        isOpen={isFAQModalOpen}
+        onClose={() => setIsFAQModalOpen(false)}
+        faq={editingFAQ}
+        onSave={(faqData) => {
+          if (editingFAQ) {
+            updateFAQ(editingFAQ.id, faqData);
+            showToast(isBn ? 'প্রশ্নোত্তর আপডেট হয়েছে' : 'FAQ item updated');
+          } else {
+            addFAQ(faqData as Omit<FAQItem, 'id'>);
+            showToast(isBn ? 'নতুন প্রশ্নোত্তর যুক্ত হয়েছে' : 'New FAQ item created');
+          }
+          setIsFAQModalOpen(false);
+        }}
+        isBn={isBn}
+      />
 
       {/* Universal Media Picker Modal */}
       <MediaPickerModal

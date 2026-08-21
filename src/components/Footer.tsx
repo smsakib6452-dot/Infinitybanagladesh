@@ -63,17 +63,19 @@ export const Footer: React.FC = () => {
           <div className="text-center md:text-left space-y-2 max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-600/40 text-emerald-300 text-xs font-bold uppercase tracking-wider">
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-              <span>Team Infinity — United for Humanity</span>
+              <span>
+                {tText(footerSettings.calloutEyebrow) || `${settings.teamIdentity || 'Team Infinity'} — ${isBn ? (settings.primary_slogan?.bn || 'মানবতার জন্য একতাবদ্ধ') : (settings.primary_slogan?.en || settings.tagline || 'United for Humanity')}`}
+              </span>
             </div>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight font-display">
-              {isBn
+              {tText(footerSettings.calloutTitle) || (isBn
                 ? 'সুবিধাবঞ্চিত মানুষের মুখে হাসি ফোটাতে আমাদের সাথে যোগ দিন'
-                : 'Stand with us to bring dignity, joy, and hope to communities in need.'}
+                : 'Stand with us to bring dignity, joy, and hope to communities in need.')}
             </h2>
             <p className="text-emerald-200/80 text-xs sm:text-sm leading-relaxed">
-              {isBn
+              {tText(footerSettings.calloutSubtitle) || (isBn
                 ? 'স্বেচ্ছাসেবী হিসেবে কিংবা সহযোগিতার হাত বাড়িয়ে দিয়ে আপনিও হতে পারেন মানবকল্যাণের অগ্রণী অংশ।'
-                : 'Whether as an active youth volunteer or a transparent supporter, your empathy creates lasting change.'}
+                : 'Whether as an active youth volunteer or a transparent supporter, your empathy creates lasting change.')}
             </p>
           </div>
 
@@ -83,7 +85,7 @@ export const Footer: React.FC = () => {
               onClick={() => handleNav('volunteer')}
               className="px-6 py-3 rounded-xl bg-[#006A4E] hover:bg-[#008562] active:bg-[#004D38] text-white font-bold text-xs sm:text-sm shadow-warm-md transition-all duration-200 inline-flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5"
             >
-              <span>{isBn ? 'স্বেচ্ছাসেবী হিসেবে যোগ দিন' : 'Become a Volunteer'}</span>
+              <span>{tText(footerSettings.volunteerCtaText) || (isBn ? 'স্বেচ্ছাসেবী হিসেবে যোগ দিন' : 'Become a Volunteer')}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
             <button
@@ -92,7 +94,7 @@ export const Footer: React.FC = () => {
               className="px-6 py-3 rounded-xl bg-white hover:bg-emerald-50 active:bg-emerald-100 text-[#006A4E] font-bold text-xs sm:text-sm shadow-warm-sm border border-emerald-200 transition-all duration-200 inline-flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5"
             >
               <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />
-              <span>{isBn ? 'সহায়তা করুন' : 'Support Our Work'}</span>
+              <span>{tText(footerSettings.supportCtaText) || (isBn ? 'সহায়তা করুন' : 'Support Our Work')}</span>
             </button>
           </div>
         </div>
@@ -109,7 +111,7 @@ export const Footer: React.FC = () => {
             </p>
 
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-emerald-950/60 border border-emerald-800/60 text-[11px] text-emerald-300 font-semibold">
-              <span>Established 2015 &bull; Hathazari, Chattogram, Bangladesh</span>
+              <span>Established {settings.establishedYear || '2015'} &bull; {footerSettings.address || settings.officialAddress || 'Hathazari, Chattogram, Bangladesh'}</span>
             </div>
 
             {/* Official Social Channels */}
@@ -244,15 +246,15 @@ export const Footer: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-4 text-[11px]">
-            <button type="button" onClick={() => handleNav('transparency')} className="hover:text-white transition-colors">
+            <button type="button" onClick={() => handleNav('privacy')} className="hover:text-white transition-colors cursor-pointer">
               {isBn ? 'প্রাইভেসি পলিসি' : 'Privacy Policy'}
             </button>
             <span>&bull;</span>
-            <button type="button" onClick={() => handleNav('transparency')} className="hover:text-white transition-colors">
+            <button type="button" onClick={() => handleNav('terms')} className="hover:text-white transition-colors cursor-pointer">
               {isBn ? 'টার্মস অ্যান্ড কন্ডিশন' : 'Terms & Verification'}
             </button>
             <span>&bull;</span>
-            <button type="button" onClick={() => handleNav('contact')} className="hover:text-white transition-colors">
+            <button type="button" onClick={() => handleNav('contact')} className="hover:text-white transition-colors cursor-pointer">
               {isBn ? 'হেল্পডেস্ক' : 'Official Helpdesk'}
             </button>
           </div>

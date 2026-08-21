@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useRouter } from '../context/RouterContext';
+import { useData } from '../context/DataContext';
 import { SectionHeading } from '../components/SectionHeading';
 import { OfficialInfoBadge, VerifiedOrganizationPledge } from '../components/OfficialInfoBadge';
 import { getAssetUrl } from '../lib/utils/assetHelper';
@@ -23,8 +24,17 @@ interface AboutPageProps {
 }
 
 export const AboutPage: React.FC<AboutPageProps> = ({ initialTab = 'overview' }) => {
-  const { isBn } = useLanguage();
+  const { isBn, tText } = useLanguage();
   const { navigate, currentPage } = useRouter();
+  const { aboutSettings, settings } = useData();
+
+  const orgName = settings.organizationName || (isBn ? 'ইনফিনিটি বাংলাদেশ' : 'Infinity Bangladesh');
+  const teamId = settings.teamIdentity || 'Team Infinity';
+  const sloganText = isBn
+    ? (settings.primary_slogan?.bn || settings.slogan?.bn || 'মানবতার জন্য একতাবদ্ধ')
+    : (settings.primary_slogan?.en || settings.slogan?.en || settings.tagline || 'United for Humanity');
+  const estYear = aboutSettings.establishedYear || settings.establishedYear || '2015';
+  const headLocation = aboutSettings.location || settings.officialAddress || 'Hathazari, Chattogram, Bangladesh';
 
   const [activeTab, setActiveTab] = useState<'overview' | 'mission-vision' | 'team'>(() => {
     if (currentPage === 'about/mission-vision') return 'mission-vision';
@@ -38,15 +48,15 @@ export const AboutPage: React.FC<AboutPageProps> = ({ initialTab = 'overview' })
       <div className="text-center space-y-4 max-w-3xl mx-auto">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider bg-[#E6F3EF] text-[#00523C] border border-[#C2E2D7]">
           <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-          <span>{isBn ? 'আমাদের পরিচিতি ও ইতিহাস' : 'About Infinity Bangladesh'}</span>
+          <span>{tText(aboutSettings.title) || (isBn ? 'আমাদের পরিচিতি ও ইতিহাস' : 'About Infinity Bangladesh')}</span>
         </div>
         <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight font-display">
-          {isBn ? 'টিম ইনফিনিটি — মানবতার জন্য একতাবদ্ধ' : 'Team Infinity — United for Humanity'}
+          {teamId} — {sloganText}
         </h1>
         <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-          {isBn
-            ? '২০১৫ সালে চট্টগ্রামের হাটহাজারী থেকে একদল স্বপ্নবান তরুণের হাত ধরে যাত্রা শুরু। দেশের সচেতন যুবসমাজকে একত্রিত করে সুবিধাবঞ্চিত ও প্রান্তিক জনগোষ্ঠীর মুখে হাসি ফোটাতে আমাদের নিরন্তর প্রচেষ্টা।'
-            : 'Founded in Hathazari, Chattogram in 2015. Uniting passionate youth changemakers across Bangladesh to serve underprivileged children and distressed communities with empathy, dignity, and radical transparency.'}
+          {tText(aboutSettings.subtitle) || (isBn
+            ? `${estYear} সালে চট্টগ্রামের হাটহাজারী থেকে একদল স্বপ্নবান তরুণের হাত ধরে যাত্রা শুরু। দেশের সচেতন যুবসমাজকে একত্রিত করে সুবিধাবঞ্চিত ও প্রান্তিক জনগোষ্ঠীর মুখে হাসি ফোটাতে আমাদের নিরন্তর প্রচেষ্টা।`
+            : `Founded in ${headLocation} in ${estYear}. Uniting passionate youth changemakers across Bangladesh to serve underprivileged children and distressed communities with empathy, dignity, and radical transparency.`)}
         </p>
 
         {/* Sub Navigation Tabs */}
@@ -110,16 +120,16 @@ export const AboutPage: React.FC<AboutPageProps> = ({ initialTab = 'overview' })
             <div className="lg:col-span-6 space-y-5">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-xs font-extrabold border border-amber-200">
                 <Calendar className="w-3.5 h-3.5 text-amber-600" />
-                <span>{isBn ? 'প্রতিষ্ঠা: ২০১৫ সাল' : 'Established in 2015'}</span>
+                <span>{isBn ? `প্রতিষ্ঠা: ${estYear} সাল` : `Established in ${estYear}`}</span>
               </div>
 
               <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight font-display">
                 {isBn ? 'আমাদের সূচনার কথা' : 'Our Story & Purpose'}
               </h2>
               <p className="text-slate-700 leading-relaxed text-xs sm:text-sm">
-                {isBn
-                  ? 'ইনফিনিটি বাংলাদেশ কোনো বাণিজ্যিক প্রতিষ্ঠান বা কৃত্রিম এনজিও নয়। এটি চট্টগ্রামের হাটহাজারী থেকে যাত্রা শুরু করা এমন কিছু সহৃদয় তরুণ-তরুণীর সম্মিলিত প্রয়াস, যারা সমাজের অবহেলিত মানুষের বেদনাকে হৃদয়ে অনুভব করে নিজেদের জায়গা থেকে এগিয়ে এসেছেন।'
-                  : 'Infinity Bangladesh was born from a simple yet powerful belief in Hathazari, Chattogram: real change happens when compassionate youth decide not to look away. Driven entirely by volunteers, Team Infinity unites changemakers across Bangladesh to address grassroots vulnerabilities.'}
+                {tText(aboutSettings.history) || (isBn
+                  ? `${orgName} কোনো বাণিজ্যিক প্রতিষ্ঠান বা কৃত্রিম এনজিও নয়। এটি চট্টগ্রামের হাটহাজারী থেকে যাত্রা শুরু করা এমন কিছু সহৃদয় তরুণ-তরুণীর সম্মিলিত প্রয়াস, যারা সমাজের অবহেলিত মানুষের বেদনাকে হৃদয়ে অনুভব করে নিজেদের জায়গা থেকে এগিয়ে এসেছেন।`
+                  : `${orgName} was born from a simple yet powerful belief in ${headLocation}: real change happens when compassionate youth decide not to look away. Driven entirely by volunteers, ${teamId} unites changemakers across Bangladesh to address grassroots vulnerabilities.`)}
               </p>
               <p className="text-slate-700 leading-relaxed text-xs sm:text-sm">
                 {isBn
@@ -134,8 +144,8 @@ export const AboutPage: React.FC<AboutPageProps> = ({ initialTab = 'overview' })
                 </div>
                 <p className="text-xs text-emerald-900 leading-relaxed">
                   {isBn
-                    ? 'হেডকোয়ার্টার: হাটহাজারী, চট্টগ্রাম, বাংলাদেশ। সকল প্রাতিষ্ঠানিক সনদ, সরকারি নিরীক্ষা ও অনুদানের হিসাব স্বচ্ছতার সাথে সংরক্ষিত।'
-                    : 'Headquarters: Hathazari, Chattogram, Bangladesh. Established in 2015. Maintained strictly according to factual verified status without fabricated figures.'}
+                    ? `হেডকোয়ার্টার: ${headLocation}। সকল প্রাতিষ্ঠানিক সনদ, সরকারি নিরীক্ষা ও অনুদানের হিসাব স্বচ্ছতার সাথে সংরক্ষিত।`
+                    : `Headquarters: ${headLocation}. Established in ${estYear}. Maintained strictly according to factual verified status without fabricated figures.`}
                 </p>
               </div>
             </div>
@@ -143,13 +153,13 @@ export const AboutPage: React.FC<AboutPageProps> = ({ initialTab = 'overview' })
             <div className="lg:col-span-6 relative">
               <div className="rounded-3xl overflow-hidden shadow-warm-xl border-4 border-white aspect-4/3 bg-slate-100">
                 <img
-                  src={getAssetUrl('/images/infinity-cover-hero.jpg')}
-                  alt="Team Infinity Field Service"
+                  src={getAssetUrl(aboutSettings.heroImageUrl || '/images/infinity-cover-hero.jpg')}
+                  alt={`${teamId} Field Service`}
                   className="w-full h-full object-cover"
                 />
               </div>
               <div className="absolute -bottom-4 -left-4 bg-[#006A4E] text-white p-4 rounded-2xl shadow-warm-md text-xs font-bold border border-emerald-400">
-                <span>Hathazari &bull; Est. 2015</span>
+                <span>{headLocation.split(',')[0]} &bull; Est. {estYear}</span>
               </div>
             </div>
           </div>
@@ -214,9 +224,9 @@ export const AboutPage: React.FC<AboutPageProps> = ({ initialTab = 'overview' })
                 {isBn ? 'আমাদের লক্ষ্য (Mission)' : 'Our Mission'}
               </h2>
               <p className="text-emerald-100 text-xs sm:text-sm leading-relaxed">
-                {isBn
+                {tText(aboutSettings.mission) || (isBn
                   ? 'সুবিধাবঞ্চিত শিশু ও দারিদ্র্যপীড়িত জনগোষ্ঠীর সামাজিক সুরক্ষা, শিক্ষা সহায়তা, দুর্যোগকালীন পুনর্বাসন এবং মৌসুমি খাদ্য ও বস্ত্র সহায়তা পৌঁছে দেওয়া — সম্পূর্ণ নিরপেক্ষতা, স্বচ্ছতা এবং পরম আন্তরিকতার সাথে।'
-                  : 'To stand with underprivileged children and distressed families through seasonal welfare drives, educational supplies, winter relief, and disaster aid, driven by youth volunteers with total transparency and dignity.'}
+                  : 'To stand with underprivileged children and distressed families through seasonal welfare drives, educational supplies, winter relief, and disaster aid, driven by youth volunteers with total transparency and dignity.')}
               </p>
             </div>
 
@@ -229,9 +239,9 @@ export const AboutPage: React.FC<AboutPageProps> = ({ initialTab = 'overview' })
                 {isBn ? 'আমাদের রূপকল্প (Vision)' : 'Our Vision'}
               </h2>
               <p className="text-emerald-200/90 text-xs sm:text-sm leading-relaxed">
-                {isBn
+                {tText(aboutSettings.vision) || (isBn
                   ? 'একটি মানবিক, সহানুভূতিশীল ও বৈষম্যহীন বাংলাদেশ গড়ে তোলা — যেখানে প্রতিটি শিশুর মুখে হাসি থাকবে, প্রতিটি মানুষ সম্মানের সাথে বাঁচবে এবং যুবসমাজ ইতিবাচক সমাজ গঠনে নেতৃত্ব দেবে।'
-                  : 'To inspire a compassionate, resilient Bangladesh where every child has access to basic care and education, every vulnerable citizen is treated with dignity, and youth actively shape a better society.'}
+                  : 'To inspire a compassionate, resilient Bangladesh where every child has access to basic care and education, every vulnerable citizen is treated with dignity, and youth actively shape a better society.')}
               </p>
             </div>
           </div>

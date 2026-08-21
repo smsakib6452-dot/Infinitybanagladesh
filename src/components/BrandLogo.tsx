@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import { useData } from '../context/DataContext';
 import { ShieldCheck, Info } from 'lucide-react';
 import { getAssetUrl } from '../lib/utils/assetHelper';
 
@@ -18,7 +19,8 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
   showBadge = true,
   layout = 'horizontal'
 }) => {
-  const { isBn } = useLanguage();
+  const { isBn, tText } = useLanguage();
+  const { settings, headerSettings } = useData();
   const [showModal, setShowModal] = useState(false);
   const [imgError, setImgError] = useState(false);
 
@@ -53,6 +55,13 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
 
   const currentSize = logoSizes[size];
 
+  const logoSrc = headerSettings.logoUrl || settings.logoUrl || '/brand/infinity-logo.png';
+  const orgName = settings.organizationName || (isBn ? 'ইনফিনিটি বাংলাদেশ' : 'Infinity Bangladesh');
+  const teamId = settings.teamIdentity || 'Team Infinity';
+  const sloganText = isBn
+    ? (settings.primary_slogan?.bn || settings.slogan?.bn || 'মানবতার জন্য একতাবদ্ধ')
+    : (settings.primary_slogan?.en || settings.slogan?.en || settings.tagline || 'United for Humanity');
+
   return (
     <>
       <div
@@ -67,12 +76,12 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
               ? 'bg-white p-0.5 border-teal-500/40 shadow-teal-950/40'
               : 'bg-white p-0.5 border-emerald-700/20 shadow-slate-900/10'
           }`}
-          title="Infinity Bangladesh (Team Infinity — United for Humanity)"
+          title={`${orgName} (${teamId} — ${sloganText})`}
         >
           {!imgError ? (
             <img
-              src={getAssetUrl('/brand/infinity-logo.png')}
-              alt="Infinity Bangladesh Official Logo"
+              src={getAssetUrl(logoSrc)}
+              alt={`${orgName} Official Logo`}
               className="w-full h-full object-contain rounded-full"
               onError={() => setImgError(true)}
             />
@@ -101,7 +110,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
                 isLight ? 'text-white' : 'text-slate-900'
               }`}
             >
-              {isBn ? 'ইনফিনিটি বাংলাদেশ' : 'Infinity Bangladesh'}
+              {orgName}
             </span>
 
             {showBadge && (
@@ -112,7 +121,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
                     : 'bg-[#E6F3EF] text-[#00523C] border border-[#C2E2D7]'
                 }`}
               >
-                Team Infinity
+                {teamId}
               </span>
             )}
           </div>
@@ -123,7 +132,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
                 isLight ? 'text-teal-200/90' : 'text-[#006A4E]'
               }`}
             >
-              {isBn ? 'মানবতার জন্য একতাবদ্ধ' : 'United for Humanity'}
+              {sloganText}
             </span>
           )}
         </div>
@@ -171,23 +180,23 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
 
             <div className="flex items-center gap-4 p-3.5 bg-[#FAF7F2] rounded-2xl border border-[#EAE3D9] mb-4">
               <img
-                src={getAssetUrl('/brand/infinity-logo.png')}
-                alt="Infinity Bangladesh Logo"
+                src={getAssetUrl(logoSrc)}
+                alt={`${orgName} Logo`}
                 className="w-14 h-14 object-contain rounded-full bg-white p-1 border border-slate-200"
               />
               <div>
-                <p className="font-extrabold text-slate-900 text-base">Infinity Bangladesh</p>
-                <p className="text-xs font-semibold text-[#006A4E]">Team Infinity — United for Humanity</p>
-                <p className="text-[11px] text-slate-500 mt-0.5">Established 2015 &bull; Hathazari, Chattogram</p>
+                <p className="font-extrabold text-slate-900 text-base">{orgName}</p>
+                <p className="text-xs font-semibold text-[#006A4E]">{teamId} — {sloganText}</p>
+                <p className="text-[11px] text-slate-500 mt-0.5">Established {settings.establishedYear || '2015'} &bull; {settings.officialAddress || 'Hathazari, Chattogram'}</p>
               </div>
             </div>
 
             <div className="space-y-2.5 text-xs text-slate-700">
               <p>
-                <strong className="text-slate-900">Official Brand Integrity:</strong> The Infinity Bangladesh brand mark incorporates the symbolic infinity emblem with Bangladeshi green & red wings, representing eternal compassion, youth solidarity, and national service.
+                <strong className="text-slate-900">Official Brand Integrity:</strong> The {orgName} brand mark incorporates the symbolic infinity emblem with Bangladeshi green & red wings, representing eternal compassion, youth solidarity, and national service.
               </p>
               <p>
-                <strong className="text-slate-900">Headquarters:</strong> Hathazari, Chattogram, Bangladesh.
+                <strong className="text-slate-900">Headquarters:</strong> {settings.officialAddress || 'Hathazari, Chattogram, Bangladesh'}.
               </p>
               <p className="text-slate-500 text-[11px]">
                 Preserved in authentic proportions as mandated by organizational governance.

@@ -94,6 +94,8 @@ import { CampaignModal } from '../components/CampaignModal';
 import { ProgramModal } from '../components/ProgramModal';
 import { StoryModal } from '../components/StoryModal';
 import { FAQModal } from '../components/FAQModal';
+import { CommitteeMemberModal, CommitteeMemberFormData } from '../components/CommitteeMemberModal';
+import { ImageEditorModal, AspectRatioType } from '../components/ImageEditorModal';
 import { isSupabaseConfigured, signInWithEmail, signOutAdmin } from '../lib/supabase';
 
 type AdminTab =
@@ -209,15 +211,37 @@ export const AdminPage: React.FC = () => {
   const [editingAdmin, setEditingAdmin] = useState<AdminProfile | null>(null);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
 
-  const [selectedCommitteeId, setSelectedCommitteeId] = useState<string>(committees[0]?.id || '');
-  const [isCommitteeModalOpen, setIsCommitteeModalOpen] = useState(false);
-  const [editingCommittee, setEditingCommittee] = useState<Committee | null>(null);
-
+  // Committee & Member Management States
+  const [selectedCommitteeId, setSelectedCommitteeId] = useState<string>(committees[0]?.id || 'comm-exec-2026');
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
-  const [editingMember, setEditingMember] = useState<CommitteeMember | null>(null);
+  const [editingMember, setEditingMember] = useState<(CommitteeMember & { person: Person; position: Position; committee?: Committee }) | null>(null);
+  const [memberSearchQuery, setMemberSearchQuery] = useState('');
+  const [isNewCommitteeModalOpen, setIsNewCommitteeModalOpen] = useState(false);
+  const [newCommitteeNameEn, setNewCommitteeNameEn] = useState('');
+  const [newCommitteeNameBn, setNewCommitteeNameBn] = useState('');
+  const [newCommitteeYear, setNewCommitteeYear] = useState('2026');
+  const [newCommitteeType, setNewCommitteeType] = useState<Committee['type']>('STANDING');
+  const [newCommitteeDescEn, setNewCommitteeDescEn] = useState('');
+  const [newCommitteeDescBn, setNewCommitteeDescBn] = useState('');
 
-  const [isPersonModalOpen, setIsPersonModalOpen] = useState(false);
-  const [editingPerson, setEditingPerson] = useState<Person | null>(null);
+  // Universal Image Editor State
+  const [isImageEditorOpen, setIsImageEditorOpen] = useState(false);
+  const [imageEditorTarget, setImageEditorTarget] = useState('');
+  const [imageEditorTitle, setImageEditorTitle] = useState('');
+  const [imageEditorAspectRatio, setImageEditorAspectRatio] = useState<AspectRatioType>('1:1');
+  const [imageEditorCallback, setImageEditorCallback] = useState<((url: string) => void) | null>(null);
+
+  const openImageEditor = (
+    url: string,
+    callback: (croppedUrl: string) => void,
+    options?: { title?: string; aspectRatio?: AspectRatioType }
+  ) => {
+    setImageEditorTarget(url);
+    setImageEditorCallback(() => callback);
+    setImageEditorTitle(options?.title || '');
+    setImageEditorAspectRatio(options?.aspectRatio || '1:1');
+    setIsImageEditorOpen(true);
+  };
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -227,6 +251,100 @@ export const AdminPage: React.FC = () => {
   const openMediaPicker = (onSelect: (url: string) => void) => {
     setMediaPickerCallback(() => onSelect);
     setMediaPickerOpen(true);
+  };
+
+  // Committee Member Save Handler
+  const handleSaveMember = (
+    formData: CommitteeMemberFormData,
+    memberId?: string,
+    personId?: string,
+    positionId?: string
+  ) => {
+    if (memberId && personId && positionId) {
+      // Update existing Person
+      updatePerson(personId, {
+        banglaName: formData.banglaName,
+        englishName: formData.englishName,
+        fullName: formData.englishName,
+        photoUrl: formData.photoUrl,
+        shortBio: { en: formData.shortBioEn, bn: formData.shortBioBn },
+        facebookUrl: formData.facebookUrl,
+        linkedinUrl: formData.linkedinUrl,
+        socialLinks: {
+          facebook: formData.facebookUrl,
+          linkedin: formData.linkedinUrl
+        },
+        active: formData.status === 'ACTIVE'
+      });
+      // Update existing Position
+      updatePosition(positionId, {
+        name: { en: formData.englishDesignation, bn: formData.banglaDesignation },
+        level: formData.level
+      });
+      // Update existing Committee Member
+      updateCommitteeMember(memberId, {
+        committeeId: formData.committeeId,
+        serialNumber: formData.serialNumber,
+        sortOrder: formData.sortOrder,
+        isFeaturedLeader: formData.isFeaturedLeader,
+        status: formData.status
+      });
+      showToast(isBn ? 'সদস্যের তথ্য সফলভাবে আপডেট হয়েছে' : 'Member updated successfully');
+    } else {
+      // Create new Person
+      const newPerson = addPerson({
+        fullName: formData.englishName || 'New Member',
+        englishName: formData.englishName || 'New Member',
+        banglaName: formData.banglaName || 'নতুন সদস্য',
+        photoUrl: formData.photoUrl,
+        shortBio: { en: formData.shortBioEn, bn: formData.shortBioBn },
+        facebookUrl: formData.facebookUrl,
+        linkedinUrl: formData.linkedinUrl,
+        socialLinks: {
+          facebook: formData.facebookUrl,
+          linkedin: formData.linkedinUrl
+        },
+        active: formData.status === 'ACTIVE'
+      });
+      // Create Position
+      const newPos = addPosition({
+        name: { en: formData.englishDesignation || 'Member', bn: formData.banglaDesignation || 'সদস্য' },
+        level: formData.level,
+        sortOrder: formData.serialNumber
+      });
+      // Add Committee Member
+      addCommitteeMember({
+        committeeId: formData.committeeId || selectedCommitteeId,
+        personId: newPerson.id,
+        positionId: newPos.id,
+        serialNumber: formData.serialNumber,
+        sortOrder: formData.sortOrder,
+        isFeaturedLeader: formData.isFeaturedLeader,
+        status: formData.status
+      });
+      showToast(isBn ? 'নতুন সদস্য সফলভাবে যুক্ত হয়েছে' : 'New member added successfully');
+    }
+    setIsMemberModalOpen(false);
+    setEditingMember(null);
+  };
+
+  // Committee Member Move Up / Down Handler
+  const handleMoveMember = (memberId: string, direction: 'up' | 'down') => {
+    const list = getMembersWithDetails(selectedCommitteeId);
+    const index = list.findIndex(m => m.id === memberId);
+    if (index === -1) return;
+    if (direction === 'up' && index === 0) return;
+    if (direction === 'down' && index === list.length - 1) return;
+
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    const reordered = [...list];
+    const temp = reordered[index];
+    reordered[index] = reordered[targetIndex];
+    reordered[targetIndex] = temp;
+
+    const orderedIds = reordered.map(m => m.id);
+    reorderCommitteeMembers(selectedCommitteeId, orderedIds);
+    showToast(isBn ? 'সদস্যের ক্রম পরিবর্তন হয়েছে' : 'Member order updated');
   };
 
   const handleAuthSubmit = async (e: React.FormEvent) => {
@@ -794,16 +912,33 @@ export const AdminPage: React.FC = () => {
                           onChange={(e) => updateSettings({ logoUrl: e.target.value })}
                           className="w-full px-3 py-1 bg-white border border-[#EAE3D9] rounded-lg text-xs font-mono"
                         />
-                        <button
-                          type="button"
-                          onClick={() => openMediaPicker((url) => {
-                            updateSettings({ logoUrl: url });
-                            showToast('Logo updated');
-                          })}
-                          className="text-[11px] text-[#006A4E] font-bold hover:underline cursor-pointer"
-                        >
-                          Pick from Media Library
-                        </button>
+                        <div className="flex items-center gap-3">
+                          <button
+                            type="button"
+                            onClick={() => openMediaPicker((url) => {
+                              updateSettings({ logoUrl: url });
+                              showToast('Logo updated');
+                            })}
+                            className="text-[11px] text-[#006A4E] font-bold hover:underline cursor-pointer"
+                          >
+                            Pick Media
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => openImageEditor(
+                              settings.logoUrl || '/logo.png',
+                              (croppedUrl) => {
+                                updateSettings({ logoUrl: croppedUrl });
+                                showToast('Logo cropped & updated');
+                              },
+                              { title: 'Crop Brand Logo (1:1)', aspectRatio: '1:1' }
+                            )}
+                            className="text-[11px] text-[#006A4E] font-bold hover:underline cursor-pointer flex items-center gap-1"
+                          >
+                            <Crop className="w-3 h-3" />
+                            <span>Crop (1:1)</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
 
@@ -823,16 +958,33 @@ export const AdminPage: React.FC = () => {
                           onChange={(e) => updateSettings({ faviconUrl: e.target.value })}
                           className="w-full px-3 py-1 bg-white border border-[#EAE3D9] rounded-lg text-xs font-mono"
                         />
-                        <button
-                          type="button"
-                          onClick={() => openMediaPicker((url) => {
-                            updateSettings({ faviconUrl: url });
-                            showToast('Favicon updated');
-                          })}
-                          className="text-[11px] text-[#006A4E] font-bold hover:underline cursor-pointer"
-                        >
-                          Pick from Media Library
-                        </button>
+                        <div className="flex items-center gap-3">
+                          <button
+                            type="button"
+                            onClick={() => openMediaPicker((url) => {
+                              updateSettings({ faviconUrl: url });
+                              showToast('Favicon updated');
+                            })}
+                            className="text-[11px] text-[#006A4E] font-bold hover:underline cursor-pointer"
+                          >
+                            Pick Media
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => openImageEditor(
+                              settings.faviconUrl || '/favicon.ico',
+                              (croppedUrl) => {
+                                updateSettings({ faviconUrl: croppedUrl });
+                                showToast('Favicon cropped & updated');
+                              },
+                              { title: 'Crop Favicon (1:1)', aspectRatio: '1:1' }
+                            )}
+                            className="text-[11px] text-[#006A4E] font-bold hover:underline cursor-pointer flex items-center gap-1"
+                          >
+                            <Crop className="w-3 h-3" />
+                            <span>Crop</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -980,19 +1132,39 @@ export const AdminPage: React.FC = () => {
                 <div className="space-y-4 pt-4 border-t border-slate-100">
                   <h3 className="text-sm font-bold text-slate-900 font-display flex items-center justify-between">
                     <span>Hero Real Photography & Badges</span>
-                    <button
-                      type="button"
-                      onClick={() => openMediaPicker((url) => {
-                        updateHomepageConfig({
-                          hero: { ...homepageConfig.hero, heroImageUrl: url }
-                        });
-                        showToast('Hero image updated from Media Library');
-                      })}
-                      className="text-xs text-[#006A4E] font-bold hover:underline flex items-center gap-1 cursor-pointer"
-                    >
-                      <FolderOpen className="w-3.5 h-3.5" />
-                      <span>Pick from Media Library</span>
-                    </button>
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => openMediaPicker((url) => {
+                          updateHomepageConfig({
+                            hero: { ...homepageConfig.hero, heroImageUrl: url }
+                          });
+                          showToast('Hero image updated from Media Library');
+                        })}
+                        className="text-xs text-[#006A4E] font-bold hover:underline flex items-center gap-1 cursor-pointer"
+                      >
+                        <FolderOpen className="w-3.5 h-3.5" />
+                        <span>Pick Media</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => openImageEditor(
+                          homepageConfig.hero.heroImageUrl,
+                          (croppedUrl) => {
+                            updateHomepageConfig({
+                              hero: { ...homepageConfig.hero, heroImageUrl: croppedUrl }
+                            });
+                            showToast('Hero photo cropped & updated');
+                          },
+                          { title: 'Crop Hero Photograph (4:3 / 16:9)', aspectRatio: '4:3' }
+                        )}
+                        className="text-xs text-[#006A4E] font-bold hover:underline flex items-center gap-1 cursor-pointer"
+                      >
+                        <Crop className="w-3.5 h-3.5" />
+                        <span>Crop & Position</span>
+                      </button>
+                    </div>
                   </h3>
 
                   <div className="grid grid-cols-1 sm:grid-cols-12 gap-6 items-center">
@@ -2847,11 +3019,26 @@ export const AdminPage: React.FC = () => {
                       <div className="flex items-center justify-between pt-1 border-t border-slate-200/80">
                         <button
                           type="button"
+                          onClick={() => openImageEditor(
+                            media.url,
+                            (croppedUrl) => {
+                              updateMediaItem(media.id, { url: croppedUrl });
+                              showToast(isBn ? 'মিডিয়া ফাইল ক্রপ ও আপডেট হয়েছে' : 'Media item cropped and updated');
+                            },
+                            { title: `Edit / Crop: ${media.fileName}`, aspectRatio: 'Free' }
+                          )}
+                          className="text-[11px] text-[#006A4E] font-bold hover:underline cursor-pointer flex items-center gap-1"
+                        >
+                          <Crop className="w-3 h-3" />
+                          <span>Crop</span>
+                        </button>
+                        <button
+                          type="button"
                           onClick={() => {
                             navigator.clipboard.writeText(media.url);
                             showToast('Asset URL copied to clipboard');
                           }}
-                          className="text-[11px] text-[#006A4E] font-bold hover:underline cursor-pointer"
+                          className="text-[11px] text-slate-600 font-bold hover:underline cursor-pointer"
                         >
                           Copy URL
                         </button>
@@ -2939,6 +3126,22 @@ export const AdminPage: React.FC = () => {
                           >
                             <FolderOpen className="w-3.5 h-3.5" />
                             <span>Change Image</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => openImageEditor(
+                              ban.desktopImageUrl,
+                              (croppedUrl) => {
+                                updateBanner(ban.id, { desktopImageUrl: croppedUrl });
+                                showToast('Banner cropped & updated');
+                              },
+                              { title: `Crop Banner: ${ban.title.en}`, aspectRatio: '21:9' }
+                            )}
+                            className="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-[#006A4E] hover:bg-slate-50 flex items-center gap-1 cursor-pointer"
+                          >
+                            <Crop className="w-3.5 h-3.5" />
+                            <span>Crop</span>
                           </button>
 
                           <button
@@ -3150,70 +3353,465 @@ export const AdminPage: React.FC = () => {
             {/* TAB: COMMITTEES & LEADERSHIP */}
             {/* -------------------------------------------------------- */}
             {activeTab === 'committees' && (
-              <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div>
-                    <h2 className="text-xl font-extrabold text-slate-900 font-display">
-                      {isBn ? 'কমিটি ও নেতৃত্ব ব্যবস্থাপনা' : 'Committees & Leadership CMS'}
-                    </h2>
-                    <p className="text-xs text-slate-500">
-                      {isBn ? 'কার্যনির্বাহী কমিটি ২০২৬, স্থায়ী কমিটি ও উপদেষ্টা মণ্ডলী পরিচালনা করুন।' : 'Manage 27 Executive Leaders, 9 Standing Committee Members, and past historical rosters.'}
-                    </p>
+              <div className="space-y-6">
+                {/* 1. Committee Selection & Header */}
+                <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                    <div>
+                      <h2 className="text-xl font-extrabold text-slate-900 font-display flex items-center gap-2">
+                        <Award className="w-5 h-5 text-[#006A4E]" />
+                        <span>{isBn ? 'কমিটি ও নেতৃত্ব পরিষদ ব্যবস্থাপনা' : 'Committees & Leadership CMS'}</span>
+                      </h2>
+                      <p className="text-xs text-slate-500">
+                        {isBn
+                          ? 'কার্যনির্বাহী পরিষদ (২০২৬) ও স্থায়ী কমিটির সদস্য, পদবী, ছবি, সিরিয়াল নম্বর ও ক্রম পরিবর্তন করুন।'
+                          : 'Manage Executive & Standing Committee rosters, member profiles, photos (1:1 crop), hierarchy, and serial order.'}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingMember(null);
+                          setIsMemberModalOpen(true);
+                        }}
+                        className="px-4 py-2.5 rounded-xl bg-[#006A4E] hover:bg-[#00523C] text-white font-bold text-xs shadow-warm-sm flex items-center gap-1.5 cursor-pointer transition-all"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>{isBn ? 'নতুন সদস্য যুক্ত করুন' : 'Add Committee Member'}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setIsNewCommitteeModalOpen(true)}
+                        className="px-3.5 py-2.5 rounded-xl bg-[#FAF7F2] hover:bg-[#F2ECE1] border border-[#EAE3D9] text-slate-700 font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-all"
+                      >
+                        <Plus className="w-4 h-4 text-[#006A4E]" />
+                        <span>{isBn ? 'নতুন কমিটি তৈরি' : 'Create Committee'}</span>
+                      </button>
+                    </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    <select
-                      value={selectedCommitteeId}
-                      onChange={(e) => setSelectedCommitteeId(e.target.value)}
-                      className="px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bold"
-                    >
-                      {committees.map(c => (
-                        <option key={c.id} value={c.id}>
-                          {c.name.en} ({c.term})
-                        </option>
-                      ))}
-                    </select>
+                  {/* Committee Selection Tabs */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                      {isBn ? 'পরিচালনার জন্য কমিটি নির্বাচন করুন:' : 'Select Committee to Manage:'}
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {committees.map(comm => {
+                        const isSelected = selectedCommitteeId === comm.id;
+                        const memberCount = committeeMembers.filter(m => m.committeeId === comm.id).length;
+                        return (
+                          <button
+                            key={comm.id}
+                            type="button"
+                            onClick={() => setSelectedCommitteeId(comm.id)}
+                            className={`px-4 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer border ${
+                              isSelected
+                                ? 'bg-[#006A4E] text-white border-[#006A4E] shadow-warm-sm'
+                                : 'bg-[#FAF7F2] text-slate-700 border-[#EAE3D9] hover:border-slate-400'
+                            }`}
+                          >
+                            <span>{comm.name.bn || comm.name.en}</span>
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+                              isSelected ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+                            }`}>
+                              {memberCount}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Selected Committee Details & Metadata Editor */}
+                  {(() => {
+                    const currentComm = committees.find(c => c.id === selectedCommitteeId) || committees[0];
+                    if (!currentComm) return null;
+                    return (
+                      <div className="p-4 sm:p-5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-4">
+                        <div className="flex items-center justify-between border-b border-slate-200/80 pb-3">
+                          <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                            <Sparkles className="w-3.5 h-3.5 text-[#006A4E]" />
+                            <span>{isBn ? 'নির্বাচিত কমিটির বিবরণ ও সেটিংস' : 'Committee Information & Settings'}</span>
+                          </h3>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-white text-[#006A4E] border border-slate-200">
+                            Type: {currentComm.type} &bull; Term: {currentComm.year}
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                          <div className="space-y-1">
+                            <label className="text-[11px] font-bold text-slate-700">Committee Name (English)</label>
+                            <input
+                              type="text"
+                              value={currentComm.name.en}
+                              onChange={(e) => updateCommittee(currentComm.id, {
+                                name: { ...currentComm.name, en: e.target.value }
+                              })}
+                              className="w-full px-3 py-1.5 bg-white border border-[#EAE3D9] rounded-xl text-xs"
+                            />
+                          </div>
+
+                          <div className="space-y-1">
+                            <label className="text-[11px] font-bold text-slate-700 font-bengali">কমিটির নাম (বাংলা)</label>
+                            <input
+                              type="text"
+                              value={currentComm.name.bn}
+                              onChange={(e) => updateCommittee(currentComm.id, {
+                                name: { ...currentComm.name, bn: e.target.value }
+                              })}
+                              className="w-full px-3 py-1.5 bg-white border border-[#EAE3D9] rounded-xl text-xs font-bengali"
+                            />
+                          </div>
+
+                          <div className="space-y-1">
+                            <label className="text-[11px] font-bold text-slate-700">Year / Term</label>
+                            <input
+                              type="text"
+                              value={currentComm.year}
+                              onChange={(e) => updateCommittee(currentComm.id, { year: e.target.value })}
+                              className="w-full px-3 py-1.5 bg-white border border-[#EAE3D9] rounded-xl text-xs font-mono font-bold"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="space-y-1">
+                            <label className="text-[11px] font-bold text-slate-700">Description (English)</label>
+                            <textarea
+                              rows={2}
+                              value={currentComm.description.en}
+                              onChange={(e) => updateCommittee(currentComm.id, {
+                                description: { ...currentComm.description, en: e.target.value }
+                              })}
+                              className="w-full px-3 py-1.5 bg-white border border-[#EAE3D9] rounded-xl text-xs"
+                            />
+                          </div>
+
+                          <div className="space-y-1">
+                            <label className="text-[11px] font-bold text-slate-700 font-bengali">বিবরণ (বাংলা)</label>
+                            <textarea
+                              rows={2}
+                              value={currentComm.description.bn}
+                              onChange={(e) => updateCommittee(currentComm.id, {
+                                description: { ...currentComm.description, bn: e.target.value }
+                              })}
+                              className="w-full px-3 py-1.5 bg-white border border-[#EAE3D9] rounded-xl text-xs font-bengali"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+
+                {/* 2. Members List & Reordering Controls */}
+                <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-4 shadow-warm-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                      <h3 className="text-base font-extrabold text-slate-900 font-display flex items-center gap-2">
+                        <Users className="w-4 h-4 text-[#006A4E]" />
+                        <span>
+                          {isBn ? 'সদস্য তালিকা ও পদমর্যাদা ক্রম' : 'Members Roster & Hierarchy'}
+                        </span>
+                      </h3>
+                      <p className="text-xs text-slate-500">
+                        {isBn
+                          ? 'সদস্যের নাম, পদবী, ছবি পরিবর্তন করুন অথবা ▲/▼ বাটনে ক্লিক করে ক্রম পুনঃনির্ধারণ করুন।'
+                          : 'Edit member designations, photos (1:1 crop), or click ▲/▼ to change display rank.'}
+                      </p>
+                    </div>
+
+                    {/* Member Search Bar */}
+                    <div className="relative w-full sm:w-64">
+                      <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="text"
+                        value={memberSearchQuery}
+                        onChange={(e) => setMemberSearchQuery(e.target.value)}
+                        placeholder={isBn ? 'সদস্যের নাম বা পদবী...' : 'Search roster...'}
+                        className="w-full pl-8 pr-3 py-1.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs focus:bg-white focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Members Roster Grid / Cards */}
+                  <div className="space-y-2.5 pt-2">
+                    {(() => {
+                      const allMembers = getMembersWithDetails(selectedCommitteeId);
+                      const filtered = allMembers.filter(m => {
+                        if (!memberSearchQuery.trim()) return true;
+                        const q = memberSearchQuery.toLowerCase();
+                        return (
+                          m.person.fullName.toLowerCase().includes(q) ||
+                          m.person.banglaName.includes(q) ||
+                          m.position.name.en.toLowerCase().includes(q) ||
+                          m.position.name.bn.includes(q)
+                        );
+                      });
+
+                      if (filtered.length === 0) {
+                        return (
+                          <div className="p-8 text-center bg-[#FAF7F2] rounded-2xl border border-dashed border-[#EAE3D9] space-y-2">
+                            <Users className="w-8 h-8 text-slate-300 mx-auto" />
+                            <p className="text-xs text-slate-500 font-bold">
+                              {isBn ? 'এই কমিটিতে কোনো সদস্য পাওয়া যায়নি।' : 'No members found in this committee.'}
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingMember(null);
+                                setIsMemberModalOpen(true);
+                              }}
+                              className="px-4 py-2 rounded-xl bg-[#006A4E] text-white font-bold text-xs"
+                            >
+                              Add First Member
+                            </button>
+                          </div>
+                        );
+                      }
+
+                      return filtered.map((item, idx) => (
+                        <div
+                          key={item.id}
+                          className="p-4 rounded-2xl bg-[#FAF7F2] hover:bg-[#F5EFE6]/70 border border-[#EAE3D9] flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all"
+                        >
+                          {/* Member Identity Details */}
+                          <div className="flex items-center gap-3.5">
+                            {/* Serial Badge */}
+                            <span className="w-8 h-8 rounded-xl bg-white text-[#006A4E] font-mono font-extrabold text-xs flex items-center justify-center border border-slate-200 shrink-0 shadow-2xs">
+                              #{String(item.serialNumber || idx + 1).padStart(2, '0')}
+                            </span>
+
+                            {/* Photo Thumbnail with Crop Trigger */}
+                            <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-white border border-[#006A4E]/30 shrink-0 shadow-2xs group">
+                              {item.person.photoUrl ? (
+                                <img
+                                  src={getAssetUrl(item.person.photoUrl)}
+                                  alt={item.person.fullName}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400">
+                                  <Users className="w-5 h-5" />
+                                </div>
+                              )}
+
+                              {item.person.photoUrl && (
+                                <button
+                                  type="button"
+                                  onClick={() => openImageEditor(
+                                    item.person.photoUrl!,
+                                    (croppedUrl) => {
+                                      updatePerson(item.personId, { photoUrl: croppedUrl });
+                                      showToast(isBn ? 'সদস্যের ছবি আপডেট হয়েছে' : 'Member photo updated');
+                                    },
+                                    { title: `Crop Photo: ${item.person.englishName}`, aspectRatio: '1:1' }
+                                  )}
+                                  className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white transition-opacity cursor-pointer"
+                                  title="Crop Photo (1:1)"
+                                >
+                                  <Crop className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                            </div>
+
+                            {/* Name & Designation */}
+                            <div className="space-y-0.5">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <h4 className="font-extrabold text-sm text-slate-900 font-display">
+                                  {item.person.banglaName} ({item.person.englishName})
+                                </h4>
+                                {item.isFeaturedLeader && (
+                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                                    Leader
+                                  </span>
+                                )}
+                                {item.status !== 'ACTIVE' && (
+                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-600">
+                                    {item.status}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-xs font-semibold text-[#006A4E]">
+                                {item.position.name.bn} &bull; <span className="font-sans text-slate-600">{item.position.name.en}</span>
+                              </p>
+                              {item.person.shortBio?.bn && (
+                                <p className="text-[11px] text-slate-500 line-clamp-1 italic font-bengali">
+                                  "{item.person.shortBio.bn}"
+                                </p>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Member Actions: Move Up / Down & Edit / Delete */}
+                          <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                            {/* Reorder Buttons */}
+                            <div className="flex items-center bg-white rounded-xl border border-slate-200 overflow-hidden shadow-2xs">
+                              <button
+                                type="button"
+                                disabled={idx === 0}
+                                onClick={() => handleMoveMember(item.id, 'up')}
+                                className="px-2 py-1.5 text-slate-600 hover:bg-slate-100 disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer font-bold text-xs"
+                                title="Move Rank Up"
+                              >
+                                ▲
+                              </button>
+                              <div className="w-px h-4 bg-slate-200" />
+                              <button
+                                type="button"
+                                disabled={idx === allMembers.length - 1}
+                                onClick={() => handleMoveMember(item.id, 'down')}
+                                className="px-2 py-1.5 text-slate-600 hover:bg-slate-100 disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer font-bold text-xs"
+                                title="Move Rank Down"
+                              >
+                                ▼
+                              </button>
+                            </div>
+
+                            {/* Edit Modal Trigger */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingMember(item);
+                                setIsMemberModalOpen(true);
+                              }}
+                              className="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold flex items-center gap-1 cursor-pointer shadow-2xs transition-all"
+                            >
+                              <Edit2 className="w-3.5 h-3.5 text-[#006A4E]" />
+                              <span>{isBn ? 'সম্পাদনা' : 'Edit'}</span>
+                            </button>
+
+                            {/* Delete Trigger */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (confirm(`Remove ${item.person.englishName || item.person.banglaName} from ${currentComm.name.en}?`)) {
+                                  deleteCommitteeMember(item.id);
+                                  showToast(isBn ? 'সদস্য তালিকা থেকে মুছে ফেলা হয়েছে' : 'Member removed');
+                                }
+                              }}
+                              className="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 cursor-pointer transition-all"
+                              title="Delete Member"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      ));
+                    })()}
                   </div>
                 </div>
 
-                {/* Roster of Members */}
-                <div className="space-y-3">
-                  {getMembersWithDetails(selectedCommitteeId).map((item, idx) => (
-                    <div
-                      key={item.id}
-                      className="p-3.5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] flex items-center justify-between gap-3"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="w-7 h-7 rounded-xl bg-white text-[#006A4E] font-bold text-xs flex items-center justify-center border border-slate-200">
-                          {idx + 1}
-                        </span>
-                        <div>
-                          <h4 className="font-bold text-xs sm:text-sm text-slate-900">
-                            {item.person.banglaName} ({item.person.englishName})
-                          </h4>
-                          <p className="text-[11px] text-[#006A4E] font-semibold">
-                            {item.position.name.bn} / {item.position.name.en}
-                          </p>
+                {/* 3. New Committee Creation Modal */}
+                {isNewCommitteeModalOpen && (
+                  <div className="fixed inset-0 z-[9995] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
+                    <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 max-w-lg w-full space-y-4 shadow-2xl">
+                      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <h3 className="font-extrabold text-base text-slate-900 font-display">
+                          {isBn ? 'নতুন কমিটি তৈরি করুন' : 'Create New Committee'}
+                        </h3>
+                        <button
+                          type="button"
+                          onClick={() => setIsNewCommitteeModalOpen(false)}
+                          className="p-1 text-slate-400 hover:text-slate-700"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
+                      </div>
+
+                      <div className="space-y-3">
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-slate-700">Committee Name (English)</label>
+                          <input
+                            type="text"
+                            value={newCommitteeNameEn}
+                            onChange={(e) => setNewCommitteeNameEn(e.target.value)}
+                            placeholder="e.g. Standing Committee on Healthcare"
+                            className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                          />
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-slate-700 font-bengali">কমিটির নাম (বাংলা)</label>
+                          <input
+                            type="text"
+                            value={newCommitteeNameBn}
+                            onChange={(e) => setNewCommitteeNameBn(e.target.value)}
+                            placeholder="যেমন: স্বাস্থ্য ও চিকিৎসা বিষয়ক স্থায়ী কমিটি"
+                            className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-1">
+                            <label className="text-xs font-bold text-slate-700">Committee Type</label>
+                            <select
+                              value={newCommitteeType}
+                              onChange={(e) => setNewCommitteeType(e.target.value as any)}
+                              className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bold"
+                            >
+                              <option value="STANDING">স্থায়ী কমিটি (Standing)</option>
+                              <option value="EXECUTIVE">কার্যনির্বাহী পরিষদ (Executive)</option>
+                              <option value="SPECIAL">বিশেষ কমিটি (Special)</option>
+                              <option value="PAST">প্রাক্তন কমিটি (Past)</option>
+                            </select>
+                          </div>
+
+                          <div className="space-y-1">
+                            <label className="text-xs font-bold text-slate-700">Term / Year</label>
+                            <input
+                              type="text"
+                              value={newCommitteeYear}
+                              onChange={(e) => setNewCommitteeYear(e.target.value)}
+                              placeholder="2026"
+                              className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-mono"
+                            />
+                          </div>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                        <button
+                          type="button"
+                          onClick={() => setIsNewCommitteeModalOpen(false)}
+                          className="px-4 py-2 rounded-xl bg-white border border-[#EAE3D9] text-xs font-bold text-slate-700"
+                        >
+                          Cancel
+                        </button>
                         <button
                           type="button"
                           onClick={() => {
-                            if (confirm(`Remove ${item.person.englishName} from committee?`)) {
-                              deleteCommitteeMember(item.id);
-                              showToast('Member removed');
+                            if (!newCommitteeNameEn.trim()) {
+                              alert('Please provide committee name');
+                              return;
                             }
+                            const newComm = addCommittee({
+                              slug: newCommitteeNameEn.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+                              name: { en: newCommitteeNameEn, bn: newCommitteeNameBn || newCommitteeNameEn },
+                              type: newCommitteeType,
+                              year: newCommitteeYear,
+                              description: { en: newCommitteeDescEn, bn: newCommitteeDescBn },
+                              status: 'ACTIVE',
+                              sortOrder: committees.length + 1,
+                              isFeatured: false
+                            });
+                            setSelectedCommitteeId(newComm.id);
+                            setIsNewCommitteeModalOpen(false);
+                            setNewCommitteeNameEn('');
+                            setNewCommitteeNameBn('');
+                            showToast('New committee created');
                           }}
-                          className="p-1.5 text-rose-500 hover:text-rose-700 cursor-pointer"
+                          className="px-5 py-2 rounded-xl bg-[#006A4E] text-white text-xs font-bold"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          Create Committee
                         </button>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -3390,6 +3988,62 @@ export const AdminPage: React.FC = () => {
         }}
         isBn={isBn}
       />
+
+      {/* Committee Member Edit/Add Modal */}
+      <CommitteeMemberModal
+        isOpen={isMemberModalOpen}
+        onClose={() => {
+          setIsMemberModalOpen(false);
+          setEditingMember(null);
+        }}
+        member={editingMember}
+        defaultCommitteeId={selectedCommitteeId}
+        onSave={handleSaveMember}
+        onOpenMediaPicker={openMediaPicker}
+      />
+
+      {/* Universal Image Editor Modal */}
+      {isImageEditorOpen && (
+        <ImageEditorModal
+          isOpen={isImageEditorOpen}
+          onClose={() => {
+            setIsImageEditorOpen(false);
+            setImageEditorCallback(null);
+          }}
+          imageUrl={imageEditorTarget}
+          title={imageEditorTitle}
+          defaultAspectRatio={imageEditorAspectRatio}
+          onSave={(croppedDataUrl, metadata) => {
+            if (imageEditorCallback) {
+              imageEditorCallback(croppedDataUrl);
+            }
+            // If editing in Media Library, save as new or updated media item
+            if (activeTab === 'media_library' && metadata?.altText) {
+              addMediaItem({
+                fileName: `cropped-${Date.now()}.jpg`,
+                url: croppedDataUrl,
+                fileSize: 'Cropped Output',
+                mimeType: 'image/jpeg',
+                category: 'General',
+                altText: metadata.altText,
+                caption: metadata.caption,
+                usageTags: ['Cropped via Image Editor']
+              });
+            }
+            showToast(isBn ? 'ছবি সফলভাবে ক্রপ ও সংরক্ষণ করা হয়েছে' : 'Image successfully cropped & saved');
+            setIsImageEditorOpen(false);
+            setImageEditorCallback(null);
+          }}
+          onOpenMediaLibrary={() => {
+            setIsImageEditorOpen(false);
+            openMediaPicker((url) => {
+              if (imageEditorCallback) {
+                imageEditorCallback(url);
+              }
+            });
+          }}
+        />
+      )}
 
       {/* Universal Media Picker Modal */}
       <MediaPickerModal

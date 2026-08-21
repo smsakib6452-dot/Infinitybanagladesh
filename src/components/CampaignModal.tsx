@@ -7,6 +7,7 @@ import {
   Trash2,
   FolderOpen,
   Image as ImageIcon,
+  Crop,
   Flag,
   Calendar,
   MapPin,
@@ -16,6 +17,7 @@ import {
   CheckCircle2,
   Sparkles
 } from 'lucide-react';
+import { ImageEditorModal } from './ImageEditorModal';
 
 interface CampaignModalProps {
   isOpen: boolean;
@@ -649,14 +651,25 @@ export const CampaignModal: React.FC<CampaignModalProps> = ({
                     <ImageIcon className="w-4 h-4 text-[#006A4E]" />
                     <span>Cover Photo URL (মূল আলোকচিত্র)</span>
                   </label>
-                  <button
-                    type="button"
-                    onClick={() => onOpenMediaPicker((pickedUrl) => setImageUrl(pickedUrl))}
-                    className="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-[#006A4E] text-xs font-bold hover:bg-slate-50 flex items-center gap-1.5 cursor-pointer shadow-2xs"
-                  >
-                    <FolderOpen className="w-3.5 h-3.5" />
-                    <span>Pick from Media Library</span>
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => onOpenMediaPicker((pickedUrl) => setImageUrl(pickedUrl))}
+                      className="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-[#006A4E] text-xs font-bold hover:bg-slate-50 flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                    >
+                      <FolderOpen className="w-3.5 h-3.5" />
+                      <span>Pick Media</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setIsImageEditorOpen(true)}
+                      className="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-[#006A4E] text-xs font-bold hover:bg-slate-50 flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                    >
+                      <Crop className="w-3.5 h-3.5" />
+                      <span>Crop & Adjust</span>
+                    </button>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
@@ -726,6 +739,25 @@ export const CampaignModal: React.FC<CampaignModalProps> = ({
           </div>
         </form>
       </div>
+
+      {/* Image Editor Modal */}
+      {isImageEditorOpen && (
+        <ImageEditorModal
+          isOpen={isImageEditorOpen}
+          onClose={() => setIsImageEditorOpen(false)}
+          imageUrl={imageUrl}
+          title={`Crop Campaign Cover: ${titleEn || 'New Campaign'}`}
+          defaultAspectRatio="4:3"
+          onSave={(croppedUrl) => {
+            setImageUrl(croppedUrl);
+            setIsImageEditorOpen(false);
+          }}
+          onOpenMediaLibrary={() => {
+            setIsImageEditorOpen(false);
+            onOpenMediaPicker((pickedUrl) => setImageUrl(pickedUrl));
+          }}
+        />
+      )}
     </div>
   );
 };

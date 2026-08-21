@@ -7,11 +7,9 @@ import {
   Trash2,
   FolderOpen,
   Image as ImageIcon,
-  Crop,
   Handshake,
   CheckCircle2
 } from 'lucide-react';
-import { ImageEditorModal } from './ImageEditorModal';
 
 interface ProgramModalProps {
   isOpen: boolean;
@@ -223,24 +221,14 @@ export const ProgramModal: React.FC<ProgramModalProps> = ({
                 <ImageIcon className="w-4 h-4 text-[#006A4E]" />
                 <span>Program Cover Image</span>
               </label>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => onOpenMediaPicker((url) => setImageUrl(url))}
-                  className="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-[#006A4E] text-xs font-bold hover:bg-slate-50 flex items-center gap-1.5 cursor-pointer"
-                >
-                  <FolderOpen className="w-3.5 h-3.5" />
-                  <span>Pick Media</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsImageEditorOpen(true)}
-                  className="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-[#006A4E] text-xs font-bold hover:bg-slate-50 flex items-center gap-1.5 cursor-pointer"
-                >
-                  <Crop className="w-3.5 h-3.5" />
-                  <span>Crop & Adjust</span>
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => onOpenMediaPicker((url) => setImageUrl(url))}
+                className="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-[#006A4E] text-xs font-bold hover:bg-slate-50 flex items-center gap-1.5 cursor-pointer"
+              >
+                <FolderOpen className="w-3.5 h-3.5" />
+                <span>Pick from Media Library</span>
+              </button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
               <div className="sm:col-span-4 aspect-4/3 rounded-xl overflow-hidden bg-slate-200 border border-slate-300">
@@ -321,25 +309,6 @@ export const ProgramModal: React.FC<ProgramModalProps> = ({
           </div>
         </form>
       </div>
-
-      {/* Image Editor Modal */}
-      {isImageEditorOpen && (
-        <ImageEditorModal
-          isOpen={isImageEditorOpen}
-          onClose={() => setIsImageEditorOpen(false)}
-          imageUrl={imageUrl}
-          title={`Crop Program Cover: ${titleEn || 'New Program'}`}
-          defaultAspectRatio="4:3"
-          onSave={(croppedUrl) => {
-            setImageUrl(croppedUrl);
-            setIsImageEditorOpen(false);
-          }}
-          onOpenMediaLibrary={() => {
-            setIsImageEditorOpen(false);
-            onOpenMediaPicker((url) => setImageUrl(url));
-          }}
-        />
-      )}
     </div>
   );
 };

@@ -95,7 +95,7 @@ import { ProgramModal } from '../components/ProgramModal';
 import { StoryModal } from '../components/StoryModal';
 import { FAQModal } from '../components/FAQModal';
 import { CommitteeMemberModal, CommitteeMemberFormData } from '../components/CommitteeMemberModal';
-import { ImageEditorModal, AspectRatioType } from '../components/ImageEditorModal';
+import { AdminErrorBoundary } from '../components/AdminErrorBoundary';
 import { isSupabaseConfigured, signInWithEmail, signOutAdmin } from '../lib/supabase';
 
 type AdminTab =
@@ -223,25 +223,6 @@ export const AdminPage: React.FC = () => {
   const [newCommitteeType, setNewCommitteeType] = useState<Committee['type']>('STANDING');
   const [newCommitteeDescEn, setNewCommitteeDescEn] = useState('');
   const [newCommitteeDescBn, setNewCommitteeDescBn] = useState('');
-
-  // Universal Image Editor State
-  const [isImageEditorOpen, setIsImageEditorOpen] = useState(false);
-  const [imageEditorTarget, setImageEditorTarget] = useState('');
-  const [imageEditorTitle, setImageEditorTitle] = useState('');
-  const [imageEditorAspectRatio, setImageEditorAspectRatio] = useState<AspectRatioType>('1:1');
-  const [imageEditorCallback, setImageEditorCallback] = useState<((url: string) => void) | null>(null);
-
-  const openImageEditor = (
-    url: string,
-    callback: (croppedUrl: string) => void,
-    options?: { title?: string; aspectRatio?: AspectRatioType }
-  ) => {
-    setImageEditorTarget(url);
-    setImageEditorCallback(() => callback);
-    setImageEditorTitle(options?.title || '');
-    setImageEditorAspectRatio(options?.aspectRatio || '1:1');
-    setIsImageEditorOpen(true);
-  };
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -613,6 +594,7 @@ export const AdminPage: React.FC = () => {
 
           {/* Right Content Workspace */}
           <div className="lg:col-span-9 space-y-6">
+            <AdminErrorBoundary fallbackTitle="Admin Workspace Component Error">
             {/* -------------------------------------------------------- */}
             {/* TAB: OVERVIEW */}
             {/* -------------------------------------------------------- */}
@@ -912,33 +894,16 @@ export const AdminPage: React.FC = () => {
                           onChange={(e) => updateSettings({ logoUrl: e.target.value })}
                           className="w-full px-3 py-1 bg-white border border-[#EAE3D9] rounded-lg text-xs font-mono"
                         />
-                        <div className="flex items-center gap-3">
-                          <button
-                            type="button"
-                            onClick={() => openMediaPicker((url) => {
-                              updateSettings({ logoUrl: url });
-                              showToast('Logo updated');
-                            })}
-                            className="text-[11px] text-[#006A4E] font-bold hover:underline cursor-pointer"
-                          >
-                            Pick Media
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => openImageEditor(
-                              settings.logoUrl || '/logo.png',
-                              (croppedUrl) => {
-                                updateSettings({ logoUrl: croppedUrl });
-                                showToast('Logo cropped & updated');
-                              },
-                              { title: 'Crop Brand Logo (1:1)', aspectRatio: '1:1' }
-                            )}
-                            className="text-[11px] text-[#006A4E] font-bold hover:underline cursor-pointer flex items-center gap-1"
-                          >
-                            <Crop className="w-3 h-3" />
-                            <span>Crop (1:1)</span>
-                          </button>
-                        </div>
+                        <button
+                          type="button"
+                          onClick={() => openMediaPicker((url) => {
+                            updateSettings({ logoUrl: url });
+                            showToast('Logo updated');
+                          })}
+                          className="text-[11px] text-[#006A4E] font-bold hover:underline cursor-pointer"
+                        >
+                          Pick from Media Library
+                        </button>
                       </div>
                     </div>
 
@@ -958,33 +923,16 @@ export const AdminPage: React.FC = () => {
                           onChange={(e) => updateSettings({ faviconUrl: e.target.value })}
                           className="w-full px-3 py-1 bg-white border border-[#EAE3D9] rounded-lg text-xs font-mono"
                         />
-                        <div className="flex items-center gap-3">
-                          <button
-                            type="button"
-                            onClick={() => openMediaPicker((url) => {
-                              updateSettings({ faviconUrl: url });
-                              showToast('Favicon updated');
-                            })}
-                            className="text-[11px] text-[#006A4E] font-bold hover:underline cursor-pointer"
-                          >
-                            Pick Media
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => openImageEditor(
-                              settings.faviconUrl || '/favicon.ico',
-                              (croppedUrl) => {
-                                updateSettings({ faviconUrl: croppedUrl });
-                                showToast('Favicon cropped & updated');
-                              },
-                              { title: 'Crop Favicon (1:1)', aspectRatio: '1:1' }
-                            )}
-                            className="text-[11px] text-[#006A4E] font-bold hover:underline cursor-pointer flex items-center gap-1"
-                          >
-                            <Crop className="w-3 h-3" />
-                            <span>Crop</span>
-                          </button>
-                        </div>
+                        <button
+                          type="button"
+                          onClick={() => openMediaPicker((url) => {
+                            updateSettings({ faviconUrl: url });
+                            showToast('Favicon updated');
+                          })}
+                          className="text-[11px] text-[#006A4E] font-bold hover:underline cursor-pointer"
+                        >
+                          Pick from Media Library
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -1132,39 +1080,19 @@ export const AdminPage: React.FC = () => {
                 <div className="space-y-4 pt-4 border-t border-slate-100">
                   <h3 className="text-sm font-bold text-slate-900 font-display flex items-center justify-between">
                     <span>Hero Real Photography & Badges</span>
-                    <div className="flex items-center gap-3">
-                      <button
-                        type="button"
-                        onClick={() => openMediaPicker((url) => {
-                          updateHomepageConfig({
-                            hero: { ...homepageConfig.hero, heroImageUrl: url }
-                          });
-                          showToast('Hero image updated from Media Library');
-                        })}
-                        className="text-xs text-[#006A4E] font-bold hover:underline flex items-center gap-1 cursor-pointer"
-                      >
-                        <FolderOpen className="w-3.5 h-3.5" />
-                        <span>Pick Media</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => openImageEditor(
-                          homepageConfig.hero.heroImageUrl,
-                          (croppedUrl) => {
-                            updateHomepageConfig({
-                              hero: { ...homepageConfig.hero, heroImageUrl: croppedUrl }
-                            });
-                            showToast('Hero photo cropped & updated');
-                          },
-                          { title: 'Crop Hero Photograph (4:3 / 16:9)', aspectRatio: '4:3' }
-                        )}
-                        className="text-xs text-[#006A4E] font-bold hover:underline flex items-center gap-1 cursor-pointer"
-                      >
-                        <Crop className="w-3.5 h-3.5" />
-                        <span>Crop & Position</span>
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => openMediaPicker((url) => {
+                        updateHomepageConfig({
+                          hero: { ...homepageConfig.hero, heroImageUrl: url }
+                        });
+                        showToast('Hero image updated from Media Library');
+                      })}
+                      className="text-xs text-[#006A4E] font-bold hover:underline flex items-center gap-1 cursor-pointer"
+                    >
+                      <FolderOpen className="w-3.5 h-3.5" />
+                      <span>Pick from Media Library</span>
+                    </button>
                   </h3>
 
                   <div className="grid grid-cols-1 sm:grid-cols-12 gap-6 items-center">
@@ -3017,21 +2945,7 @@ export const AdminPage: React.FC = () => {
                       </div>
 
                       <div className="flex items-center justify-between pt-1 border-t border-slate-200/80">
-                        <button
-                          type="button"
-                          onClick={() => openImageEditor(
-                            media.url,
-                            (croppedUrl) => {
-                              updateMediaItem(media.id, { url: croppedUrl });
-                              showToast(isBn ? 'মিডিয়া ফাইল ক্রপ ও আপডেট হয়েছে' : 'Media item cropped and updated');
-                            },
-                            { title: `Edit / Crop: ${media.fileName}`, aspectRatio: 'Free' }
-                          )}
-                          className="text-[11px] text-[#006A4E] font-bold hover:underline cursor-pointer flex items-center gap-1"
-                        >
-                          <Crop className="w-3 h-3" />
-                          <span>Crop</span>
-                        </button>
+
                         <button
                           type="button"
                           onClick={() => {
@@ -3126,22 +3040,6 @@ export const AdminPage: React.FC = () => {
                           >
                             <FolderOpen className="w-3.5 h-3.5" />
                             <span>Change Image</span>
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => openImageEditor(
-                              ban.desktopImageUrl,
-                              (croppedUrl) => {
-                                updateBanner(ban.id, { desktopImageUrl: croppedUrl });
-                                showToast('Banner cropped & updated');
-                              },
-                              { title: `Crop Banner: ${ban.title.en}`, aspectRatio: '21:9' }
-                            )}
-                            className="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-[#006A4E] hover:bg-slate-50 flex items-center gap-1 cursor-pointer"
-                          >
-                            <Crop className="w-3.5 h-3.5" />
-                            <span>Crop</span>
                           </button>
 
                           <button
@@ -3446,7 +3344,7 @@ export const AdminPage: React.FC = () => {
                             <label className="text-[11px] font-bold text-slate-700">Committee Name (English)</label>
                             <input
                               type="text"
-                              value={currentComm.name.en}
+                              value={currentComm.name?.en || ''}
                               onChange={(e) => updateCommittee(currentComm.id, {
                                 name: { ...currentComm.name, en: e.target.value }
                               })}
@@ -3458,7 +3356,7 @@ export const AdminPage: React.FC = () => {
                             <label className="text-[11px] font-bold text-slate-700 font-bengali">কমিটির নাম (বাংলা)</label>
                             <input
                               type="text"
-                              value={currentComm.name.bn}
+                              value={currentComm.name?.bn || ''}
                               onChange={(e) => updateCommittee(currentComm.id, {
                                 name: { ...currentComm.name, bn: e.target.value }
                               })}
@@ -3470,7 +3368,7 @@ export const AdminPage: React.FC = () => {
                             <label className="text-[11px] font-bold text-slate-700">Year / Term</label>
                             <input
                               type="text"
-                              value={currentComm.year}
+                              value={currentComm.year || '2026'}
                               onChange={(e) => updateCommittee(currentComm.id, { year: e.target.value })}
                               className="w-full px-3 py-1.5 bg-white border border-[#EAE3D9] rounded-xl text-xs font-mono font-bold"
                             />
@@ -3482,7 +3380,7 @@ export const AdminPage: React.FC = () => {
                             <label className="text-[11px] font-bold text-slate-700">Description (English)</label>
                             <textarea
                               rows={2}
-                              value={currentComm.description.en}
+                              value={currentComm.description?.en || ''}
                               onChange={(e) => updateCommittee(currentComm.id, {
                                 description: { ...currentComm.description, en: e.target.value }
                               })}
@@ -3494,7 +3392,7 @@ export const AdminPage: React.FC = () => {
                             <label className="text-[11px] font-bold text-slate-700 font-bengali">বিবরণ (বাংলা)</label>
                             <textarea
                               rows={2}
-                              value={currentComm.description.bn}
+                              value={currentComm.description?.bn || ''}
                               onChange={(e) => updateCommittee(currentComm.id, {
                                 description: { ...currentComm.description, bn: e.target.value }
                               })}
@@ -3544,11 +3442,17 @@ export const AdminPage: React.FC = () => {
                       const filtered = allMembers.filter(m => {
                         if (!memberSearchQuery.trim()) return true;
                         const q = memberSearchQuery.toLowerCase();
+                        const fullName = m.person?.fullName?.toLowerCase() || '';
+                        const enName = m.person?.englishName?.toLowerCase() || '';
+                        const bnName = m.person?.banglaName || '';
+                        const posEn = m.position?.name?.en?.toLowerCase() || '';
+                        const posBn = m.position?.name?.bn || '';
                         return (
-                          m.person.fullName.toLowerCase().includes(q) ||
-                          m.person.banglaName.includes(q) ||
-                          m.position.name.en.toLowerCase().includes(q) ||
-                          m.position.name.bn.includes(q)
+                          fullName.includes(q) ||
+                          enName.includes(q) ||
+                          bnName.includes(q) ||
+                          posEn.includes(q) ||
+                          posBn.includes(q)
                         );
                       });
 
@@ -3565,7 +3469,7 @@ export const AdminPage: React.FC = () => {
                                 setEditingMember(null);
                                 setIsMemberModalOpen(true);
                               }}
-                              className="px-4 py-2 rounded-xl bg-[#006A4E] text-white font-bold text-xs"
+                              className="px-4 py-2 rounded-xl bg-[#006A4E] text-white font-bold text-xs cursor-pointer"
                             >
                               Add First Member
                             </button>
@@ -3585,36 +3489,25 @@ export const AdminPage: React.FC = () => {
                               #{String(item.serialNumber || idx + 1).padStart(2, '0')}
                             </span>
 
-                            {/* Photo Thumbnail with Crop Trigger */}
-                            <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-white border border-[#006A4E]/30 shrink-0 shadow-2xs group">
-                              {item.person.photoUrl ? (
+                            {/* Photo Thumbnail */}
+                            <div
+                              onClick={() => {
+                                setEditingMember(item);
+                                setIsMemberModalOpen(true);
+                              }}
+                              className="relative w-12 h-12 rounded-xl overflow-hidden bg-white border border-[#006A4E]/30 shrink-0 shadow-2xs group cursor-pointer"
+                              title="Click to edit member & photo"
+                            >
+                              {item.person?.photoUrl ? (
                                 <img
                                   src={getAssetUrl(item.person.photoUrl)}
-                                  alt={item.person.fullName}
-                                  className="w-full h-full object-cover"
+                                  alt={item.person?.fullName || item.person?.englishName || 'Member'}
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                                 />
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400">
                                   <Users className="w-5 h-5" />
                                 </div>
-                              )}
-
-                              {item.person.photoUrl && (
-                                <button
-                                  type="button"
-                                  onClick={() => openImageEditor(
-                                    item.person.photoUrl!,
-                                    (croppedUrl) => {
-                                      updatePerson(item.personId, { photoUrl: croppedUrl });
-                                      showToast(isBn ? 'সদস্যের ছবি আপডেট হয়েছে' : 'Member photo updated');
-                                    },
-                                    { title: `Crop Photo: ${item.person.englishName}`, aspectRatio: '1:1' }
-                                  )}
-                                  className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white transition-opacity cursor-pointer"
-                                  title="Crop Photo (1:1)"
-                                >
-                                  <Crop className="w-3.5 h-3.5" />
-                                </button>
                               )}
                             </div>
 
@@ -3622,7 +3515,7 @@ export const AdminPage: React.FC = () => {
                             <div className="space-y-0.5">
                               <div className="flex flex-wrap items-center gap-2">
                                 <h4 className="font-extrabold text-sm text-slate-900 font-display">
-                                  {item.person.banglaName} ({item.person.englishName})
+                                  {item.person?.banglaName || item.person?.fullName || 'সদস্য'} {item.person?.englishName ? `(${item.person.englishName})` : ''}
                                 </h4>
                                 {item.isFeaturedLeader && (
                                   <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
@@ -3636,9 +3529,9 @@ export const AdminPage: React.FC = () => {
                                 )}
                               </div>
                               <p className="text-xs font-semibold text-[#006A4E]">
-                                {item.position.name.bn} &bull; <span className="font-sans text-slate-600">{item.position.name.en}</span>
+                                {item.position?.name?.bn || 'সদস্য'} &bull; <span className="font-sans text-slate-600">{item.position?.name?.en || 'Member'}</span>
                               </p>
-                              {item.person.shortBio?.bn && (
+                              {item.person?.shortBio?.bn && (
                                 <p className="text-[11px] text-slate-500 line-clamp-1 italic font-bengali">
                                   "{item.person.shortBio.bn}"
                                 </p>
@@ -3688,7 +3581,7 @@ export const AdminPage: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => {
-                                if (confirm(`Remove ${item.person.englishName || item.person.banglaName} from ${currentComm.name.en}?`)) {
+                                if (confirm(`Remove ${item.person?.englishName || item.person?.banglaName || 'member'} from committee?`)) {
                                   deleteCommitteeMember(item.id);
                                   showToast(isBn ? 'সদস্য তালিকা থেকে মুছে ফেলা হয়েছে' : 'Member removed');
                                 }
@@ -3910,6 +3803,7 @@ export const AdminPage: React.FC = () => {
                 </div>
               </div>
             )}
+            </AdminErrorBoundary>
           </div>
         </div>
       </div>
@@ -4002,48 +3896,6 @@ export const AdminPage: React.FC = () => {
         onOpenMediaPicker={openMediaPicker}
       />
 
-      {/* Universal Image Editor Modal */}
-      {isImageEditorOpen && (
-        <ImageEditorModal
-          isOpen={isImageEditorOpen}
-          onClose={() => {
-            setIsImageEditorOpen(false);
-            setImageEditorCallback(null);
-          }}
-          imageUrl={imageEditorTarget}
-          title={imageEditorTitle}
-          defaultAspectRatio={imageEditorAspectRatio}
-          onSave={(croppedDataUrl, metadata) => {
-            if (imageEditorCallback) {
-              imageEditorCallback(croppedDataUrl);
-            }
-            // If editing in Media Library, save as new or updated media item
-            if (activeTab === 'media_library' && metadata?.altText) {
-              addMediaItem({
-                fileName: `cropped-${Date.now()}.jpg`,
-                url: croppedDataUrl,
-                fileSize: 'Cropped Output',
-                mimeType: 'image/jpeg',
-                category: 'General',
-                altText: metadata.altText,
-                caption: metadata.caption,
-                usageTags: ['Cropped via Image Editor']
-              });
-            }
-            showToast(isBn ? 'ছবি সফলভাবে ক্রপ ও সংরক্ষণ করা হয়েছে' : 'Image successfully cropped & saved');
-            setIsImageEditorOpen(false);
-            setImageEditorCallback(null);
-          }}
-          onOpenMediaLibrary={() => {
-            setIsImageEditorOpen(false);
-            openMediaPicker((url) => {
-              if (imageEditorCallback) {
-                imageEditorCallback(url);
-              }
-            });
-          }}
-        />
-      )}
 
       {/* Universal Media Picker Modal */}
       <MediaPickerModal

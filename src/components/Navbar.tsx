@@ -27,6 +27,7 @@ export const Navbar: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -35,6 +36,10 @@ export const Navbar: React.FC = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    setIsAdminAuthenticated(localStorage.getItem('infinity_bd_admin_auth') === 'true');
+  }, [currentPage]);
 
   const handleNavClick = (path: string, isExternal?: boolean) => {
     if (isExternal || path.startsWith('http://') || path.startsWith('https://')) {
@@ -97,17 +102,21 @@ export const Navbar: React.FC = () => {
                 </>
               )}
 
-              <span className="hidden sm:inline text-emerald-800">|</span>
-
-              <button
-                type="button"
-                onClick={() => navigate('admin')}
-                className="hover:text-white inline-flex items-center gap-1 transition-colors text-[11px] font-medium text-emerald-300/80 cursor-pointer"
-                title="Admin Portal Login"
-              >
-                <Lock className="w-3 h-3 text-emerald-400" />
-                <span>{isBn ? 'অ্যাডমিন' : 'Admin'}</span>
-              </button>
+              {/* Only render Admin link if user is already authenticated as administrator */}
+              {isAdminAuthenticated && (
+                <>
+                  <span className="hidden sm:inline text-emerald-800">|</span>
+                  <button
+                    type="button"
+                    onClick={() => navigate('admin')}
+                    className="hover:text-white inline-flex items-center gap-1 transition-colors text-[11px] font-medium text-emerald-300/80 cursor-pointer"
+                    title="Admin Portal"
+                  >
+                    <Lock className="w-3 h-3 text-emerald-400" />
+                    <span>{isBn ? 'অ্যাডমিন' : 'Admin'}</span>
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

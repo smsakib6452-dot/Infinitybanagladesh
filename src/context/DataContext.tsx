@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import {
   Campaign,
   Program,
@@ -18,7 +18,21 @@ import {
   Committee,
   Person,
   Position,
-  CommitteeMember
+  CommitteeMember,
+  HomepageConfig,
+  AboutSettings,
+  HeaderSettings,
+  FooterSettings,
+  SocialLink,
+  VolunteerSettings,
+  SupportSettings,
+  ContactSettings,
+  GlobalSEOSettings,
+  NavigationItem,
+  BannerItem,
+  MediaItem,
+  GalleryAlbum,
+  AdminProfile
 } from '../types';
 import {
   INITIAL_CAMPAIGNS,
@@ -37,8 +51,23 @@ import {
   INITIAL_POSITIONS,
   INITIAL_COMMITTEES,
   INITIAL_PERSONS,
-  INITIAL_COMMITTEE_MEMBERS
+  INITIAL_COMMITTEE_MEMBERS,
+  INITIAL_HOMEPAGE_CONFIG,
+  INITIAL_ABOUT_SETTINGS,
+  INITIAL_HEADER_SETTINGS,
+  INITIAL_FOOTER_SETTINGS,
+  INITIAL_SOCIAL_LINKS,
+  INITIAL_VOLUNTEER_SETTINGS,
+  INITIAL_SUPPORT_SETTINGS,
+  INITIAL_CONTACT_SETTINGS,
+  INITIAL_SEO_SETTINGS,
+  INITIAL_NAVIGATION_ITEMS,
+  INITIAL_BANNERS,
+  INITIAL_MEDIA_LIBRARY,
+  INITIAL_GALLERY_ALBUMS,
+  INITIAL_ADMIN_PROFILES
 } from '../data/initialData';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
 interface DataContextType {
   // Entities
@@ -56,49 +85,106 @@ interface DataContextType {
   donations: DonationRecord[];
   messages: ContactMessage[];
   settings: SiteSettings;
+  homepageConfig: HomepageConfig;
+  aboutSettings: AboutSettings;
+  headerSettings: HeaderSettings;
+  footerSettings: FooterSettings;
+  socialLinks: SocialLink[];
+  volunteerSettings: VolunteerSettings;
+  supportSettings: SupportSettings;
+  contactSettings: ContactSettings;
+  seoSettings: GlobalSEOSettings;
+  navigationItems: NavigationItem[];
+  banners: BannerItem[];
+  mediaLibrary: MediaItem[];
+  galleryAlbums: GalleryAlbum[];
+  adminProfiles: AdminProfile[];
   auditLogs: AuditLog[];
   committees: Committee[];
   persons: Person[];
   positions: Position[];
   committeeMembers: CommitteeMember[];
 
-  // Mutations
-  addCampaign: (campaign: Omit<Campaign, 'id'>) => void;
+  // System & Connection State
+  isLiveSupabase: boolean;
+  isSyncing: boolean;
+  previewMode: boolean;
+
+  // Mutations: Homepage & Global CMS Settings
+  updateHomepageConfig: (newConfig: Partial<HomepageConfig>) => void;
+  updateAboutSettings: (newSettings: Partial<AboutSettings>) => void;
+  updateHeaderSettings: (newSettings: Partial<HeaderSettings>) => void;
+  updateFooterSettings: (newSettings: Partial<FooterSettings>) => void;
+  updateVolunteerSettings: (newSettings: Partial<VolunteerSettings>) => void;
+  updateSupportSettings: (newSettings: Partial<SupportSettings>) => void;
+  updateContactSettings: (newSettings: Partial<ContactSettings>) => void;
+  updateSEOSettings: (newSettings: Partial<GlobalSEOSettings>) => void;
+  updateSettings: (newSettings: Partial<SiteSettings>) => void;
+
+  // Social Links
+  addSocialLink: (link: Omit<SocialLink, 'id'>) => void;
+  updateSocialLink: (id: string, link: Partial<SocialLink>) => void;
+  deleteSocialLink: (id: string) => void;
+
+  // Navigation
+  addNavigationItem: (item: Omit<NavigationItem, 'id'>) => void;
+  updateNavigationItem: (id: string, item: Partial<NavigationItem>) => void;
+  deleteNavigationItem: (id: string) => void;
+  reorderNavigationItems: (items: NavigationItem[]) => void;
+
+  // Banners
+  addBanner: (banner: Omit<BannerItem, 'id'>) => void;
+  updateBanner: (id: string, banner: Partial<BannerItem>) => void;
+  deleteBanner: (id: string) => void;
+
+  // Media Library & Albums
+  addMediaItem: (media: Omit<MediaItem, 'id' | 'uploadedAt'>) => MediaItem;
+  updateMediaItem: (id: string, media: Partial<MediaItem>) => void;
+  deleteMediaItem: (id: string) => void;
+  addGalleryAlbum: (album: Omit<GalleryAlbum, 'id'>) => GalleryAlbum;
+  updateGalleryAlbum: (id: string, album: Partial<GalleryAlbum>) => void;
+  deleteGalleryAlbum: (id: string) => void;
+
+  // Core Programs & Campaigns
+  addCampaign: (campaign: Omit<Campaign, 'id'>) => Campaign;
   updateCampaign: (id: string, campaign: Partial<Campaign>) => void;
   deleteCampaign: (id: string) => void;
 
-  addProgram: (program: Omit<Program, 'id'>) => void;
+  addProgram: (program: Omit<Program, 'id'>) => Program;
   updateProgram: (id: string, program: Partial<Program>) => void;
   deleteProgram: (id: string) => void;
 
+  addMetric: (metric: Omit<ImpactMetric, 'id'>) => ImpactMetric;
   updateMetric: (id: string, metric: Partial<ImpactMetric>) => void;
+  deleteMetric: (id: string) => void;
 
-  addStory: (story: Omit<ImpactStory, 'id'>) => void;
+  addStory: (story: Omit<ImpactStory, 'id'>) => ImpactStory;
   updateStory: (id: string, story: Partial<ImpactStory>) => void;
   deleteStory: (id: string) => void;
 
-  addNews: (newsItem: Omit<NewsArticle, 'id'>) => void;
+  addNews: (newsItem: Omit<NewsArticle, 'id'>) => NewsArticle;
   updateNews: (id: string, newsItem: Partial<NewsArticle>) => void;
   deleteNews: (id: string) => void;
 
-  addEvent: (eventItem: Omit<EventItem, 'id'>) => void;
+  addEvent: (eventItem: Omit<EventItem, 'id'>) => EventItem;
   updateEvent: (id: string, eventItem: Partial<EventItem>) => void;
   deleteEvent: (id: string) => void;
 
-  addGalleryPhoto: (photo: Omit<GalleryPhoto, 'id'>) => void;
+  addGalleryPhoto: (photo: Omit<GalleryPhoto, 'id'>) => GalleryPhoto;
   deleteGalleryPhoto: (id: string) => void;
 
-  addVideo: (video: Omit<VideoItem, 'id'>) => void;
+  addVideo: (video: Omit<VideoItem, 'id'>) => VideoItem;
   deleteVideo: (id: string) => void;
 
-  addReport: (report: Omit<TransparencyReport, 'id'>) => void;
+  addReport: (report: Omit<TransparencyReport, 'id'>) => TransparencyReport;
   updateReport: (id: string, report: Partial<TransparencyReport>) => void;
   deleteReport: (id: string) => void;
 
-  addPartner: (partner: Omit<Partner, 'id'>) => void;
+  addPartner: (partner: Omit<Partner, 'id'>) => Partner;
   updatePartner: (id: string, partner: Partial<Partner>) => void;
   deletePartner: (id: string) => void;
 
+  // Interactions: Volunteers, Donations, Messages
   submitVolunteerApplication: (app: Omit<VolunteerApplication, 'id' | 'submittedAt' | 'status'>) => string;
   addVolunteerApplication: (app: Partial<VolunteerApplication>) => string;
   updateVolunteerStatus: (id: string, status: VolunteerApplication['status'], adminNotes?: string) => void;
@@ -112,6 +198,11 @@ interface DataContextType {
   updateMessageStatus: (id: string, status: ContactMessage['status']) => void;
   deleteContactMessage: (id: string) => void;
 
+  // Admin Profiles & Roles
+  addAdminProfile: (profile: Omit<AdminProfile, 'id'>) => AdminProfile;
+  updateAdminProfile: (id: string, profile: Partial<AdminProfile>) => void;
+  deleteAdminProfile: (id: string) => void;
+
   // Committee & Leadership Mutations
   addCommittee: (committee: Omit<Committee, 'id'>) => Committee;
   updateCommittee: (id: string, committee: Partial<Committee>) => void;
@@ -123,17 +214,19 @@ interface DataContextType {
   updatePerson: (id: string, person: Partial<Person>) => void;
   deletePerson: (id: string) => void;
 
-  addPosition: (pos: Omit<Position, 'id'>) => void;
+  addPosition: (pos: Omit<Position, 'id'>) => Position;
   updatePosition: (id: string, pos: Partial<Position>) => void;
   deletePosition: (id: string) => void;
 
-  addCommitteeMember: (member: Omit<CommitteeMember, 'id'>) => void;
+  addCommitteeMember: (member: Omit<CommitteeMember, 'id'>) => CommitteeMember;
   updateCommitteeMember: (id: string, member: Partial<CommitteeMember>) => void;
   deleteCommitteeMember: (id: string) => void;
   reorderCommitteeMembers: (committeeId: string, orderedMemberIds: string[]) => void;
   getMembersWithDetails: (committeeId?: string) => (CommitteeMember & { person: Person; position: Position; committee?: Committee })[];
 
-  updateSettings: (newSettings: Partial<SiteSettings>) => void;
+  // Global System Controls
+  setPreviewMode: (enabled: boolean) => void;
+  syncWithSupabase: () => Promise<void>;
   resetToDefaultData: () => void;
   exportDatabaseJSON: () => string;
   importDatabaseJSON: (jsonStr: string) => boolean;
@@ -141,681 +234,925 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-const STORAGE_PREFIX = 'infinity_bd_';
+const STORAGE_PREFIX = 'infinity_bd_v2_';
+
+function getStoredOrDefault<T>(key: string, fallback: T): T {
+  try {
+    const saved = localStorage.getItem(`${STORAGE_PREFIX}${key}`);
+    return saved ? JSON.parse(saved) : fallback;
+  } catch (err) {
+    console.error(`Error loading key ${key} from storage:`, err);
+    return fallback;
+  }
+}
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [campaigns, setCampaigns] = useState<Campaign[]>(() => {
-    const saved = localStorage.getItem(`${STORAGE_PREFIX}campaigns`);
-    return saved ? JSON.parse(saved) : INITIAL_CAMPAIGNS;
-  });
+  // Sync state
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [previewMode, setPreviewMode] = useState(false);
 
-  const [programs, setPrograms] = useState<Program[]>(() => {
-    const saved = localStorage.getItem(`${STORAGE_PREFIX}programs`);
-    return saved ? JSON.parse(saved) : INITIAL_PROGRAMS;
-  });
+  // 1. Site Settings & Global Configurations
+  const [settings, setSettings] = useState<SiteSettings>(() => getStoredOrDefault('settings', INITIAL_SITE_SETTINGS));
+  const [homepageConfig, setHomepageConfig] = useState<HomepageConfig>(() => getStoredOrDefault('homepageConfig', INITIAL_HOMEPAGE_CONFIG));
+  const [aboutSettings, setAboutSettings] = useState<AboutSettings>(() => getStoredOrDefault('aboutSettings', INITIAL_ABOUT_SETTINGS));
+  const [headerSettings, setHeaderSettings] = useState<HeaderSettings>(() => getStoredOrDefault('headerSettings', INITIAL_HEADER_SETTINGS));
+  const [footerSettings, setFooterSettings] = useState<FooterSettings>(() => getStoredOrDefault('footerSettings', INITIAL_FOOTER_SETTINGS));
+  const [socialLinks, setSocialLinks] = useState<SocialLink[]>(() => getStoredOrDefault('socialLinks', INITIAL_SOCIAL_LINKS));
+  const [volunteerSettings, setVolunteerSettings] = useState<VolunteerSettings>(() => getStoredOrDefault('volunteerSettings', INITIAL_VOLUNTEER_SETTINGS));
+  const [supportSettings, setSupportSettings] = useState<SupportSettings>(() => getStoredOrDefault('supportSettings', INITIAL_SUPPORT_SETTINGS));
+  const [contactSettings, setContactSettings] = useState<ContactSettings>(() => getStoredOrDefault('contactSettings', INITIAL_CONTACT_SETTINGS));
+  const [seoSettings, setSeoSettings] = useState<GlobalSEOSettings>(() => getStoredOrDefault('seoSettings', INITIAL_SEO_SETTINGS));
+  const [navigationItems, setNavigationItems] = useState<NavigationItem[]>(() => getStoredOrDefault('navigationItems', INITIAL_NAVIGATION_ITEMS));
+  const [banners, setBanners] = useState<BannerItem[]>(() => getStoredOrDefault('banners', INITIAL_BANNERS));
+  const [mediaLibrary, setMediaLibrary] = useState<MediaItem[]>(() => getStoredOrDefault('mediaLibrary', INITIAL_MEDIA_LIBRARY));
+  const [galleryAlbums, setGalleryAlbums] = useState<GalleryAlbum[]>(() => getStoredOrDefault('galleryAlbums', INITIAL_GALLERY_ALBUMS));
+  const [adminProfiles, setAdminProfiles] = useState<AdminProfile[]>(() => getStoredOrDefault('adminProfiles', INITIAL_ADMIN_PROFILES));
 
-  const [metrics, setMetrics] = useState<ImpactMetric[]>(() => {
-    const saved = localStorage.getItem(`${STORAGE_PREFIX}metrics`);
-    return saved ? JSON.parse(saved) : INITIAL_IMPACT_METRICS;
-  });
+  // 2. Core Entities
+  const [campaigns, setCampaigns] = useState<Campaign[]>(() => getStoredOrDefault('campaigns', INITIAL_CAMPAIGNS));
+  const [programs, setPrograms] = useState<Program[]>(() => getStoredOrDefault('programs', INITIAL_PROGRAMS));
+  const [metrics, setMetrics] = useState<ImpactMetric[]>(() => getStoredOrDefault('metrics', INITIAL_IMPACT_METRICS));
+  const [stories, setStories] = useState<ImpactStory[]>(() => getStoredOrDefault('stories', INITIAL_IMPACT_STORIES));
+  const [news, setNews] = useState<NewsArticle[]>(() => getStoredOrDefault('news', INITIAL_NEWS));
+  const [events, setEvents] = useState<EventItem[]>(() => getStoredOrDefault('events', INITIAL_EVENTS));
+  const [gallery, setGallery] = useState<GalleryPhoto[]>(() => getStoredOrDefault('gallery', INITIAL_GALLERY));
+  const [videos, setVideos] = useState<VideoItem[]>(() => getStoredOrDefault('videos', INITIAL_VIDEOS));
+  const [reports, setReports] = useState<TransparencyReport[]>(() => getStoredOrDefault('reports', INITIAL_REPORTS));
+  const [partners, setPartners] = useState<Partner[]>(() => getStoredOrDefault('partners', INITIAL_PARTNERS));
+  const [volunteers, setVolunteers] = useState<VolunteerApplication[]>(() => getStoredOrDefault('volunteers', INITIAL_VOLUNTEER_APPLICATIONS));
+  const [donations, setDonations] = useState<DonationRecord[]>(() => getStoredOrDefault('donations', INITIAL_DONATIONS));
+  const [messages, setMessages] = useState<ContactMessage[]>(() => getStoredOrDefault('messages', []));
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>(() => getStoredOrDefault('auditLogs', []));
 
-  const [stories, setStories] = useState<ImpactStory[]>(() => {
-    const saved = localStorage.getItem(`${STORAGE_PREFIX}stories`);
-    return saved ? JSON.parse(saved) : INITIAL_IMPACT_STORIES;
-  });
+  // 3. Committees & Leadership
+  const [committees, setCommittees] = useState<Committee[]>(() => getStoredOrDefault('committees', INITIAL_COMMITTEES));
+  const [persons, setPersons] = useState<Person[]>(() => getStoredOrDefault('persons', INITIAL_PERSONS));
+  const [positions, setPositions] = useState<Position[]>(() => getStoredOrDefault('positions', INITIAL_POSITIONS));
+  const [committeeMembers, setCommitteeMembers] = useState<CommitteeMember[]>(() => getStoredOrDefault('committeeMembers', INITIAL_COMMITTEE_MEMBERS));
 
-  const [news, setNews] = useState<NewsArticle[]>(() => {
-    const saved = localStorage.getItem(`${STORAGE_PREFIX}news`);
-    return saved ? JSON.parse(saved) : INITIAL_NEWS;
-  });
-
-  const [events, setEvents] = useState<EventItem[]>(() => {
-    const saved = localStorage.getItem(`${STORAGE_PREFIX}events`);
-    return saved ? JSON.parse(saved) : INITIAL_EVENTS;
-  });
-
-  const [gallery, setGallery] = useState<GalleryPhoto[]>(() => {
-    const saved = localStorage.getItem(`${STORAGE_PREFIX}gallery`);
-    return saved ? JSON.parse(saved) : INITIAL_GALLERY;
-  });
-
-  const [videos, setVideos] = useState<VideoItem[]>(() => {
-    const saved = localStorage.getItem(`${STORAGE_PREFIX}videos`);
-    return saved ? JSON.parse(saved) : INITIAL_VIDEOS;
-  });
-
-  const [reports, setReports] = useState<TransparencyReport[]>(() => {
-    const saved = localStorage.getItem(`${STORAGE_PREFIX}reports`);
-    return saved ? JSON.parse(saved) : INITIAL_REPORTS;
-  });
-
-  const [partners, setPartners] = useState<Partner[]>(() => {
-    const saved = localStorage.getItem(`${STORAGE_PREFIX}partners`);
-    return saved ? JSON.parse(saved) : INITIAL_PARTNERS;
-  });
-
-  const [volunteers, setVolunteers] = useState<VolunteerApplication[]>(() => {
-    const saved = localStorage.getItem(`${STORAGE_PREFIX}volunteers`);
-    const parsed: VolunteerApplication[] = saved ? JSON.parse(saved) : INITIAL_VOLUNTEER_APPLICATIONS;
-    return (parsed || []).map(v => ({
-      ...v,
-      interests: v.interests || v.areasOfInterest || [],
-      areasOfInterest: v.areasOfInterest || v.interests || [],
-      appliedAt: v.appliedAt || v.submittedAt || '',
-      submittedAt: v.submittedAt || v.appliedAt || ''
-    }));
-  });
-
-  const [donations, setDonations] = useState<DonationRecord[]>(() => {
-    const saved = localStorage.getItem(`${STORAGE_PREFIX}donations`);
-    const parsed: DonationRecord[] = saved ? JSON.parse(saved) : INITIAL_DONATIONS;
-    return (parsed || []).map(d => {
-      const val = typeof d.amount === 'number' ? d.amount : typeof d.amountBDT === 'number' ? d.amountBDT : 0;
-      const rec = d.receiptNumber || `REC-${d.id}`;
-      const dt = d.date || d.donatedAt || '';
-      return {
-        ...d,
-        amount: val,
-        amountBDT: val,
-        receiptNumber: rec,
-        date: dt,
-        donatedAt: dt
-      };
-    });
-  });
-
-  const [messages, setMessages] = useState<ContactMessage[]>(() => {
-    const saved = localStorage.getItem(`${STORAGE_PREFIX}messages`);
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  const [settings, setSettings] = useState<SiteSettings>(() => {
-    const saved = localStorage.getItem(`${STORAGE_PREFIX}settings`);
-    return saved ? JSON.parse(saved) : INITIAL_SITE_SETTINGS;
-  });
-
-  const [auditLogs, setAuditLogs] = useState<AuditLog[]>(() => {
-    const saved = localStorage.getItem(`${STORAGE_PREFIX}auditLogs`);
-    return saved ? JSON.parse(saved) : [
-      {
-        id: 'log-1',
-        user: 'System Admin',
-        action: 'System Initialized',
-        entity: 'System',
-        entityId: 'ROOT',
-        timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19),
-        details: 'Initial verified system data initialized with strict compliance to organizational facts.'
-      }
-    ];
-  });
-
-  const [committees, setCommittees] = useState<Committee[]>(() => {
-    const saved = localStorage.getItem(`${STORAGE_PREFIX}committees`);
-    const list: Committee[] = saved ? JSON.parse(saved) : INITIAL_COMMITTEES;
-    const initialMap = new Map(INITIAL_COMMITTEES.map(c => [c.id, c]));
-    return list.map(c => {
-      const init = initialMap.get(c.id);
-      return init ? { ...init, ...c } : c;
-    }).concat(
-      INITIAL_COMMITTEES.filter(c => !list.some(existing => existing.id === c.id))
-    );
-  });
-
-  const [persons, setPersons] = useState<Person[]>(() => {
-    const saved = localStorage.getItem(`${STORAGE_PREFIX}persons`);
-    const list: Person[] = saved ? JSON.parse(saved) : INITIAL_PERSONS;
-    const initialMap = new Map<string, Person>(INITIAL_PERSONS.map(p => [p.id, p]));
-    const merged: Person[] = list.map((p): Person => {
-      const init = initialMap.get(p.id);
-      return {
-        ...p,
-        photoUrl: p.photoUrl || init?.photoUrl || '',
-        banglaName: p.banglaName || init?.banglaName || p.fullName,
-        fullName: p.fullName || init?.fullName || ''
-      };
-    });
-    const missing = INITIAL_PERSONS.filter(p => !list.some(existing => existing.id === p.id));
-    return [...merged, ...missing];
-  });
-
-  const [positions, setPositions] = useState<Position[]>(() => {
-    const saved = localStorage.getItem(`${STORAGE_PREFIX}positions`);
-    const list: Position[] = saved ? JSON.parse(saved) : INITIAL_POSITIONS;
-    return list.concat(
-      INITIAL_POSITIONS.filter(pos => !list.some(existing => existing.id === pos.id))
-    );
-  });
-
-  const [committeeMembers, setCommitteeMembers] = useState<CommitteeMember[]>(() => {
-    const saved = localStorage.getItem(`${STORAGE_PREFIX}committeeMembers`);
-    const list: CommitteeMember[] = saved ? JSON.parse(saved) : INITIAL_COMMITTEE_MEMBERS;
-    return list.concat(
-      INITIAL_COMMITTEE_MEMBERS.filter(cm => !list.some(existing => existing.id === cm.id))
-    );
-  });
-
-  // Sync to local storage
-  useEffect(() => {
-    localStorage.setItem(`${STORAGE_PREFIX}campaigns`, JSON.stringify(campaigns));
-  }, [campaigns]);
-
-  useEffect(() => {
-    localStorage.setItem(`${STORAGE_PREFIX}programs`, JSON.stringify(programs));
-  }, [programs]);
-
-  useEffect(() => {
-    localStorage.setItem(`${STORAGE_PREFIX}metrics`, JSON.stringify(metrics));
-  }, [metrics]);
-
-  useEffect(() => {
-    localStorage.setItem(`${STORAGE_PREFIX}stories`, JSON.stringify(stories));
-  }, [stories]);
-
-  useEffect(() => {
-    localStorage.setItem(`${STORAGE_PREFIX}news`, JSON.stringify(news));
-  }, [news]);
-
-  useEffect(() => {
-    localStorage.setItem(`${STORAGE_PREFIX}events`, JSON.stringify(events));
-  }, [events]);
-
-  useEffect(() => {
-    localStorage.setItem(`${STORAGE_PREFIX}gallery`, JSON.stringify(gallery));
-  }, [gallery]);
-
-  useEffect(() => {
-    localStorage.setItem(`${STORAGE_PREFIX}videos`, JSON.stringify(videos));
-  }, [videos]);
-
-  useEffect(() => {
-    localStorage.setItem(`${STORAGE_PREFIX}reports`, JSON.stringify(reports));
-  }, [reports]);
-
-  useEffect(() => {
-    localStorage.setItem(`${STORAGE_PREFIX}partners`, JSON.stringify(partners));
-  }, [partners]);
-
-  useEffect(() => {
-    localStorage.setItem(`${STORAGE_PREFIX}volunteers`, JSON.stringify(volunteers));
-  }, [volunteers]);
-
-  useEffect(() => {
-    localStorage.setItem(`${STORAGE_PREFIX}donations`, JSON.stringify(donations));
-  }, [donations]);
-
-  useEffect(() => {
-    localStorage.setItem(`${STORAGE_PREFIX}messages`, JSON.stringify(messages));
-  }, [messages]);
-
+  // Local storage auto-sync
   useEffect(() => {
     localStorage.setItem(`${STORAGE_PREFIX}settings`, JSON.stringify(settings));
-  }, [settings]);
-
-  useEffect(() => {
+    localStorage.setItem(`${STORAGE_PREFIX}homepageConfig`, JSON.stringify(homepageConfig));
+    localStorage.setItem(`${STORAGE_PREFIX}aboutSettings`, JSON.stringify(aboutSettings));
+    localStorage.setItem(`${STORAGE_PREFIX}headerSettings`, JSON.stringify(headerSettings));
+    localStorage.setItem(`${STORAGE_PREFIX}footerSettings`, JSON.stringify(footerSettings));
+    localStorage.setItem(`${STORAGE_PREFIX}socialLinks`, JSON.stringify(socialLinks));
+    localStorage.setItem(`${STORAGE_PREFIX}volunteerSettings`, JSON.stringify(volunteerSettings));
+    localStorage.setItem(`${STORAGE_PREFIX}supportSettings`, JSON.stringify(supportSettings));
+    localStorage.setItem(`${STORAGE_PREFIX}contactSettings`, JSON.stringify(contactSettings));
+    localStorage.setItem(`${STORAGE_PREFIX}seoSettings`, JSON.stringify(seoSettings));
+    localStorage.setItem(`${STORAGE_PREFIX}navigationItems`, JSON.stringify(navigationItems));
+    localStorage.setItem(`${STORAGE_PREFIX}banners`, JSON.stringify(banners));
+    localStorage.setItem(`${STORAGE_PREFIX}mediaLibrary`, JSON.stringify(mediaLibrary));
+    localStorage.setItem(`${STORAGE_PREFIX}galleryAlbums`, JSON.stringify(galleryAlbums));
+    localStorage.setItem(`${STORAGE_PREFIX}adminProfiles`, JSON.stringify(adminProfiles));
+    localStorage.setItem(`${STORAGE_PREFIX}campaigns`, JSON.stringify(campaigns));
+    localStorage.setItem(`${STORAGE_PREFIX}programs`, JSON.stringify(programs));
+    localStorage.setItem(`${STORAGE_PREFIX}metrics`, JSON.stringify(metrics));
+    localStorage.setItem(`${STORAGE_PREFIX}stories`, JSON.stringify(stories));
+    localStorage.setItem(`${STORAGE_PREFIX}news`, JSON.stringify(news));
+    localStorage.setItem(`${STORAGE_PREFIX}events`, JSON.stringify(events));
+    localStorage.setItem(`${STORAGE_PREFIX}gallery`, JSON.stringify(gallery));
+    localStorage.setItem(`${STORAGE_PREFIX}videos`, JSON.stringify(videos));
+    localStorage.setItem(`${STORAGE_PREFIX}reports`, JSON.stringify(reports));
+    localStorage.setItem(`${STORAGE_PREFIX}partners`, JSON.stringify(partners));
+    localStorage.setItem(`${STORAGE_PREFIX}volunteers`, JSON.stringify(volunteers));
+    localStorage.setItem(`${STORAGE_PREFIX}donations`, JSON.stringify(donations));
+    localStorage.setItem(`${STORAGE_PREFIX}messages`, JSON.stringify(messages));
     localStorage.setItem(`${STORAGE_PREFIX}auditLogs`, JSON.stringify(auditLogs));
-  }, [auditLogs]);
-
-  useEffect(() => {
     localStorage.setItem(`${STORAGE_PREFIX}committees`, JSON.stringify(committees));
-  }, [committees]);
-
-  useEffect(() => {
     localStorage.setItem(`${STORAGE_PREFIX}persons`, JSON.stringify(persons));
-  }, [persons]);
-
-  useEffect(() => {
     localStorage.setItem(`${STORAGE_PREFIX}positions`, JSON.stringify(positions));
-  }, [positions]);
-
-  useEffect(() => {
     localStorage.setItem(`${STORAGE_PREFIX}committeeMembers`, JSON.stringify(committeeMembers));
-  }, [committeeMembers]);
+  }, [
+    settings, homepageConfig, aboutSettings, headerSettings, footerSettings,
+    socialLinks, volunteerSettings, supportSettings, contactSettings, seoSettings,
+    navigationItems, banners, mediaLibrary, galleryAlbums, adminProfiles,
+    campaigns, programs, metrics, stories, news, events, gallery, videos,
+    reports, partners, volunteers, donations, messages, auditLogs,
+    committees, persons, positions, committeeMembers
+  ]);
 
-  const addAudit = (action: string, entity: string, entityId: string, details: string) => {
+  // Audit Logging helper
+  const logAudit = useCallback((action: string, entity: string, entityId: string, details: string) => {
     const newLog: AuditLog = {
-      id: `log-${Date.now()}`,
+      id: `log-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
       user: 'Administrator',
       action,
       entity,
       entityId,
-      timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19),
-      details
+      details,
+      timestamp: new Date().toISOString()
     };
     setAuditLogs(prev => [newLog, ...prev.slice(0, 99)]);
-  };
+  }, []);
 
-  // Campaigns
-  const addCampaign = (item: Omit<Campaign, 'id'>) => {
-    const newItem: Campaign = { ...item, id: `camp-${Date.now()}` };
-    setCampaigns(prev => [newItem, ...prev]);
-    addAudit('Campaign Created', 'Campaign', newItem.id, `Created campaign "${item.title.en}"`);
-  };
+  // Supabase Fetch & Sync implementation
+  const syncWithSupabase = useCallback(async () => {
+    if (!supabase || !isSupabaseConfigured) return;
 
-  const updateCampaign = (id: string, updated: Partial<Campaign>) => {
-    setCampaigns(prev => prev.map(c => c.id === id ? { ...c, ...updated } : c));
-    addAudit('Campaign Updated', 'Campaign', id, `Updated campaign details`);
-  };
+    try {
+      setIsSyncing(true);
 
-  const deleteCampaign = (id: string) => {
+      // 1. Fetch site settings
+      const { data: siteData } = await supabase.from('site_settings').select('*').single();
+      if (siteData) {
+        setSettings(prev => ({ ...prev, ...siteData }));
+      }
+
+      // 2. Fetch homepage config
+      const { data: homeData } = await supabase.from('homepage_config').select('*').single();
+      if (homeData) {
+        setHomepageConfig(prev => ({
+          ...prev,
+          hero: homeData.hero || prev.hero,
+          aboutPreview: homeData.about_preview || prev.aboutPreview,
+          sectionOrder: homeData.section_order || prev.sectionOrder,
+          sectionVisibility: homeData.section_visibility || prev.sectionVisibility
+        }));
+      }
+
+      // 3. Fetch campaigns
+      const { data: campData } = await supabase.from('campaigns').select('*').order('created_at', { ascending: false });
+      if (campData && campData.length > 0) {
+        const mappedCampaigns: Campaign[] = campData.map(c => ({
+          id: c.id,
+          slug: c.slug,
+          title: c.title,
+          date: c.date,
+          endDate: c.end_date,
+          location: c.location,
+          category: c.category,
+          description: c.description,
+          details: c.details,
+          objectives: c.objectives || { en: [], bn: [] },
+          activities: c.activities || { en: [], bn: [] },
+          beneficiaries: c.beneficiaries,
+          beneficiariesCount: c.beneficiaries_count,
+          volunteersCount: c.volunteers_count,
+          impact: c.impact,
+          status: c.status as Campaign['status'],
+          isFeatured: c.is_featured,
+          targetAmountBDT: c.target_amount_bdt,
+          raisedAmountBDT: c.raised_amount_bdt,
+          imageUrl: c.image_url,
+          galleryImages: c.gallery_images || [],
+          videoUrl: c.video_url,
+          reportUrl: c.report_url
+        }));
+        setCampaigns(mappedCampaigns);
+      }
+
+      // 4. Fetch stories
+      const { data: storyData } = await supabase.from('stories').select('*').order('created_at', { ascending: false });
+      if (storyData && storyData.length > 0) {
+        setStories(storyData.map(s => ({
+          id: s.id,
+          slug: s.slug,
+          title: s.title,
+          personOrCommunity: s.person_or_community,
+          location: s.location,
+          date: s.date,
+          story: s.story,
+          impact: s.impact,
+          imageUrl: s.image_url,
+          campaignSlug: s.campaign_slug,
+          consentConfirmed: s.consent_confirmed,
+          isFeatured: s.is_featured,
+          status: s.status
+        })));
+      }
+
+      // 5. Fetch media library
+      const { data: mediaData } = await supabase.from('media_library').select('*').order('created_at', { ascending: false });
+      if (mediaData && mediaData.length > 0) {
+        setMediaLibrary(mediaData.map(m => ({
+          id: m.id,
+          fileName: m.file_name,
+          url: m.url,
+          fileSize: m.file_size,
+          mimeType: m.mime_type,
+          category: m.category,
+          altText: m.alt_text,
+          caption: m.caption,
+          uploadedAt: m.uploaded_at || m.created_at,
+          usageTags: m.usage_tags || []
+        })));
+      }
+    } catch (err) {
+      console.error('Supabase sync exception:', err);
+    } finally {
+      setIsSyncing(false);
+    }
+  }, []);
+
+  // Sync on initial mount if Supabase is configured
+  useEffect(() => {
+    if (isSupabaseConfigured) {
+      syncWithSupabase();
+    }
+  }, [syncWithSupabase]);
+
+  // MUTATIONS: Global Settings
+  const updateHomepageConfig = useCallback((newConfig: Partial<HomepageConfig>) => {
+    setHomepageConfig(prev => {
+      const updated = {
+        ...prev,
+        ...newConfig,
+        hero: newConfig.hero ? { ...prev.hero, ...newConfig.hero } : prev.hero,
+        aboutPreview: newConfig.aboutPreview ? { ...prev.aboutPreview, ...newConfig.aboutPreview } : prev.aboutPreview,
+        sectionVisibility: newConfig.sectionVisibility ? { ...prev.sectionVisibility, ...newConfig.sectionVisibility } : prev.sectionVisibility
+      };
+      logAudit('UPDATE', 'HomepageConfig', 'homepage', 'Updated homepage hero, sections, or visibility');
+
+      // Async write to Supabase if live
+      if (supabase && isSupabaseConfigured) {
+        supabase.from('homepage_config').upsert({
+          id: 'default',
+          hero: updated.hero,
+          about_preview: updated.aboutPreview,
+          section_order: updated.sectionOrder,
+          section_visibility: updated.sectionVisibility,
+          updated_at: new Date().toISOString()
+        }).then(({ error }) => {
+          if (error) console.error('Supabase homepage_config write error:', error);
+        });
+      }
+
+      return updated;
+    });
+  }, [logAudit]);
+
+  const updateAboutSettings = useCallback((newSettings: Partial<AboutSettings>) => {
+    setAboutSettings(prev => {
+      const updated = { ...prev, ...newSettings };
+      logAudit('UPDATE', 'AboutSettings', 'about', 'Updated organization about settings');
+      return updated;
+    });
+  }, [logAudit]);
+
+  const updateHeaderSettings = useCallback((newSettings: Partial<HeaderSettings>) => {
+    setHeaderSettings(prev => {
+      const updated = { ...prev, ...newSettings };
+      logAudit('UPDATE', 'HeaderSettings', 'header', 'Updated header notice bar or navigation settings');
+      return updated;
+    });
+  }, [logAudit]);
+
+  const updateFooterSettings = useCallback((newSettings: Partial<FooterSettings>) => {
+    setFooterSettings(prev => {
+      const updated = { ...prev, ...newSettings };
+      logAudit('UPDATE', 'FooterSettings', 'footer', 'Updated footer text, address, or copyright');
+      return updated;
+    });
+  }, [logAudit]);
+
+  const updateVolunteerSettings = useCallback((newSettings: Partial<VolunteerSettings>) => {
+    setVolunteerSettings(prev => {
+      const updated = { ...prev, ...newSettings };
+      logAudit('UPDATE', 'VolunteerSettings', 'volunteer', 'Updated volunteer CTA, benefits or form link');
+      return updated;
+    });
+  }, [logAudit]);
+
+  const updateSupportSettings = useCallback((newSettings: Partial<SupportSettings>) => {
+    setSupportSettings(prev => {
+      const updated = { ...prev, ...newSettings };
+      logAudit('UPDATE', 'SupportSettings', 'support', 'Updated payment instructions, bKash, Nagad or bank details');
+      return updated;
+    });
+  }, [logAudit]);
+
+  const updateContactSettings = useCallback((newSettings: Partial<ContactSettings>) => {
+    setContactSettings(prev => {
+      const updated = { ...prev, ...newSettings };
+      logAudit('UPDATE', 'ContactSettings', 'contact', 'Updated official contact phone, email or address');
+      return updated;
+    });
+  }, [logAudit]);
+
+  const updateSEOSettings = useCallback((newSettings: Partial<GlobalSEOSettings>) => {
+    setSeoSettings(prev => {
+      const updated = { ...prev, ...newSettings };
+      logAudit('UPDATE', 'SEOSettings', 'seo', 'Updated global SEO meta tags');
+      return updated;
+    });
+  }, [logAudit]);
+
+  const updateSettings = useCallback((newSettings: Partial<SiteSettings>) => {
+    setSettings(prev => {
+      const updated = { ...prev, ...newSettings };
+      logAudit('UPDATE', 'SiteSettings', 'site', 'Updated main site settings');
+      return updated;
+    });
+  }, [logAudit]);
+
+  // MUTATIONS: Social Links
+  const addSocialLink = useCallback((link: Omit<SocialLink, 'id'>) => {
+    const id = `soc-${Date.now()}`;
+    const newLink: SocialLink = { ...link, id };
+    setSocialLinks(prev => [...prev, newLink]);
+    logAudit('CREATE', 'SocialLink', id, `Added ${link.platform} link`);
+  }, [logAudit]);
+
+  const updateSocialLink = useCallback((id: string, link: Partial<SocialLink>) => {
+    setSocialLinks(prev => prev.map(s => s.id === id ? { ...s, ...link } : s));
+    logAudit('UPDATE', 'SocialLink', id, 'Updated social link details');
+  }, [logAudit]);
+
+  const deleteSocialLink = useCallback((id: string) => {
+    setSocialLinks(prev => prev.filter(s => s.id !== id));
+    logAudit('DELETE', 'SocialLink', id, 'Deleted social link');
+  }, [logAudit]);
+
+  // MUTATIONS: Navigation Items
+  const addNavigationItem = useCallback((item: Omit<NavigationItem, 'id'>) => {
+    const id = `nav-${Date.now()}`;
+    const newItem: NavigationItem = { ...item, id };
+    setNavigationItems(prev => [...prev, newItem]);
+    logAudit('CREATE', 'NavigationItem', id, `Added navigation link: ${item.label.en}`);
+  }, [logAudit]);
+
+  const updateNavigationItem = useCallback((id: string, item: Partial<NavigationItem>) => {
+    setNavigationItems(prev => prev.map(n => n.id === id ? { ...n, ...item } : n));
+    logAudit('UPDATE', 'NavigationItem', id, 'Updated navigation item');
+  }, [logAudit]);
+
+  const deleteNavigationItem = useCallback((id: string) => {
+    setNavigationItems(prev => prev.filter(n => n.id !== id));
+    logAudit('DELETE', 'NavigationItem', id, 'Deleted navigation item');
+  }, [logAudit]);
+
+  const reorderNavigationItems = useCallback((items: NavigationItem[]) => {
+    setNavigationItems(items);
+    logAudit('UPDATE', 'NavigationItems', 'reorder', 'Reordered navigation menu items');
+  }, [logAudit]);
+
+  // MUTATIONS: Banners
+  const addBanner = useCallback((banner: Omit<BannerItem, 'id'>) => {
+    const id = `ban-${Date.now()}`;
+    const newBanner: BannerItem = { ...banner, id };
+    setBanners(prev => [...prev, newBanner]);
+    logAudit('CREATE', 'BannerItem', id, `Created banner: ${banner.title.en}`);
+  }, [logAudit]);
+
+  const updateBanner = useCallback((id: string, banner: Partial<BannerItem>) => {
+    setBanners(prev => prev.map(b => b.id === id ? { ...b, ...banner } : b));
+    logAudit('UPDATE', 'BannerItem', id, 'Updated banner details');
+  }, [logAudit]);
+
+  const deleteBanner = useCallback((id: string) => {
+    setBanners(prev => prev.filter(b => b.id !== id));
+    logAudit('DELETE', 'BannerItem', id, 'Deleted banner');
+  }, [logAudit]);
+
+  // MUTATIONS: Media Library & Albums
+  const addMediaItem = useCallback((media: Omit<MediaItem, 'id' | 'uploadedAt'>) => {
+    const id = `med-${Date.now()}`;
+    const newMedia: MediaItem = {
+      ...media,
+      id,
+      uploadedAt: new Date().toISOString().split('T')[0]
+    };
+    setMediaLibrary(prev => [newMedia, ...prev]);
+    logAudit('CREATE', 'MediaItem', id, `Uploaded media: ${media.fileName}`);
+    return newMedia;
+  }, [logAudit]);
+
+  const updateMediaItem = useCallback((id: string, media: Partial<MediaItem>) => {
+    setMediaLibrary(prev => prev.map(m => m.id === id ? { ...m, ...media } : m));
+    logAudit('UPDATE', 'MediaItem', id, 'Updated media metadata/alt-text');
+  }, [logAudit]);
+
+  const deleteMediaItem = useCallback((id: string) => {
+    setMediaLibrary(prev => prev.filter(m => m.id !== id));
+    logAudit('DELETE', 'MediaItem', id, 'Deleted media asset');
+  }, [logAudit]);
+
+  const addGalleryAlbum = useCallback((album: Omit<GalleryAlbum, 'id'>) => {
+    const id = `alb-${Date.now()}`;
+    const newAlbum: GalleryAlbum = { ...album, id };
+    setGalleryAlbums(prev => [...prev, newAlbum]);
+    logAudit('CREATE', 'GalleryAlbum', id, `Created album: ${album.title.en}`);
+    return newAlbum;
+  }, [logAudit]);
+
+  const updateGalleryAlbum = useCallback((id: string, album: Partial<GalleryAlbum>) => {
+    setGalleryAlbums(prev => prev.map(a => a.id === id ? { ...a, ...album } : a));
+    logAudit('UPDATE', 'GalleryAlbum', id, 'Updated album details');
+  }, [logAudit]);
+
+  const deleteGalleryAlbum = useCallback((id: string) => {
+    setGalleryAlbums(prev => prev.filter(a => a.id !== id));
+    logAudit('DELETE', 'GalleryAlbum', id, 'Deleted gallery album');
+  }, [logAudit]);
+
+  // MUTATIONS: Campaigns
+  const addCampaign = useCallback((campaign: Omit<Campaign, 'id'>) => {
+    const id = `camp-${Date.now()}`;
+    const newCampaign: Campaign = { ...campaign, id };
+    setCampaigns(prev => [newCampaign, ...prev]);
+    logAudit('CREATE', 'Campaign', id, `Added campaign: ${campaign.title.en}`);
+
+    if (supabase && isSupabaseConfigured) {
+      supabase.from('campaigns').insert({
+        id,
+        slug: campaign.slug,
+        title: campaign.title,
+        date: campaign.date,
+        location: campaign.location,
+        category: campaign.category,
+        description: campaign.description,
+        details: campaign.details,
+        objectives: campaign.objectives,
+        activities: campaign.activities,
+        beneficiaries: campaign.beneficiaries,
+        impact: campaign.impact,
+        status: campaign.status,
+        is_featured: campaign.isFeatured,
+        image_url: campaign.imageUrl,
+        gallery_images: campaign.galleryImages,
+        created_at: new Date().toISOString()
+      }).then(({ error }) => {
+        if (error) console.error('Supabase campaign insert error:', error);
+      });
+    }
+
+    return newCampaign;
+  }, [logAudit]);
+
+  const updateCampaign = useCallback((id: string, updatedFields: Partial<Campaign>) => {
+    setCampaigns(prev => prev.map(c => c.id === id ? { ...c, ...updatedFields } : c));
+    logAudit('UPDATE', 'Campaign', id, 'Updated campaign details');
+
+    if (supabase && isSupabaseConfigured) {
+      supabase.from('campaigns').update({
+        ...updatedFields,
+        updated_at: new Date().toISOString()
+      }).eq('id', id).then(({ error }) => {
+        if (error) console.error('Supabase campaign update error:', error);
+      });
+    }
+  }, [logAudit]);
+
+  const deleteCampaign = useCallback((id: string) => {
     setCampaigns(prev => prev.filter(c => c.id !== id));
-    addAudit('Campaign Deleted', 'Campaign', id, `Deleted campaign ID ${id}`);
-  };
+    logAudit('DELETE', 'Campaign', id, 'Deleted campaign');
 
-  // Programs
-  const addProgram = (item: Omit<Program, 'id'>) => {
-    const newItem: Program = { ...item, id: `prog-${Date.now()}` };
-    setPrograms(prev => [...prev, newItem]);
-    addAudit('Program Created', 'Program', newItem.id, `Created program "${item.title.en}"`);
-  };
+    if (supabase && isSupabaseConfigured) {
+      supabase.from('campaigns').delete().eq('id', id).then(({ error }) => {
+        if (error) console.error('Supabase campaign delete error:', error);
+      });
+    }
+  }, [logAudit]);
 
-  const updateProgram = (id: string, updated: Partial<Program>) => {
-    setPrograms(prev => prev.map(p => p.id === id ? { ...p, ...updated } : p));
-    addAudit('Program Updated', 'Program', id, `Updated program details`);
-  };
+  // MUTATIONS: Programs
+  const addProgram = useCallback((program: Omit<Program, 'id'>) => {
+    const id = `prog-${Date.now()}`;
+    const newProg: Program = { ...program, id };
+    setPrograms(prev => [...prev, newProg]);
+    logAudit('CREATE', 'Program', id, `Added program: ${program.title.en}`);
+    return newProg;
+  }, [logAudit]);
 
-  const deleteProgram = (id: string) => {
+  const updateProgram = useCallback((id: string, updatedFields: Partial<Program>) => {
+    setPrograms(prev => prev.map(p => p.id === id ? { ...p, ...updatedFields } : p));
+    logAudit('UPDATE', 'Program', id, 'Updated program details');
+  }, [logAudit]);
+
+  const deleteProgram = useCallback((id: string) => {
     setPrograms(prev => prev.filter(p => p.id !== id));
-    addAudit('Program Deleted', 'Program', id, `Deleted program ID ${id}`);
-  };
+    logAudit('DELETE', 'Program', id, 'Deleted program');
+  }, [logAudit]);
 
-  // Metrics
-  const updateMetric = (id: string, updated: Partial<ImpactMetric>) => {
-    setMetrics(prev => prev.map(m => m.id === id ? { ...m, ...updated } : m));
-    addAudit('Metric Updated', 'ImpactMetric', id, `Updated metric values`);
-  };
+  // MUTATIONS: Metrics
+  const addMetric = useCallback((metric: Omit<ImpactMetric, 'id'>) => {
+    const id = `metric-${Date.now()}`;
+    const newMetric: ImpactMetric = { ...metric, id };
+    setMetrics(prev => [...prev, newMetric]);
+    logAudit('CREATE', 'ImpactMetric', id, `Added metric: ${metric.label.en}`);
+    return newMetric;
+  }, [logAudit]);
 
-  // Stories
-  const addStory = (item: Omit<ImpactStory, 'id'>) => {
-    const newItem: ImpactStory = { ...item, id: `story-${Date.now()}` };
-    setStories(prev => [newItem, ...prev]);
-    addAudit('Story Created', 'ImpactStory', newItem.id, `Created impact story`);
-  };
+  const updateMetric = useCallback((id: string, updatedFields: Partial<ImpactMetric>) => {
+    setMetrics(prev => prev.map(m => m.id === id ? { ...m, ...updatedFields } : m));
+    logAudit('UPDATE', 'ImpactMetric', id, 'Updated impact metric value/label');
+  }, [logAudit]);
 
-  const updateStory = (id: string, updated: Partial<ImpactStory>) => {
-    setStories(prev => prev.map(s => s.id === id ? { ...s, ...updated } : s));
-    addAudit('Story Updated', 'ImpactStory', id, `Updated story details`);
-  };
+  const deleteMetric = useCallback((id: string) => {
+    setMetrics(prev => prev.filter(m => m.id !== id));
+    logAudit('DELETE', 'ImpactMetric', id, 'Deleted metric');
+  }, [logAudit]);
 
-  const deleteStory = (id: string) => {
+  // MUTATIONS: Stories
+  const addStory = useCallback((story: Omit<ImpactStory, 'id'>) => {
+    const id = `story-${Date.now()}`;
+    const newStory: ImpactStory = { ...story, id };
+    setStories(prev => [newStory, ...prev]);
+    logAudit('CREATE', 'ImpactStory', id, `Added story: ${story.title.en}`);
+    return newStory;
+  }, [logAudit]);
+
+  const updateStory = useCallback((id: string, updatedFields: Partial<ImpactStory>) => {
+    setStories(prev => prev.map(s => s.id === id ? { ...s, ...updatedFields } : s));
+    logAudit('UPDATE', 'ImpactStory', id, 'Updated story content');
+  }, [logAudit]);
+
+  const deleteStory = useCallback((id: string) => {
     setStories(prev => prev.filter(s => s.id !== id));
-    addAudit('Story Deleted', 'ImpactStory', id, `Deleted story ID ${id}`);
-  };
+    logAudit('DELETE', 'ImpactStory', id, 'Deleted story');
+  }, [logAudit]);
 
-  // News
-  const addNews = (item: Omit<NewsArticle, 'id'>) => {
-    const newItem: NewsArticle = { ...item, id: `news-${Date.now()}` };
-    setNews(prev => [newItem, ...prev]);
-    addAudit('News Published', 'NewsArticle', newItem.id, `Created news article "${item.title.en}"`);
-  };
+  // MUTATIONS: News
+  const addNews = useCallback((newsItem: Omit<NewsArticle, 'id'>) => {
+    const id = `news-${Date.now()}`;
+    const newArticle: NewsArticle = { ...newsItem, id };
+    setNews(prev => [newArticle, ...prev]);
+    logAudit('CREATE', 'NewsArticle', id, `Published news article: ${newsItem.title.en}`);
+    return newArticle;
+  }, [logAudit]);
 
-  const updateNews = (id: string, updated: Partial<NewsArticle>) => {
-    setNews(prev => prev.map(n => n.id === id ? { ...n, ...updated } : n));
-    addAudit('News Updated', 'NewsArticle', id, `Updated news article`);
-  };
+  const updateNews = useCallback((id: string, updatedFields: Partial<NewsArticle>) => {
+    setNews(prev => prev.map(n => n.id === id ? { ...n, ...updatedFields } : n));
+    logAudit('UPDATE', 'NewsArticle', id, 'Updated news article');
+  }, [logAudit]);
 
-  const deleteNews = (id: string) => {
+  const deleteNews = useCallback((id: string) => {
     setNews(prev => prev.filter(n => n.id !== id));
-    addAudit('News Deleted', 'NewsArticle', id, `Deleted news article ID ${id}`);
-  };
+    logAudit('DELETE', 'NewsArticle', id, 'Deleted news article');
+  }, [logAudit]);
 
-  // Events
-  const addEvent = (item: Omit<EventItem, 'id'>) => {
-    const newItem: EventItem = { ...item, id: `event-${Date.now()}` };
-    setEvents(prev => [newItem, ...prev]);
-    addAudit('Event Created', 'EventItem', newItem.id, `Created event "${item.title.en}"`);
-  };
+  // MUTATIONS: Events
+  const addEvent = useCallback((eventItem: Omit<EventItem, 'id'>) => {
+    const id = `event-${Date.now()}`;
+    const newEv: EventItem = { ...eventItem, id };
+    setEvents(prev => [...prev, newEv]);
+    logAudit('CREATE', 'EventItem', id, `Added event: ${eventItem.title.en}`);
+    return newEv;
+  }, [logAudit]);
 
-  const updateEvent = (id: string, updated: Partial<EventItem>) => {
-    setEvents(prev => prev.map(e => e.id === id ? { ...e, ...updated } : e));
-    addAudit('Event Updated', 'EventItem', id, `Updated event details`);
-  };
+  const updateEvent = useCallback((id: string, updatedFields: Partial<EventItem>) => {
+    setEvents(prev => prev.map(e => e.id === id ? { ...e, ...updatedFields } : e));
+    logAudit('UPDATE', 'EventItem', id, 'Updated event details');
+  }, [logAudit]);
 
-  const deleteEvent = (id: string) => {
+  const deleteEvent = useCallback((id: string) => {
     setEvents(prev => prev.filter(e => e.id !== id));
-    addAudit('Event Deleted', 'EventItem', id, `Deleted event ID ${id}`);
-  };
+    logAudit('DELETE', 'EventItem', id, 'Deleted event');
+  }, [logAudit]);
 
-  // Gallery
-  const addGalleryPhoto = (item: Omit<GalleryPhoto, 'id'>) => {
-    const newItem: GalleryPhoto = { ...item, id: `gal-${Date.now()}` };
-    setGallery(prev => [newItem, ...prev]);
-    addAudit('Photo Added', 'GalleryPhoto', newItem.id, `Added photo to gallery`);
-  };
+  // MUTATIONS: Photos & Videos
+  const addGalleryPhoto = useCallback((photo: Omit<GalleryPhoto, 'id'>) => {
+    const id = `gal-${Date.now()}`;
+    const newPhoto: GalleryPhoto = { ...photo, id };
+    setGallery(prev => [newPhoto, ...prev]);
+    logAudit('CREATE', 'GalleryPhoto', id, `Added gallery photo: ${photo.title.en}`);
+    return newPhoto;
+  }, [logAudit]);
 
-  const deleteGalleryPhoto = (id: string) => {
+  const deleteGalleryPhoto = useCallback((id: string) => {
     setGallery(prev => prev.filter(g => g.id !== id));
-    addAudit('Photo Deleted', 'GalleryPhoto', id, `Deleted gallery photo`);
-  };
+    logAudit('DELETE', 'GalleryPhoto', id, 'Deleted gallery photo');
+  }, [logAudit]);
 
-  // Videos
-  const addVideo = (item: Omit<VideoItem, 'id'>) => {
-    const newItem: VideoItem = { ...item, id: `vid-${Date.now()}` };
-    setVideos(prev => [newItem, ...prev]);
-    addAudit('Video Added', 'VideoItem', newItem.id, `Added video item`);
-  };
+  const addVideo = useCallback((video: Omit<VideoItem, 'id'>) => {
+    const id = `vid-${Date.now()}`;
+    const newVid: VideoItem = { ...video, id };
+    setVideos(prev => [...prev, newVid]);
+    logAudit('CREATE', 'VideoItem', id, `Added video: ${video.title.en}`);
+    return newVid;
+  }, [logAudit]);
 
-  const deleteVideo = (id: string) => {
+  const deleteVideo = useCallback((id: string) => {
     setVideos(prev => prev.filter(v => v.id !== id));
-    addAudit('Video Deleted', 'VideoItem', id, `Deleted video item`);
-  };
+    logAudit('DELETE', 'VideoItem', id, 'Deleted video');
+  }, [logAudit]);
 
-  // Reports
-  const addReport = (item: Omit<TransparencyReport, 'id'>) => {
-    const newItem: TransparencyReport = { ...item, id: `rep-${Date.now()}` };
-    setReports(prev => [newItem, ...prev]);
-    addAudit('Report Uploaded', 'TransparencyReport', newItem.id, `Uploaded report "${item.title.en}"`);
-  };
+  // MUTATIONS: Transparency Reports
+  const addReport = useCallback((report: Omit<TransparencyReport, 'id'>) => {
+    const id = `rep-${Date.now()}`;
+    const newRep: TransparencyReport = { ...report, id };
+    setReports(prev => [newRep, ...prev]);
+    logAudit('CREATE', 'TransparencyReport', id, `Uploaded audit/report: ${report.title.en}`);
+    return newRep;
+  }, [logAudit]);
 
-  const updateReport = (id: string, updated: Partial<TransparencyReport>) => {
-    setReports(prev => prev.map(r => r.id === id ? { ...r, ...updated } : r));
-    addAudit('Report Updated', 'TransparencyReport', id, `Updated report metadata`);
-  };
+  const updateReport = useCallback((id: string, updatedFields: Partial<TransparencyReport>) => {
+    setReports(prev => prev.map(r => r.id === id ? { ...r, ...updatedFields } : r));
+    logAudit('UPDATE', 'TransparencyReport', id, 'Updated transparency report status');
+  }, [logAudit]);
 
-  const deleteReport = (id: string) => {
+  const deleteReport = useCallback((id: string) => {
     setReports(prev => prev.filter(r => r.id !== id));
-    addAudit('Report Deleted', 'TransparencyReport', id, `Deleted report ID ${id}`);
-  };
+    logAudit('DELETE', 'TransparencyReport', id, 'Deleted transparency report');
+  }, [logAudit]);
 
-  // Partners
-  const addPartner = (item: Omit<Partner, 'id'>) => {
-    const newItem: Partner = { ...item, id: `part-${Date.now()}` };
-    setPartners(prev => [...prev, newItem]);
-    addAudit('Partner Added', 'Partner', newItem.id, `Added partner "${item.name}"`);
-  };
+  // MUTATIONS: Partners
+  const addPartner = useCallback((partner: Omit<Partner, 'id'>) => {
+    const id = `part-${Date.now()}`;
+    const newPart: Partner = { ...partner, id };
+    setPartners(prev => [...prev, newPart]);
+    logAudit('CREATE', 'Partner', id, `Added partner: ${partner.name}`);
+    return newPart;
+  }, [logAudit]);
 
-  const updatePartner = (id: string, updated: Partial<Partner>) => {
-    setPartners(prev => prev.map(p => p.id === id ? { ...p, ...updated } : p));
-    addAudit('Partner Updated', 'Partner', id, `Updated partner details`);
-  };
+  const updatePartner = useCallback((id: string, updatedFields: Partial<Partner>) => {
+    setPartners(prev => prev.map(p => p.id === id ? { ...p, ...updatedFields } : p));
+    logAudit('UPDATE', 'Partner', id, 'Updated partner details');
+  }, [logAudit]);
 
-  const deletePartner = (id: string) => {
+  const deletePartner = useCallback((id: string) => {
     setPartners(prev => prev.filter(p => p.id !== id));
-    addAudit('Partner Deleted', 'Partner', id, `Deleted partner ID ${id}`);
-  };
+    logAudit('DELETE', 'Partner', id, 'Deleted partner');
+  }, [logAudit]);
 
-  // Volunteer
-  const submitVolunteerApplication = (app: Omit<VolunteerApplication, 'id' | 'submittedAt' | 'status'> | Partial<VolunteerApplication>): string => {
-    const newId = `vol-${Date.now()}`;
-    const dateStr = new Date().toISOString().replace('T', ' ').substring(0, 16);
+  // MUTATIONS: Volunteers
+  const submitVolunteerApplication = useCallback((app: Omit<VolunteerApplication, 'id' | 'submittedAt' | 'status'>) => {
+    const id = `vol-${Date.now()}`;
     const newApp: VolunteerApplication = {
-      fullName: app.fullName || 'Anonymous Volunteer',
-      email: app.email || '',
-      phone: app.phone || '',
-      district: app.district || 'Dhaka',
-      upazila: app.upazila || '',
-      age: app.age || 22,
-      occupation: app.occupation || '',
-      bloodGroup: app.bloodGroup || 'B+',
-      skills: app.skills || [],
-      areasOfInterest: app.areasOfInterest || app.interests || ['General Community Support'],
-      interests: app.interests || app.areasOfInterest || ['General Community Support'],
-      motivation: app.motivation || '',
-      previousExperience: app.previousExperience || '',
-      availability: app.availability || 'Weekends',
-      message: app.message || app.motivation || '',
-      consent: app.consent ?? true,
-      agreedCodeOfConduct: app.agreedCodeOfConduct ?? true,
-      id: newId,
-      submittedAt: dateStr,
-      appliedAt: dateStr,
+      ...app,
+      id,
+      submittedAt: new Date().toISOString().replace('T', ' ').substring(0, 16),
       status: 'New'
     };
     setVolunteers(prev => [newApp, ...prev]);
-    addAudit('Volunteer Application Received', 'VolunteerApplication', newId, `Application submitted by ${newApp.fullName} (${newApp.district})`);
-    return newId;
-  };
+    logAudit('CREATE', 'VolunteerApplication', id, `New volunteer application received from ${app.fullName}`);
+    return id;
+  }, [logAudit]);
 
-  const addVolunteerApplication = (app: Partial<VolunteerApplication>): string => {
-    return submitVolunteerApplication(app);
-  };
+  const addVolunteerApplication = useCallback((app: Partial<VolunteerApplication>) => {
+    const id = `vol-${Date.now()}`;
+    const newApp: VolunteerApplication = {
+      id,
+      fullName: app.fullName || 'Anonymous',
+      email: app.email || '',
+      phone: app.phone || '',
+      district: app.district || 'Chattogram',
+      occupation: app.occupation || '',
+      bloodGroup: app.bloodGroup || '',
+      interests: app.interests || [],
+      motivation: app.motivation || '',
+      availability: app.availability || 'Weekends',
+      agreedCodeOfConduct: app.agreedCodeOfConduct || true,
+      submittedAt: new Date().toISOString().replace('T', ' ').substring(0, 16),
+      status: 'New'
+    };
+    setVolunteers(prev => [newApp, ...prev]);
+    return id;
+  }, []);
 
-  const updateVolunteerStatus = (id: string, status: VolunteerApplication['status'], adminNotes?: string) => {
+  const updateVolunteerStatus = useCallback((id: string, status: VolunteerApplication['status'], adminNotes?: string) => {
     setVolunteers(prev => prev.map(v => v.id === id ? { ...v, status, adminNotes: adminNotes ?? v.adminNotes } : v));
-    addAudit('Volunteer Status Changed', 'VolunteerApplication', id, `Status updated to ${status}`);
-  };
+    logAudit('UPDATE', 'VolunteerApplication', id, `Updated volunteer status to: ${status}`);
+  }, [logAudit]);
 
-  const deleteVolunteerApplication = (id: string) => {
+  const deleteVolunteerApplication = useCallback((id: string) => {
     setVolunteers(prev => prev.filter(v => v.id !== id));
-    addAudit('Volunteer Deleted', 'VolunteerApplication', id, `Deleted application ID ${id}`);
-  };
+    logAudit('DELETE', 'VolunteerApplication', id, 'Deleted volunteer record');
+  }, [logAudit]);
 
-  // Donation
-  const addDonationRecord = (donation: Partial<DonationRecord>): DonationRecord => {
-    const newId = `don-${Date.now()}`;
-    const dateStr = new Date().toISOString().replace('T', ' ').substring(0, 16);
-    const val = typeof donation.amount === 'number' ? donation.amount : typeof donation.amountBDT === 'number' ? donation.amountBDT : 0;
-    const recNumber = donation.receiptNumber || `REC-${Date.now().toString().slice(-6)}`;
+  // MUTATIONS: Donations
+  const submitDonation = useCallback((donation: Omit<DonationRecord, 'id' | 'date' | 'status'>) => {
+    const id = `don-${Date.now()}`;
+    const receiptNumber = `REC-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+    const newDonation: DonationRecord = {
+      ...donation,
+      id,
+      receiptNumber,
+      date: new Date().toISOString().replace('T', ' ').substring(0, 16),
+      donatedAt: new Date().toISOString(),
+      status: 'Successful'
+    };
+    setDonations(prev => [newDonation, ...prev]);
+    logAudit('CREATE', 'DonationRecord', id, `Recorded donation receipt: ${receiptNumber}`);
+    return id;
+  }, [logAudit]);
 
-    const newRecord: DonationRecord = {
-      id: newId,
-      receiptNumber: recNumber,
-      donorName: donation.donorName || (donation.isAnonymous ? 'Anonymous Supporter' : 'Kind Donor'),
+  const addDonationRecord = useCallback((donation: Partial<DonationRecord>) => {
+    const id = `don-${Date.now()}`;
+    const receiptNumber = `REC-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+    const newDonation: DonationRecord = {
+      id,
+      receiptNumber,
+      donorName: donation.donorName || 'Anonymous Supporter',
       donorEmail: donation.donorEmail || '',
       donorPhone: donation.donorPhone || '',
-      amount: val,
-      amountBDT: val,
-      currency: donation.currency || 'BDT',
-      campaignSlug: donation.campaignSlug,
-      campaignTitle: donation.campaignTitle || 'General Humanitarian Fund',
-      donationType: donation.donationType || 'campaign-specific',
+      amount: donation.amount || 1000,
+      amountBDT: donation.amountBDT || donation.amount || 1000,
+      campaignSlug: donation.campaignSlug || 'general',
       paymentMethod: donation.paymentMethod || 'bKash',
-      transactionId: donation.transactionId || `TRX${Date.now().toString().slice(-8)}`,
-      date: dateStr,
-      donatedAt: dateStr,
-      status: (donation.status as any) || 'Successful',
-      isAnonymous: donation.isAnonymous ?? false,
-      notes: donation.notes || donation.note,
-      note: donation.note || donation.notes
+      transactionId: donation.transactionId || `TRX${Date.now()}`,
+      date: new Date().toISOString().replace('T', ' ').substring(0, 16),
+      status: donation.status || 'Successful',
+      notes: donation.notes || ''
     };
-    setDonations(prev => [newRecord, ...prev]);
-    addAudit('Donation Recorded', 'DonationRecord', newId, `Donation of ${val} BDT recorded via ${newRecord.paymentMethod} (${newRecord.transactionId})`);
-    return newRecord;
-  };
+    setDonations(prev => [newDonation, ...prev]);
+    return newDonation;
+  }, []);
 
-  const submitDonation = (donation: Omit<DonationRecord, 'id' | 'date' | 'status'> | Partial<DonationRecord>): string => {
-    const rec = addDonationRecord(donation);
-    return rec.id;
-  };
-
-  const updateDonationStatus = (id: string, status: DonationRecord['status']) => {
+  const updateDonationStatus = useCallback((id: string, status: DonationRecord['status']) => {
     setDonations(prev => prev.map(d => d.id === id ? { ...d, status } : d));
-    addAudit('Donation Status Updated', 'DonationRecord', id, `Status changed to ${status}`);
-  };
+    logAudit('UPDATE', 'DonationRecord', id, `Updated donation status to: ${status}`);
+  }, [logAudit]);
 
-  // Contact
-  const submitContactMessage = (msg: Omit<ContactMessage, 'id' | 'submittedAt' | 'status'>) => {
-    const newId = `msg-${Date.now()}`;
+  // MUTATIONS: Contact Messages
+  const submitContactMessage = useCallback((msg: Omit<ContactMessage, 'id' | 'submittedAt' | 'status'>) => {
+    const id = `msg-${Date.now()}`;
     const newMsg: ContactMessage = {
       ...msg,
-      id: newId,
+      id,
       submittedAt: new Date().toISOString().replace('T', ' ').substring(0, 16),
       status: 'Unread'
     };
     setMessages(prev => [newMsg, ...prev]);
-    addAudit('Contact Message Received', 'ContactMessage', newId, `Message from ${msg.name} regarding "${msg.subject}"`);
-  };
+  }, []);
 
-  const updateMessageStatus = (id: string, status: ContactMessage['status']) => {
+  const updateMessageStatus = useCallback((id: string, status: ContactMessage['status']) => {
     setMessages(prev => prev.map(m => m.id === id ? { ...m, status } : m));
-  };
+    logAudit('UPDATE', 'ContactMessage', id, `Updated message status to: ${status}`);
+  }, [logAudit]);
 
-  const deleteContactMessage = (id: string) => {
+  const deleteContactMessage = useCallback((id: string) => {
     setMessages(prev => prev.filter(m => m.id !== id));
-  };
+    logAudit('DELETE', 'ContactMessage', id, 'Deleted contact message');
+  }, [logAudit]);
 
-  // Settings
-  const updateSettings = (newSettings: Partial<SiteSettings>) => {
-    setSettings(prev => ({ ...prev, ...newSettings }));
-    addAudit('Site Settings Updated', 'SiteSettings', 'GLOBAL', `Updated global site settings`);
-  };
+  // MUTATIONS: Admin Profiles
+  const addAdminProfile = useCallback((profile: Omit<AdminProfile, 'id'>) => {
+    const id = `admin-${Date.now()}`;
+    const newProfile: AdminProfile = { ...profile, id };
+    setAdminProfiles(prev => [...prev, newProfile]);
+    logAudit('CREATE', 'AdminProfile', id, `Created admin user: ${profile.email} (${profile.role})`);
+    return newProfile;
+  }, [logAudit]);
 
-  // Committees & Leadership Operations
-  const addCommittee = (item: Omit<Committee, 'id'>): Committee => {
-    const newItem: Committee = { ...item, id: `comm-${Date.now()}` };
-    setCommittees(prev => [...prev, newItem]);
-    addAudit('Committee Created', 'Committee', newItem.id, `Created committee "${item.name.en}"`);
-    return newItem;
-  };
+  const updateAdminProfile = useCallback((id: string, profile: Partial<AdminProfile>) => {
+    setAdminProfiles(prev => prev.map(a => a.id === id ? { ...a, ...profile } : a));
+    logAudit('UPDATE', 'AdminProfile', id, 'Updated admin role or permissions');
+  }, [logAudit]);
 
-  const updateCommittee = (id: string, updated: Partial<Committee>) => {
-    setCommittees(prev => prev.map(c => (c.id === id ? { ...c, ...updated, updatedAt: new Date().toISOString() } : c)));
-    addAudit('Committee Updated', 'Committee', id, `Updated committee ID ${id}`);
-  };
+  const deleteAdminProfile = useCallback((id: string) => {
+    setAdminProfiles(prev => prev.filter(a => a.id !== id));
+    logAudit('DELETE', 'AdminProfile', id, 'Removed admin user');
+  }, [logAudit]);
 
-  const deleteCommittee = (id: string) => {
+  // MUTATIONS: Committees & Leadership
+  const addCommittee = useCallback((committee: Omit<Committee, 'id'>) => {
+    const id = `comm-${Date.now()}`;
+    const newComm: Committee = { ...committee, id, createdAt: new Date().toISOString() };
+    setCommittees(prev => [...prev, newComm]);
+    logAudit('CREATE', 'Committee', id, `Created committee: ${committee.name.en}`);
+    return newComm;
+  }, [logAudit]);
+
+  const updateCommittee = useCallback((id: string, updated: Partial<Committee>) => {
+    setCommittees(prev => prev.map(c => c.id === id ? { ...c, ...updated, updatedAt: new Date().toISOString() } : c));
+    logAudit('UPDATE', 'Committee', id, 'Updated committee details');
+  }, [logAudit]);
+
+  const deleteCommittee = useCallback((id: string) => {
     setCommittees(prev => prev.filter(c => c.id !== id));
-    setCommitteeMembers(prev => prev.filter(cm => cm.committeeId !== id));
-    addAudit('Committee Deleted', 'Committee', id, `Deleted committee ID ${id}`);
-  };
+    setCommitteeMembers(prev => prev.filter(m => m.committeeId !== id));
+    logAudit('DELETE', 'Committee', id, 'Deleted committee and associated rosters');
+  }, [logAudit]);
 
-  const archiveCommittee = (id: string) => {
-    setCommittees(prev => prev.map(c => (c.id === id ? { ...c, status: 'ARCHIVED' } : c)));
-    addAudit('Committee Archived', 'Committee', id, `Archived committee ID ${id}`);
-  };
+  const archiveCommittee = useCallback((id: string) => {
+    setCommittees(prev => prev.map(c => c.id === id ? { ...c, status: 'ARCHIVED', updatedAt: new Date().toISOString() } : c));
+    logAudit('UPDATE', 'Committee', id, 'Archived committee');
+  }, [logAudit]);
 
-  const setActiveCommittee = (id: string) => {
-    setCommittees(prev => prev.map(c => {
-      if (c.type === 'EXECUTIVE') {
-        return c.id === id ? { ...c, status: 'ACTIVE' } : { ...c, status: 'ARCHIVED' };
-      }
-      return c;
-    }));
-    addAudit('Active Committee Switched', 'Committee', id, `Activated committee ID ${id}`);
-  };
+  const setActiveCommittee = useCallback((id: string) => {
+    setCommittees(prev => prev.map(c => ({
+      ...c,
+      status: c.id === id ? 'ACTIVE' : (c.type === 'EXECUTIVE' ? 'ARCHIVED' : c.status)
+    })));
+    logAudit('UPDATE', 'Committee', id, 'Set as active committee');
+  }, [logAudit]);
 
-  // Persons
-  const addPerson = (item: Omit<Person, 'id'>): Person => {
-    const newItem: Person = { ...item, id: `person-${Date.now()}` };
-    setPersons(prev => [...prev, newItem]);
-    addAudit('Person Added', 'Person', newItem.id, `Added person "${item.fullName}"`);
-    return newItem;
-  };
+  const addPerson = useCallback((person: Omit<Person, 'id'>) => {
+    const id = `person-${Date.now()}`;
+    const newPerson: Person = { ...person, id, createdAt: new Date().toISOString() };
+    setPersons(prev => [...prev, newPerson]);
+    logAudit('CREATE', 'Person', id, `Added person: ${person.englishName}`);
+    return newPerson;
+  }, [logAudit]);
 
-  const updatePerson = (id: string, updated: Partial<Person>) => {
-    setPersons(prev => prev.map(p => (p.id === id ? { ...p, ...updated, updatedAt: new Date().toISOString() } : p)));
-    addAudit('Person Updated', 'Person', id, `Updated person ID ${id}`);
-  };
+  const updatePerson = useCallback((id: string, updated: Partial<Person>) => {
+    setPersons(prev => prev.map(p => p.id === id ? { ...p, ...updated, updatedAt: new Date().toISOString() } : p));
+    logAudit('UPDATE', 'Person', id, 'Updated person profile');
+  }, [logAudit]);
 
-  const deletePerson = (id: string) => {
+  const deletePerson = useCallback((id: string) => {
     setPersons(prev => prev.filter(p => p.id !== id));
-    setCommitteeMembers(prev => prev.filter(cm => cm.personId !== id));
-    addAudit('Person Deleted', 'Person', id, `Deleted person ID ${id}`);
-  };
+    setCommitteeMembers(prev => prev.filter(m => m.personId !== id));
+    logAudit('DELETE', 'Person', id, 'Deleted person record');
+  }, [logAudit]);
 
-  // Positions
-  const addPosition = (item: Omit<Position, 'id'>) => {
-    const newItem: Position = { ...item, id: `pos-${Date.now()}` };
-    setPositions(prev => [...prev, newItem]);
-    addAudit('Position Created', 'Position', newItem.id, `Created position "${item.name.en}"`);
-  };
+  const addPosition = useCallback((pos: Omit<Position, 'id'>) => {
+    const id = `pos-${Date.now()}`;
+    const newPos: Position = { ...pos, id };
+    setPositions(prev => [...prev, newPos]);
+    logAudit('CREATE', 'Position', id, `Added position: ${pos.name.en}`);
+    return newPos;
+  }, [logAudit]);
 
-  const updatePosition = (id: string, updated: Partial<Position>) => {
-    setPositions(prev => prev.map(p => (p.id === id ? { ...p, ...updated } : p)));
-    addAudit('Position Updated', 'Position', id, `Updated position ID ${id}`);
-  };
+  const updatePosition = useCallback((id: string, updated: Partial<Position>) => {
+    setPositions(prev => prev.map(p => p.id === id ? { ...p, ...updated } : p));
+    logAudit('UPDATE', 'Position', id, 'Updated leadership position');
+  }, [logAudit]);
 
-  const deletePosition = (id: string) => {
+  const deletePosition = useCallback((id: string) => {
     setPositions(prev => prev.filter(p => p.id !== id));
-    addAudit('Position Deleted', 'Position', id, `Deleted position ID ${id}`);
-  };
+    logAudit('DELETE', 'Position', id, 'Deleted position');
+  }, [logAudit]);
 
-  // Committee Members
-  const addCommitteeMember = (item: Omit<CommitteeMember, 'id'>) => {
-    const newItem: CommitteeMember = { ...item, id: `cm-${Date.now()}` };
-    setCommitteeMembers(prev => [...prev, newItem]);
-    addAudit('Committee Member Added', 'CommitteeMember', newItem.id, `Added member to committee ${item.committeeId}`);
-  };
+  const addCommitteeMember = useCallback((member: Omit<CommitteeMember, 'id'>) => {
+    const id = `cm-${Date.now()}`;
+    const newMember: CommitteeMember = { ...member, id, status: member.status || 'ACTIVE' };
+    setCommitteeMembers(prev => [...prev, newMember]);
+    logAudit('CREATE', 'CommitteeMember', id, 'Assigned member to committee');
+    return newMember;
+  }, [logAudit]);
 
-  const updateCommitteeMember = (id: string, updated: Partial<CommitteeMember>) => {
-    setCommitteeMembers(prev => prev.map(cm => (cm.id === id ? { ...cm, ...updated } : cm)));
-    addAudit('Committee Member Updated', 'CommitteeMember', id, `Updated committee member ID ${id}`);
-  };
+  const updateCommitteeMember = useCallback((id: string, updated: Partial<CommitteeMember>) => {
+    setCommitteeMembers(prev => prev.map(m => m.id === id ? { ...m, ...updated } : m));
+    logAudit('UPDATE', 'CommitteeMember', id, 'Updated committee member appointment');
+  }, [logAudit]);
 
-  const deleteCommitteeMember = (id: string) => {
-    setCommitteeMembers(prev => prev.filter(cm => cm.id !== id));
-    addAudit('Committee Member Deleted', 'CommitteeMember', id, `Removed committee member ID ${id}`);
-  };
+  const deleteCommitteeMember = useCallback((id: string) => {
+    setCommitteeMembers(prev => prev.filter(m => m.id !== id));
+    logAudit('DELETE', 'CommitteeMember', id, 'Removed member from committee');
+  }, [logAudit]);
 
-  const reorderCommitteeMembers = (committeeId: string, orderedMemberIds: string[]) => {
+  const reorderCommitteeMembers = useCallback((committeeId: string, orderedMemberIds: string[]) => {
     setCommitteeMembers(prev => {
-      const otherMembers = prev.filter(cm => cm.committeeId !== committeeId);
-      const committeeMembersMap = new Map<string, CommitteeMember>(
-        prev.filter(cm => cm.committeeId === committeeId).map(m => [m.id, m])
-      );
-      
-      const reordered: CommitteeMember[] = [];
-      orderedMemberIds.forEach((id, index) => {
-        const member = committeeMembersMap.get(id);
-        if (member) {
-          reordered.push({
-            ...member,
-            sortOrder: index + 1,
-            serialNumber: index + 1
-          });
+      return prev.map(m => {
+        if (m.committeeId === committeeId) {
+          const index = orderedMemberIds.indexOf(m.id);
+          if (index !== -1) {
+            return { ...m, sortOrder: index + 1, serialNumber: index + 1 };
+          }
         }
+        return m;
       });
-
-      return [...otherMembers, ...reordered];
     });
-    addAudit('Committee Members Reordered', 'CommitteeMember', committeeId, `Reordered ${orderedMemberIds.length} members`);
-  };
+    logAudit('UPDATE', 'CommitteeMembers', committeeId, 'Reordered committee members');
+  }, [logAudit]);
 
-  const getMembersWithDetails = (committeeId?: string) => {
-    const targetMembers = committeeId 
-      ? committeeMembers.filter(cm => cm.committeeId === committeeId)
+  const getMembersWithDetails = useCallback((committeeId?: string) => {
+    const filtered = committeeId
+      ? committeeMembers.filter(m => m.committeeId === committeeId)
       : committeeMembers;
 
-    return targetMembers
-      .map(cm => {
-        const person = persons.find(p => p.id === cm.personId) || {
-          id: cm.personId,
-          fullName: 'Member',
+    return filtered
+      .map(m => {
+        const person = persons.find(p => p.id === m.personId) || {
+          id: m.personId,
+          fullName: 'Unknown Member',
           banglaName: 'সদস্য',
-          englishName: 'Member',
+          englishName: 'Unknown Member',
           active: true
         };
-        const position = positions.find(pos => pos.id === cm.positionId) || {
-          id: cm.positionId,
+        const position = positions.find(pos => pos.id === m.positionId) || {
+          id: m.positionId,
           name: { en: 'Executive Member', bn: 'কার্যনির্বাহী সদস্য' },
           level: 5,
-          sortOrder: 99
+          sortOrder: 20
         };
-        const committee = committees.find(c => c.id === cm.committeeId);
-
+        const committee = committees.find(c => c.id === m.committeeId);
         return {
-          ...cm,
+          ...m,
           person,
           position,
           committee
         };
       })
-      .sort((a, b) => a.sortOrder - b.sortOrder);
-  };
+      .sort((a, b) => (a.sortOrder || a.serialNumber || 0) - (b.sortOrder || b.serialNumber || 0));
+  }, [committeeMembers, persons, positions, committees]);
 
-  const resetToDefaultData = () => {
-    setCampaigns(INITIAL_CAMPAIGNS);
-    setPrograms(INITIAL_PROGRAMS);
-    setMetrics(INITIAL_IMPACT_METRICS);
-    setStories(INITIAL_IMPACT_STORIES);
-    setNews(INITIAL_NEWS);
-    setEvents(INITIAL_EVENTS);
-    setGallery(INITIAL_GALLERY);
-    setVideos(INITIAL_VIDEOS);
-    setReports(INITIAL_REPORTS);
-    setPartners(INITIAL_PARTNERS);
-    setVolunteers(INITIAL_VOLUNTEER_APPLICATIONS);
-    setDonations(INITIAL_DONATIONS);
-    setMessages([]);
-    setSettings(INITIAL_SITE_SETTINGS);
-    setPositions(INITIAL_POSITIONS);
-    setCommittees(INITIAL_COMMITTEES);
-    setPersons(INITIAL_PERSONS);
-    setCommitteeMembers(INITIAL_COMMITTEE_MEMBERS);
-    addAudit('System Reset', 'Database', 'ALL', 'Reset all collections to verified initial state');
-  };
-
-  const exportDatabaseJSON = () => {
-    const snapshot = {
+  // GLOBAL DATABASE BACKUP, EXPORT & IMPORT
+  const exportDatabaseJSON = useCallback(() => {
+    const data = {
+      version: '2.0.0',
+      exportedAt: new Date().toISOString(),
+      organization: 'Infinity Bangladesh',
+      slogan: 'United for Humanity',
+      settings,
+      homepageConfig,
+      aboutSettings,
+      headerSettings,
+      footerSettings,
+      socialLinks,
+      volunteerSettings,
+      supportSettings,
+      contactSettings,
+      seoSettings,
+      navigationItems,
+      banners,
+      mediaLibrary,
+      galleryAlbums,
+      adminProfiles,
       campaigns,
       programs,
       metrics,
@@ -829,45 +1166,110 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       volunteers,
       donations,
       messages,
-      settings,
-      auditLogs,
       committees,
       persons,
       positions,
       committeeMembers,
-      exportedAt: new Date().toISOString()
+      auditLogs
     };
-    return JSON.stringify(snapshot, null, 2);
-  };
+    return JSON.stringify(data, null, 2);
+  }, [
+    settings, homepageConfig, aboutSettings, headerSettings, footerSettings,
+    socialLinks, volunteerSettings, supportSettings, contactSettings, seoSettings,
+    navigationItems, banners, mediaLibrary, galleryAlbums, adminProfiles,
+    campaigns, programs, metrics, stories, news, events, gallery, videos,
+    reports, partners, volunteers, donations, messages, committees,
+    persons, positions, committeeMembers, auditLogs
+  ]);
 
-  const importDatabaseJSON = (jsonStr: string): boolean => {
+  const importDatabaseJSON = useCallback((jsonStr: string): boolean => {
     try {
-      const data = JSON.parse(jsonStr);
-      if (data.campaigns) setCampaigns(data.campaigns);
-      if (data.programs) setPrograms(data.programs);
-      if (data.metrics) setMetrics(data.metrics);
-      if (data.stories) setStories(data.stories);
-      if (data.news) setNews(data.news);
-      if (data.events) setEvents(data.events);
-      if (data.gallery) setGallery(data.gallery);
-      if (data.videos) setVideos(data.videos);
-      if (data.reports) setReports(data.reports);
-      if (data.partners) setPartners(data.partners);
-      if (data.volunteers) setVolunteers(data.volunteers);
-      if (data.donations) setDonations(data.donations);
-      if (data.messages) setMessages(data.messages);
-      if (data.settings) setSettings(data.settings);
-      if (data.committees) setCommittees(data.committees);
-      if (data.persons) setPersons(data.persons);
-      if (data.positions) setPositions(data.positions);
-      if (data.committeeMembers) setCommitteeMembers(data.committeeMembers);
-      addAudit('Database Imported', 'Database', 'RESTORE', 'Restored system database from JSON backup');
+      const parsed = JSON.parse(jsonStr);
+      if (parsed.settings) setSettings(parsed.settings);
+      if (parsed.homepageConfig) setHomepageConfig(parsed.homepageConfig);
+      if (parsed.aboutSettings) setAboutSettings(parsed.aboutSettings);
+      if (parsed.headerSettings) setHeaderSettings(parsed.headerSettings);
+      if (parsed.footerSettings) setFooterSettings(parsed.footerSettings);
+      if (parsed.socialLinks) setSocialLinks(parsed.socialLinks);
+      if (parsed.volunteerSettings) setVolunteerSettings(parsed.volunteerSettings);
+      if (parsed.supportSettings) setSupportSettings(parsed.supportSettings);
+      if (parsed.contactSettings) setContactSettings(parsed.contactSettings);
+      if (parsed.seoSettings) setSeoSettings(parsed.seoSettings);
+      if (parsed.navigationItems) setNavigationItems(parsed.navigationItems);
+      if (parsed.banners) setBanners(parsed.banners);
+      if (parsed.mediaLibrary) setMediaLibrary(parsed.mediaLibrary);
+      if (parsed.galleryAlbums) setGalleryAlbums(parsed.galleryAlbums);
+      if (parsed.adminProfiles) setAdminProfiles(parsed.adminProfiles);
+      if (parsed.campaigns) setCampaigns(parsed.campaigns);
+      if (parsed.programs) setPrograms(parsed.programs);
+      if (parsed.metrics) setMetrics(parsed.metrics);
+      if (parsed.stories) setStories(parsed.stories);
+      if (parsed.news) setNews(parsed.news);
+      if (parsed.events) setEvents(parsed.events);
+      if (parsed.gallery) setGallery(parsed.gallery);
+      if (parsed.videos) setVideos(parsed.videos);
+      if (parsed.reports) setReports(parsed.reports);
+      if (parsed.partners) setPartners(parsed.partners);
+      if (parsed.volunteers) setVolunteers(parsed.volunteers);
+      if (parsed.donations) setDonations(parsed.donations);
+      if (parsed.messages) setMessages(parsed.messages);
+      if (parsed.committees) setCommittees(parsed.committees);
+      if (parsed.persons) setPersons(parsed.persons);
+      if (parsed.positions) setPositions(parsed.positions);
+      if (parsed.committeeMembers) setCommitteeMembers(parsed.committeeMembers);
+
+      logAudit('IMPORT', 'Database', 'full_restore', 'Restored complete database snapshot from JSON backup');
       return true;
-    } catch (e) {
-      console.error('Failed to import database JSON', e);
+    } catch (err) {
+      console.error('Import failed:', err);
       return false;
     }
-  };
+  }, [logAudit]);
+
+  const resetToDefaultData = useCallback(() => {
+    setSettings(INITIAL_SITE_SETTINGS);
+    setHomepageConfig(INITIAL_HOMEPAGE_CONFIG);
+    setAboutSettings(INITIAL_ABOUT_SETTINGS);
+    setHeaderSettings(INITIAL_HEADER_SETTINGS);
+    setFooterSettings(INITIAL_FOOTER_SETTINGS);
+    setSocialLinks(INITIAL_SOCIAL_LINKS);
+    setVolunteerSettings(INITIAL_VOLUNTEER_SETTINGS);
+    setSupportSettings(INITIAL_SUPPORT_SETTINGS);
+    setContactSettings(INITIAL_CONTACT_SETTINGS);
+    setSeoSettings(INITIAL_SEO_SETTINGS);
+    setNavigationItems(INITIAL_NAVIGATION_ITEMS);
+    setBanners(INITIAL_BANNERS);
+    setMediaLibrary(INITIAL_MEDIA_LIBRARY);
+    setGalleryAlbums(INITIAL_GALLERY_ALBUMS);
+    setAdminProfiles(INITIAL_ADMIN_PROFILES);
+    setCampaigns(INITIAL_CAMPAIGNS);
+    setPrograms(INITIAL_PROGRAMS);
+    setMetrics(INITIAL_IMPACT_METRICS);
+    setStories(INITIAL_IMPACT_STORIES);
+    setNews(INITIAL_NEWS);
+    setEvents(INITIAL_EVENTS);
+    setGallery(INITIAL_GALLERY);
+    setVideos(INITIAL_VIDEOS);
+    setReports(INITIAL_REPORTS);
+    setPartners(INITIAL_PARTNERS);
+    setVolunteers(INITIAL_VOLUNTEER_APPLICATIONS);
+    setDonations(INITIAL_DONATIONS);
+    setMessages([]);
+    setCommittees(INITIAL_COMMITTEES);
+    setPersons(INITIAL_PERSONS);
+    setPositions(INITIAL_POSITIONS);
+    setCommitteeMembers(INITIAL_COMMITTEE_MEMBERS);
+    setAuditLogs([]);
+
+    // Clear local storage keys
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith(STORAGE_PREFIX) || key.startsWith('infinity_bd_')) {
+        localStorage.removeItem(key);
+      }
+    });
+
+    logAudit('RESET', 'Database', 'factory_reset', 'Reset all CMS entities to verified official defaults');
+  }, [logAudit]);
 
   return (
     <DataContext.Provider
@@ -886,11 +1288,59 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         donations,
         messages,
         settings,
+        homepageConfig,
+        aboutSettings,
+        headerSettings,
+        footerSettings,
+        socialLinks,
+        volunteerSettings,
+        supportSettings,
+        contactSettings,
+        seoSettings,
+        navigationItems,
+        banners,
+        mediaLibrary,
+        galleryAlbums,
+        adminProfiles,
         auditLogs,
         committees,
         persons,
         positions,
         committeeMembers,
+
+        isLiveSupabase: isSupabaseConfigured,
+        isSyncing,
+        previewMode,
+
+        updateHomepageConfig,
+        updateAboutSettings,
+        updateHeaderSettings,
+        updateFooterSettings,
+        updateVolunteerSettings,
+        updateSupportSettings,
+        updateContactSettings,
+        updateSEOSettings,
+        updateSettings,
+
+        addSocialLink,
+        updateSocialLink,
+        deleteSocialLink,
+
+        addNavigationItem,
+        updateNavigationItem,
+        deleteNavigationItem,
+        reorderNavigationItems,
+
+        addBanner,
+        updateBanner,
+        deleteBanner,
+
+        addMediaItem,
+        updateMediaItem,
+        deleteMediaItem,
+        addGalleryAlbum,
+        updateGalleryAlbum,
+        deleteGalleryAlbum,
 
         addCampaign,
         updateCampaign,
@@ -900,7 +1350,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updateProgram,
         deleteProgram,
 
+        addMetric,
         updateMetric,
+        deleteMetric,
 
         addStory,
         updateStory,
@@ -941,6 +1393,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updateMessageStatus,
         deleteContactMessage,
 
+        addAdminProfile,
+        updateAdminProfile,
+        deleteAdminProfile,
+
         addCommittee,
         updateCommittee,
         deleteCommittee,
@@ -961,7 +1417,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         reorderCommitteeMembers,
         getMembersWithDetails,
 
-        updateSettings,
+        setPreviewMode,
+        syncWithSupabase,
         resetToDefaultData,
         exportDatabaseJSON,
         importDatabaseJSON

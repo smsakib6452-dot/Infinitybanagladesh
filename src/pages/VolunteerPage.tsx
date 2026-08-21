@@ -3,6 +3,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
 import { SectionHeading } from '../components/SectionHeading';
 import { BANGLADESH_DISTRICTS } from '../data/bangladeshData';
+import { getAssetUrl } from '../lib/utils/assetHelper';
 import {
   Users,
   CheckCircle2,
@@ -12,12 +13,13 @@ import {
   ArrowRight,
   Send,
   HelpCircle,
-  FileCheck
+  FileCheck,
+  ExternalLink
 } from 'lucide-react';
 
 export const VolunteerPage: React.FC = () => {
-  const { isBn } = useLanguage();
-  const { addVolunteerApplication } = useData();
+  const { isBn, tText } = useLanguage();
+  const { volunteerSettings, addVolunteerApplication } = useData();
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -78,17 +80,59 @@ export const VolunteerPage: React.FC = () => {
     setIsSubmitted(true);
   };
 
+  const benefitsList = isBn
+    ? volunteerSettings.benefits?.bn || [
+        'মাঠপর্যায়ে সরাসরি সামাজিক কাজের বাস্তব অভিজ্ঞতা ও টিমওয়ার্ক',
+        'অফিসিয়াল সার্টিফিকেট ও নেতৃত্বের স্বীকৃতি',
+        'দুর্যোগ মোকাবেলা, ইভেন্ট ব্যবস্থাপনা ও মাঠপর্যায়ের মানবিক প্রশিক্ষণ'
+      ]
+    : volunteerSettings.benefits?.en || [
+        'Hands-on grassroots field experience across seasonal drives',
+        'Official Certificate of Humanitarian Service & leadership recognition',
+        'Disaster preparedness, event management & ethical volunteering training'
+      ];
+
+  const requirementsList = isBn
+    ? volunteerSettings.requirements?.bn || [
+        'মানবকল্যাণে কাজ করার আন্তরিক ইচ্ছা ও নিষ্ঠা',
+        'সংগঠনের নৈতিক আচরণবিধি ও শিশু সুরক্ষা নীতিমালার প্রতি শ্রদ্ধাশীলতা'
+      ]
+    : volunteerSettings.requirements?.en || [
+        'Dedication to selfless humanitarian service with compassion',
+        'Strict adherence to Team Infinity Code of Conduct & child safety rules'
+      ];
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-12 sm:space-y-16">
       <SectionHeading
         badge={isBn ? 'স্বেচ্ছাসেবী পরিবারে স্বাগতম' : 'Be Part of Team Infinity'}
-        title={isBn ? 'মানবতার সেবায় যোগ দিন' : 'Volunteer With Infinity Bangladesh'}
+        title={tText(volunteerSettings.ctaText) || (isBn ? 'মানবতার সেবায় যোগ দিন' : 'Volunteer With Infinity Bangladesh')}
         subtitle={
-          isBn
+          tText(volunteerSettings.description) ||
+          (isBn
             ? 'আপনার মেধা, সময় এবং সহমর্মিতা দিয়ে একজন মানুষের মুখে হাসি ফোটাতে টিম ইনফিনিটির সাথে যুক্ত হোন।'
-            : 'Join a vibrant, ethical youth community committed to transparent grassroots humanitarian action across Bangladesh.'
+            : 'Join a vibrant, ethical youth community committed to transparent grassroots humanitarian action across Bangladesh.')
         }
       />
+
+      {volunteerSettings.googleFormUrl && (
+        <div className="bg-[#E6F3EF] border border-[#C2E2D7] rounded-3xl p-6 text-center space-y-3 shadow-warm-xs">
+          <p className="text-xs sm:text-sm text-[#00523C] font-semibold">
+            {isBn
+              ? 'আমাদের গুগল ফর্মের মাধ্যমেও সরাসরি আবেদন করতে পারেন:'
+              : 'You can also submit your application directly via our official Google Form:'}
+          </p>
+          <a
+            href={volunteerSettings.googleFormUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#006A4E] hover:bg-[#00523C] text-white text-xs sm:text-sm font-bold shadow-warm-sm transition-all"
+          >
+            <span>{isBn ? 'গুগল ফর্মে আবেদন করুন' : 'Apply via Google Form'}</span>
+            <ExternalLink className="w-4 h-4" />
+          </a>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
         {/* Left Form Column */}
@@ -307,31 +351,28 @@ export const VolunteerPage: React.FC = () => {
             </h3>
 
             <div className="space-y-3 text-xs sm:text-sm text-slate-700">
-              <div className="flex items-start gap-2.5">
-                <CheckCircle2 className="w-4 h-4 text-[#006A4E] shrink-0 mt-0.5" />
-                <span>{isBn ? 'সরাসরি প্রান্তিক মানুষের কাছে সেবা পৌঁছে দেওয়ার সুযোগ।' : 'Direct grassroots service reaching children and struggling families.'}</span>
-              </div>
-              <div className="flex items-start gap-2.5">
-                <CheckCircle2 className="w-4 h-4 text-[#006A4E] shrink-0 mt-0.5" />
-                <span>{isBn ? 'নেতৃত্ব ও সাংগঠনিক দক্ষতা উন্নয়নের প্ল্যাটফর্ম।' : 'Leadership, project management, and empathetic teamwork skills.'}</span>
-              </div>
-              <div className="flex items-start gap-2.5">
-                <CheckCircle2 className="w-4 h-4 text-[#006A4E] shrink-0 mt-0.5" />
-                <span>{isBn ? 'মানবিক মূল্যবোধসম্পন্ন বৃহৎ তারুণ্য নেটওয়ার্ক।' : 'A strong ethical network of youth changemakers across Bangladesh.'}</span>
-              </div>
+              {benefitsList.map((benefit, idx) => (
+                <div key={idx} className="flex items-start gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 text-[#006A4E] shrink-0 mt-0.5" />
+                  <span>{benefit}</span>
+                </div>
+              ))}
             </div>
           </div>
 
           <div className="bg-[#FAF7F2] rounded-3xl border border-[#EAE3D9] p-6 space-y-3">
             <h4 className="font-bold text-slate-900 text-sm font-display flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-[#006A4E]" />
-              <span>{isBn ? 'স্বেচ্ছাসেবী নিরাপত্তা ও স্বীকৃতি' : 'Safety & Official Recognition'}</span>
+              <span>{isBn ? 'স্বেচ্ছাসেবী নিরাপত্তা ও শর্তাবলী' : 'Code of Conduct & Safety'}</span>
             </h4>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              {isBn
-                ? 'সক্রিয় স্বেচ্ছাসেবকদের প্রাতিষ্ঠানিক সার্টিফিকেট ও বিশেষ স্বীকৃতি প্রদান করা হয়।'
-                : 'Dedicated volunteers receive official verification certificates and field leadership recognition.'}
-            </p>
+            <div className="space-y-2 text-xs text-slate-600 leading-relaxed">
+              {requirementsList.map((req, idx) => (
+                <div key={idx} className="flex items-start gap-2">
+                  <span className="text-[#006A4E] font-bold">&bull;</span>
+                  <span>{req}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

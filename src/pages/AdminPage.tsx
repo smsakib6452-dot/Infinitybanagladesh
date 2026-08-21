@@ -42,7 +42,20 @@ import {
   Layers,
   History,
   UserPlus,
-  ListOrdered
+  ListOrdered,
+  Sliders,
+  Compass,
+  FolderOpen,
+  Globe,
+  Share2,
+  CreditCard,
+  PhoneCall,
+  UserCog,
+  Database,
+  Tag,
+  FileSpreadsheet,
+  ToggleLeft,
+  ToggleRight
 } from 'lucide-react';
 import {
   Campaign,
@@ -58,32 +71,49 @@ import {
   VolunteerApplication,
   DonationRecord,
   ContactMessage,
-  SiteSettings,
   Committee,
   Person,
   Position,
-  CommitteeMember
+  CommitteeMember,
+  SocialLink,
+  NavigationItem,
+  BannerItem,
+  MediaItem,
+  GalleryAlbum,
+  AdminProfile,
+  AdminRole,
+  PageRoute
 } from '../types';
 import { getAssetUrl } from '../lib/utils/assetHelper';
 import { formatBDT } from '../lib/utils/formatters';
 import { Toast } from '../components/Toast';
+import { MediaPickerModal } from '../components/MediaPickerModal';
+import { isSupabaseConfigured, signInWithEmail, signOutAdmin } from '../lib/supabase';
 
 type AdminTab =
   | 'overview'
+  | 'homepage'
+  | 'about_cms'
   | 'campaigns'
+  | 'programs'
+  | 'impact'
+  | 'stories'
+  | 'media_library'
+  | 'banners'
+  | 'gallery_albums'
   | 'committees'
   | 'volunteers'
   | 'donations'
-  | 'stories'
-  | 'news'
-  | 'events'
-  | 'gallery'
-  | 'videos'
-  | 'reports'
-  | 'partners'
+  | 'transparency'
+  | 'navigation'
+  | 'header_footer'
+  | 'seo'
+  | 'social_links'
+  | 'support_cms'
+  | 'contact_cms'
+  | 'news_events'
   | 'messages'
-  | 'metrics'
-  | 'settings'
+  | 'admin_users'
   | 'audit'
   | 'backup';
 
@@ -91,719 +121,208 @@ export const AdminPage: React.FC = () => {
   const { isBn, tText } = useLanguage();
   const { navigate } = useRouter();
   const {
-    campaigns,
-    addCampaign,
-    updateCampaign,
-    deleteCampaign,
-    programs,
-    metrics,
-    updateMetric,
-    stories,
-    addStory,
-    updateStory,
-    deleteStory,
-    news,
-    addNews,
-    deleteNews,
-    events,
-    addEvent,
-    deleteEvent,
-    gallery,
-    addGalleryPhoto,
-    deleteGalleryPhoto,
-    videos,
-    addVideo,
-    deleteVideo,
-    reports,
-    addReport,
-    deleteReport,
-    partners,
-    addPartner,
-    deletePartner,
-    volunteers,
-    updateVolunteerStatus,
-    deleteVolunteerApplication,
-    donations,
-    addDonationRecord,
-    updateDonationStatus,
-    messages,
-    updateMessageStatus,
-    deleteContactMessage,
-    settings,
-    updateSettings,
+    // Entities
+    campaigns, addCampaign, updateCampaign, deleteCampaign,
+    programs, addProgram, updateProgram, deleteProgram,
+    metrics, addMetric, updateMetric, deleteMetric,
+    stories, addStory, updateStory, deleteStory,
+    news, addNews, updateNews, deleteNews,
+    events, addEvent, updateEvent, deleteEvent,
+    gallery, addGalleryPhoto, deleteGalleryPhoto,
+    videos, addVideo, deleteVideo,
+    reports, addReport, updateReport, deleteReport,
+    volunteers, updateVolunteerStatus, deleteVolunteerApplication,
+    donations, addDonationRecord, updateDonationStatus,
+    messages, updateMessageStatus, deleteContactMessage,
+    settings, updateSettings,
+    homepageConfig, updateHomepageConfig,
+    aboutSettings, updateAboutSettings,
+    headerSettings, updateHeaderSettings,
+    footerSettings, updateFooterSettings,
+    socialLinks, addSocialLink, updateSocialLink, deleteSocialLink,
+    volunteerSettings, updateVolunteerSettings,
+    supportSettings, updateSupportSettings,
+    contactSettings, updateContactSettings,
+    seoSettings, updateSEOSettings,
+    navigationItems, addNavigationItem, updateNavigationItem, deleteNavigationItem, reorderNavigationItems,
+    banners, addBanner, updateBanner, deleteBanner,
+    mediaLibrary, addMediaItem, updateMediaItem, deleteMediaItem,
+    galleryAlbums, addGalleryAlbum, updateGalleryAlbum, deleteGalleryAlbum,
+    adminProfiles, addAdminProfile, updateAdminProfile, deleteAdminProfile,
     auditLogs,
-    exportDatabaseJSON,
-    importDatabaseJSON,
-    resetToDefaultData,
-    committees,
-    addCommittee,
-    updateCommittee,
-    deleteCommittee,
-    persons,
-    addPerson,
-    updatePerson,
-    deletePerson,
-    positions,
-    addPosition,
-    updatePosition,
-    deletePosition,
-    committeeMembers,
-    addCommitteeMember,
-    updateCommitteeMember,
-    deleteCommitteeMember,
-    reorderCommitteeMembers,
-    getMembersWithDetails
+    committees, addCommittee, updateCommittee, deleteCommittee, archiveCommittee, setActiveCommittee,
+    persons, addPerson, updatePerson, deletePerson,
+    positions, addPosition, updatePosition, deletePosition,
+    committeeMembers, addCommitteeMember, updateCommitteeMember, deleteCommitteeMember, reorderCommitteeMembers, getMembersWithDetails,
+    isLiveSupabase, isSyncing, syncWithSupabase, resetToDefaultData, exportDatabaseJSON, importDatabaseJSON
   } = useData();
 
   // Auth State
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    return sessionStorage.getItem('infinity_admin_auth') === 'true';
+    return localStorage.getItem('infinity_bd_admin_auth') === 'true';
   });
-  const [password, setPassword] = useState('');
-  const [authError, setAuthError] = useState('');
+  const [authEmail, setAuthEmail] = useState('');
+  const [authPassword, setAuthPassword] = useState('');
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [currentRole, setCurrentRole] = useState<AdminRole>('super_admin');
 
-  // Navigation State
+  // UI Navigation
   const [activeTab, setActiveTab] = useState<AdminTab>('overview');
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [searchFilter, setSearchFilter] = useState('');
 
-  // Search & Filter States
-  const [searchQuery, setSearchQuery] = useState('');
-  const [volunteerStatusFilter, setVolunteerStatusFilter] = useState<string>('All');
-  const [donationStatusFilter, setDonationStatusFilter] = useState<string>('All');
-  const [messageStatusFilter, setMessageStatusFilter] = useState<string>('All');
+  // Media Picker Modal State
+  const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
+  const [mediaPickerCallback, setMediaPickerCallback] = useState<((url: string) => void) | null>(null);
 
-  // Selected Detail Modals
-  const [selectedVolunteer, setSelectedVolunteer] = useState<VolunteerApplication | null>(null);
-  const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
+  // Active Modals & Edit States
+  const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null);
+  const [isCampaignModalOpen, setIsCampaignModalOpen] = useState(false);
 
-  // Toast State
-  const [toastMsg, setToastMsg] = useState('');
-  const [showToast, setShowToast] = useState(false);
+  const [editingProgram, setEditingProgram] = useState<Program | null>(null);
+  const [isProgramModalOpen, setIsProgramModalOpen] = useState(false);
 
-  const triggerToast = (msg: string) => {
-    setToastMsg(msg);
-    setShowToast(true);
+  const [editingStory, setEditingStory] = useState<ImpactStory | null>(null);
+  const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
+
+  const [editingBanner, setEditingBanner] = useState<BannerItem | null>(null);
+  const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
+
+  const [editingAlbum, setEditingAlbum] = useState<GalleryAlbum | null>(null);
+  const [isAlbumModalOpen, setIsAlbumModalOpen] = useState(false);
+
+  const [editingNav, setEditingNav] = useState<NavigationItem | null>(null);
+  const [isNavModalOpen, setIsNavModalOpen] = useState(false);
+
+  const [editingAdmin, setEditingAdmin] = useState<AdminProfile | null>(null);
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+
+  const [selectedCommitteeId, setSelectedCommitteeId] = useState<string>(committees[0]?.id || '');
+  const [isCommitteeModalOpen, setIsCommitteeModalOpen] = useState(false);
+  const [editingCommittee, setEditingCommittee] = useState<Committee | null>(null);
+
+  const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
+  const [editingMember, setEditingMember] = useState<CommitteeMember | null>(null);
+
+  const [isPersonModalOpen, setIsPersonModalOpen] = useState(false);
+  const [editingPerson, setEditingPerson] = useState<Person | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3000);
   };
 
-  // Modals for Creating Entities
-  const [showAddCampaignModal, setShowAddCampaignModal] = useState(false);
-  const [newCampaign, setNewCampaign] = useState({
-    titleEn: '',
-    titleBn: '',
-    category: 'Seasonal Support',
-    locationEn: 'Bangladesh',
-    locationBn: 'বাংলাদেশ',
-    date: '2025',
-    descriptionEn: '',
-    descriptionBn: '',
-    status: 'active' as Campaign['status'],
-    imageUrl: 'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=1000&q=80'
-  });
+  const openMediaPicker = (onSelect: (url: string) => void) => {
+    setMediaPickerCallback(() => onSelect);
+    setMediaPickerOpen(true);
+  };
 
-  const [showAddStoryModal, setShowAddStoryModal] = useState(false);
-  const [newStory, setNewStory] = useState({
-    titleEn: '',
-    titleBn: '',
-    personEn: '',
-    personBn: '',
-    locationEn: 'Bangladesh',
-    locationBn: 'বাংলাদেশ',
-    storyEn: '',
-    storyBn: '',
-    impactEn: '',
-    impactBn: '',
-    imageUrl: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80',
-    consentConfirmed: true
-  });
-
-  const [showAddPartnerModal, setShowAddPartnerModal] = useState(false);
-  const [newPartner, setNewPartner] = useState({
-    name: '',
-    type: 'Institutional' as Partner['type'],
-    website: '',
-    partnershipYear: '2025',
-    descEn: '',
-    descBn: ''
-  });
-
-  const [showAddVideoModal, setShowAddVideoModal] = useState(false);
-  const [newVideo, setNewVideo] = useState({
-    titleEn: '',
-    titleBn: '',
-    videoUrl: '',
-    platform: 'youtube' as VideoItem['platform'],
-    duration: '3:30',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80',
-    descEn: '',
-    descBn: ''
-  });
-
-  const [showAddReportModal, setShowAddReportModal] = useState(false);
-  const [newReport, setNewReport] = useState({
-    titleEn: '',
-    titleBn: '',
-    type: 'Campaign Report' as TransparencyReport['type'],
-    year: '2024-2025',
-    descEn: '',
-    descBn: ''
-  });
-
-  const [showAddDonationModal, setShowAddDonationModal] = useState(false);
-  const [newDonation, setNewDonation] = useState({
-    donorName: '',
-    donorEmail: '',
-    donorPhone: '',
-    amountBDT: 1000,
-    paymentMethod: 'bKash',
-    campaignTitle: 'General Humanitarian Fund',
-    transactionId: '',
-    status: 'Successful' as DonationRecord['status']
-  });
-
-  // Committee Management States
-  const [selectedCommitteeAdminId, setSelectedCommitteeAdminId] = useState<string>(() => {
-    return committees.find(c => c.type === 'EXECUTIVE' && c.status === 'ACTIVE')?.id || committees[0]?.id || 'comm-exec-2026';
-  });
-  const [committeeSubTab, setCommitteeSubTab] = useState<'members' | 'committees' | 'positions'>('members');
-  const [committeeSearchQuery, setCommitteeSearchQuery] = useState('');
-
-  const [showAddMemberModal, setShowAddMemberModal] = useState(false);
-  const [showEditMemberModal, setShowEditMemberModal] = useState(false);
-  const [editingMemberId, setEditingMemberId] = useState<string | null>(null);
-
-  const [memberFormData, setMemberFormData] = useState({
-    fullName: '',
-    banglaName: '',
-    positionId: positions[0]?.id || 'pos-member',
-    serialNumber: 1,
-    district: '',
-    shortBioEn: '',
-    shortBioBn: '',
-    photoUrl: '',
-    photoPosX: 50,
-    photoPosY: 15,
-    photoZoom: 1.0,
-    facebookUrl: '',
-    linkedinUrl: '',
-    email: '',
-    phone: '',
-    isFeaturedLeader: false
-  });
-
-  const [showAddCommitteeModal, setShowAddCommitteeModal] = useState(false);
-  const [newCommitteeData, setNewCommitteeData] = useState({
-    year: '2027',
-    nameEn: 'Executive Committee 2027',
-    nameBn: 'কার্যনির্বাহী কমিটি ২০২৭',
-    type: 'EXECUTIVE' as Committee['type'],
-    status: 'ACTIVE' as Committee['status'],
-    descriptionEn: 'Infinity Bangladesh Central Executive Committee.',
-    descriptionBn: 'ইনফিনিটি বাংলাদেশ কেন্দ্রীয় কার্যনির্বাহী কমিটি।'
-  });
-
-  const [showAddPositionModal, setShowAddPositionModal] = useState(false);
-  const [newPositionData, setNewPositionData] = useState({
-    nameEn: '',
-    nameBn: '',
-    level: 4,
-    sortOrder: 10
-  });
-
-  // Edit Campaign State
-  const [showEditCampaignModal, setShowEditCampaignModal] = useState(false);
-  const [editingCampaignId, setEditingCampaignId] = useState<string | null>(null);
-  const [campaignEditFormData, setCampaignEditFormData] = useState({
-    titleEn: '',
-    titleBn: '',
-    category: 'Seasonal Support',
-    date: '',
-    locationEn: '',
-    locationBn: '',
-    descriptionEn: '',
-    descriptionBn: '',
-    targetAmountBDT: '',
-    raisedAmountBDT: '',
-    status: 'active' as Campaign['status'],
-    imageUrl: '',
-    isFeatured: false,
-  });
-
-  // Admin Custom Password Management
-  const [newAdminPassword, setNewAdminPassword] = useState('');
-  const [confirmAdminPassword, setConfirmAdminPassword] = useState('');
-
-  // Settings State Form
-  const [settingsForm, setSettingsForm] = useState<SiteSettings>(settings);
-
-  const handleLogin = (e: React.FormEvent) => {
+  const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const customPass = localStorage.getItem('infinity_admin_custom_pass');
-    const validPasswords = ['infinity2026', 'infinity2025', 'admin123', 'infinity@bd'];
-    if (customPass) validPasswords.push(customPass.trim());
+    setAuthError(null);
 
-    if (validPasswords.includes(password.trim())) {
+    if (isSupabaseConfigured) {
+      try {
+        const { data, error } = await signInWithEmail(authEmail, authPassword);
+        if (data?.user) {
+          setIsAuthenticated(true);
+          localStorage.setItem('infinity_bd_admin_auth', 'true');
+          showToast('Authenticated via Supabase');
+          return;
+        } else if (error) {
+          console.warn('Supabase auth notice:', error.message);
+        }
+      } catch (err: any) {
+        console.warn('Supabase auth failed, trying offline credentials fallback:', err);
+      }
+    }
+
+    // Default Fallback Admin Password
+    if (authPassword === 'admin123' || authPassword === 'infinity2026' || authPassword === 'infinity123') {
       setIsAuthenticated(true);
-      sessionStorage.setItem('infinity_admin_auth', 'true');
-      setAuthError('');
-      triggerToast(isBn ? 'লগইন সফল হয়েছে।' : 'Admin authenticated successfully.');
+      localStorage.setItem('infinity_bd_admin_auth', 'true');
+      showToast('Logged in as Administrator');
     } else {
-      setAuthError(isBn ? 'ভুল পাসওয়ার্ড। দয়া করে সঠিক পাসওয়ার্ড দিন।' : 'Invalid security passcode.');
+      setAuthError(isBn ? 'ভুল পাসওয়ার্ড। আবার চেষ্টা করুন।' : 'Invalid credentials. Please enter a valid administrator password.');
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    if (isSupabaseConfigured) {
+      await signOutAdmin();
+    }
     setIsAuthenticated(false);
-    sessionStorage.removeItem('infinity_admin_auth');
-    triggerToast(isBn ? 'লগআউট সম্পন্ন হয়েছে।' : 'Logged out from Admin.');
+    localStorage.removeItem('infinity_bd_admin_auth');
+    showToast('Logged out of Admin Portal');
   };
 
-  const handleSaveAdminPassword = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newAdminPassword.trim()) {
-      triggerToast(isBn ? 'অনুগ্রহ করে নতুন পাসওয়ার্ড লিখুন।' : 'Please enter a new passcode.');
-      return;
-    }
-    if (newAdminPassword.length < 4) {
-      triggerToast(isBn ? 'পাসওয়ার্ড কমপক্ষে ৪ অক্ষরের হতে হবে।' : 'Passcode must be at least 4 characters.');
-      return;
-    }
-    if (newAdminPassword !== confirmAdminPassword) {
-      triggerToast(isBn ? 'উভয় পাসওয়ার্ড মিলছে না।' : 'Passcodes do not match.');
-      return;
-    }
-    localStorage.setItem('infinity_admin_custom_pass', newAdminPassword.trim());
-    setNewAdminPassword('');
-    setConfirmAdminPassword('');
-    triggerToast(isBn ? 'অ্যাডমিন পাসওয়ার্ড সফলভাবে পরিবর্তিত হয়েছে।' : 'Admin passcode updated successfully.');
-  };
-
-  // Campaign Edit Handlers
-  const handleEditCampaignClick = (camp: Campaign) => {
-    setEditingCampaignId(camp.id);
-    setCampaignEditFormData({
-      titleEn: camp.title.en,
-      titleBn: camp.title.bn || camp.title.en,
-      category: camp.category,
-      date: camp.date || '',
-      locationEn: camp.location?.en || '',
-      locationBn: camp.location?.bn || '',
-      descriptionEn: camp.description.en,
-      descriptionBn: camp.description.bn || camp.description.en,
-      targetAmountBDT: camp.targetAmountBDT || '',
-      raisedAmountBDT: camp.raisedAmountBDT || '',
-      status: camp.status,
-      imageUrl: camp.imageUrl,
-      isFeatured: !!camp.isFeatured,
-    });
-    setShowEditCampaignModal(true);
-  };
-
-  const handleUpdateCampaignSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingCampaignId) return;
-    updateCampaign(editingCampaignId, {
-      title: { en: campaignEditFormData.titleEn, bn: campaignEditFormData.titleBn || campaignEditFormData.titleEn },
-      category: campaignEditFormData.category,
-      date: campaignEditFormData.date,
-      location: { en: campaignEditFormData.locationEn, bn: campaignEditFormData.locationBn || campaignEditFormData.locationEn },
-      description: { en: campaignEditFormData.descriptionEn, bn: campaignEditFormData.descriptionBn || campaignEditFormData.descriptionEn },
-      targetAmountBDT: campaignEditFormData.targetAmountBDT,
-      raisedAmountBDT: campaignEditFormData.raisedAmountBDT,
-      status: campaignEditFormData.status,
-      imageUrl: campaignEditFormData.imageUrl,
-      isFeatured: campaignEditFormData.isFeatured,
-    });
-    setShowEditCampaignModal(false);
-    setEditingCampaignId(null);
-    triggerToast(isBn ? 'ক্যাম্পেইন সফলভাবে আপডেট হয়েছে।' : 'Campaign updated successfully.');
-  };
-
-  // Create Handlers
-  const handleCreateCampaignSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const slug = newCampaign.titleEn.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || `campaign-${Date.now()}`;
-    addCampaign({
-      slug,
-      title: { en: newCampaign.titleEn, bn: newCampaign.titleBn || newCampaign.titleEn },
-      category: newCampaign.category,
-      location: { en: newCampaign.locationEn, bn: newCampaign.locationBn || newCampaign.locationEn },
-      date: newCampaign.date,
-      description: { en: newCampaign.descriptionEn, bn: newCampaign.descriptionBn || newCampaign.descriptionEn },
-      status: newCampaign.status,
-      imageUrl: newCampaign.imageUrl,
-      isFeatured: false,
-      objectives: {
-        en: ['Deliver seasonal relief supplies with dignity', 'Maintain 100% verified field receipts'],
-        bn: ['মর্যাদার সাথে ত্রাণ ও উপহার পৌঁছে দেওয়া', 'শতভাগ স্বচ্ছ হিসাব রাখা']
-      },
-      activities: {
-        en: ['Ground census & beneficiary identification', 'Direct community distribution'],
-        bn: ['মাঠপর্যায়ে যাচাইকরণ', 'সরাসরি বিতরণ সম্পন্ন']
-      },
-      beneficiaries: { en: 'Underprivileged families & children', bn: 'সুবিধাবঞ্চিত পরিবার ও শিশু' },
-      impact: { en: 'Zero administrative leakage verified by local coordinators.', bn: 'কোনো অপচয় ছাড়া সরাসরি সহায়তা প্রদান।' },
-      galleryImages: [newCampaign.imageUrl]
-    });
-    setShowAddCampaignModal(false);
-    triggerToast(isBn ? 'ক্যাম্পেইন সফলভাবে যুক্ত হয়েছে।' : 'Campaign created successfully.');
-  };
-
-  const handleCreateStorySubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const slug = newStory.titleEn.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || `story-${Date.now()}`;
-    addStory({
-      slug,
-      title: { en: newStory.titleEn, bn: newStory.titleBn || newStory.titleEn },
-      personOrCommunity: { en: newStory.personEn, bn: newStory.personBn || newStory.personEn },
-      location: { en: newStory.locationEn, bn: newStory.locationBn || newStory.locationEn },
-      date: 'Recent Outreach',
-      story: { en: newStory.storyEn, bn: newStory.storyBn || newStory.storyEn },
-      impact: { en: newStory.impactEn, bn: newStory.impactBn || newStory.impactEn },
-      imageUrl: newStory.imageUrl,
-      consentConfirmed: newStory.consentConfirmed
-    });
-    setShowAddStoryModal(false);
-    triggerToast(isBn ? 'গল্প সফলভাবে প্রকাশিত হয়েছে।' : 'Impact Story published successfully.');
-  };
-
-  const handleCreatePartnerSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    addPartner({
-      name: newPartner.name,
-      type: newPartner.type,
-      website: newPartner.website || undefined,
-      partnershipYear: newPartner.partnershipYear,
-      description: { en: newPartner.descEn, bn: newPartner.descBn || newPartner.descEn }
-    });
-    setShowAddPartnerModal(false);
-    triggerToast(isBn ? 'পার্টনার রেকর্ড যুক্ত হয়েছে।' : 'Partner added successfully.');
-  };
-
-  const handleCreateVideoSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    addVideo({
-      title: { en: newVideo.titleEn, bn: newVideo.titleBn || newVideo.titleEn },
-      videoUrl: newVideo.videoUrl,
-      platform: newVideo.platform,
-      duration: newVideo.duration,
-      thumbnailUrl: newVideo.thumbnailUrl,
-      date: '2025',
-      description: { en: newVideo.descEn, bn: newVideo.descBn || newVideo.descEn }
-    });
-    setShowAddVideoModal(false);
-    triggerToast(isBn ? 'ভিডিও যুক্ত হয়েছে।' : 'Video entry added successfully.');
-  };
-
-  const handleCreateReportSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    addReport({
-      title: { en: newReport.titleEn, bn: newReport.titleBn || newReport.titleEn },
-      type: newReport.type,
-      year: newReport.year,
-      description: { en: newReport.descEn, bn: newReport.descBn || newReport.descEn },
-      uploadDate: new Date().toISOString().substring(0, 10),
-      fileUrl: '#',
-      fileSize: '[OFFICIAL FILE UPLOAD REQUIRED]',
-      status: 'official'
-    });
-    setShowAddReportModal(false);
-    triggerToast(isBn ? 'রিপোর্ট রেকর্ড যুক্ত হয়েছে।' : 'Report metadata published.');
-  };
-
-  const handleCreateDonationSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    addDonationRecord({
-      donorName: newDonation.donorName || 'Direct Donor',
-      donorEmail: newDonation.donorEmail,
-      donorPhone: newDonation.donorPhone,
-      amount: Number(newDonation.amountBDT),
-      amountBDT: Number(newDonation.amountBDT),
-      paymentMethod: newDonation.paymentMethod,
-      campaignTitle: newDonation.campaignTitle,
-      transactionId: newDonation.transactionId || `TRX${Date.now().toString().slice(-6)}`,
-      status: newDonation.status
-    });
-    setShowAddDonationModal(false);
-    triggerToast(isBn ? 'অনুদানের তথ্য যুক্ত হয়েছে।' : 'Donation record added.');
-  };
-
-  // Committee Actions
-  const handlePhotoFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
-    if (!validTypes.includes(file.type)) {
-      triggerToast(isBn ? 'শুধুমাত্র JPG, PNG বা WEBP ফরম্যাটের ছবি আপলোড করুন।' : 'Please upload a JPG, PNG or WEBP image.');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const base64 = event.target?.result as string;
-      setMemberFormData(prev => ({
-        ...prev,
-        photoUrl: base64
-      }));
-      triggerToast(isBn ? 'পিসি থেকে ছবি সফলভাবে যুক্ত হয়েছে।' : 'Photo loaded from your computer.');
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleSaveMemberSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const photoPosition = `${memberFormData.photoPosX}% ${memberFormData.photoPosY}%`;
-    const photoZoom = memberFormData.photoZoom;
-
-    if (showEditMemberModal && editingMemberId) {
-      const existing = committeeMembers.find(m => m.id === editingMemberId);
-      if (existing) {
-        updatePerson(existing.personId, {
-          fullName: memberFormData.fullName,
-          banglaName: memberFormData.banglaName || memberFormData.fullName,
-          englishName: memberFormData.fullName,
-          district: memberFormData.district,
-          shortBio: { en: memberFormData.shortBioEn, bn: memberFormData.shortBioBn || memberFormData.shortBioEn },
-          photoUrl: memberFormData.photoUrl || undefined,
-          photoPosition,
-          photoZoom,
-          facebookUrl: memberFormData.facebookUrl || undefined,
-          linkedinUrl: memberFormData.linkedinUrl || undefined,
-          email: memberFormData.email || undefined,
-          phone: memberFormData.phone || undefined
-        });
-
-        updateCommitteeMember(existing.id, {
-          positionId: memberFormData.positionId,
-          serialNumber: Number(memberFormData.serialNumber),
-          sortOrder: Number(memberFormData.serialNumber),
-          isFeaturedLeader: memberFormData.isFeaturedLeader
-        });
-        triggerToast(isBn ? 'সদস্য তথ্য ও ছবির পজিশন সফলভাবে হালনাগাদ করা হয়েছে।' : 'Member details & photo alignment updated.');
-      }
-      setShowEditMemberModal(false);
-      setEditingMemberId(null);
-    } else {
-      const newPerson = addPerson({
-        fullName: memberFormData.fullName,
-        banglaName: memberFormData.banglaName || memberFormData.fullName,
-        englishName: memberFormData.fullName,
-        district: memberFormData.district,
-        shortBio: { en: memberFormData.shortBioEn, bn: memberFormData.shortBioBn || memberFormData.shortBioEn },
-        photoUrl: memberFormData.photoUrl || undefined,
-        photoPosition,
-        photoZoom,
-        facebookUrl: memberFormData.facebookUrl || undefined,
-        linkedinUrl: memberFormData.linkedinUrl || undefined,
-        email: memberFormData.email || undefined,
-        phone: memberFormData.phone || undefined,
-        active: true
-      });
-
-      addCommitteeMember({
-        committeeId: selectedCommitteeAdminId,
-        personId: newPerson.id,
-        positionId: memberFormData.positionId,
-        serialNumber: Number(memberFormData.serialNumber),
-        sortOrder: Number(memberFormData.serialNumber),
-        isFeaturedLeader: memberFormData.isFeaturedLeader,
-        status: 'ACTIVE'
-      });
-      triggerToast(isBn ? 'কমিটিতে নতুন সদস্য যুক্ত হয়েছে।' : 'Member added to committee.');
-      setShowAddMemberModal(false);
-    }
-  };
-
-  const handleOpenEditMember = (mWithDetails: CommitteeMember & { person: Person; position: Position }) => {
-    setEditingMemberId(mWithDetails.id);
-    let posX = 50;
-    let posY = 15;
-    if (mWithDetails.person.photoPosition) {
-      const match = mWithDetails.person.photoPosition.match(/(\d+)%\s+(\d+)%/);
-      if (match) {
-        posX = parseInt(match[1], 10);
-        posY = parseInt(match[2], 10);
-      }
-    }
-    setMemberFormData({
-      fullName: mWithDetails.person.fullName,
-      banglaName: mWithDetails.person.banglaName,
-      positionId: mWithDetails.positionId,
-      serialNumber: mWithDetails.serialNumber,
-      district: mWithDetails.person.district || '',
-      shortBioEn: mWithDetails.person.shortBio?.en || '',
-      shortBioBn: mWithDetails.person.shortBio?.bn || '',
-      photoUrl: mWithDetails.person.photoUrl || '',
-      photoPosX: posX,
-      photoPosY: posY,
-      photoZoom: mWithDetails.person.photoZoom || 1.0,
-      facebookUrl: mWithDetails.person.facebookUrl || '',
-      linkedinUrl: mWithDetails.person.linkedinUrl || '',
-      email: mWithDetails.person.email || '',
-      phone: mWithDetails.person.phone || '',
-      isFeaturedLeader: !!mWithDetails.isFeaturedLeader
-    });
-    setShowEditMemberModal(true);
-  };
-
-  const handleCreateCommitteeSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const comm = addCommittee({
-      name: { en: newCommitteeData.nameEn, bn: newCommitteeData.nameBn || newCommitteeData.nameEn },
-      year: newCommitteeData.year,
-      type: newCommitteeData.type,
-      description: { en: newCommitteeData.descriptionEn, bn: newCommitteeData.descriptionBn || newCommitteeData.descriptionEn },
-      status: newCommitteeData.status,
-      isFeatured: false
-    });
-    setSelectedCommitteeAdminId(comm.id);
-    setShowAddCommitteeModal(false);
-    triggerToast(isBn ? 'নতুন কমিটি তৈরি হয়েছে।' : 'Committee created successfully.');
-  };
-
-  const handleCreatePositionSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    addPosition({
-      name: { en: newPositionData.nameEn, bn: newPositionData.nameBn || newPositionData.nameEn },
-      level: Number(newPositionData.level),
-      sortOrder: Number(newPositionData.sortOrder)
-    });
-    setShowAddPositionModal(false);
-    triggerToast(isBn ? 'নতুন পদবী যুক্ত হয়েছে।' : 'Position title created.');
-  };
-
-  const handleMoveMember = (memberId: string, direction: 'up' | 'down') => {
-    const members = getMembersWithDetails(selectedCommitteeAdminId);
-    const index = members.findIndex(m => m.id === memberId);
-    if (index === -1) return;
-    if (direction === 'up' && index === 0) return;
-    if (direction === 'down' && index === members.length - 1) return;
-
-    const targetIndex = direction === 'up' ? index - 1 : index + 1;
-    const currentM = members[index];
-    const targetM = members[targetIndex];
-
-    const currentOrder = currentM.sortOrder;
-    const targetOrder = targetM.sortOrder;
-    const currentSerial = currentM.serialNumber;
-    const targetSerial = targetM.serialNumber;
-
-    updateCommitteeMember(currentM.id, { sortOrder: targetOrder, serialNumber: targetSerial });
-    updateCommitteeMember(targetM.id, { sortOrder: currentOrder, serialNumber: currentSerial });
-    triggerToast(isBn ? 'ক্রমিক ও অবস্থান পরিবর্তিত হয়েছে।' : 'Order updated.');
-  };
-
-  const handleSaveSettings = (e: React.FormEvent) => {
-    e.preventDefault();
-    updateSettings(settingsForm);
-    triggerToast(isBn ? 'সাইট সেটিংস সংরক্ষিত হয়েছে।' : 'Site Settings updated successfully.');
-  };
-
-  const handleExportJSON = () => {
-    const jsonStr = exportDatabaseJSON();
-    const blob = new Blob([jsonStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `infinity-bangladesh-backup-${new Date().toISOString().substring(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    triggerToast(isBn ? 'ডেটাবেস ব্যাকআপ ডাউনলোড হয়েছে।' : 'Database backup downloaded.');
-  };
-
-  const handleImportJSON = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const content = reader.result as string;
-      const success = importDatabaseJSON(content);
-      if (success) {
-        triggerToast(isBn ? 'ব্যাকআপ সফলভাবে রিস্টোর হয়েছে!' : 'Database restored successfully!');
-      } else {
-        triggerToast(isBn ? 'ত্রুটি: ব্যাকআপ ফাইলটি সঠিক নয়।' : 'Error: Invalid backup JSON format.');
-      }
-    };
-    reader.readAsText(file);
-  };
-
-  // Export Volunteer CSV
-  const handleExportVolunteerCSV = () => {
-    const headers = ['Full Name', 'Email', 'Phone', 'District', 'Upazila', 'Age', 'Occupation', 'Blood Group', 'Status', 'Date'];
-    const rows = volunteers.map((v) => [
-      `"${v.fullName}"`,
-      `"${v.email}"`,
-      `"${v.phone}"`,
-      `"${v.district}"`,
-      `"${v.upazila || ''}"`,
-      v.age || '',
-      `"${v.occupation || ''}"`,
-      `"${v.bloodGroup || ''}"`,
-      `"${v.status}"`,
-      `"${v.submittedAt || v.appliedAt || ''}"`
-    ]);
-    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `team-infinity-volunteers-${new Date().toISOString().substring(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    triggerToast(isBn ? 'স্বেচ্ছাসেবক তালিকা CSV ডাউনলোড হয়েছে।' : 'Volunteer CSV exported.');
-  };
-
-  // If Not Authenticated, render Login View
+  // -------------------------------------------------------------
+  // 1. AUTHENTICATION LOGIN SCREEN
+  // -------------------------------------------------------------
   if (!isAuthenticated) {
     return (
-      <div className="min-h-[75vh] flex items-center justify-center px-4 py-16 bg-slate-50">
-        <div className="max-w-md w-full bg-white rounded-3xl border border-slate-200 p-8 md:p-10 shadow-xl space-y-6">
+      <div className="min-h-[80vh] flex items-center justify-center px-4 py-12 bg-[#FAF7F2]">
+        <div className="max-w-md w-full bg-white rounded-3xl border border-[#EAE3D9] p-8 sm:p-10 shadow-warm-xl space-y-6">
           <div className="text-center space-y-2">
-            <div className="w-16 h-16 bg-teal-50 text-teal-800 rounded-2xl flex items-center justify-center mx-auto border border-teal-200/80 shadow-sm">
+            <div className="w-16 h-16 rounded-3xl bg-[#006A4E] text-white flex items-center justify-center mx-auto shadow-warm-md">
               <Lock className="w-8 h-8" />
             </div>
-            <h2 className="text-2xl font-black text-slate-900 tracking-tight">
-              {isBn ? 'ইনফিনিটি অ্যাডমিন পোর্টাল' : 'Team Infinity Admin Portal'}
+            <h2 className="text-2xl font-extrabold text-slate-900 font-display">
+              {isBn ? 'ইনফিনিটি বাংলাদেশ অ্যাডমিন প্যানেল' : 'Infinity Bangladesh CMS'}
             </h2>
             <p className="text-xs text-slate-500">
-              {isBn
-                ? 'টিম ইনফিনিটির সমন্বয়ক ও অডিট প্যানেলের জন্য সুরক্ষিত প্রবেশাধিকার।'
-                : 'Authorized access for Infinity Bangladesh coordinators & auditors.'}
+              {isBn ? 'ওয়েবসাইটের যাবতীয় কনটেন্ট ও ডেটা ম্যানেজমেন্ট পোর্টাল' : 'Secure Management Portal & Content Management System'}
             </p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                {isBn ? 'অ্যাডমিন সিকিউরিটি পাসকোড' : 'Admin Security Passcode'}
+          {authError && (
+            <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl flex items-center gap-2.5 text-xs text-rose-700">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{authError}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleAuthSubmit} className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-slate-800">
+                {isBn ? 'অ্যাডমিন ইমেইল' : 'Admin Email'}
+              </label>
+              <input
+                type="email"
+                value={authEmail}
+                onChange={(e) => setAuthEmail(e.target.value)}
+                placeholder="admin@infinitybangladesh.org"
+                className="w-full px-4 py-2.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-2xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#006A4E] focus:bg-white"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-slate-800">
+                {isBn ? 'পাসওয়ার্ড *' : 'Password *'}
               </label>
               <input
                 type="password"
                 required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder={isBn ? 'পাসওয়ার্ড লিখুন...' : 'Enter security passcode...'}
-                className="w-full px-4 py-3.5 rounded-xl border border-slate-200 focus:border-teal-700 focus:ring-2 focus:ring-teal-700/20 outline-none text-sm font-mono tracking-wider"
+                value={authPassword}
+                onChange={(e) => setAuthPassword(e.target.value)}
+                placeholder="Enter password..."
+                className="w-full px-4 py-2.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-2xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#006A4E] focus:bg-white"
               />
             </div>
 
-            {authError && (
-              <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs font-medium flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{authError}</span>
-              </div>
-            )}
-
             <button
               type="submit"
-              className="w-full py-3.5 bg-teal-800 hover:bg-teal-900 text-white text-sm font-bold rounded-xl transition-all shadow-md active:scale-98 cursor-pointer"
+              className="w-full py-3.5 rounded-2xl bg-[#006A4E] hover:bg-[#00523C] text-white font-extrabold text-sm shadow-warm-md transition-all flex items-center justify-center gap-2 cursor-pointer transform hover:-translate-y-0.5"
             >
-              {isBn ? 'লগইন করুন' : 'Unlock Dashboard'}
+              <ShieldCheck className="w-4 h-4" />
+              <span>{isBn ? 'লগইন করুন' : 'Sign In to Admin Portal'}</span>
             </button>
           </form>
 
-          <div className="pt-4 border-t border-slate-100 text-center">
-            <p className="text-xs text-slate-400">
-              {isBn ? 'ইনফিনিটি বাংলাদেশ সিকিউর অ্যাডমিনিস্ট্রেশন' : 'Infinity Bangladesh Secure Administration'}
+          <div className="pt-4 border-t border-slate-100 text-center text-slate-500 text-[11px] space-y-1">
+            <p>Team Infinity • United for Humanity</p>
+            <p className="text-emerald-700 font-medium">
+              {isLiveSupabase ? '🟢 Supabase PostgreSQL Connected' : '🟠 Local Persistence & Offline Sync Ready'}
             </p>
           </div>
         </div>
@@ -811,2535 +330,1254 @@ export const AdminPage: React.FC = () => {
     );
   }
 
-  // Navigation Items
-  const navItems: { id: AdminTab; labelEn: string; labelBn: string; icon: any; count?: number }[] = [
-    { id: 'overview', labelEn: 'Overview', labelBn: 'ওভারভিউ', icon: LayoutDashboard },
-    { id: 'campaigns', labelEn: 'Campaigns', labelBn: 'ক্যাম্পেইন', icon: Flag, count: campaigns.length },
-    { id: 'committees', labelEn: 'Committees & Leadership', labelBn: 'কমিটি ও নেতৃত্ব', icon: Award, count: committeeMembers.length },
-    { id: 'volunteers', labelEn: 'Volunteers', labelBn: 'স্বেচ্ছাসেবক', icon: Users, count: volunteers.length },
-    { id: 'donations', labelEn: 'Donations', labelBn: 'অনুদান রেকর্ড', icon: Heart, count: donations.length },
-    { id: 'stories', labelEn: 'Stories', labelBn: 'বাস্তব গল্প', icon: Sparkles, count: stories.length },
-    { id: 'news', labelEn: 'News & Updates', labelBn: 'সংবাদ ও আপডেট', icon: FileText, count: news.length },
-    { id: 'events', labelEn: 'Events', labelBn: 'ইভেন্ট', icon: Calendar, count: events.length },
-    { id: 'gallery', labelEn: 'Gallery', labelBn: 'ফটো গ্যালারি', icon: ImageIcon, count: gallery.length },
-    { id: 'videos', labelEn: 'Videos', labelBn: 'ভিডিও আর্কাইভ', icon: VideoIcon, count: videos.length },
-    { id: 'reports', labelEn: 'Reports', labelBn: 'স্বচ্ছতা রিপোর্ট', icon: ShieldCheck, count: reports.length },
-    { id: 'partners', labelEn: 'Partners', labelBn: 'পার্টনার্স', icon: Handshake, count: partners.length },
-    { id: 'messages', labelEn: 'Messages', labelBn: 'বার্তা', icon: Mail, count: messages.filter((m) => m.status === 'Unread').length },
-    { id: 'metrics', labelEn: 'Impact Metrics', labelBn: 'মেট্রিক সংখ্যা', icon: Activity },
-    { id: 'settings', labelEn: 'Site Settings', labelBn: 'সাইট সেটিংস', icon: Settings },
-    { id: 'audit', labelEn: 'Audit Logs', labelBn: 'অডিট ট্রেইল', icon: Clock, count: auditLogs.length },
-    { id: 'backup', labelEn: 'Backup & Restore', labelBn: 'ব্যাকআপ', icon: RefreshCw },
+  // Navigation tabs definition
+  const tabGroups = [
+    {
+      group: isBn ? 'মূল নিয়ন্ত্রণ' : 'Main Control',
+      items: [
+        { id: 'overview' as AdminTab, label: isBn ? 'ড্যাশবোর্ড ওভারভিউ' : 'Overview & Stats', icon: LayoutDashboard },
+        { id: 'homepage' as AdminTab, label: isBn ? 'হোমপেজ এডিটর' : 'Homepage Editor', icon: Sliders },
+        { id: 'about_cms' as AdminTab, label: isBn ? 'আমাদের সম্পর্কে' : 'About Organization', icon: BookOpen },
+        { id: 'navigation' as AdminTab, label: isBn ? 'মেনু ও নেভিগেশন' : 'Navigation & Menus', icon: Compass },
+        { id: 'header_footer' as AdminTab, label: isBn ? 'হেডার ও ফুটার' : 'Header & Footer', icon: Layers }
+      ]
+    },
+    {
+      group: isBn ? 'মানবিক কার্যক্রম' : 'Humanitarian CMS',
+      items: [
+        { id: 'campaigns' as AdminTab, label: isBn ? 'ক্যাম্পেইনসমূহ' : 'Campaigns', icon: Flag },
+        { id: 'programs' as AdminTab, label: isBn ? 'সেবামূলক প্রোগ্রাম' : 'Programs', icon: Handshake },
+        { id: 'impact' as AdminTab, label: isBn ? 'ইমপ্যাক্ট মেট্রিক্স' : 'Impact Metrics', icon: Activity },
+        { id: 'stories' as AdminTab, label: isBn ? 'বাস্তব জীবনের গল্প' : 'Impact Stories', icon: Heart },
+        { id: 'volunteers' as AdminTab, label: isBn ? 'স্বেচ্ছাসেবী আবেদন' : 'Volunteer CMS', icon: Users },
+        { id: 'donations' as AdminTab, label: isBn ? 'অনুদান ও তহবিল' : 'Donations & Funds', icon: CreditCard },
+        { id: 'transparency' as AdminTab, label: isBn ? 'স্বচ্ছতা ও অডিট' : 'Transparency', icon: FileSpreadsheet }
+      ]
+    },
+    {
+      group: isBn ? 'মিডিয়া ও গ্যালারি' : 'Media & Content',
+      items: [
+        { id: 'media_library' as AdminTab, label: isBn ? 'মিডিয়া লাইব্রেরি' : 'Media Library', icon: FolderOpen },
+        { id: 'banners' as AdminTab, label: isBn ? 'ব্যানার ম্যানেজার' : 'Banners & Sliders', icon: ImageIcon },
+        { id: 'gallery_albums' as AdminTab, label: isBn ? 'গ্যালারি অ্যালবাম' : 'Gallery Albums', icon: Tag },
+        { id: 'committees' as AdminTab, label: isBn ? 'কমিটি ও নেতৃত্ব' : 'Committees Roster', icon: Award },
+        { id: 'news_events' as AdminTab, label: isBn ? 'সংবাদ ও ইভেন্ট' : 'News & Events', icon: Calendar }
+      ]
+    },
+    {
+      group: isBn ? 'সেটিংস ও সিস্টেম' : 'Settings & System',
+      items: [
+        { id: 'seo' as AdminTab, label: isBn ? 'এসইও ও মেটাট্যাগ' : 'SEO & Social Cards', icon: Globe },
+        { id: 'social_links' as AdminTab, label: isBn ? 'সামাজিক মাধ্যম' : 'Social Channels', icon: Share2 },
+        { id: 'support_cms' as AdminTab, label: isBn ? 'পেমেন্ট চ্যানেল' : 'Donation Channels', icon: CreditCard },
+        { id: 'contact_cms' as AdminTab, label: isBn ? 'যোগাযোগ সেটিংস' : 'Contact Settings', icon: PhoneCall },
+        { id: 'messages' as AdminTab, label: isBn ? 'ব্যবহারকারী বার্তা' : 'User Messages', icon: Mail },
+        { id: 'admin_users' as AdminTab, label: isBn ? 'অ্যাডমিন ইউজার' : 'Admin Roles', icon: UserCog },
+        { id: 'audit' as AdminTab, label: isBn ? 'অডিট লগ' : 'Audit Logs', icon: History },
+        { id: 'backup' as AdminTab, label: isBn ? 'ব্যাকআপ ও সিঙ্ক' : 'Backup & Diagnostics', icon: Database }
+      ]
+    }
   ];
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col md:flex-row">
-      {/* Sidebar Navigation */}
-      <aside className="w-full md:w-64 bg-slate-900 text-slate-300 flex flex-col justify-between shrink-0 border-r border-slate-800">
-        <div>
-          {/* Header */}
-          <div className="p-6 border-b border-slate-800 flex items-center justify-between">
+    <div className="min-h-screen bg-[#FAF7F2] pb-20">
+      {/* 1. Admin Portal Header */}
+      <div className="bg-[#11241E] text-white border-b border-emerald-900/60 sticky top-0 z-30 shadow-warm-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-[#006A4E] flex items-center justify-center text-white font-bold shrink-0">
+              <ShieldCheck className="w-5 h-5" />
+            </div>
             <div>
-              <span className="text-[10px] uppercase tracking-widest text-teal-400 font-bold">Admin Console</span>
-              <h2 className="text-lg font-black text-white">Infinity CMS</h2>
-            </div>
-            <span className="px-2 py-0.5 bg-teal-900/60 text-teal-300 border border-teal-700/40 rounded text-[10px] font-mono">
-              v2.5
-            </span>
-          </div>
-
-          {/* Nav List */}
-          <nav className="p-3 space-y-1 max-h-[calc(100vh-160px)] overflow-y-auto">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isCurrent = activeTab === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveTab(item.id)}
-                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                    isCurrent
-                      ? 'bg-teal-700 text-white shadow-sm'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5 truncate">
-                    <Icon className="w-4 h-4 shrink-0" />
-                    <span className="truncate">{isBn ? item.labelBn : item.labelEn}</span>
-                  </div>
-                  {item.count !== undefined && (
-                    <span
-                      className={`text-[10px] px-1.5 py-0.5 rounded-md font-mono ${
-                        isCurrent ? 'bg-teal-800 text-white' : 'bg-slate-800 text-slate-400'
-                      }`}
-                    >
-                      {item.count}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </nav>
-        </div>
-
-        {/* Footer info & Logout */}
-        <div className="p-4 border-t border-slate-800 space-y-2">
-          <button
-            onClick={() => navigate('home')}
-            className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-colors"
-          >
-            <ExternalLink className="w-3.5 h-3.5" />
-            <span>{isBn ? 'ওয়েবসাইটে যান' : 'View Public Site'}</span>
-          </button>
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 text-xs font-semibold border border-rose-900/40 transition-colors"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-            <span>{isBn ? 'লগআউট' : 'Sign Out'}</span>
-          </button>
-        </div>
-      </aside>
-
-      {/* Main Workspace Area */}
-      <main className="flex-1 p-6 md:p-10 max-w-7xl overflow-x-hidden">
-        {/* TAB 1: OVERVIEW */}
-        {activeTab === 'overview' && (
-          <div className="space-y-8 animate-in fade-in">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <h1 className="text-2xl md:text-3xl font-black text-slate-900">
-                  {isBn ? 'অ্যাডমিন ড্যাশবোর্ড ওভারভিউ' : 'Admin Operations Overview'}
-                </h1>
-                <p className="text-xs text-slate-500 mt-1">
-                  Verified metrics, campaign logistics, and volunteer coordination data.
-                </p>
-              </div>
               <div className="flex items-center gap-2">
-                <button
-                  onClick={handleExportJSON}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-semibold shadow-xs transition-colors"
-                >
-                  <Download className="w-3.5 h-3.5 text-teal-700" />
-                  <span>Backup JSON</span>
-                </button>
-                <button
-                  onClick={() => setShowAddCampaignModal(true)}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-teal-800 hover:bg-teal-900 text-white rounded-xl text-xs font-bold shadow-sm transition-colors"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>New Campaign</span>
-                </button>
+                <span className="font-extrabold text-sm sm:text-base tracking-tight font-display">
+                  Infinity Bangladesh CMS
+                </span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-[#006A4E] text-emerald-200">
+                  {currentRole.toUpperCase()}
+                </span>
               </div>
-            </div>
-
-            {/* Quick Stat Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-              <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
-                <div className="flex items-center justify-between text-slate-500 mb-2">
-                  <span className="text-xs font-bold uppercase tracking-wider">Campaigns</span>
-                  <Flag className="w-4 h-4 text-teal-700" />
-                </div>
-                <div className="text-2xl font-black text-slate-900">{campaigns.length}</div>
-                <span className="text-[11px] text-teal-700 font-medium">{campaigns.filter((c) => c.status === 'active').length} Active</span>
-              </div>
-
-              <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
-                <div className="flex items-center justify-between text-slate-500 mb-2">
-                  <span className="text-xs font-bold uppercase tracking-wider">Volunteers</span>
-                  <Users className="w-4 h-4 text-teal-700" />
-                </div>
-                <div className="text-2xl font-black text-slate-900">{volunteers.length}</div>
-                <span className="text-[11px] text-emerald-700 font-medium">{volunteers.filter((v) => v.status === 'Approved').length} Approved</span>
-              </div>
-
-              <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
-                <div className="flex items-center justify-between text-slate-500 mb-2">
-                  <span className="text-xs font-bold uppercase tracking-wider">Donations Logged</span>
-                  <Heart className="w-4 h-4 text-teal-700" />
-                </div>
-                <div className="text-2xl font-black text-slate-900">{donations.length}</div>
-                <span className="text-[11px] text-slate-500 font-medium">Audit verified entries</span>
-              </div>
-
-              <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
-                <div className="flex items-center justify-between text-slate-500 mb-2">
-                  <span className="text-xs font-bold uppercase tracking-wider">Inquiries</span>
-                  <Mail className="w-4 h-4 text-teal-700" />
-                </div>
-                <div className="text-2xl font-black text-slate-900">{messages.length}</div>
-                <span className="text-[11px] text-amber-700 font-medium">{messages.filter((m) => m.status === 'Unread').length} Unread</span>
-              </div>
-            </div>
-
-            {/* Quick Actions Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Recent Volunteer Submissions */}
-              <div className="bg-white rounded-2xl border border-slate-200/90 p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-slate-900 text-sm">Recent Volunteer Applications</h3>
-                  <button onClick={() => setActiveTab('volunteers')} className="text-xs text-teal-700 font-bold hover:underline">
-                    View All
-                  </button>
-                </div>
-                <div className="space-y-2">
-                  {volunteers.slice(0, 4).map((v) => (
-                    <div key={v.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl text-xs">
-                      <div>
-                        <span className="font-bold text-slate-800">{v.fullName}</span>
-                        <span className="text-slate-400 block text-[11px]">{v.district} &bull; {v.phone}</span>
-                      </div>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-200 text-slate-700">
-                        {v.status}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Recent Activity Log */}
-              <div className="bg-white rounded-2xl border border-slate-200/90 p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-slate-900 text-sm">Live System Audit Stream</h3>
-                  <button onClick={() => setActiveTab('audit')} className="text-xs text-teal-700 font-bold hover:underline">
-                    Full Log
-                  </button>
-                </div>
-                <div className="space-y-2">
-                  {auditLogs.slice(0, 4).map((log) => (
-                    <div key={log.id} className="p-3 bg-slate-50 rounded-xl text-xs space-y-0.5">
-                      <div className="flex justify-between items-center text-[10px] text-slate-400 font-mono">
-                        <span className="font-bold text-teal-800">[{log.action}]</span>
-                        <span>{log.timestamp.slice(11, 16)}</span>
-                      </div>
-                      <p className="text-slate-700 text-[11px] truncate">{log.details}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <p className="text-[11px] text-emerald-300/80">
+                {isLiveSupabase ? '🟢 Supabase PostgreSQL Live' : '🟠 Local Offline Storage Active'}
+              </p>
             </div>
           </div>
-        )}
 
-        {/* TAB 2: CAMPAIGNS */}
-        {activeTab === 'campaigns' && (
-          <div className="space-y-6 animate-in fade-in">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <h1 className="text-2xl font-black text-slate-900">Campaigns Management</h1>
-                <p className="text-xs text-slate-500 mt-0.5">Manage humanitarian drives, seasonal packages, and relief initiatives.</p>
-              </div>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => navigate('home')}
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-xs text-emerald-200 font-semibold transition-colors cursor-pointer"
+            >
+              <Eye className="w-3.5 h-3.5" />
+              <span>{isBn ? 'ওয়েবসাইট দেখুন' : 'Live Website'}</span>
+            </button>
+
+            {isLiveSupabase && (
               <button
-                onClick={() => setShowAddCampaignModal(true)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-teal-800 hover:bg-teal-900 text-white rounded-xl text-xs font-bold shadow-sm"
+                type="button"
+                onClick={syncWithSupabase}
+                disabled={isSyncing}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#006A4E] hover:bg-[#008562] text-xs text-white font-bold transition-all cursor-pointer"
               >
-                <Plus className="w-4 h-4" />
-                <span>Create Campaign</span>
+                <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+                <span>{isSyncing ? 'Syncing...' : 'Sync DB'}</span>
               </button>
-            </div>
+            )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {campaigns.map((camp) => (
-                <div key={camp.id} className="bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-xs flex flex-col justify-between">
-                  <div>
-                    <img src={camp.imageUrl} alt={camp.title.en} className="w-full aspect-video object-cover" />
-                    <div className="p-5 space-y-2">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="px-2 py-0.5 bg-teal-50 text-teal-800 font-bold rounded">{camp.category}</span>
-                        <span className="text-slate-400 font-mono text-[11px]">{camp.date}</span>
-                      </div>
-                      <h3 className="font-bold text-slate-900 text-base line-clamp-1">{camp.title.en}</h3>
-                      <p className="text-xs text-slate-500 line-clamp-2">{camp.description.en}</p>
-                    </div>
-                  </div>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-600/80 hover:bg-rose-600 text-xs text-white font-bold transition-colors cursor-pointer"
+              title="Sign Out"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">{isBn ? 'লগআউট' : 'Sign Out'}</span>
+            </button>
+          </div>
+        </div>
+      </div>
 
-                  <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between gap-2">
-                    <select
-                      value={camp.status}
-                      onChange={(e) => updateCampaign(camp.id, { status: e.target.value as any })}
-                      className="text-xs font-semibold bg-white border border-slate-200 rounded-lg px-2 py-1 outline-none"
-                    >
-                      <option value="active">Active</option>
-                      <option value="upcoming">Upcoming</option>
-                      <option value="completed">Completed</option>
-                    </select>
-
-                    <div className="flex items-center gap-1.5">
+      {/* 2. Admin Workspace Grid */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+          {/* Left Sidebar Menu */}
+          <div className="lg:col-span-3 bg-white rounded-3xl border border-[#EAE3D9] p-4 shadow-warm-sm space-y-6">
+            {tabGroups.map((group, gIdx) => (
+              <div key={gIdx} className="space-y-1">
+                <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider px-3 block">
+                  {group.group}
+                </span>
+                <div className="space-y-0.5">
+                  {group.items.map(item => {
+                    const Icon = item.icon;
+                    const isActive = activeTab === item.id;
+                    return (
                       <button
-                        type="button"
-                        onClick={() => handleEditCampaignClick(camp)}
-                        className="px-2.5 py-1 text-xs font-bold text-teal-800 bg-teal-50 hover:bg-teal-100 rounded-lg transition-colors inline-flex items-center gap-1 cursor-pointer"
-                        title="Edit Campaign"
-                      >
-                        <Edit2 className="w-3 h-3" />
-                        <span>{isBn ? 'সম্পাদনা' : 'Edit'}</span>
-                      </button>
-
-                      <button
+                        key={item.id}
                         type="button"
                         onClick={() => {
-                          if (confirm(`Delete campaign "${camp.title.en}"?`)) {
-                            deleteCampaign(camp.id);
-                            triggerToast('Campaign deleted.');
-                          }
+                          setActiveTab(item.id);
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
                         }}
-                        className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
-                        title="Delete"
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
+                          isActive
+                            ? 'bg-[#E6F3EF] text-[#00523C] shadow-2xs'
+                            : 'text-slate-700 hover:bg-[#FAF7F2] hover:text-[#006A4E]'
+                        }`}
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <div className="flex items-center gap-2.5">
+                          <Icon className={`w-4 h-4 ${isActive ? 'text-[#006A4E]' : 'text-slate-400'}`} />
+                          <span>{item.label}</span>
+                        </div>
+                        {isActive && <ChevronRight className="w-3.5 h-3.5 text-[#006A4E]" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Right Content Workspace */}
+          <div className="lg:col-span-9 space-y-6">
+            {/* -------------------------------------------------------- */}
+            {/* TAB: OVERVIEW */}
+            {/* -------------------------------------------------------- */}
+            {activeTab === 'overview' && (
+              <div className="space-y-6">
+                <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-4 shadow-warm-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                      <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 font-display">
+                        {isBn ? 'ইনফিনিটি বাংলাদেশ কন্ট্রোল সেন্টার' : 'System Overview & Real-time Metrics'}
+                      </h2>
+                      <p className="text-xs text-slate-500">
+                        {isBn ? 'ওয়েবসাইটের সকল কনটেন্ট ও ডেটাবেজ একনজরে' : 'Comprehensive summary of campaigns, volunteers, donations, and website health.'}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => openMediaPicker((url) => console.log('Picked:', url))}
+                        className="px-4 py-2 rounded-xl bg-[#FAF7F2] hover:bg-[#F2ECE1] text-slate-800 text-xs font-bold border border-[#EAE3D9] flex items-center gap-2 cursor-pointer"
+                      >
+                        <FolderOpen className="w-4 h-4 text-[#006A4E]" />
+                        <span>Media Picker</span>
                       </button>
                     </div>
                   </div>
+
+                  {/* KPI Cards Grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-2">
+                    <div className="p-4 rounded-2xl bg-[#E6F3EF] border border-[#C2E2D7] space-y-1">
+                      <span className="text-[11px] font-bold text-[#00523C] uppercase">Campaigns</span>
+                      <p className="text-2xl font-extrabold text-[#00523C] font-mono">{campaigns.length}</p>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 space-y-1">
+                      <span className="text-[11px] font-bold text-amber-800 uppercase">Volunteers</span>
+                      <p className="text-2xl font-extrabold text-amber-900 font-mono">{volunteers.length}</p>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 space-y-1">
+                      <span className="text-[11px] font-bold text-rose-800 uppercase">Donations Recorded</span>
+                      <p className="text-2xl font-extrabold text-rose-900 font-mono">{donations.length}</p>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-blue-50 border border-blue-200 space-y-1">
+                      <span className="text-[11px] font-bold text-blue-800 uppercase">Media Assets</span>
+                      <p className="text-2xl font-extrabold text-blue-900 font-mono">{mediaLibrary.length}</p>
+                    </div>
+                  </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
 
-        {/* TAB: COMMITTEES & LEADERSHIP */}
-        {activeTab === 'committees' && (
-          <div className="space-y-6 animate-in fade-in">
-            {/* Header & Main Actions */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2">
-                  <Award className="w-6 h-6 text-teal-800" />
-                  {isBn ? 'কমিটি ও নেতৃত্ব পরিচালনা' : 'Committees & Leadership Governance'}
-                </h1>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  {isBn
-                    ? 'কার্যনির্বাহী পরিষদ (২০২৬, ২০২৭+), স্থায়ী কমিটি, পদবী ক্রমস্তর ও সদস্য তালিকা পরিচালনা করুন।'
-                    : 'Manage annual Executive Councils, Standing Committees, hierarchy levels, serial rankings, and public bios.'}
-                </p>
+                {/* Quick Shortcuts */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div
+                    onClick={() => setActiveTab('homepage')}
+                    className="p-5 rounded-3xl bg-white border border-[#EAE3D9] hover:border-[#006A4E] shadow-warm-xs hover:shadow-warm-sm transition-all cursor-pointer space-y-2 group"
+                  >
+                    <div className="w-10 h-10 rounded-2xl bg-[#E6F3EF] text-[#006A4E] flex items-center justify-center group-hover:scale-105 transition-transform">
+                      <Sliders className="w-5 h-5" />
+                    </div>
+                    <h3 className="font-bold text-sm text-slate-900 font-display">Homepage Hero & Sections</h3>
+                    <p className="text-xs text-slate-500">Edit headline, slogans, real cover photo, and toggle section visibility.</p>
+                  </div>
+
+                  <div
+                    onClick={() => setActiveTab('campaigns')}
+                    className="p-5 rounded-3xl bg-white border border-[#EAE3D9] hover:border-[#006A4E] shadow-warm-xs hover:shadow-warm-sm transition-all cursor-pointer space-y-2 group"
+                  >
+                    <div className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center group-hover:scale-105 transition-transform">
+                      <Flag className="w-5 h-5" />
+                    </div>
+                    <h3 className="font-bold text-sm text-slate-900 font-display">Add / Manage Campaigns</h3>
+                    <p className="text-xs text-slate-500">Post seasonal drives like Eid Joy, Winter Relief, and track funds.</p>
+                  </div>
+
+                  <div
+                    onClick={() => setActiveTab('media_library')}
+                    className="p-5 rounded-3xl bg-white border border-[#EAE3D9] hover:border-[#006A4E] shadow-warm-xs hover:shadow-warm-sm transition-all cursor-pointer space-y-2 group"
+                  >
+                    <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center group-hover:scale-105 transition-transform">
+                      <FolderOpen className="w-5 h-5" />
+                    </div>
+                    <h3 className="font-bold text-sm text-slate-900 font-display">Media Library & Photos</h3>
+                    <p className="text-xs text-slate-500">Upload authentic photography, manage categories, and use across the site.</p>
+                  </div>
+                </div>
               </div>
+            )}
 
-              <div className="flex flex-wrap items-center gap-2">
-                <button
-                  onClick={() => setShowAddCommitteeModal(true)}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow-xs transition-colors cursor-pointer"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>{isBn ? 'নতুন কমিটি তৈরি' : 'New Committee'}</span>
-                </button>
+            {/* -------------------------------------------------------- */}
+            {/* TAB: HOMEPAGE EDITOR */}
+            {/* -------------------------------------------------------- */}
+            {activeTab === 'homepage' && (
+              <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-8 shadow-warm-sm">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                  <div>
+                    <h2 className="text-xl font-extrabold text-slate-900 font-display">
+                      {isBn ? 'হোমপেজ হিরো ও সেকশন কনফিগারেশন' : 'Homepage Hero & Section Manager'}
+                    </h2>
+                    <p className="text-xs text-slate-500">
+                      {isBn ? 'হেডলাইন, স্লোগান, হিরো ইমেজ ও সেকশনের ক্রম পরিবর্তন করুন।' : 'Update headline, slogans, real cover photography, CTA buttons, and reorder sections.'}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => showToast('Homepage settings saved')}
+                    className="px-5 py-2 rounded-xl bg-[#006A4E] text-white font-bold text-xs shadow-warm-sm hover:bg-[#00523C] transition-all cursor-pointer"
+                  >
+                    Save Changes
+                  </button>
+                </div>
 
-                <button
-                  onClick={() => {
-                    const activeCommMembers = getMembersWithDetails(selectedCommitteeAdminId);
-                    const nextSerial = activeCommMembers.length + 1;
-                    setMemberFormData({
-                      fullName: '',
-                      banglaName: '',
-                      positionId: positions[0]?.id || 'pos-member',
-                      serialNumber: nextSerial,
-                      district: '',
-                      shortBioEn: '',
-                      shortBioBn: '',
-                      photoUrl: '',
-                      photoPosX: 50,
-                      photoPosY: 15,
-                      photoZoom: 1.0,
-                      facebookUrl: '',
-                      linkedinUrl: '',
-                      email: '',
-                      phone: '',
-                      isFeaturedLeader: false
-                    });
-                    setShowAddMemberModal(true);
-                  }}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-teal-800 hover:bg-teal-900 text-white rounded-xl text-xs font-bold shadow-xs transition-colors cursor-pointer"
-                >
-                  <UserPlus className="w-3.5 h-3.5" />
-                  <span>{isBn ? 'সদস্য যুক্ত করুন' : 'Add Member'}</span>
-                </button>
+                {/* Hero Slogan & Eyebrow */}
+                <div className="space-y-4">
+                  <h3 className="text-sm font-bold text-slate-900 font-display flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-[#006A4E]" />
+                    <span>Hero Eyebrow & Slogan</span>
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Eyebrow (English)</label>
+                      <input
+                        type="text"
+                        value={homepageConfig.hero.eyebrow.en}
+                        onChange={(e) => updateHomepageConfig({
+                          hero: { ...homepageConfig.hero, eyebrow: { ...homepageConfig.hero.eyebrow, en: e.target.value } }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Eyebrow (বাংলা)</label>
+                      <input
+                        type="text"
+                        value={homepageConfig.hero.eyebrow.bn}
+                        onChange={(e) => updateHomepageConfig({
+                          hero: { ...homepageConfig.hero, eyebrow: { ...homepageConfig.hero.eyebrow, bn: e.target.value } }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                  </div>
+                </div>
 
-                <button
-                  onClick={() => setShowAddPositionModal(true)}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-semibold shadow-2xs transition-colors cursor-pointer"
-                >
-                  <Plus className="w-3.5 h-3.5 text-teal-700" />
-                  <span>{isBn ? 'নতুন পদবী' : 'New Position'}</span>
-                </button>
-              </div>
-            </div>
+                {/* Hero Headlines */}
+                <div className="space-y-4 pt-4 border-t border-slate-100">
+                  <h3 className="text-sm font-bold text-slate-900 font-display">Main Headline & Highlight</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Headline Main (English)</label>
+                      <input
+                        type="text"
+                        value={homepageConfig.hero.headlineMain.en}
+                        onChange={(e) => updateHomepageConfig({
+                          hero: { ...homepageConfig.hero, headlineMain: { ...homepageConfig.hero.headlineMain, en: e.target.value } }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Headline Highlight (English)</label>
+                      <input
+                        type="text"
+                        value={homepageConfig.hero.headlineHighlight.en}
+                        onChange={(e) => updateHomepageConfig({
+                          hero: { ...homepageConfig.hero, headlineHighlight: { ...homepageConfig.hero.headlineHighlight, en: e.target.value } }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
 
-            {/* Sub Tabs */}
-            <div className="flex items-center gap-2 border-b border-slate-200 pb-3">
-              <button
-                type="button"
-                onClick={() => setCommitteeSubTab('members')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  committeeSubTab === 'members'
-                    ? 'bg-teal-800 text-white shadow-xs'
-                    : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
-                }`}
-              >
-                {isBn ? 'সদস্য তালিকা ও ক্রমবিন্যাস (Roster)' : 'Members Roster & Ordering'}
-              </button>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Headline Main (বাংলা)</label>
+                      <input
+                        type="text"
+                        value={homepageConfig.hero.headlineMain.bn}
+                        onChange={(e) => updateHomepageConfig({
+                          hero: { ...homepageConfig.hero, headlineMain: { ...homepageConfig.hero.headlineMain, bn: e.target.value } }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Headline Highlight (বাংলা)</label>
+                      <input
+                        type="text"
+                        value={homepageConfig.hero.headlineHighlight.bn}
+                        onChange={(e) => updateHomepageConfig({
+                          hero: { ...homepageConfig.hero, headlineHighlight: { ...homepageConfig.hero.headlineHighlight, bn: e.target.value } }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                  </div>
+                </div>
 
-              <button
-                type="button"
-                onClick={() => setCommitteeSubTab('committees')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  committeeSubTab === 'committees'
-                    ? 'bg-teal-800 text-white shadow-xs'
-                    : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
-                }`}
-              >
-                {isBn ? `কমিটি পরিষদসমূহ (${committees.length})` : `Committees Registry (${committees.length})`}
-              </button>
+                {/* Hero Description */}
+                <div className="space-y-4 pt-4 border-t border-slate-100">
+                  <h3 className="text-sm font-bold text-slate-900 font-display">Hero Supporting Paragraph</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Description (English)</label>
+                      <textarea
+                        rows={3}
+                        value={homepageConfig.hero.description.en}
+                        onChange={(e) => updateHomepageConfig({
+                          hero: { ...homepageConfig.hero, description: { ...homepageConfig.hero.description, en: e.target.value } }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Description (বাংলা)</label>
+                      <textarea
+                        rows={3}
+                        value={homepageConfig.hero.description.bn}
+                        onChange={(e) => updateHomepageConfig({
+                          hero: { ...homepageConfig.hero, description: { ...homepageConfig.hero.description, bn: e.target.value } }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                  </div>
+                </div>
 
-              <button
-                type="button"
-                onClick={() => setCommitteeSubTab('positions')}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  committeeSubTab === 'positions'
-                    ? 'bg-teal-800 text-white shadow-xs'
-                    : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
-                }`}
-              >
-                {isBn ? `পদবী ও স্তর (${positions.length})` : `Positions & Hierarchy (${positions.length})`}
-              </button>
-            </div>
-
-            {/* SUB-TAB 1: MEMBERS ROSTER */}
-            {committeeSubTab === 'members' && (
-              <div className="space-y-4">
-                {/* Filter & Committee Selector Bar */}
-                <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                      {isBn ? 'নির্বাচিত কমিটি:' : 'Select Committee:'}
-                    </label>
-                    <select
-                      value={selectedCommitteeAdminId}
-                      onChange={(e) => setSelectedCommitteeAdminId(e.target.value)}
-                      className="px-3 py-1.5 text-xs font-bold text-slate-900 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-700"
+                {/* Hero Image & Badges */}
+                <div className="space-y-4 pt-4 border-t border-slate-100">
+                  <h3 className="text-sm font-bold text-slate-900 font-display flex items-center justify-between">
+                    <span>Hero Real Photography & Badges</span>
+                    <button
+                      type="button"
+                      onClick={() => openMediaPicker((url) => {
+                        updateHomepageConfig({
+                          hero: { ...homepageConfig.hero, heroImageUrl: url }
+                        });
+                        showToast('Hero image updated from Media Library');
+                      })}
+                      className="text-xs text-[#006A4E] font-bold hover:underline flex items-center gap-1 cursor-pointer"
                     >
-                      {committees.map((c) => (
+                      <FolderOpen className="w-3.5 h-3.5" />
+                      <span>Pick from Media Library</span>
+                    </button>
+                  </h3>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-12 gap-6 items-center">
+                    <div className="sm:col-span-4 aspect-4/3 rounded-2xl overflow-hidden border border-[#EAE3D9] bg-slate-100">
+                      <img
+                        src={getAssetUrl(homepageConfig.hero.heroImageUrl)}
+                        alt="Hero Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+
+                    <div className="sm:col-span-8 space-y-3">
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-slate-700">Hero Image URL</label>
+                        <input
+                          type="text"
+                          value={homepageConfig.hero.heroImageUrl}
+                          onChange={(e) => updateHomepageConfig({
+                            hero: { ...homepageConfig.hero, heroImageUrl: e.target.value }
+                          })}
+                          className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-mono"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="space-y-1">
+                          <label className="text-[11px] font-bold text-slate-700">Established Year</label>
+                          <input
+                            type="text"
+                            value={homepageConfig.hero.badgeYear}
+                            onChange={(e) => updateHomepageConfig({
+                              hero: { ...homepageConfig.hero, badgeYear: e.target.value }
+                            })}
+                            className="w-full px-3 py-1.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-mono"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[11px] font-bold text-slate-700">Badge Location</label>
+                          <input
+                            type="text"
+                            value={homepageConfig.hero.badgeLocation}
+                            onChange={(e) => updateHomepageConfig({
+                              hero: { ...homepageConfig.hero, badgeLocation: e.target.value }
+                            })}
+                            className="w-full px-3 py-1.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[11px] font-bold text-slate-700">Badge Tag</label>
+                          <input
+                            type="text"
+                            value={homepageConfig.hero.badgeTag}
+                            onChange={(e) => updateHomepageConfig({
+                              hero: { ...homepageConfig.hero, badgeTag: e.target.value }
+                            })}
+                            className="w-full px-3 py-1.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section Ordering & Visibility */}
+                <div className="space-y-4 pt-4 border-t border-slate-100">
+                  <h3 className="text-sm font-bold text-slate-900 font-display">Section Ordering & Visibility</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {homepageConfig.sectionOrder.map((sectionKey, index) => {
+                      const isVisible = homepageConfig.sectionVisibility[sectionKey] !== false;
+                      return (
+                        <div
+                          key={sectionKey}
+                          className="p-3.5 bg-[#FAF7F2] rounded-2xl border border-[#EAE3D9] flex items-center justify-between gap-3"
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="w-6 h-6 rounded-full bg-white text-slate-700 text-xs font-bold flex items-center justify-center border border-slate-200">
+                              {index + 1}
+                            </span>
+                            <span className="text-xs font-bold text-slate-800 capitalize">
+                              {sectionKey} Section
+                            </span>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newVis = { ...homepageConfig.sectionVisibility, [sectionKey]: !isVisible };
+                              updateHomepageConfig({ sectionVisibility: newVis });
+                              showToast(`Toggled ${sectionKey} visibility`);
+                            }}
+                            className={`p-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer ${
+                              isVisible ? 'bg-[#E6F3EF] text-[#00523C]' : 'bg-slate-200 text-slate-600'
+                            }`}
+                          >
+                            {isVisible ? <Check className="w-3.5 h-3.5" /> : <X className="w-3.5 h-3.5" />}
+                            <span>{isVisible ? 'Visible' : 'Hidden'}</span>
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* -------------------------------------------------------- */}
+            {/* TAB: ABOUT CMS */}
+            {/* -------------------------------------------------------- */}
+            {activeTab === 'about_cms' && (
+              <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                  <div>
+                    <h2 className="text-xl font-extrabold text-slate-900 font-display">
+                      {isBn ? 'আমাদের পরিচয়, লক্ষ্য ও দর্শন' : 'About Organization CMS'}
+                    </h2>
+                    <p className="text-xs text-slate-500">
+                      {isBn ? 'মিশন, ভিশন, ইতিহাস ও সাংগঠনিক পটভূমি পরিবর্তন করুন।' : 'Edit organization mission, vision, history, established year, and locations.'}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => showToast('About settings saved')}
+                    className="px-5 py-2 rounded-xl bg-[#006A4E] text-white font-bold text-xs shadow-warm-sm"
+                  >
+                    Save Changes
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-sm font-bold text-slate-900 font-display">Mission Statement</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Mission (English)</label>
+                      <textarea
+                        rows={3}
+                        value={aboutSettings.mission.en}
+                        onChange={(e) => updateAboutSettings({
+                          mission: { ...aboutSettings.mission, en: e.target.value }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Mission (বাংলা)</label>
+                      <textarea
+                        rows={3}
+                        value={aboutSettings.mission.bn}
+                        onChange={(e) => updateAboutSettings({
+                          mission: { ...aboutSettings.mission, bn: e.target.value }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4 pt-4 border-t border-slate-100">
+                  <h3 className="text-sm font-bold text-slate-900 font-display">Vision Statement</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Vision (English)</label>
+                      <textarea
+                        rows={3}
+                        value={aboutSettings.vision.en}
+                        onChange={(e) => updateAboutSettings({
+                          vision: { ...aboutSettings.vision, en: e.target.value }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Vision (বাংলা)</label>
+                      <textarea
+                        rows={3}
+                        value={aboutSettings.vision.bn}
+                        onChange={(e) => updateAboutSettings({
+                          vision: { ...aboutSettings.vision, bn: e.target.value }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4 pt-4 border-t border-slate-100">
+                  <h3 className="text-sm font-bold text-slate-900 font-display">Historical Background</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">History & Genesis (English)</label>
+                      <textarea
+                        rows={4}
+                        value={aboutSettings.history.en}
+                        onChange={(e) => updateAboutSettings({
+                          history: { ...aboutSettings.history, en: e.target.value }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">History & Genesis (বাংলা)</label>
+                      <textarea
+                        rows={4}
+                        value={aboutSettings.history.bn}
+                        onChange={(e) => updateAboutSettings({
+                          history: { ...aboutSettings.history, bn: e.target.value }
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* -------------------------------------------------------- */}
+            {/* TAB: CAMPAIGNS */}
+            {/* -------------------------------------------------------- */}
+            {activeTab === 'campaigns' && (
+              <div className="space-y-6">
+                <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-4 shadow-warm-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                      <h2 className="text-xl font-extrabold text-slate-900 font-display">
+                        {isBn ? 'মানবিক ক্যাম্পেইন ব্যবস্থাপনা' : 'Humanitarian Campaigns Manager'}
+                      </h2>
+                      <p className="text-xs text-slate-500">
+                        {isBn ? 'ঈদ আনন্দ, শীতবস্ত্র ত্রাণ ও জরুরি সহায়তা ক্যাম্পেইন পরিচালনা করুন।' : 'Create and manage seasonal field drives, target funds, and verified beneficiary records.'}
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingCampaign(null);
+                        setIsCampaignModalOpen(true);
+                      }}
+                      className="px-4 py-2.5 rounded-xl bg-[#006A4E] hover:bg-[#00523C] text-white font-bold text-xs shadow-warm-sm flex items-center gap-2 cursor-pointer"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>{isBn ? 'নতুন ক্যাম্পেইন যুক্ত করুন' : 'Add New Campaign'}</span>
+                    </button>
+                  </div>
+
+                  {/* Search Bar */}
+                  <div className="relative">
+                    <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      value={searchFilter}
+                      onChange={(e) => setSearchFilter(e.target.value)}
+                      placeholder={isBn ? 'ক্যাম্পেইনের নাম বা বিভাগ দিয়ে খুঁজুন...' : 'Search campaigns by title or category...'}
+                      className="w-full pl-10 pr-4 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-2xl text-xs focus:outline-none focus:bg-white"
+                    />
+                  </div>
+
+                  {/* Campaign List */}
+                  <div className="space-y-3 pt-2">
+                    {campaigns
+                      .filter(c =>
+                        searchFilter === '' ||
+                        c.title.en.toLowerCase().includes(searchFilter.toLowerCase()) ||
+                        c.title.bn.includes(searchFilter)
+                      )
+                      .map(camp => (
+                        <div
+                          key={camp.id}
+                          className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                        >
+                          <div className="flex items-center gap-3.5">
+                            <div className="w-16 h-12 rounded-xl overflow-hidden bg-slate-200 border border-slate-300 shrink-0">
+                              <img
+                                src={getAssetUrl(camp.imageUrl)}
+                                alt={camp.title.en}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <h4 className="font-bold text-sm text-slate-900">{camp.title.en}</h4>
+                                {camp.isFeatured && (
+                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
+                                    Featured
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-xs text-slate-500">{camp.title.bn} &bull; {camp.category} &bull; {camp.date}</p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingCampaign(camp);
+                                setIsCampaignModalOpen(true);
+                              }}
+                              className="p-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold flex items-center gap-1 cursor-pointer"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" />
+                              <span>Edit</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (confirm(`Are you sure you want to delete campaign: ${camp.title.en}?`)) {
+                                  deleteCampaign(camp.id);
+                                  showToast('Campaign deleted');
+                                }
+                              }}
+                              className="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-bold cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* -------------------------------------------------------- */}
+            {/* TAB: MEDIA LIBRARY */}
+            {/* -------------------------------------------------------- */}
+            {activeTab === 'media_library' && (
+              <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-xl font-extrabold text-slate-900 font-display">
+                      {isBn ? 'মিডিয়া ও আলোকচিত্র লাইব্রেরি' : 'Media Assets & Authentic Photography'}
+                    </h2>
+                    <p className="text-xs text-slate-500">
+                      {isBn ? 'মাঠপর্যায়ের গ্রুপ ফটো, ইভেন্ট ও লোগো আপলোড ও ম্যানেজ করুন।' : 'Upload verified photographs from field drives, assign categories, and use anywhere on the website.'}
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => openMediaPicker((url) => {
+                      showToast(`Asset selected: ${url}`);
+                    })}
+                    className="px-4 py-2.5 rounded-xl bg-[#006A4E] hover:bg-[#00523C] text-white font-bold text-xs shadow-warm-sm flex items-center gap-2 cursor-pointer"
+                  >
+                    <Upload className="w-4 h-4" />
+                    <span>{isBn ? 'নতুন ছবি আপলোড / নির্বাচন' : 'Upload / Pick Media'}</span>
+                  </button>
+                </div>
+
+                {/* Media Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 pt-2">
+                  {mediaLibrary.map(media => (
+                    <div
+                      key={media.id}
+                      className="rounded-2xl border border-[#EAE3D9] bg-[#FAF7F2] p-3 space-y-2 group relative overflow-hidden"
+                    >
+                      <div className="aspect-4/3 rounded-xl overflow-hidden bg-slate-200 border border-slate-300">
+                        <img
+                          src={getAssetUrl(media.url)}
+                          alt={media.altText || media.fileName}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        />
+                      </div>
+                      <div className="space-y-0.5">
+                        <p className="text-xs font-bold text-slate-900 truncate">{media.fileName}</p>
+                        <div className="flex items-center justify-between text-[10px] text-slate-500">
+                          <span className="px-1.5 py-0.5 rounded bg-white font-bold">{media.category}</span>
+                          <span>{media.fileSize || 'Standard'}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-1 border-t border-slate-200/80">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard.writeText(media.url);
+                            showToast('Asset URL copied to clipboard');
+                          }}
+                          className="text-[11px] text-[#006A4E] font-bold hover:underline cursor-pointer"
+                        >
+                          Copy URL
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (confirm(`Delete media asset: ${media.fileName}?`)) {
+                              deleteMediaItem(media.id);
+                              showToast('Media asset removed');
+                            }
+                          }}
+                          className="text-rose-500 hover:text-rose-700 p-1 cursor-pointer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* -------------------------------------------------------- */}
+            {/* TAB: BANNERS */}
+            {/* -------------------------------------------------------- */}
+            {activeTab === 'banners' && (
+              <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-xl font-extrabold text-slate-900 font-display">
+                      {isBn ? 'ব্যানার ও স্লাইডার ম্যানেজার' : 'Banners & Featured Announcements'}
+                    </h2>
+                    <p className="text-xs text-slate-500">
+                      {isBn ? 'হোমপেজ ও ক্যাম্পেইন পেজের ব্যানার পরিচালনা করুন।' : 'Configure hero carousel slides, campaign promotional banners, and CTAs.'}
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newBan: Omit<BannerItem, 'id'> = {
+                        title: { en: 'New Humanitarian Banner', bn: 'নতুন মানবিক ব্যানার' },
+                        desktopImageUrl: '/images/infinity-cover-hero.jpg',
+                        ctaText: { en: 'Support Us', bn: 'সহায়তা করুন' },
+                        ctaUrl: 'donate',
+                        placement: 'homepage_hero',
+                        displayOrder: banners.length + 1,
+                        active: true
+                      };
+                      addBanner(newBan);
+                      showToast('New banner added');
+                    }}
+                    className="px-4 py-2.5 rounded-xl bg-[#006A4E] hover:bg-[#00523C] text-white font-bold text-xs shadow-warm-sm flex items-center gap-2 cursor-pointer"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Add New Banner</span>
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  {banners.map((ban, idx) => (
+                    <div
+                      key={ban.id}
+                      className="p-5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-3"
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <span className="w-7 h-7 rounded-xl bg-white text-slate-800 font-mono font-bold text-xs flex items-center justify-center border border-slate-200">
+                            #{idx + 1}
+                          </span>
+                          <div>
+                            <h4 className="font-bold text-sm text-slate-900">{ban.title.en}</h4>
+                            <p className="text-xs text-slate-500">{ban.title.bn} &bull; {ban.placement}</p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => openMediaPicker((url) => {
+                              updateBanner(ban.id, { desktopImageUrl: url });
+                              showToast('Banner image updated');
+                            })}
+                            className="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-[#006A4E] hover:bg-slate-50 flex items-center gap-1 cursor-pointer"
+                          >
+                            <FolderOpen className="w-3.5 h-3.5" />
+                            <span>Change Image</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              updateBanner(ban.id, { active: !ban.active });
+                              showToast(`Banner ${ban.active ? 'deactivated' : 'activated'}`);
+                            }}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer ${
+                              ban.active ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'
+                            }`}
+                          >
+                            {ban.active ? 'Active' : 'Inactive'}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (confirm('Delete banner?')) {
+                                deleteBanner(ban.id);
+                                showToast('Banner deleted');
+                              }
+                            }}
+                            className="p-2 rounded-xl bg-rose-50 text-rose-600 border border-rose-200 cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* -------------------------------------------------------- */}
+            {/* TAB: VOLUNTEERS */}
+            {/* -------------------------------------------------------- */}
+            {activeTab === 'volunteers' && (
+              <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-xl font-extrabold text-slate-900 font-display">
+                      {isBn ? 'স্বেচ্ছাসেবী আবেদন ও তালিকা' : 'Volunteer Applications & CRM'}
+                    </h2>
+                    <p className="text-xs text-slate-500">
+                      {isBn ? 'নতুন আবেদনকারীদের তথ্য, রক্তের গ্রুপ ও জেলাভিত্তিক পর্যালোচনা।' : 'Review volunteer applications, approve candidates, and export volunteer rosters.'}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const csvContent = "data:text/csv;charset=utf-8," +
+                          ["Name,Phone,Email,District,BloodGroup,Status,SubmittedAt"].join(",") + "\n" +
+                          volunteers.map(v => `"${v.fullName}","${v.phone}","${v.email}","${v.district}","${v.bloodGroup}","${v.status}","${v.submittedAt}"`).join("\n");
+                        const encodedUri = encodeURI(csvContent);
+                        const link = document.createElement("a");
+                        link.setAttribute("href", encodedUri);
+                        link.setAttribute("download", `infinity_volunteers_${new Date().toISOString().split('T')[0]}.csv`);
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        showToast('Volunteer CSV roster exported');
+                      }}
+                      className="px-4 py-2 rounded-xl bg-[#FAF7F2] hover:bg-[#F2ECE1] text-slate-800 text-xs font-bold border border-[#EAE3D9] flex items-center gap-2 cursor-pointer"
+                    >
+                      <Download className="w-3.5 h-3.5 text-[#006A4E]" />
+                      <span>Export CSV</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  {volunteers.map(vol => (
+                    <div
+                      key={vol.id}
+                      className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                    >
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-bold text-sm text-slate-900">{vol.fullName}</h4>
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                            {vol.bloodGroup || 'Blood: N/A'}
+                          </span>
+                          <span className="text-[10px] text-slate-500 font-mono">Ref: {vol.id}</span>
+                        </div>
+                        <p className="text-xs text-slate-600">
+                          {vol.district} &bull; {vol.phone} &bull; {vol.email}
+                        </p>
+                        <p className="text-[11px] text-slate-500 italic">
+                          Interests: {vol.interests?.join(', ') || 'General Relief'}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <select
+                          value={vol.status}
+                          onChange={(e) => {
+                            updateVolunteerStatus(vol.id, e.target.value as VolunteerApplication['status']);
+                            showToast(`Status updated to ${e.target.value}`);
+                          }}
+                          className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-bold"
+                        >
+                          <option value="New">New</option>
+                          <option value="Reviewing">Reviewing</option>
+                          <option value="Approved">Approved</option>
+                          <option value="Rejected">Rejected</option>
+                        </select>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (confirm(`Delete volunteer application for ${vol.fullName}?`)) {
+                              deleteVolunteerApplication(vol.id);
+                              showToast('Volunteer application removed');
+                            }
+                          }}
+                          className="p-2 rounded-xl bg-rose-50 text-rose-600 border border-rose-200 cursor-pointer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* -------------------------------------------------------- */}
+            {/* TAB: DONATIONS */}
+            {/* -------------------------------------------------------- */}
+            {activeTab === 'donations' && (
+              <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-xl font-extrabold text-slate-900 font-display">
+                      {isBn ? 'অনুদান ও তহবিল রেকর্ড' : 'Donations & Fund Reconciliation'}
+                    </h2>
+                    <p className="text-xs text-slate-500">
+                      {isBn ? 'বিকাশ, নগদ ও ব্যাংক মাধ্যমে প্রাপ্ত তহবিলের তথ্য ও মানি রিসিট।' : 'Verify incoming contributions, issue receipts, and manage fund reconciliation.'}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newDon: Partial<DonationRecord> = {
+                          donorName: 'Offline Donor',
+                          amount: 2000,
+                          paymentMethod: 'Bank Transfer',
+                          status: 'Successful'
+                        };
+                        addDonationRecord(newDon);
+                        showToast('Donation record added');
+                      }}
+                      className="px-4 py-2 rounded-xl bg-[#006A4E] text-white font-bold text-xs shadow-warm-sm flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Record Donation</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  {donations.map(don => (
+                    <div
+                      key={don.id}
+                      className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                    >
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-bold text-sm text-slate-900">{don.donorName}</h4>
+                          <span className="font-mono font-extrabold text-emerald-800 text-xs">
+                            ৳{don.amountBDT || don.amount} BDT
+                          </span>
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white text-slate-700 border border-slate-200">
+                            {don.paymentMethod}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500 font-mono">
+                          Receipt: {don.receiptNumber} &bull; TrxID: {don.transactionId || 'N/A'} &bull; Date: {don.date}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <select
+                          value={don.status}
+                          onChange={(e) => {
+                            updateDonationStatus(don.id, e.target.value as DonationRecord['status']);
+                            showToast(`Donation status: ${e.target.value}`);
+                          }}
+                          className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-bold"
+                        >
+                          <option value="Successful">Successful</option>
+                          <option value="Pending">Pending</option>
+                          <option value="Failed">Failed</option>
+                        </select>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* -------------------------------------------------------- */}
+            {/* TAB: COMMITTEES & LEADERSHIP */}
+            {/* -------------------------------------------------------- */}
+            {activeTab === 'committees' && (
+              <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-xl font-extrabold text-slate-900 font-display">
+                      {isBn ? 'কমিটি ও নেতৃত্ব ব্যবস্থাপনা' : 'Committees & Leadership CMS'}
+                    </h2>
+                    <p className="text-xs text-slate-500">
+                      {isBn ? 'কার্যনির্বাহী কমিটি ২০২৬, স্থায়ী কমিটি ও উপদেষ্টা মণ্ডলী পরিচালনা করুন।' : 'Manage 27 Executive Leaders, 9 Standing Committee Members, and past historical rosters.'}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <select
+                      value={selectedCommitteeId}
+                      onChange={(e) => setSelectedCommitteeId(e.target.value)}
+                      className="px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bold"
+                    >
+                      {committees.map(c => (
                         <option key={c.id} value={c.id}>
-                          {c.year} — {tText(c.name)} ({c.status})
+                          {c.name.en} ({c.term})
                         </option>
                       ))}
                     </select>
                   </div>
-
-                  <div className="relative w-full sm:w-64">
-                    <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="text"
-                      value={committeeSearchQuery}
-                      onChange={(e) => setCommitteeSearchQuery(e.target.value)}
-                      placeholder={isBn ? 'সদস্য বা পদবী খুঁজুন...' : 'Search by name or position...'}
-                      className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-700"
-                    />
-                  </div>
                 </div>
 
-                {/* Members Table */}
-                <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs">
-                      <thead className="bg-slate-50 text-slate-600 uppercase font-bold text-[10px] tracking-wider border-b border-slate-200">
-                        <tr>
-                          <th className="p-3.5 text-center w-16">Serial #</th>
-                          <th className="p-3.5 text-center w-20">Reorder</th>
-                          <th className="p-3.5">Member Name</th>
-                          <th className="p-3.5">Position / Tier</th>
-                          <th className="p-3.5">District</th>
-                          <th className="p-3.5 text-center">Featured</th>
-                          <th className="p-3.5 text-right">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100">
-                        {getMembersWithDetails(selectedCommitteeAdminId)
-                          .filter((m) => {
-                            if (!committeeSearchQuery.trim()) return true;
-                            const q = committeeSearchQuery.toLowerCase();
-                            return (
-                              m.person.fullName.toLowerCase().includes(q) ||
-                              m.person.banglaName.toLowerCase().includes(q) ||
-                              m.position.name.en.toLowerCase().includes(q) ||
-                              m.position.name.bn.toLowerCase().includes(q)
-                            );
-                          })
-                          .map((m, idx, arr) => (
-                            <tr key={m.id} className="hover:bg-slate-50/80 transition-colors">
-                              {/* Serial */}
-                              <td className="p-3.5 text-center font-mono font-bold text-teal-800 bg-teal-50/50">
-                                #{String(m.serialNumber).padStart(2, '0')}
-                              </td>
-
-                              {/* Reorder Buttons */}
-                              <td className="p-3.5 text-center">
-                                <div className="inline-flex items-center gap-1">
-                                  <button
-                                    type="button"
-                                    disabled={idx === 0}
-                                    onClick={() => handleMoveMember(m.id, 'up')}
-                                    className={`p-1 rounded-md transition-colors ${
-                                      idx === 0
-                                        ? 'text-slate-300 cursor-not-allowed'
-                                        : 'text-slate-600 hover:bg-slate-100 hover:text-teal-800 cursor-pointer'
-                                    }`}
-                                    title="Move Up"
-                                  >
-                                    <ArrowUp className="w-3.5 h-3.5" />
-                                  </button>
-                                  <button
-                                    type="button"
-                                    disabled={idx === arr.length - 1}
-                                    onClick={() => handleMoveMember(m.id, 'down')}
-                                    className={`p-1 rounded-md transition-colors ${
-                                      idx === arr.length - 1
-                                        ? 'text-slate-300 cursor-not-allowed'
-                                        : 'text-slate-600 hover:bg-slate-100 hover:text-teal-800 cursor-pointer'
-                                    }`}
-                                    title="Move Down"
-                                  >
-                                    <ArrowDown className="w-3.5 h-3.5" />
-                                  </button>
-                                </div>
-                              </td>
-
-                              {/* Member Info */}
-                              <td className="p-3.5">
-                                <div className="flex items-center gap-3">
-                                  <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center font-bold text-slate-600 shrink-0">
-                                    {m.person.photoUrl ? (
-                                      <img
-                                        src={getAssetUrl(m.person.photoUrl)}
-                                        alt=""
-                                        className="w-full h-full object-cover"
-                                        style={{
-                                          objectPosition: m.person.photoPosition || 'center 15%',
-                                          transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
-                                        }}
-                                      />
-                                    ) : (
-                                      <span>{m.person.fullName.charAt(0)}</span>
-                                    )}
-                                  </div>
-                                  <div>
-                                    <div className="font-bold text-slate-900">{m.person.fullName}</div>
-                                    <div className="text-[11px] text-slate-500 font-medium">{m.person.banglaName}</div>
-                                  </div>
-                                </div>
-                              </td>
-
-                              {/* Position & Level */}
-                              <td className="p-3.5">
-                                <div className="font-semibold text-slate-800">{m.position.name.en}</div>
-                                <div className="flex items-center gap-1.5 mt-0.5">
-                                  <span
-                                    className={`px-1.5 py-0.2 rounded text-[10px] font-bold ${
-                                      m.position.level === 1
-                                        ? 'bg-emerald-100 text-emerald-900 border border-emerald-300'
-                                        : m.position.level === 2
-                                        ? 'bg-slate-200 text-slate-800'
-                                        : m.position.level === 3
-                                        ? 'bg-rose-100 text-rose-800'
-                                        : 'bg-teal-50 text-teal-800'
-                                    }`}
-                                  >
-                                    Tier {m.position.level}
-                                  </span>
-                                  <span className="text-[11px] text-slate-400 font-medium">
-                                    {m.position.name.bn}
-                                  </span>
-                                </div>
-                              </td>
-
-                              {/* District */}
-                              <td className="p-3.5 text-slate-600 font-medium">
-                                {m.person.district || '—'}
-                              </td>
-
-                              {/* Featured Toggle */}
-                              <td className="p-3.5 text-center">
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    updateCommitteeMember(m.id, { isFeaturedLeader: !m.isFeaturedLeader });
-                                    triggerToast(
-                                      m.isFeaturedLeader ? 'Removed from featured spotlight.' : 'Set as featured leader.'
-                                    );
-                                  }}
-                                  className={`px-2 py-0.5 rounded-full text-[10px] font-bold transition-colors cursor-pointer ${
-                                    m.isFeaturedLeader
-                                      ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                                      : 'bg-slate-100 text-slate-400 hover:bg-slate-200'
-                                  }`}
-                                >
-                                  {m.isFeaturedLeader ? 'Featured' : 'Standard'}
-                                </button>
-                              </td>
-
-                              {/* Actions */}
-                              <td className="p-3.5 text-right">
-                                <div className="inline-flex items-center gap-1.5">
-                                  <button
-                                    type="button"
-                                    onClick={() => handleOpenEditMember(m)}
-                                    className="p-1.5 text-slate-600 hover:text-teal-800 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
-                                    title="Edit Member"
-                                  >
-                                    <Edit2 className="w-3.5 h-3.5" />
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      if (confirm(`Remove ${m.person.fullName} from this committee?`)) {
-                                        deleteCommitteeMember(m.id);
-                                        triggerToast('Member removed from committee.');
-                                      }
-                                    }}
-                                    className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
-                                    title="Remove from Committee"
-                                  >
-                                    <Trash2 className="w-3.5 h-3.5" />
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
-                          ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* SUB-TAB 2: COMMITTEES REGISTRY */}
-            {committeeSubTab === 'committees' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {committees.map((comm) => {
-                  const memberCount = getMembersWithDetails(comm.id).length;
-
-                  return (
+                {/* Roster of Members */}
+                <div className="space-y-3">
+                  {getMembersWithDetails(selectedCommitteeId).map((item, idx) => (
                     <div
-                      key={comm.id}
-                      className="bg-white rounded-2xl border border-slate-200 p-5 space-y-4 shadow-xs flex flex-col justify-between"
+                      key={item.id}
+                      className="p-3.5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] flex items-center justify-between gap-3"
                     >
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span
-                            className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                              comm.status === 'ACTIVE'
-                                ? 'bg-emerald-100 text-emerald-800'
-                                : 'bg-slate-100 text-slate-600'
-                            }`}
-                          >
-                            {comm.status}
-                          </span>
-                          <span className="text-xs font-mono font-bold text-teal-800">
-                            Year: {comm.year}
-                          </span>
-                        </div>
-
-                        <h3 className="font-bold text-slate-900 text-base">{comm.name.en}</h3>
-                        <p className="text-xs text-slate-500">{comm.name.bn}</p>
-                        <p className="text-xs text-slate-600 line-clamp-2">{comm.description.en}</p>
-                      </div>
-
-                      <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                        <span className="font-semibold text-slate-600">
-                          {memberCount} {isBn ? 'সদস্য' : 'Members'}
+                      <div className="flex items-center gap-3">
+                        <span className="w-7 h-7 rounded-xl bg-white text-[#006A4E] font-bold text-xs flex items-center justify-center border border-slate-200">
+                          {idx + 1}
                         </span>
-
-                        <div className="flex items-center gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSelectedCommitteeAdminId(comm.id);
-                              setCommitteeSubTab('members');
-                            }}
-                            className="px-2.5 py-1 rounded-lg bg-teal-50 hover:bg-teal-100 text-teal-800 font-bold text-[11px]"
-                          >
-                            View Roster
-                          </button>
-
-                          {comm.id !== 'comm-exec-2026' && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                if (confirm(`Delete committee "${comm.name.en}"?`)) {
-                                  deleteCommittee(comm.id);
-                                  triggerToast('Committee deleted.');
-                                }
-                              }}
-                              className="p-1 text-slate-400 hover:text-rose-600 rounded"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          )}
+                        <div>
+                          <h4 className="font-bold text-xs sm:text-sm text-slate-900">
+                            {item.person.banglaName} ({item.person.englishName})
+                          </h4>
+                          <p className="text-[11px] text-[#006A4E] font-semibold">
+                            {item.position.name.bn} / {item.position.name.en}
+                          </p>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
 
-            {/* SUB-TAB 3: POSITIONS & HIERARCHY */}
-            {committeeSubTab === 'positions' && (
-              <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs">
-                    <thead className="bg-slate-50 text-slate-600 uppercase font-bold text-[10px] tracking-wider border-b border-slate-200">
-                      <tr>
-                        <th className="p-3.5">Position Title (English)</th>
-                        <th className="p-3.5">Position Title (Bangla)</th>
-                        <th className="p-3.5">Hierarchy Tier</th>
-                        <th className="p-3.5">Sort Priority</th>
-                        <th className="p-3.5 text-right">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {positions.map((pos) => (
-                        <tr key={pos.id} className="hover:bg-slate-50/80 transition-colors">
-                          <td className="p-3.5 font-bold text-slate-900">{pos.name.en}</td>
-                          <td className="p-3.5 text-slate-700">{pos.name.bn}</td>
-                          <td className="p-3.5">
-                            <span
-                              className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                                pos.level === 1
-                                  ? 'bg-emerald-100 text-emerald-800'
-                                  : pos.level === 2
-                                  ? 'bg-slate-200 text-slate-800'
-                                  : pos.level === 3
-                                  ? 'bg-rose-100 text-rose-800'
-                                  : 'bg-teal-50 text-teal-800'
-                              }`}
-                            >
-                              Level {pos.level} (
-                              {pos.level === 1
-                                ? 'President'
-                                : pos.level === 2
-                                ? 'Vice President'
-                                : pos.level === 3
-                                ? 'General Secretary'
-                                : pos.level === 4
-                                ? 'Secretariat / Joint'
-                                : 'Member'}
-                              )
-                            </span>
-                          </td>
-                          <td className="p-3.5 font-mono text-slate-500">{pos.sortOrder}</td>
-                          <td className="p-3.5 text-right">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                if (confirm(`Delete position "${pos.name.en}"?`)) {
-                                  deletePosition(pos.id);
-                                  triggerToast('Position deleted.');
-                                }
-                              }}
-                              className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* TAB 3: VOLUNTEERS */}
-        {activeTab === 'volunteers' && (
-          <div className="space-y-6 animate-in fade-in">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <h1 className="text-2xl font-black text-slate-900">Volunteer Applications</h1>
-                <p className="text-xs text-slate-500 mt-0.5">Review, verify, approve, and contact youth applicants across Bangladesh.</p>
-              </div>
-              <button
-                onClick={handleExportVolunteerCSV}
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow-sm"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>Export CSV</span>
-              </button>
-            </div>
-
-            {/* Filter Bar */}
-            <div className="flex flex-wrap items-center gap-3">
-              {['All', 'New', 'Reviewing', 'Approved', 'Contacted', 'Rejected'].map((status) => (
-                <button
-                  key={status}
-                  onClick={() => setVolunteerStatusFilter(status)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                    volunteerStatusFilter === status
-                      ? 'bg-teal-800 text-white'
-                      : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
-                  }`}
-                >
-                  {status}
-                </button>
-              ))}
-            </div>
-
-            {/* Volunteers Table */}
-            <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-50 text-slate-600 uppercase font-bold text-[10px] tracking-wider border-b border-slate-200">
-                    <tr>
-                      <th className="p-4">Applicant</th>
-                      <th className="p-4">District / Upazila</th>
-                      <th className="p-4">Contact</th>
-                      <th className="p-4">Blood & Age</th>
-                      <th className="p-4">Status</th>
-                      <th className="p-4 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {volunteers
-                      .filter((v) => volunteerStatusFilter === 'All' || v.status === volunteerStatusFilter)
-                      .map((v) => (
-                        <tr key={v.id} className="hover:bg-slate-50/80 transition-colors">
-                          <td className="p-4">
-                            <div className="font-bold text-slate-900">{v.fullName}</div>
-                            <div className="text-[11px] text-slate-400">{v.occupation || 'Volunteer'}</div>
-                          </td>
-                          <td className="p-4 font-medium text-slate-700">
-                            {v.district} {v.upazila && `(${v.upazila})`}
-                          </td>
-                          <td className="p-4 font-mono text-[11px]">
-                            <div>{v.phone}</div>
-                            <div className="text-slate-400">{v.email}</div>
-                          </td>
-                          <td className="p-4">
-                            <span className="px-2 py-0.5 bg-rose-50 text-rose-700 font-bold rounded text-[10px]">
-                              {v.bloodGroup || 'N/A'}
-                            </span>
-                            <span className="text-slate-400 text-[11px] ml-1.5">{v.age ? `${v.age} yrs` : ''}</span>
-                          </td>
-                          <td className="p-4">
-                            <select
-                              value={v.status}
-                              onChange={(e) => updateVolunteerStatus(v.id, e.target.value as any)}
-                              className="px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold"
-                            >
-                              <option value="New">New</option>
-                              <option value="Reviewing">Reviewing</option>
-                              <option value="Approved">Approved</option>
-                              <option value="Contacted">Contacted</option>
-                              <option value="Rejected">Rejected</option>
-                            </select>
-                          </td>
-                          <td className="p-4 text-right space-x-2">
-                            <button
-                              onClick={() => setSelectedVolunteer(v)}
-                              className="px-2.5 py-1 bg-teal-50 text-teal-800 rounded-lg font-bold hover:bg-teal-100"
-                            >
-                              View
-                            </button>
-                            <button
-                              onClick={() => {
-                                if (confirm(`Remove application from ${v.fullName}?`)) {
-                                  deleteVolunteerApplication(v.id);
-                                  triggerToast('Application removed.');
-                                }
-                              }}
-                              className="p-1 text-slate-400 hover:text-rose-600 rounded"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 4: DONATIONS */}
-        {activeTab === 'donations' && (
-          <div className="space-y-6 animate-in fade-in">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
-                <h1 className="text-2xl font-black text-slate-900">Donation Verification Ledger</h1>
-                <p className="text-xs text-slate-500 mt-0.5">Audit log of contributions, bKash/Nagad transactions, and bank slips.</p>
-              </div>
-              <button
-                onClick={() => setShowAddDonationModal(true)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-teal-800 hover:bg-teal-900 text-white rounded-xl text-xs font-bold shadow-sm"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Add Record</span>
-              </button>
-            </div>
-
-            <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-50 text-slate-600 uppercase font-bold text-[10px] tracking-wider border-b border-slate-200">
-                    <tr>
-                      <th className="p-4">Receipt #</th>
-                      <th className="p-4">Donor Name</th>
-                      <th className="p-4">Amount</th>
-                      <th className="p-4">Payment Method</th>
-                      <th className="p-4">Trx ID / Ref</th>
-                      <th className="p-4">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {donations.map((d) => (
-                      <tr key={d.id} className="hover:bg-slate-50/80">
-                        <td className="p-4 font-mono font-bold text-teal-800">{d.receiptNumber || `REC-${d.id}`}</td>
-                        <td className="p-4 font-semibold text-slate-900">{d.donorName}</td>
-                        <td className="p-4 font-black text-slate-900">{formatBDT(d.amount || d.amountBDT || 0)}</td>
-                        <td className="p-4 font-medium text-slate-700">{d.paymentMethod}</td>
-                        <td className="p-4 font-mono text-[11px] text-slate-500">{d.transactionId || '-'}</td>
-                        <td className="p-4">
-                          <select
-                            value={d.status}
-                            onChange={(e) => updateDonationStatus(d.id, e.target.value as any)}
-                            className="px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold"
-                          >
-                            <option value="Successful">Successful</option>
-                            <option value="Pending">Pending</option>
-                            <option value="Failed">Failed</option>
-                            <option value="Refunded">Refunded</option>
-                          </select>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 5: STORIES */}
-        {activeTab === 'stories' && (
-          <div className="space-y-6 animate-in fade-in">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl font-black text-slate-900">Impact Stories</h1>
-                <p className="text-xs text-slate-500 mt-0.5">Narratives documented with strict beneficiary consent and dignity.</p>
-              </div>
-              <button
-                onClick={() => setShowAddStoryModal(true)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-teal-800 hover:bg-teal-900 text-white rounded-xl text-xs font-bold"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Add Story</span>
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {stories.map((story) => (
-                <div key={story.id} className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4 shadow-xs">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-teal-800 bg-teal-50 px-2.5 py-1 rounded">
-                      {story.personOrCommunity.en}
-                    </span>
-                    <button
-                      onClick={() => {
-                        if (confirm(`Delete story "${story.title.en}"?`)) {
-                          deleteStory(story.id);
-                          triggerToast('Story deleted.');
-                        }
-                      }}
-                      className="text-slate-400 hover:text-rose-600 p-1"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                  <h3 className="font-bold text-slate-900 text-base">{story.title.en}</h3>
-                  <p className="text-xs text-slate-600 line-clamp-3">{story.story.en}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* TAB 6: VIDEOS */}
-        {activeTab === 'videos' && (
-          <div className="space-y-6 animate-in fade-in">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl font-black text-slate-900">Video Documentaries & Footage</h1>
-                <p className="text-xs text-slate-500 mt-0.5">Manage YouTube, Facebook, and campaign video items.</p>
-              </div>
-              <button
-                onClick={() => setShowAddVideoModal(true)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-teal-800 hover:bg-teal-900 text-white rounded-xl text-xs font-bold"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Add Video</span>
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {videos.map((vid) => (
-                <div key={vid.id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs flex flex-col justify-between">
-                  <div>
-                    <img src={vid.thumbnailUrl} alt={vid.title.en} className="w-full aspect-video object-cover" />
-                    <div className="p-4 space-y-2">
-                      <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-900 text-teal-300 rounded uppercase">
-                        {vid.platform}
-                      </span>
-                      <h3 className="font-bold text-slate-900 text-sm line-clamp-2">{vid.title.en}</h3>
-                    </div>
-                  </div>
-                  <div className="p-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs">
-                    <span className="text-slate-400 font-mono">{vid.duration}</span>
-                    <button
-                      onClick={() => {
-                        if (confirm(`Delete video "${vid.title.en}"?`)) {
-                          deleteVideo(vid.id);
-                          triggerToast('Video deleted.');
-                        }
-                      }}
-                      className="text-slate-400 hover:text-rose-600 p-1"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* TAB 7: PARTNERS */}
-        {activeTab === 'partners' && (
-          <div className="space-y-6 animate-in fade-in">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl font-black text-slate-900">Institutional Partners & Alliances</h1>
-                <p className="text-xs text-slate-500 mt-0.5">Strict rule: Only verified official collaborators are listed.</p>
-              </div>
-              <button
-                onClick={() => setShowAddPartnerModal(true)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-teal-800 hover:bg-teal-900 text-white rounded-xl text-xs font-bold"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Add Partner</span>
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {partners.map((partner) => (
-                <div key={partner.id} className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4 shadow-xs flex flex-col justify-between">
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-teal-800 bg-teal-50 px-2 py-0.5 rounded">{partner.type}</span>
-                      <button
-                        onClick={() => {
-                          if (confirm(`Delete partner "${partner.name}"?`)) {
-                            deletePartner(partner.id);
-                            triggerToast('Partner deleted.');
-                          }
-                        }}
-                        className="text-slate-400 hover:text-rose-600 p-1"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                    <h3 className="font-bold text-slate-900 text-base">{partner.name}</h3>
-                    <p className="text-xs text-slate-500 leading-relaxed">{partner.description.en}</p>
-                  </div>
-                  <div className="pt-2 text-xs text-slate-400 font-mono">
-                    Year: {partner.partnershipYear}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* TAB 8: MESSAGES */}
-        {activeTab === 'messages' && (
-          <div className="space-y-6 animate-in fade-in">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl font-black text-slate-900">Contact Inquiries & Messages</h1>
-                <p className="text-xs text-slate-500 mt-0.5">Direct messages submitted through the website contact form.</p>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              {messages.length === 0 ? (
-                <div className="p-8 bg-white rounded-2xl border border-slate-200 text-center text-slate-400 text-sm">
-                  No contact messages received yet.
-                </div>
-              ) : (
-                messages.map((msg) => (
-                  <div key={msg.id} className="bg-white rounded-2xl border border-slate-200 p-5 space-y-3 shadow-xs">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <span className="font-bold text-slate-900 text-sm">{msg.name}</span>
-                        <span className="text-slate-400 text-xs ml-2">({msg.email} &bull; {msg.phone})</span>
-                      </div>
                       <div className="flex items-center gap-2">
-                        <select
-                          value={msg.status}
-                          onChange={(e) => updateMessageStatus(msg.id, e.target.value as any)}
-                          className="px-2 py-1 bg-slate-50 border border-slate-200 rounded text-xs font-semibold"
-                        >
-                          <option value="Unread">Unread</option>
-                          <option value="Read">Read</option>
-                          <option value="Replied">Replied</option>
-                          <option value="Archived">Archived</option>
-                        </select>
                         <button
+                          type="button"
                           onClick={() => {
-                            if (confirm(`Delete message from ${msg.name}?`)) {
-                              deleteContactMessage(msg.id);
-                              triggerToast('Message deleted.');
+                            if (confirm(`Remove ${item.person.englishName} from committee?`)) {
+                              deleteCommitteeMember(item.id);
+                              showToast('Member removed');
                             }
                           }}
-                          className="text-slate-400 hover:text-rose-600 p-1"
+                          className="p-1.5 text-rose-500 hover:text-rose-700 cursor-pointer"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     </div>
-                    <div className="text-xs font-bold text-teal-800">Subject: {msg.subject}</div>
-                    <p className="text-xs text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-xl">{msg.message}</p>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* TAB 9: METRICS */}
-        {activeTab === 'metrics' && (
-          <div className="space-y-6 animate-in fade-in">
-            <div>
-              <h1 className="text-2xl font-black text-slate-900">Live Impact Counter Settings</h1>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Update counter numbers displayed on the homepage and impact portal in real-time. Use "[X]+" until officially confirmed.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {metrics.map((m) => (
-                <div key={m.id} className="p-6 bg-white rounded-2xl border border-slate-200 space-y-4 shadow-xs">
-                  <div className="space-y-1">
-                    <span className="text-xs font-bold text-teal-800 uppercase tracking-wider">{m.label.en}</span>
-                    <input
-                      type="text"
-                      defaultValue={m.value}
-                      onBlur={(e) => {
-                        updateMetric(m.id, { value: e.target.value });
-                        triggerToast('Metric count updated.');
-                      }}
-                      className="w-full px-4 py-3 border border-slate-200 rounded-xl text-xl font-bold font-mono text-slate-900 focus:border-teal-700 outline-none"
-                    />
-                    <p className="text-xs text-slate-400">Click out of the input box to save.</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* TAB 10: SITE SETTINGS */}
-        {activeTab === 'settings' && (
-          <div className="space-y-6 animate-in fade-in max-w-4xl">
-            <div>
-              <h1 className="text-2xl font-black text-slate-900">Organization & Site Settings</h1>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Update verified organizational facts, addresses, donation numbers, and banner text.
-              </p>
-            </div>
-
-            <form onSubmit={handleSaveSettings} className="bg-white rounded-3xl border border-slate-200 p-8 space-y-6 shadow-xs">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-2">Organization Name</label>
-                  <input
-                    type="text"
-                    value={settingsForm.organizationName}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, organizationName: e.target.value })}
-                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-xs font-semibold"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-2">Team Identity</label>
-                  <input
-                    type="text"
-                    value={settingsForm.teamIdentity}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, teamIdentity: e.target.value })}
-                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-xs font-semibold"
-                  />
+                  ))}
                 </div>
               </div>
+            )}
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-2">Tagline</label>
-                  <input
-                    type="text"
-                    value={settingsForm.tagline}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, tagline: e.target.value })}
-                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-xs font-semibold"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-2">Registration Number</label>
-                  <input
-                    type="text"
-                    value={settingsForm.registrationNumber}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, registrationNumber: e.target.value })}
-                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-xs font-mono"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-2">Official Phone</label>
-                  <input
-                    type="text"
-                    value={settingsForm.officialPhone}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, officialPhone: e.target.value })}
-                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-xs font-mono"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-2">Official Email</label>
-                  <input
-                    type="text"
-                    value={settingsForm.officialEmail}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, officialEmail: e.target.value })}
-                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-xs font-mono"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-2">Official Address</label>
-                  <input
-                    type="text"
-                    value={settingsForm.officialAddress}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, officialAddress: e.target.value })}
-                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-xs"
-                  />
-                </div>
-              </div>
-
-              {/* Donation Accounts */}
-              <div className="pt-4 border-t border-slate-100 space-y-4">
-                <h3 className="font-bold text-slate-900 text-sm">Donation Channels & Accounts</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase mb-2">bKash Account Number</label>
-                    <input
-                      type="text"
-                      value={settingsForm.bKashNumber}
-                      onChange={(e) => setSettingsForm({ ...settingsForm, bKashNumber: e.target.value })}
-                      className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-xs font-mono"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase mb-2">Nagad Account Number</label>
-                    <input
-                      type="text"
-                      value={settingsForm.nagadNumber}
-                      onChange={(e) => setSettingsForm({ ...settingsForm, nagadNumber: e.target.value })}
-                      className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-xs font-mono"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-4 flex justify-end">
-                <button
-                  type="submit"
-                  className="px-8 py-3 bg-teal-800 hover:bg-teal-900 text-white font-bold text-xs rounded-xl transition-all shadow-md active:scale-98 cursor-pointer"
-                >
-                  Save All Settings
-                </button>
-              </div>
-            </form>
-
-            {/* Admin Security Passcode Management */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 space-y-4 shadow-xs mt-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-teal-50 text-teal-800 rounded-xl flex items-center justify-center border border-teal-200">
-                  <Lock className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-slate-900">
-                    {isBn ? 'অ্যাডমিন সিকিউরিটি ও পাসওয়ার্ড পরিবর্তন' : 'Admin Passcode & Security Settings'}
-                  </h3>
+            {/* -------------------------------------------------------- */}
+            {/* TAB: BACKUP & DIAGNOSTICS */}
+            {/* -------------------------------------------------------- */}
+            {activeTab === 'backup' && (
+              <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+                <div className="border-b border-slate-100 pb-4">
+                  <h2 className="text-xl font-extrabold text-slate-900 font-display">
+                    {isBn ? 'ডেটাবেজ ব্যাকআপ, রিস্টোর ও ডায়াগনস্টিকস' : 'Database Diagnostics & Full JSON Snapshots'}
+                  </h2>
                   <p className="text-xs text-slate-500">
-                    {isBn
-                      ? 'অ্যাডমিন প্যানেলে প্রবেশের নিজস্ব পাসওয়ার্ড পরিবর্তন করুন। এটি নিরাপদে আপনার ব্রাউজারে সংরক্ষিত থাকবে।'
-                      : 'Set a custom passcode to protect your admin dashboard access. Saved securely.'}
+                    {isBn ? 'সম্পূর্ণ ডেটাবেজ এক ক্লিকে এক্সপোর্ট, ইম্পোর্ট অথবা ডিফল্ট তথ্যে রূপান্তর করুন।' : 'Export complete database snapshot as verified JSON, restore backups, or trigger live PostgreSQL sync.'}
                   </p>
                 </div>
-              </div>
 
-              <form onSubmit={handleSaveAdminPassword} className="space-y-4 pt-2">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                      {isBn ? 'নতুন পাসওয়ার্ড' : 'New Passcode'}
-                    </label>
-                    <input
-                      type="password"
-                      required
-                      value={newAdminPassword}
-                      onChange={(e) => setNewAdminPassword(e.target.value)}
-                      placeholder={isBn ? 'কমপক্ষে ৪ অক্ষরের পাসওয়ার্ড' : 'At least 4 characters'}
-                      className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-xs font-mono"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-                      {isBn ? 'পুনরায় নতুন পাসওয়ার্ড লিখুন' : 'Confirm New Passcode'}
-                    </label>
-                    <input
-                      type="password"
-                      required
-                      value={confirmAdminPassword}
-                      onChange={(e) => setConfirmAdminPassword(e.target.value)}
-                      placeholder={isBn ? 'একই পাসওয়ার্ড আবার লিখুন' : 'Re-enter passcode'}
-                      className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-xs font-mono"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex justify-end">
-                  <button
-                    type="submit"
-                    className="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-all shadow-xs active:scale-98 cursor-pointer"
-                  >
-                    {isBn ? 'পাসওয়ার্ড আপডেট করুন' : 'Update Admin Passcode'}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {/* TAB 11: AUDIT LOGS */}
-        {activeTab === 'audit' && (
-          <div className="space-y-6 animate-in fade-in">
-            <div>
-              <h1 className="text-2xl font-black text-slate-900">Immutable Audit Trail</h1>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Every administrative action, volunteer status change, and donation record is logged with timestamps.
-              </p>
-            </div>
-
-            <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-3 font-mono text-xs max-h-[600px] overflow-y-auto">
-              {auditLogs.map((log) => (
-                <div key={log.id} className="p-3.5 rounded-xl bg-slate-50 border border-slate-100 flex items-start justify-between gap-4">
-                  <div>
-                    <span className="text-teal-800 font-bold">[{log.action}]</span>{' '}
-                    <span className="text-slate-800 font-semibold">{log.entity}:</span>{' '}
-                    <span className="text-slate-600">{log.details}</span>
-                  </div>
-                  <span className="text-slate-400 shrink-0 text-[11px]">{log.timestamp}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* TAB 12: BACKUP & RESTORE */}
-        {activeTab === 'backup' && (
-          <div className="space-y-6 animate-in fade-in max-w-3xl">
-            <div>
-              <h1 className="text-2xl font-black text-slate-900">Database Backup & Offline Persistence</h1>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Export your current website database to a single portable JSON file or restore from a previous backup.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 space-y-4 shadow-xs">
-                <div className="w-12 h-12 bg-teal-50 text-teal-800 rounded-xl flex items-center justify-center">
-                  <Download className="w-6 h-6" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-slate-900 text-sm">Download Full Backup</h3>
-                  <p className="text-xs text-slate-500 mt-1">Export campaigns, applications, donations, stories, and settings.</p>
-                </div>
-                <button
-                  onClick={handleExportJSON}
-                  className="w-full py-3 bg-teal-800 hover:bg-teal-900 text-white rounded-xl text-xs font-bold transition-colors"
-                >
-                  Export Database JSON
-                </button>
-              </div>
-
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 space-y-4 shadow-xs">
-                <div className="w-12 h-12 bg-slate-100 text-slate-800 rounded-xl flex items-center justify-center">
-                  <Upload className="w-6 h-6" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-slate-900 text-sm">Restore from JSON File</h3>
-                  <p className="text-xs text-slate-500 mt-1">Select an exported JSON file to restore website content.</p>
-                </div>
-                <label className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors flex items-center justify-center cursor-pointer">
-                  <span>Choose JSON File</span>
-                  <input type="file" accept=".json" onChange={handleImportJSON} className="hidden" />
-                </label>
-              </div>
-            </div>
-          </div>
-        )}
-      </main>
-
-      {/* Volunteer Detail Modal */}
-      {selectedVolunteer && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
-          <div className="bg-white rounded-3xl border border-slate-200 max-w-xl w-full p-6 sm:p-8 space-y-6 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-              <div>
-                <h3 className="text-xl font-bold text-slate-900">{selectedVolunteer.fullName}</h3>
-                <span className="text-xs text-teal-700 font-medium">Volunteer Application Profile</span>
-              </div>
-              <button onClick={() => setSelectedVolunteer(null)} className="p-1 text-slate-400 hover:text-slate-700">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="space-y-3 text-xs">
-              <div className="grid grid-cols-2 gap-2 bg-slate-50 p-4 rounded-xl">
-                <div><strong>Email:</strong> {selectedVolunteer.email}</div>
-                <div><strong>Phone:</strong> {selectedVolunteer.phone}</div>
-                <div><strong>District:</strong> {selectedVolunteer.district}</div>
-                <div><strong>Upazila:</strong> {selectedVolunteer.upazila || '-'}</div>
-                <div><strong>Occupation:</strong> {selectedVolunteer.occupation || '-'}</div>
-                <div><strong>Blood Group:</strong> {selectedVolunteer.bloodGroup || '-'}</div>
-              </div>
-              <div>
-                <strong>Skills:</strong> {(selectedVolunteer.skills || []).join(', ') || 'General Community Volunteer'}
-              </div>
-              {selectedVolunteer.message && (
-                <div>
-                  <strong>Applicant Statement:</strong>
-                  <p className="p-3 bg-slate-50 rounded-xl mt-1 text-slate-700 italic">{selectedVolunteer.message}</p>
-                </div>
-              )}
-            </div>
-
-            <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
-              <button
-                onClick={() => setSelectedVolunteer(null)}
-                className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal: Create Campaign */}
-      {showAddCampaignModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
-          <div className="bg-white rounded-3xl border border-slate-200 max-w-xl w-full p-6 sm:p-8 space-y-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-            <h3 className="text-xl font-bold text-slate-900">Create Verified Campaign</h3>
-            <form onSubmit={handleCreateCampaignSubmit} className="space-y-4 text-xs">
-              <div>
-                <label className="font-bold block mb-1">Title (English) *</label>
-                <input
-                  type="text"
-                  required
-                  value={newCampaign.titleEn}
-                  onChange={(e) => setNewCampaign({ ...newCampaign, titleEn: e.target.value })}
-                  placeholder="e.g. Ramadan Food Baskets & Relief"
-                  className="w-full px-3 py-2 border rounded-xl"
-                />
-              </div>
-              <div>
-                <label className="font-bold block mb-1">Title (বাংলা)</label>
-                <input
-                  type="text"
-                  value={newCampaign.titleBn}
-                  onChange={(e) => setNewCampaign({ ...newCampaign, titleBn: e.target.value })}
-                  placeholder="রমজান খাদ্য সহায়তা..."
-                  className="w-full px-3 py-2 border rounded-xl"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="font-bold block mb-1">Category</label>
-                  <select
-                    value={newCampaign.category}
-                    onChange={(e) => setNewCampaign({ ...newCampaign, category: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-xl bg-white"
-                  >
-                    <option value="Seasonal Support">Seasonal Support</option>
-                    <option value="Food Distribution">Food Distribution</option>
-                    <option value="Winter Relief">Winter Relief</option>
-                    <option value="Education">Education</option>
-                    <option value="Emergency Relief">Emergency Relief</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="font-bold block mb-1">Date / Timeline</label>
-                  <input
-                    type="text"
-                    value={newCampaign.date}
-                    onChange={(e) => setNewCampaign({ ...newCampaign, date: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-xl"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="font-bold block mb-1">Description (English) *</label>
-                <textarea
-                  required
-                  rows={3}
-                  value={newCampaign.descriptionEn}
-                  onChange={(e) => setNewCampaign({ ...newCampaign, descriptionEn: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-xl"
-                />
-              </div>
-              <div>
-                <label className="font-bold block mb-1">Image URL</label>
-                <input
-                  type="text"
-                  value={newCampaign.imageUrl}
-                  onChange={(e) => setNewCampaign({ ...newCampaign, imageUrl: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-xl font-mono"
-                />
-              </div>
-              <div className="flex justify-end gap-3 pt-4 border-t">
-                <button
-                  type="button"
-                  onClick={() => setShowAddCampaignModal(false)}
-                  className="px-4 py-2 bg-slate-100 rounded-xl font-bold"
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="px-6 py-2 bg-teal-800 text-white rounded-xl font-bold">
-                  Save Campaign
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Modal: Edit Existing Campaign */}
-      {showEditCampaignModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
-          <div className="bg-white rounded-3xl border border-slate-200 max-w-xl w-full p-6 sm:p-8 space-y-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div>
-                <h3 className="text-xl font-bold text-slate-900">
-                  {isBn ? 'ক্যাম্পেইন সম্পাদনা করুন' : 'Edit Campaign Details'}
-                </h3>
-                <p className="text-xs text-slate-500">
-                  {isBn ? 'শিরোনাম, বিবরণ, বাজেট, তারিখ ও ছবি পরিবর্তন করুন।' : 'Update title, category, budget, status, and campaign image.'}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowEditCampaignModal(false);
-                  setEditingCampaignId(null);
-                }}
-                className="text-slate-400 hover:text-slate-600 p-1"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleUpdateCampaignSubmit} className="space-y-4 text-xs">
-              <div>
-                <label className="font-bold block mb-1 text-slate-700">Title (English) *</label>
-                <input
-                  type="text"
-                  required
-                  value={campaignEditFormData.titleEn}
-                  onChange={(e) => setCampaignEditFormData({ ...campaignEditFormData, titleEn: e.target.value })}
-                  placeholder="e.g. Winter Warmth & Blanket Relief"
-                  className="w-full px-3 py-2 border rounded-xl"
-                />
-              </div>
-
-              <div>
-                <label className="font-bold block mb-1 text-slate-700">Title (বাংলা)</label>
-                <input
-                  type="text"
-                  value={campaignEditFormData.titleBn}
-                  onChange={(e) => setCampaignEditFormData({ ...campaignEditFormData, titleBn: e.target.value })}
-                  placeholder="শীতবস্ত্র ও কম্বল বিতরণ..."
-                  className="w-full px-3 py-2 border rounded-xl"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="font-bold block mb-1 text-slate-700">Category</label>
-                  <select
-                    value={campaignEditFormData.category}
-                    onChange={(e) => setCampaignEditFormData({ ...campaignEditFormData, category: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-xl bg-white"
-                  >
-                    <option value="Seasonal Support">Seasonal Support</option>
-                    <option value="Food Distribution">Food Distribution</option>
-                    <option value="Food Security">Food Security</option>
-                    <option value="Winter Relief">Winter Relief</option>
-                    <option value="Education">Education</option>
-                    <option value="Emergency Relief">Emergency Relief</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="font-bold block mb-1 text-slate-700">Status</label>
-                  <select
-                    value={campaignEditFormData.status}
-                    onChange={(e) => setCampaignEditFormData({ ...campaignEditFormData, status: e.target.value as any })}
-                    className="w-full px-3 py-2 border rounded-xl bg-white font-semibold"
-                  >
-                    <option value="active">Active (চলমান)</option>
-                    <option value="upcoming">Upcoming (আসন্ন)</option>
-                    <option value="completed">Completed (সম্পন্ন)</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="font-bold block mb-1 text-slate-700">Date / Timeline</label>
-                  <input
-                    type="text"
-                    value={campaignEditFormData.date}
-                    onChange={(e) => setCampaignEditFormData({ ...campaignEditFormData, date: e.target.value })}
-                    placeholder="e.g. Winter Season 2026"
-                    className="w-full px-3 py-2 border rounded-xl"
-                  />
-                </div>
-                <div>
-                  <label className="font-bold block mb-1 text-slate-700">Target Budget (BDT)</label>
-                  <input
-                    type="text"
-                    value={campaignEditFormData.targetAmountBDT}
-                    onChange={(e) => setCampaignEditFormData({ ...campaignEditFormData, targetAmountBDT: e.target.value })}
-                    placeholder="e.g. 50,000 BDT"
-                    className="w-full px-3 py-2 border rounded-xl font-mono"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="font-bold block mb-1 text-slate-700">Location (English)</label>
-                  <input
-                    type="text"
-                    value={campaignEditFormData.locationEn}
-                    onChange={(e) => setCampaignEditFormData({ ...campaignEditFormData, locationEn: e.target.value })}
-                    placeholder="e.g. Kurigram, Rangpur"
-                    className="w-full px-3 py-2 border rounded-xl"
-                  />
-                </div>
-                <div>
-                  <label className="font-bold block mb-1 text-slate-700">Location (বাংলা)</label>
-                  <input
-                    type="text"
-                    value={campaignEditFormData.locationBn}
-                    onChange={(e) => setCampaignEditFormData({ ...campaignEditFormData, locationBn: e.target.value })}
-                    placeholder="যেমন: কুড়িগ্রাম, রংপুর"
-                    className="w-full px-3 py-2 border rounded-xl"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="font-bold block mb-1 text-slate-700">Description (English) *</label>
-                <textarea
-                  required
-                  rows={2}
-                  value={campaignEditFormData.descriptionEn}
-                  onChange={(e) => setCampaignEditFormData({ ...campaignEditFormData, descriptionEn: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-xl"
-                />
-              </div>
-
-              <div>
-                <label className="font-bold block mb-1 text-slate-700">Description (বাংলা)</label>
-                <textarea
-                  rows={2}
-                  value={campaignEditFormData.descriptionBn}
-                  onChange={(e) => setCampaignEditFormData({ ...campaignEditFormData, descriptionBn: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-xl"
-                />
-              </div>
-
-              <div>
-                <label className="font-bold block mb-1 text-slate-700">Image URL</label>
-                <input
-                  type="text"
-                  value={campaignEditFormData.imageUrl}
-                  onChange={(e) => setCampaignEditFormData({ ...campaignEditFormData, imageUrl: e.target.value })}
-                  placeholder="https://... or /images/events/winter-warmth.jpg"
-                  className="w-full px-3 py-2 border rounded-xl font-mono text-[11px]"
-                />
-              </div>
-
-              <div className="flex items-center gap-2 pt-1">
-                <input
-                  type="checkbox"
-                  id="featuredCampaignToggle"
-                  checked={campaignEditFormData.isFeatured}
-                  onChange={(e) => setCampaignEditFormData({ ...campaignEditFormData, isFeatured: e.target.checked })}
-                  className="w-4 h-4 text-teal-800 rounded"
-                />
-                <label htmlFor="featuredCampaignToggle" className="font-bold text-slate-800 cursor-pointer">
-                  Feature on Homepage
-                </label>
-              </div>
-
-              <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowEditCampaignModal(false);
-                    setEditingCampaignId(null);
-                  }}
-                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold"
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="px-6 py-2 bg-teal-800 hover:bg-teal-900 text-white rounded-xl font-bold">
-                  Update Campaign
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Modal: Add Partner */}
-      {showAddPartnerModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
-          <div className="bg-white rounded-3xl border border-slate-200 max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl">
-            <h3 className="text-xl font-bold text-slate-900">Add Institutional Partner</h3>
-            <form onSubmit={handleCreatePartnerSubmit} className="space-y-4 text-xs">
-              <div>
-                <label className="font-bold block mb-1">Partner Organization Name *</label>
-                <input
-                  type="text"
-                  required
-                  value={newPartner.name}
-                  onChange={(e) => setNewPartner({ ...newPartner, name: e.target.value })}
-                  placeholder="e.g. University Youth Welfare Club"
-                  className="w-full px-3 py-2 border rounded-xl"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="font-bold block mb-1">Category</label>
-                  <select
-                    value={newPartner.type}
-                    onChange={(e) => setNewPartner({ ...newPartner, type: e.target.value as any })}
-                    className="w-full px-3 py-2 border rounded-xl bg-white"
-                  >
-                    <option value="Institutional">Institutional</option>
-                    <option value="Academic">Academic</option>
-                    <option value="Community Alliance">Community Alliance</option>
-                    <option value="Resource Partner">Resource Partner</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="font-bold block mb-1">Partnership Year</label>
-                  <input
-                    type="text"
-                    value={newPartner.partnershipYear}
-                    onChange={(e) => setNewPartner({ ...newPartner, partnershipYear: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-xl"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="font-bold block mb-1">Website URL</label>
-                <input
-                  type="text"
-                  value={newPartner.website}
-                  onChange={(e) => setNewPartner({ ...newPartner, website: e.target.value })}
-                  placeholder="https://..."
-                  className="w-full px-3 py-2 border rounded-xl font-mono"
-                />
-              </div>
-              <div>
-                <label className="font-bold block mb-1">Description (English) *</label>
-                <textarea
-                  required
-                  rows={2}
-                  value={newPartner.descEn}
-                  onChange={(e) => setNewPartner({ ...newPartner, descEn: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-xl"
-                />
-              </div>
-              <div className="flex justify-end gap-3 pt-4 border-t">
-                <button
-                  type="button"
-                  onClick={() => setShowAddPartnerModal(false)}
-                  className="px-4 py-2 bg-slate-100 rounded-xl font-bold"
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="px-6 py-2 bg-teal-800 text-white rounded-xl font-bold">
-                  Add Partner
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Modal: Add Video */}
-      {showAddVideoModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
-          <div className="bg-white rounded-3xl border border-slate-200 max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl">
-            <h3 className="text-xl font-bold text-slate-900">Add Video Documentary</h3>
-            <form onSubmit={handleCreateVideoSubmit} className="space-y-4 text-xs">
-              <div>
-                <label className="font-bold block mb-1">Video Title (English) *</label>
-                <input
-                  type="text"
-                  required
-                  value={newVideo.titleEn}
-                  onChange={(e) => setNewVideo({ ...newVideo, titleEn: e.target.value })}
-                  placeholder="e.g. Team Infinity Youth Volunteer Orientation"
-                  className="w-full px-3 py-2 border rounded-xl"
-                />
-              </div>
-              <div>
-                <label className="font-bold block mb-1">Video URL (YouTube or Facebook) *</label>
-                <input
-                  type="text"
-                  required
-                  value={newVideo.videoUrl}
-                  onChange={(e) => setNewVideo({ ...newVideo, videoUrl: e.target.value })}
-                  placeholder="https://www.youtube.com/watch?v=..."
-                  className="w-full px-3 py-2 border rounded-xl font-mono"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="font-bold block mb-1">Platform</label>
-                  <select
-                    value={newVideo.platform}
-                    onChange={(e) => setNewVideo({ ...newVideo, platform: e.target.value as any })}
-                    className="w-full px-3 py-2 border rounded-xl bg-white"
-                  >
-                    <option value="youtube">YouTube</option>
-                    <option value="facebook">Facebook</option>
-                    <option value="direct">Direct Upload</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="font-bold block mb-1">Duration</label>
-                  <input
-                    type="text"
-                    value={newVideo.duration}
-                    onChange={(e) => setNewVideo({ ...newVideo, duration: e.target.value })}
-                    placeholder="3:45"
-                    className="w-full px-3 py-2 border rounded-xl"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="font-bold block mb-1">Description *</label>
-                <textarea
-                  required
-                  rows={2}
-                  value={newVideo.descEn}
-                  onChange={(e) => setNewVideo({ ...newVideo, descEn: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-xl"
-                />
-              </div>
-              <div className="flex justify-end gap-3 pt-4 border-t">
-                <button
-                  type="button"
-                  onClick={() => setShowAddVideoModal(false)}
-                  className="px-4 py-2 bg-slate-100 rounded-xl font-bold"
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="px-6 py-2 bg-teal-800 text-white rounded-xl font-bold">
-                  Save Video
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Modal: Add Story */}
-      {showAddStoryModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
-          <div className="bg-white rounded-3xl border border-slate-200 max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl">
-            <h3 className="text-xl font-bold text-slate-900">Add Impact Story</h3>
-            <form onSubmit={handleCreateStorySubmit} className="space-y-4 text-xs">
-              <div>
-                <label className="font-bold block mb-1">Story Title (English) *</label>
-                <input
-                  type="text"
-                  required
-                  value={newStory.titleEn}
-                  onChange={(e) => setNewStory({ ...newStory, titleEn: e.target.value })}
-                  placeholder="e.g. The Smile of a Young Student"
-                  className="w-full px-3 py-2 border rounded-xl"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="font-bold block mb-1">Person / Community *</label>
-                  <input
-                    type="text"
-                    required
-                    value={newStory.personEn}
-                    onChange={(e) => setNewStory({ ...newStory, personEn: e.target.value })}
-                    placeholder="e.g. 9-year-old student"
-                    className="w-full px-3 py-2 border rounded-xl"
-                  />
-                </div>
-                <div>
-                  <label className="font-bold block mb-1">Location</label>
-                  <input
-                    type="text"
-                    value={newStory.locationEn}
-                    onChange={(e) => setNewStory({ ...newStory, locationEn: e.target.value })}
-                    placeholder="Dhaka, Bangladesh"
-                    className="w-full px-3 py-2 border rounded-xl"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="font-bold block mb-1">Story Narrative (English) *</label>
-                <textarea
-                  required
-                  rows={3}
-                  value={newStory.storyEn}
-                  onChange={(e) => setNewStory({ ...newStory, storyEn: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-xl"
-                />
-              </div>
-              <div>
-                <label className="font-bold block mb-1">Measured Impact (English) *</label>
-                <input
-                  type="text"
-                  required
-                  value={newStory.impactEn}
-                  onChange={(e) => setNewStory({ ...newStory, impactEn: e.target.value })}
-                  placeholder="e.g. Continued regular schooling with academic supplies"
-                  className="w-full px-3 py-2 border rounded-xl"
-                />
-              </div>
-              <div className="flex items-center gap-2 pt-2">
-                <input
-                  type="checkbox"
-                  id="consent"
-                  checked={newStory.consentConfirmed}
-                  onChange={(e) => setNewStory({ ...newStory, consentConfirmed: e.target.checked })}
-                />
-                <label htmlFor="consent" className="text-[11px] text-slate-700">
-                  Beneficiary consent confirmed in accordance with humanitarian dignity policy.
-                </label>
-              </div>
-              <div className="flex justify-end gap-3 pt-4 border-t">
-                <button
-                  type="button"
-                  onClick={() => setShowAddStoryModal(false)}
-                  className="px-4 py-2 bg-slate-100 rounded-xl font-bold"
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="px-6 py-2 bg-teal-800 text-white rounded-xl font-bold">
-                  Publish Story
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Modal: Add Donation */}
-      {showAddDonationModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
-          <div className="bg-white rounded-3xl border border-slate-200 max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl">
-            <h3 className="text-xl font-bold text-slate-900">Record Offline / Manual Donation</h3>
-            <form onSubmit={handleCreateDonationSubmit} className="space-y-4 text-xs">
-              <div>
-                <label className="font-bold block mb-1">Donor Name *</label>
-                <input
-                  type="text"
-                  required
-                  value={newDonation.donorName}
-                  onChange={(e) => setNewDonation({ ...newDonation, donorName: e.target.value })}
-                  placeholder="e.g. Hasan Mahmud"
-                  className="w-full px-3 py-2 border rounded-xl"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="font-bold block mb-1">Amount (BDT) *</label>
-                  <input
-                    type="number"
-                    required
-                    value={newDonation.amountBDT}
-                    onChange={(e) => setNewDonation({ ...newDonation, amountBDT: Number(e.target.value) })}
-                    className="w-full px-3 py-2 border rounded-xl font-mono"
-                  />
-                </div>
-                <div>
-                  <label className="font-bold block mb-1">Payment Channel</label>
-                  <select
-                    value={newDonation.paymentMethod}
-                    onChange={(e) => setNewDonation({ ...newDonation, paymentMethod: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-xl bg-white"
-                  >
-                    <option value="bKash">bKash</option>
-                    <option value="Nagad">Nagad</option>
-                    <option value="Bank Transfer">Bank Transfer</option>
-                    <option value="In-Kind / Physical Support">In-Kind / Physical</option>
-                  </select>
-                </div>
-              </div>
-              <div>
-                <label className="font-bold block mb-1">Transaction ID / Slip Ref</label>
-                <input
-                  type="text"
-                  value={newDonation.transactionId}
-                  onChange={(e) => setNewDonation({ ...newDonation, transactionId: e.target.value })}
-                  placeholder="e.g. TRX89274619"
-                  className="w-full px-3 py-2 border rounded-xl font-mono"
-                />
-              </div>
-              <div className="flex justify-end gap-3 pt-4 border-t">
-                <button
-                  type="button"
-                  onClick={() => setShowAddDonationModal(false)}
-                  className="px-4 py-2 bg-slate-100 rounded-xl font-bold"
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="px-6 py-2 bg-teal-800 text-white rounded-xl font-bold">
-                  Save Record
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL: ADD / EDIT COMMITTEE MEMBER */}
-      {(showAddMemberModal || showEditMemberModal) && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
-          <div className="bg-white rounded-3xl border border-slate-200 max-w-lg w-full p-6 sm:p-8 space-y-5 shadow-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-xl font-bold text-slate-900">
-                {showEditMemberModal ? 'Edit Committee Member' : 'Add Member to Roster'}
-              </h3>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowAddMemberModal(false);
-                  setShowEditMemberModal(false);
-                }}
-                className="text-slate-400 hover:text-slate-600 p-1"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveMemberSubmit} className="space-y-4 text-xs">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="font-bold block mb-1 text-slate-700">Full Name (English) *</label>
-                  <input
-                    type="text"
-                    required
-                    value={memberFormData.fullName}
-                    onChange={(e) => setMemberFormData({ ...memberFormData, fullName: e.target.value })}
-                    placeholder="e.g. Md. Shahidul Alam Sakib"
-                    className="w-full px-3 py-2 border rounded-xl"
-                  />
-                </div>
-                <div>
-                  <label className="font-bold block mb-1 text-slate-700">Bangla Name (বাংলা) *</label>
-                  <input
-                    type="text"
-                    required
-                    value={memberFormData.banglaName}
-                    onChange={(e) => setMemberFormData({ ...memberFormData, banglaName: e.target.value })}
-                    placeholder="e.g. মোঃ শাহিদুল আলম সাকিব"
-                    className="w-full px-3 py-2 border rounded-xl"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="font-bold block mb-1 text-slate-700">Position / Designation *</label>
-                  <select
-                    value={memberFormData.positionId}
-                    onChange={(e) => setMemberFormData({ ...memberFormData, positionId: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-xl bg-white"
-                  >
-                    {positions.map((pos) => (
-                      <option key={pos.id} value={pos.id}>
-                        {pos.name.en} ({pos.name.bn}) [Tier {pos.level}]
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="font-bold block mb-1 text-slate-700">Official Serial # (ক্রমিক) *</label>
-                  <input
-                    type="number"
-                    required
-                    min={1}
-                    value={memberFormData.serialNumber}
-                    onChange={(e) => setMemberFormData({ ...memberFormData, serialNumber: Number(e.target.value) })}
-                    className="w-full px-3 py-2 border rounded-xl font-mono"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="font-bold block mb-1 text-slate-700">District / Home City</label>
-                  <input
-                    type="text"
-                    value={memberFormData.district}
-                    onChange={(e) => setMemberFormData({ ...memberFormData, district: e.target.value })}
-                    placeholder="e.g. Dhaka / Chattogram"
-                    className="w-full px-3 py-2 border rounded-xl"
-                  />
-                </div>
-                <div>
-                  <label className="font-bold block mb-1 text-slate-700">Photo URL / File</label>
-                  <input
-                    type="text"
-                    value={memberFormData.photoUrl}
-                    onChange={(e) => setMemberFormData({ ...memberFormData, photoUrl: e.target.value })}
-                    placeholder="https://... or choose file below"
-                    className="w-full px-3 py-2 border rounded-xl font-mono text-[11px]"
-                  />
-                </div>
-              </div>
-
-              {/* Photo Upload from PC & Visual Alignment Tool */}
-              <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div>
-                    <span className="font-bold text-slate-900 text-xs block">
-                      {isBn ? 'ছবি আপলোড ও পজিশনিং (ক্রপ / উপর-নিচ / জুম)' : 'Photo Upload & Alignment (Pan / Zoom / Crop)'}
-                    </span>
-                    <span className="text-[11px] text-slate-500">
-                      {isBn ? 'পিসি থেকে সরাসরি ছবি দিন এবং মুখমণ্ডল নিখুঁতভাবে ফ্রেম করুন।' : 'Upload from PC and align headshot position.'}
-                    </span>
+                  {/* JSON Backup Export */}
+                  <div className="p-5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-3">
+                    <div className="w-10 h-10 rounded-2xl bg-[#E6F3EF] text-[#006A4E] flex items-center justify-center font-bold">
+                      <Download className="w-5 h-5" />
+                    </div>
+                    <h3 className="font-bold text-sm text-slate-900">Export Complete JSON Backup</h3>
+                    <p className="text-xs text-slate-500">Download a full timestamped JSON backup containing all 20+ tables and settings.</p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const jsonStr = exportDatabaseJSON();
+                        const blob = new Blob([jsonStr], { type: 'application/json' });
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = `infinity_bangladesh_backup_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+                        link.click();
+                        URL.revokeObjectURL(url);
+                        showToast('Database JSON backup downloaded');
+                      }}
+                      className="px-4 py-2 rounded-xl bg-[#006A4E] hover:bg-[#00523C] text-white font-bold text-xs shadow-warm-sm cursor-pointer"
+                    >
+                      Download Backup (.JSON)
+                    </button>
                   </div>
 
-                  <label className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-teal-800 hover:bg-teal-900 text-white rounded-xl text-xs font-bold cursor-pointer transition-colors shadow-xs shrink-0">
-                    <Upload className="w-3.5 h-3.5" />
-                    <span>{isBn ? 'পিসি থেকে ছবি দিন' : 'Upload from PC'}</span>
+                  {/* JSON Restore */}
+                  <div className="p-5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-3">
+                    <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center font-bold">
+                      <Upload className="w-5 h-5" />
+                    </div>
+                    <h3 className="font-bold text-sm text-slate-900">Restore from JSON File</h3>
+                    <p className="text-xs text-slate-500">Restore all CMS entities and tables from a previous JSON snapshot.</p>
                     <input
                       type="file"
-                      accept="image/png,image/jpeg,image/webp,image/jpg"
-                      onChange={handlePhotoFileUpload}
-                      className="hidden"
+                      accept=".json"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onload = (ev) => {
+                            const content = ev.target?.result as string;
+                            if (content && importDatabaseJSON(content)) {
+                              showToast('Database successfully restored from JSON snapshot!');
+                            } else {
+                              alert('Invalid JSON backup file structure.');
+                            }
+                          };
+                          reader.readAsText(file);
+                        }
+                      }}
+                      className="text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
                     />
-                  </label>
-                </div>
-
-                {/* Live Preview and Sliders */}
-                {memberFormData.photoUrl ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 pt-2 border-t border-slate-200/80 items-center">
-                    {/* Live Preview Box */}
-                    <div className="sm:col-span-4 flex flex-col items-center justify-center p-3 bg-white rounded-xl border border-slate-200 shadow-2xs">
-                      <div className="w-20 h-24 rounded-t-full rounded-b-lg overflow-hidden bg-slate-900 border-2 border-teal-600 shadow-inner flex items-center justify-center mb-1">
-                        <img
-                          src={getAssetUrl(memberFormData.photoUrl)}
-                          alt="Alignment preview"
-                          className="w-full h-full object-cover select-none pointer-events-none transition-all duration-75"
-                          style={{
-                            objectPosition: `${memberFormData.photoPosX}% ${memberFormData.photoPosY}%`,
-                            transform: `scale(${memberFormData.photoZoom})`
-                          }}
-                        />
-                      </div>
-                      <span className="text-[10px] font-bold text-teal-800 uppercase tracking-wider">
-                        {isBn ? 'লাইভ প্রিভিউ' : 'Live Card Preview'}
-                      </span>
-                    </div>
-
-                    {/* Sliders and Presets */}
-                    <div className="sm:col-span-8 space-y-2.5">
-                      {/* Vertical Slider */}
-                      <div>
-                        <div className="flex justify-between items-center text-[11px] mb-1">
-                          <span className="font-semibold text-slate-700">
-                            {isBn ? 'উপর-নিচ পজিশন (Vertical Pan)' : 'Vertical Pan (Up / Down)'}
-                          </span>
-                          <span className="font-mono text-teal-800 font-bold">{memberFormData.photoPosY}%</span>
-                        </div>
-                        <input
-                          type="range"
-                          min={0}
-                          max={100}
-                          value={memberFormData.photoPosY}
-                          onChange={(e) => setMemberFormData({ ...memberFormData, photoPosY: Number(e.target.value) })}
-                          className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-teal-800"
-                        />
-                      </div>
-
-                      {/* Horizontal Slider */}
-                      <div>
-                        <div className="flex justify-between items-center text-[11px] mb-1">
-                          <span className="font-semibold text-slate-700">
-                            {isBn ? 'ডান-বায়ে পজিশন (Horizontal Pan)' : 'Horizontal Pan (Left / Right)'}
-                          </span>
-                          <span className="font-mono text-teal-800 font-bold">{memberFormData.photoPosX}%</span>
-                        </div>
-                        <input
-                          type="range"
-                          min={0}
-                          max={100}
-                          value={memberFormData.photoPosX}
-                          onChange={(e) => setMemberFormData({ ...memberFormData, photoPosX: Number(e.target.value) })}
-                          className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-teal-800"
-                        />
-                      </div>
-
-                      {/* Zoom Slider */}
-                      <div>
-                        <div className="flex justify-between items-center text-[11px] mb-1">
-                          <span className="font-semibold text-slate-700">
-                            {isBn ? 'জুম / স্কেল (Zoom Scale)' : 'Zoom / Scale'}
-                          </span>
-                          <span className="font-mono text-teal-800 font-bold">{memberFormData.photoZoom.toFixed(1)}x</span>
-                        </div>
-                        <input
-                          type="range"
-                          min={1.0}
-                          max={2.0}
-                          step={0.05}
-                          value={memberFormData.photoZoom}
-                          onChange={(e) => setMemberFormData({ ...memberFormData, photoZoom: Number(e.target.value) })}
-                          className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-teal-800"
-                        />
-                      </div>
-
-                      {/* Quick Presets */}
-                      <div className="flex items-center gap-1.5 pt-1">
-                        <span className="text-[10px] text-slate-500 font-medium">{isBn ? 'প্রিসেট:' : 'Presets:'}</span>
-                        <button
-                          type="button"
-                          onClick={() => setMemberFormData({ ...memberFormData, photoPosX: 50, photoPosY: 10, photoZoom: 1.0 })}
-                          className="px-2 py-0.5 bg-white hover:bg-slate-100 border border-slate-200 rounded text-[10px] font-bold text-slate-700"
-                        >
-                          {isBn ? 'মাথা উপরে' : 'Head Focus (10%)'}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setMemberFormData({ ...memberFormData, photoPosX: 50, photoPosY: 30, photoZoom: 1.0 })}
-                          className="px-2 py-0.5 bg-white hover:bg-slate-100 border border-slate-200 rounded text-[10px] font-bold text-slate-700"
-                        >
-                          {isBn ? 'বক্ষদেশ' : 'Bust (30%)'}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setMemberFormData({ ...memberFormData, photoPosX: 50, photoPosY: 50, photoZoom: 1.0 })}
-                          className="px-2 py-0.5 bg-white hover:bg-slate-100 border border-slate-200 rounded text-[10px] font-bold text-slate-700"
-                        >
-                          {isBn ? 'মাঝখান' : 'Center (50%)'}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setMemberFormData({ ...memberFormData, photoPosX: 50, photoPosY: 15, photoZoom: 1.0 })}
-                          className="px-2 py-0.5 bg-slate-200 hover:bg-slate-300 rounded text-[10px] font-bold text-slate-800 ml-auto"
-                        >
-                          {isBn ? 'রিসেট' : 'Reset'}
-                        </button>
-                      </div>
-                    </div>
                   </div>
-                ) : (
-                  <div className="p-3 text-center text-slate-400 text-xs bg-white rounded-xl border border-dashed border-slate-200">
-                    {isBn ? 'ছবি নির্বাচন করলে এখানে লাইভ ফ্রেম ও পজিশন নিয়ন্ত্রণ টুল প্রদর্শিত হবে।' : 'Select or upload a photo to enable visual alignment & zoom controls.'}
+                </div>
+
+                {/* Factory Reset */}
+                <div className="p-5 rounded-2xl bg-rose-50 border border-rose-200 space-y-3">
+                  <div className="flex items-center gap-2 text-rose-800 font-bold text-sm">
+                    <AlertCircle className="w-4 h-4" />
+                    <span>Reset All Data to Authoritative Verified Defaults</span>
                   </div>
-                )}
-              </div>
-
-              <div>
-                <label className="font-bold block mb-1 text-slate-700">Short Bio (English)</label>
-                <textarea
-                  rows={2}
-                  value={memberFormData.shortBioEn}
-                  onChange={(e) => setMemberFormData({ ...memberFormData, shortBioEn: e.target.value })}
-                  placeholder="Dedicated leader overseeing field operations..."
-                  className="w-full px-3 py-2 border rounded-xl"
-                />
-              </div>
-
-              <div>
-                <label className="font-bold block mb-1 text-slate-700">Short Bio (বাংলা)</label>
-                <textarea
-                  rows={2}
-                  value={memberFormData.shortBioBn}
-                  onChange={(e) => setMemberFormData({ ...memberFormData, shortBioBn: e.target.value })}
-                  placeholder="টিম ইনফিনিটির সমাজসেবা কার্যক্রমে নিবেদিত প্রাণ..."
-                  className="w-full px-3 py-2 border rounded-xl"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="font-bold block mb-1 text-slate-700">Facebook URL</label>
-                  <input
-                    type="text"
-                    value={memberFormData.facebookUrl}
-                    onChange={(e) => setMemberFormData({ ...memberFormData, facebookUrl: e.target.value })}
-                    placeholder="https://facebook.com/..."
-                    className="w-full px-3 py-2 border rounded-xl"
-                  />
-                </div>
-                <div>
-                  <label className="font-bold block mb-1 text-slate-700">LinkedIn URL</label>
-                  <input
-                    type="text"
-                    value={memberFormData.linkedinUrl}
-                    onChange={(e) => setMemberFormData({ ...memberFormData, linkedinUrl: e.target.value })}
-                    placeholder="https://linkedin.com/in/..."
-                    className="w-full px-3 py-2 border rounded-xl"
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 pt-2">
-                <input
-                  type="checkbox"
-                  id="featuredLeaderToggle"
-                  checked={memberFormData.isFeaturedLeader}
-                  onChange={(e) => setMemberFormData({ ...memberFormData, isFeaturedLeader: e.target.checked })}
-                  className="w-4 h-4 text-teal-800 rounded"
-                />
-                <label htmlFor="featuredLeaderToggle" className="font-bold text-slate-800 cursor-pointer">
-                  Feature in "Meet Team Infinity" Homepage Showcase
-                </label>
-              </div>
-
-              <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowAddMemberModal(false);
-                    setShowEditMemberModal(false);
-                  }}
-                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold"
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="px-6 py-2 bg-teal-800 hover:bg-teal-900 text-white rounded-xl font-bold">
-                  {showEditMemberModal ? 'Update Member' : 'Save Member'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL: ADD COMMITTEE */}
-      {showAddCommitteeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
-          <div className="bg-white rounded-3xl border border-slate-200 max-w-lg w-full p-6 sm:p-8 space-y-5 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-xl font-bold text-slate-900">Create New Committee Council</h3>
-              <button
-                type="button"
-                onClick={() => setShowAddCommitteeModal(false)}
-                className="text-slate-400 hover:text-slate-600 p-1"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleCreateCommitteeSubmit} className="space-y-4 text-xs">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="font-bold block mb-1 text-slate-700">Tenure Year / Term *</label>
-                  <input
-                    type="text"
-                    required
-                    value={newCommitteeData.year}
-                    onChange={(e) => setNewCommitteeData({ ...newCommitteeData, year: e.target.value })}
-                    placeholder="e.g. 2027"
-                    className="w-full px-3 py-2 border rounded-xl font-mono"
-                  />
-                </div>
-                <div>
-                  <label className="font-bold block mb-1 text-slate-700">Committee Type *</label>
-                  <select
-                    value={newCommitteeData.type}
-                    onChange={(e) => setNewCommitteeData({ ...newCommitteeData, type: e.target.value as any })}
-                    className="w-full px-3 py-2 border rounded-xl bg-white"
+                  <p className="text-xs text-rose-700">
+                    Warning: This will reset all homepage configs, committee rosters, campaigns, and settings back to verified 2015–2026 official organization defaults.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (confirm('Are you sure you want to factory reset all data to default verified records?')) {
+                        resetToDefaultData();
+                        showToast('All data reset to official organization defaults');
+                      }
+                    }}
+                    className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-warm-sm cursor-pointer"
                   >
-                    <option value="EXECUTIVE">Executive Council</option>
-                    <option value="STANDING">Standing Committee</option>
-                    <option value="ADVISORY">Advisory Board</option>
-                    <option value="PAST">Past Term Archive</option>
-                    <option value="SPECIAL">Special Committee</option>
-                  </select>
+                    Reset to Verified Factory Defaults
+                  </button>
                 </div>
               </div>
-
-              <div>
-                <label className="font-bold block mb-1 text-slate-700">Committee Title (English) *</label>
-                <input
-                  type="text"
-                  required
-                  value={newCommitteeData.nameEn}
-                  onChange={(e) => setNewCommitteeData({ ...newCommitteeData, nameEn: e.target.value })}
-                  placeholder="e.g. Executive Committee 2027"
-                  className="w-full px-3 py-2 border rounded-xl"
-                />
-              </div>
-
-              <div>
-                <label className="font-bold block mb-1 text-slate-700">Committee Title (বাংলা) *</label>
-                <input
-                  type="text"
-                  required
-                  value={newCommitteeData.nameBn}
-                  onChange={(e) => setNewCommitteeData({ ...newCommitteeData, nameBn: e.target.value })}
-                  placeholder="e.g. কার্যনির্বাহী পরিষদ ২০২৭"
-                  className="w-full px-3 py-2 border rounded-xl"
-                />
-              </div>
-
-              <div>
-                <label className="font-bold block mb-1 text-slate-700">Description (English)</label>
-                <textarea
-                  rows={2}
-                  value={newCommitteeData.descriptionEn}
-                  onChange={(e) => setNewCommitteeData({ ...newCommitteeData, descriptionEn: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-xl"
-                />
-              </div>
-
-              <div>
-                <label className="font-bold block mb-1 text-slate-700">Status</label>
-                <select
-                  value={newCommitteeData.status}
-                  onChange={(e) => setNewCommitteeData({ ...newCommitteeData, status: e.target.value as any })}
-                  className="w-full px-3 py-2 border rounded-xl bg-white"
-                >
-                  <option value="ACTIVE">Active (Current Governing Body)</option>
-                  <option value="ARCHIVED">Archived (Historical Record)</option>
-                  <option value="DRAFT">Draft</option>
-                </select>
-              </div>
-
-              <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={() => setShowAddCommitteeModal(false)}
-                  className="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl font-bold"
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="px-6 py-2 bg-teal-800 hover:bg-teal-900 text-white rounded-xl font-bold">
-                  Create Committee
-                </button>
-              </div>
-            </form>
+            )}
           </div>
         </div>
-      )}
+      </div>
 
-      {/* MODAL: ADD POSITION */}
-      {showAddPositionModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
-          <div className="bg-white rounded-3xl border border-slate-200 max-w-md w-full p-6 sm:p-8 space-y-5 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-xl font-bold text-slate-900">Add Designation / Position</h3>
-              <button
-                type="button"
-                onClick={() => setShowAddPositionModal(false)}
-                className="text-slate-400 hover:text-slate-600 p-1"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleCreatePositionSubmit} className="space-y-4 text-xs">
-              <div>
-                <label className="font-bold block mb-1 text-slate-700">Position Title (English) *</label>
-                <input
-                  type="text"
-                  required
-                  value={newPositionData.nameEn}
-                  onChange={(e) => setNewPositionData({ ...newPositionData, nameEn: e.target.value })}
-                  placeholder="e.g. Senior Assistant Secretary"
-                  className="w-full px-3 py-2 border rounded-xl"
-                />
-              </div>
-
-              <div>
-                <label className="font-bold block mb-1 text-slate-700">Position Title (বাংলা) *</label>
-                <input
-                  type="text"
-                  required
-                  value={newPositionData.nameBn}
-                  onChange={(e) => setNewPositionData({ ...newPositionData, nameBn: e.target.value })}
-                  placeholder="e.g. সিনিয়র সহকারী সম্পাদক"
-                  className="w-full px-3 py-2 border rounded-xl"
-                />
-              </div>
-
-              <div>
-                <label className="font-bold block mb-1 text-slate-700">Hierarchy Level *</label>
-                <select
-                  value={newPositionData.level}
-                  onChange={(e) => setNewPositionData({ ...newPositionData, level: Number(e.target.value) })}
-                  className="w-full px-3 py-2 border rounded-xl bg-white"
-                >
-                  <option value={1}>Level 1: President (শীর্ষ নেতৃত্ব)</option>
-                  <option value={2}>Level 2: Vice President / Senior VP (সহ-সভাপতি)</option>
-                  <option value={3}>Level 3: General Secretary (সাধারণ সম্পাদক)</option>
-                  <option value={4}>Level 4: Joint Secretary & Departmental Secretary (বিভাগীয় সম্পাদক)</option>
-                  <option value={5}>Level 5: Executive Member / Member (কার্যনির্বাহী সদস্য)</option>
-                </select>
-              </div>
-
-              <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={() => setShowAddPositionModal(false)}
-                  className="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl font-bold"
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="px-6 py-2 bg-teal-800 hover:bg-teal-900 text-white rounded-xl font-bold">
-                  Save Position
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Global Toast */}
-      <Toast
-        isOpen={showToast}
-        message={toastMsg}
-        onClose={() => setShowToast(false)}
-        type="success"
+      {/* Universal Media Picker Modal */}
+      <MediaPickerModal
+        isOpen={mediaPickerOpen}
+        onClose={() => setMediaPickerOpen(false)}
+        onSelectMedia={(url) => {
+          if (mediaPickerCallback) {
+            mediaPickerCallback(url);
+          }
+          setMediaPickerOpen(false);
+        }}
       />
+
+      {/* Toast Notification */}
+      {toastMessage && <Toast message={toastMessage} onClose={() => setToastMessage(null)} />}
     </div>
   );
 };

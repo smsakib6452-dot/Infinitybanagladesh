@@ -15,18 +15,41 @@ import {
   Mail,
   ArrowRight,
   Sparkles,
-  Lock
+  Lock,
+  ExternalLink,
+  MessageSquare
 } from 'lucide-react';
-import { PageRoute } from '../types';
+import { PageRoute, SocialPlatform } from '../types';
 
 export const Footer: React.FC = () => {
-  const { isBn } = useLanguage();
+  const { isBn, tText } = useLanguage();
   const { navigate } = useRouter();
-  const { settings, programs } = useData();
+  const { footerSettings, socialLinks, settings, programs } = useData();
 
   const handleNav = (page: PageRoute, slug?: string) => {
     navigate(page, slug);
   };
+
+  const renderSocialIcon = (platform: SocialPlatform) => {
+    switch (platform) {
+      case 'facebook':
+        return <Facebook className="w-4 h-4" />;
+      case 'youtube':
+        return <Youtube className="w-4 h-4" />;
+      case 'instagram':
+        return <Instagram className="w-4 h-4" />;
+      case 'linkedin':
+        return <Linkedin className="w-4 h-4" />;
+      case 'whatsapp':
+        return <MessageSquare className="w-4 h-4" />;
+      default:
+        return <ExternalLink className="w-4 h-4" />;
+    }
+  };
+
+  const activeSocials = socialLinks
+    .filter(s => s.active)
+    .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
 
   return (
     <footer className="bg-[#11241E] text-emerald-100 border-t border-emerald-900/60">
@@ -82,9 +105,7 @@ export const Footer: React.FC = () => {
           <div className="lg:col-span-2 space-y-4">
             <BrandLogo variant="light" size="lg" />
             <p className="text-xs sm:text-sm text-emerald-200/80 leading-relaxed pr-4">
-              {isBn
-                ? 'ইনফিনিটি বাংলাদেশ (টিম ইনফিনিটি) একটি তারুণ্যনির্ভর অলাভজনক সামাজিক ও মানবিক সংগঠন। ২০১৫ সালে চট্টগ্রামের হাটহাজারী থেকে শুরু করে আজ দেশজুড়ে সুবিধাবঞ্চিত শিশু, অসহায় পরিবার ও দুর্যোগকবলিত মানুষের পাশে দাঁড়িয়ে মানবিক মর্যাদা প্রতিষ্ঠায় আমরা প্রতিজ্ঞাবদ্ধ।'
-                : 'Infinity Bangladesh (Team Infinity) is a youth-driven volunteer social organization founded in Hathazari, Chattogram in 2015. Dedicated to child education, festive Eid happiness, winter warmth, and community dignity across Bangladesh.'}
+              {tText(footerSettings.description)}
             </p>
 
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-emerald-950/60 border border-emerald-800/60 text-[11px] text-emerald-300 font-semibold">
@@ -97,223 +118,142 @@ export const Footer: React.FC = () => {
                 {isBn ? 'অফিসিয়াল সামাজিক মাধ্যম' : 'Official Social Channels'}
               </span>
               <div className="flex items-center gap-2.5">
-                <a
-                  href={settings.facebookUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-xl bg-emerald-950/80 hover:bg-[#006A4E] text-emerald-200 hover:text-white flex items-center justify-center transition-all border border-emerald-800/60 hover:scale-105"
-                  aria-label="Infinity Bangladesh Official Facebook"
-                  title="Official Facebook Page"
-                >
-                  <Facebook className="w-4 h-4" />
-                </a>
-                <a
-                  href={settings.youtubeUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-xl bg-emerald-950/80 hover:bg-rose-700 text-emerald-200 hover:text-white flex items-center justify-center transition-all border border-emerald-800/60 hover:scale-105"
-                  aria-label="YouTube Channel"
-                  title="YouTube"
-                >
-                  <Youtube className="w-4 h-4" />
-                </a>
-                <a
-                  href={settings.instagramUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-xl bg-emerald-950/80 hover:bg-pink-700 text-emerald-200 hover:text-white flex items-center justify-center transition-all border border-emerald-800/60 hover:scale-105"
-                  aria-label="Instagram Profile"
-                  title="Instagram"
-                >
-                  <Instagram className="w-4 h-4" />
-                </a>
-                <a
-                  href={settings.linkedinUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-xl bg-emerald-950/80 hover:bg-sky-700 text-emerald-200 hover:text-white flex items-center justify-center transition-all border border-emerald-800/60 hover:scale-105"
-                  aria-label="LinkedIn"
-                  title="LinkedIn"
-                >
-                  <Linkedin className="w-4 h-4" />
-                </a>
+                {activeSocials.map(soc => (
+                  <a
+                    key={soc.id}
+                    href={soc.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={soc.label || soc.platform}
+                    className="w-8 h-8 rounded-lg bg-emerald-950/80 hover:bg-[#006A4E] text-emerald-200 hover:text-white flex items-center justify-center border border-emerald-800/60 transition-colors"
+                  >
+                    {renderSocialIcon(soc.platform)}
+                  </a>
+                ))}
               </div>
             </div>
           </div>
 
-          {/* Col 2: Navigation / About */}
+          {/* Col 2: About & Leadership */}
           <div className="space-y-3">
-            <h3 className="text-white text-xs sm:text-sm font-extrabold tracking-wider uppercase">
-              {isBn ? 'সংগঠন' : 'Organization'}
-            </h3>
-            <ul className="space-y-2 text-xs sm:text-sm text-emerald-200/80">
+            <span className="text-xs font-extrabold text-white uppercase tracking-wider block">
+              {isBn ? 'সংগঠন ও পরিচয়' : 'About & Leadership'}
+            </span>
+            <ul className="space-y-2 text-xs text-emerald-200/80">
               <li>
-                <button
-                  type="button"
-                  onClick={() => handleNav('about')}
-                  className="hover:text-white transition-colors cursor-pointer"
-                >
-                  {isBn ? 'আমাদের পরিচয়' : 'Who We Are'}
+                <button type="button" onClick={() => handleNav('about/story')} className="hover:text-white transition-colors cursor-pointer">
+                  {isBn ? 'আমাদের গল্প ও যাত্রা' : 'Our Story & Journey'}
                 </button>
               </li>
               <li>
-                <button
-                  type="button"
-                  onClick={() => handleNav('about/mission-vision')}
-                  className="hover:text-white transition-colors cursor-pointer"
-                >
-                  {isBn ? 'লক্ষ্য ও উদ্দেশ্য' : 'Mission & Vision'}
+                <button type="button" onClick={() => handleNav('about/mission-vision')} className="hover:text-white transition-colors cursor-pointer">
+                  {isBn ? 'লক্ষ্য ও দর্শন' : 'Mission & Vision'}
                 </button>
               </li>
               <li>
-                <button
-                  type="button"
-                  onClick={() => handleNav('about/executive-committee')}
-                  className="hover:text-white font-semibold text-emerald-300 transition-colors cursor-pointer"
-                >
-                  {isBn ? 'কার্যনির্বাহী পরিষদ (২০২৬)' : 'Executive Committee 2026'}
+                <button type="button" onClick={() => handleNav('about/executive-committee')} className="hover:text-white transition-colors cursor-pointer">
+                  {isBn ? 'কার্যনির্বাহী কমিটি ২০২৬' : 'Executive Committee 2026'}
                 </button>
               </li>
               <li>
-                <button
-                  type="button"
-                  onClick={() => handleNav('about/standing-committees')}
-                  className="hover:text-white transition-colors cursor-pointer"
-                >
-                  {isBn ? 'স্থায়ী কমিটিসমূহ' : 'Standing Committees'}
+                <button type="button" onClick={() => handleNav('about/standing-committees')} className="hover:text-white transition-colors cursor-pointer">
+                  {isBn ? 'স্থায়ী কমিটি' : 'Standing Committees'}
                 </button>
               </li>
               <li>
-                <button
-                  type="button"
-                  onClick={() => handleNav('about/past-committees')}
-                  className="hover:text-white transition-colors cursor-pointer"
-                >
-                  {isBn ? 'প্রাক্তন কমিটি আর্কাইভ' : 'Past Committees'}
+                <button type="button" onClick={() => handleNav('about/past-committees')} className="hover:text-white transition-colors cursor-pointer">
+                  {isBn ? 'প্রাক্তন কমিটিসমূহ' : 'Past Committees Archive'}
                 </button>
               </li>
               <li>
-                <button
-                  type="button"
-                  onClick={() => handleNav('impact')}
-                  className="hover:text-white transition-colors cursor-pointer"
-                >
-                  {isBn ? 'প্রভাব ও ফলাফল' : 'Verified Impact'}
-                </button>
-              </li>
-              <li>
-                <button
-                  type="button"
-                  onClick={() => handleNav('stories')}
-                  className="hover:text-white transition-colors cursor-pointer"
-                >
-                  {isBn ? 'বাস্তব গল্প' : 'Impact Stories'}
+                <button type="button" onClick={() => handleNav('transparency')} className="hover:text-white transition-colors cursor-pointer">
+                  {isBn ? 'স্বচ্ছতা ও জবাবদিহিতা' : 'Transparency & Governance'}
                 </button>
               </li>
             </ul>
           </div>
 
-          {/* Col 3: Key Initiatives */}
+          {/* Col 3: Programs & Field Work */}
           <div className="space-y-3">
-            <h3 className="text-white text-xs sm:text-sm font-extrabold tracking-wider uppercase">
-              {isBn ? 'কার্যক্রম ও সেবা' : 'Key Initiatives'}
-            </h3>
-            <ul className="space-y-2 text-xs sm:text-sm text-emerald-200/80">
-              {programs.slice(0, 4).map((p) => (
+            <span className="text-xs font-extrabold text-white uppercase tracking-wider block">
+              {isBn ? 'কার্যক্রম ও ক্যাম্পেইন' : 'Field Initiatives'}
+            </span>
+            <ul className="space-y-2 text-xs text-emerald-200/80">
+              {programs.slice(0, 4).map(p => (
                 <li key={p.id}>
-                  <button
-                    type="button"
-                    onClick={() => handleNav('programs/detail', p.slug)}
-                    className="hover:text-white transition-colors text-left line-clamp-1 cursor-pointer"
-                  >
-                    {isBn ? p.title.bn : p.title.en}
+                  <button type="button" onClick={() => handleNav('programs/detail', p.slug)} className="hover:text-white transition-colors cursor-pointer text-left">
+                    {tText(p.title)}
                   </button>
                 </li>
               ))}
               <li>
-                <button
-                  type="button"
-                  onClick={() => handleNav('campaigns')}
-                  className="text-amber-300 hover:text-amber-200 font-bold inline-flex items-center gap-1 transition-colors pt-1 cursor-pointer"
-                >
-                  <span>{isBn ? 'সকল ক্যাম্পেইন দেখুন' : 'All Campaigns'}</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                <button type="button" onClick={() => handleNav('campaigns')} className="hover:text-white transition-colors cursor-pointer">
+                  {isBn ? 'সকল মানবিক ক্যাম্পেইন' : 'All Humanitarian Campaigns'}
+                </button>
+              </li>
+              <li>
+                <button type="button" onClick={() => handleNav('stories')} className="hover:text-white transition-colors cursor-pointer">
+                  {isBn ? 'বাস্তব জীবনের গল্প' : 'Impact Stories'}
                 </button>
               </li>
             </ul>
           </div>
 
-          {/* Col 4: Official Contacts & Transparency */}
+          {/* Col 4: Official Contact & Legal Info */}
           <div className="space-y-3">
-            <h3 className="text-white text-xs sm:text-sm font-extrabold tracking-wider uppercase">
-              {isBn ? 'স্বচ্ছতা ও যোগাযোগ' : 'Transparency & Contact'}
-            </h3>
-            <div className="space-y-2.5 text-xs text-emerald-200/80">
-              <div className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                <span>{settings.officialAddress}</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <Phone className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                <span>{settings.officialPhone}</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <Mail className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                <span className="break-all">{settings.officialEmail}</span>
-              </div>
-            </div>
-
-            <div className="pt-2">
-              <button
-                type="button"
-                onClick={() => handleNav('transparency')}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-emerald-950/80 hover:bg-emerald-900 text-emerald-200 hover:text-white text-xs font-bold border border-emerald-800/80 flex items-center justify-center gap-2 transition-colors cursor-pointer"
-              >
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                <span>{isBn ? 'স্বচ্ছতা নীতিমালা ও অডিট' : 'Transparency & Audit'}</span>
-              </button>
-            </div>
+            <span className="text-xs font-extrabold text-white uppercase tracking-wider block">
+              {isBn ? 'অফিসিয়াল যোগাযোগ' : 'Official Contact'}
+            </span>
+            <ul className="space-y-2.5 text-xs text-emerald-200/80">
+              <li className="flex items-start gap-2">
+                <MapPin className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                <span>{footerSettings.address || settings.officialAddress}</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Phone className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <a href={`tel:${footerSettings.phone || settings.officialPhone}`} className="hover:text-white transition-colors">
+                  {footerSettings.phone || settings.officialPhone}
+                </a>
+              </li>
+              <li className="flex items-center gap-2">
+                <Mail className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <a href={`mailto:${footerSettings.email || settings.officialEmail}`} className="hover:text-white transition-colors">
+                  {footerSettings.email || settings.officialEmail}
+                </a>
+              </li>
+              <li className="pt-2 border-t border-emerald-900/60">
+                <button
+                  type="button"
+                  onClick={() => handleNav('admin')}
+                  className="inline-flex items-center gap-1.5 text-[11px] text-emerald-300 hover:text-white transition-colors font-medium cursor-pointer"
+                >
+                  <Lock className="w-3 h-3 text-emerald-400" />
+                  <span>{isBn ? 'অ্যাডমিন পোর্টাল লগইন' : 'Admin CMS Portal'}</span>
+                </button>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
 
-      {/* 3. Bottom Legal & Official Digital Platform Strip */}
-      <div className="bg-[#0A1612] py-5 border-t border-emerald-950 text-xs text-emerald-300/70">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="text-center sm:text-left">
-            <p>
-              &copy; {new Date().getFullYear()}{' '}
-              <strong className="text-white">Infinity Bangladesh</strong> (Team Infinity).{' '}
-              <span>{isBn ? 'সর্বস্বত্ব সংরক্ষিত।' : 'All rights reserved.'}</span>
-            </p>
-            <p className="text-[11px] text-emerald-400/80 mt-0.5">
-              Tagline: <span className="text-white font-semibold">United for Humanity</span> &bull; Hathazari, Chattogram, Bangladesh (Est. 2015)
-            </p>
+      {/* 3. Bottom Legal Copyright Bar */}
+      <div className="bg-[#0A1612] py-4 border-t border-emerald-950 text-emerald-300/70 text-xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+          <div>
+            <p>{tText(footerSettings.copyrightText)}</p>
           </div>
 
-          <div className="flex items-center gap-4 text-xs">
-            <button
-              type="button"
-              onClick={() => handleNav('privacy')}
-              className="hover:text-white transition-colors cursor-pointer"
-            >
-              {isBn ? 'গোপনীয়তা নীতিমালা' : 'Privacy Policy'}
+          <div className="flex items-center gap-4 text-[11px]">
+            <button type="button" onClick={() => handleNav('transparency')} className="hover:text-white transition-colors">
+              {isBn ? 'প্রাইভেসি পলিসি' : 'Privacy Policy'}
             </button>
             <span>&bull;</span>
-            <button
-              type="button"
-              onClick={() => handleNav('terms')}
-              className="hover:text-white transition-colors cursor-pointer"
-            >
-              {isBn ? 'ব্যবহারের শর্তাবলী' : 'Terms & Conditions'}
+            <button type="button" onClick={() => handleNav('transparency')} className="hover:text-white transition-colors">
+              {isBn ? 'টার্মস অ্যান্ড কন্ডিশন' : 'Terms & Verification'}
             </button>
-            <button
-              type="button"
-              onClick={() => handleNav('admin')}
-              className="text-emerald-950 hover:text-emerald-700 transition-colors p-1 cursor-default opacity-40 hover:opacity-100"
-              title=""
-            >
-              <Lock className="w-3 h-3" />
+            <span>&bull;</span>
+            <button type="button" onClick={() => handleNav('contact')} className="hover:text-white transition-colors">
+              {isBn ? 'হেল্পডেস্ক' : 'Official Helpdesk'}
             </button>
           </div>
         </div>

@@ -15,7 +15,21 @@ import {
   Committee,
   Person,
   Position,
-  CommitteeMember
+  CommitteeMember,
+  HomepageConfig,
+  AboutSettings,
+  HeaderSettings,
+  FooterSettings,
+  SocialLink,
+  VolunteerSettings,
+  SupportSettings,
+  ContactSettings,
+  GlobalSEOSettings,
+  NavigationItem,
+  BannerItem,
+  MediaItem,
+  GalleryAlbum,
+  AdminProfile
 } from '../types';
 
 export const INITIAL_SITE_SETTINGS: SiteSettings = {
@@ -24,14 +38,14 @@ export const INITIAL_SITE_SETTINGS: SiteSettings = {
   tagline: 'United for Humanity',
   country: 'Bangladesh',
   officialAddress: 'Hathazari, Chattogram, Bangladesh',
-  officialPhone: '+880 1800-000000 [Official Helpline]',
+  officialPhone: '+880 1800-000000',
   officialEmail: 'contact@infinitybangladesh.org',
   facebookUrl: 'https://www.facebook.com/infinitybangladesh',
   youtubeUrl: 'https://youtube.com',
   instagramUrl: 'https://instagram.com',
   linkedinUrl: 'https://linkedin.com',
-  bKashNumber: '01800-000000 [Official bKash Merchant/Personal]',
-  nagadNumber: '01800-000000 [Official Nagad]',
+  bKashNumber: '01800-000000',
+  nagadNumber: '01800-000000',
   bankDetails: {
     bankName: '[OFFICIAL BANK NAME REQUIRED]',
     accountName: 'Infinity Bangladesh / Team Infinity',
@@ -44,8 +58,521 @@ export const INITIAL_SITE_SETTINGS: SiteSettings = {
     bn: 'ইনফিনিটি বাংলাদেশ-এর অফিসিয়াল ডিজিটাল প্ল্যাটফর্মে স্বাগতম — টিম ইনফিনিটি | মানবতার জন্য একতাবদ্ধ | প্রতিষ্ঠিত ২০১৫'
   },
   showAnnouncementBanner: true,
-  registrationNumber: 'Hathazari, Chattogram &bull; Established 2015'
+  registrationNumber: 'Hathazari, Chattogram • Established 2015'
 };
+
+export const INITIAL_HOMEPAGE_CONFIG: HomepageConfig = {
+  hero: {
+    eyebrow: {
+      en: 'TEAM INFINITY — UNITED FOR HUMANITY',
+      bn: 'টিম ইনফিনিটি — মানবতার জন্য একতাবদ্ধ'
+    },
+    headlineMain: {
+      en: 'Together, We Can Create a',
+      bn: 'একসাথে, আমরা গড়ব'
+    },
+    headlineHighlight: {
+      en: 'Better Tomorrow.',
+      bn: 'এক সুন্দর মানবিক'
+    },
+    description: {
+      en: 'Infinity Bangladesh is a volunteer-led social organization driven by passionate youth. From humanitarian support and festive Eid initiatives to emergency relief and community development, we work to protect dignity and create meaningful change across Bangladesh.',
+      bn: 'ইনফিনিটি বাংলাদেশ একটি তারুণ্যনির্ভর অলাভজনক সামাজিক উদ্যোগ। ২০১৫ সালে চট্টগ্রামের হাটহাজারী থেকে শুরু করে উৎসবের নতুন পোশাক, রমজান খাদ্য সহায়তা, জরুরি দুর্যোগ সেবা ও শিক্ষা সহায়তা প্রদানের মাধ্যমে আমরা মানুষের মর্যাদা রক্ষায় কাজ করে চলেছি।'
+    },
+    primaryCta: {
+      text: { en: 'Support Our Work', bn: 'সহায়তা করুন' },
+      url: 'donate',
+      active: true
+    },
+    secondaryCta: {
+      text: { en: 'Become a Volunteer', bn: 'স্বেচ্ছাসেবী হিসেবে যোগ দিন' },
+      url: 'volunteer',
+      active: true
+    },
+    storyCta: {
+      text: { en: 'Our Story', bn: 'আমাদের গল্প জানুন' },
+      url: 'about',
+      active: true
+    },
+    heroImageUrl: '/images/infinity-cover-hero.jpg',
+    heroImageAlt: 'Infinity Bangladesh Humanitarian Group Photo',
+    heroImageCaption: 'Team Infinity Volunteers with Children & Youth in Hathazari, Chattogram',
+    heroImageCropPosition: 'center center',
+    badgeYear: '2015',
+    badgeLocation: 'Hathazari, Chattogram',
+    badgeTag: 'Team Infinity',
+    trustIndicators: [
+      {
+        icon: 'ShieldCheck',
+        text: { en: '100% Verified Accountability', bn: '১০০% স্বচ্ছ ও জবাবদিহিতা' },
+        active: true
+      },
+      {
+        icon: 'CheckCircle2',
+        text: { en: 'Direct Ground-Level Delivery', bn: 'সরাসরি মাঠপর্যায়ে বিতরণ' },
+        active: true
+      },
+      {
+        icon: 'Sparkles',
+        text: { en: 'Youth Volunteer Network', bn: 'তারুণ্যনির্ভর স্বেচ্ছাসেবী' },
+        active: true
+      }
+    ]
+  },
+  aboutPreview: {
+    eyebrow: { en: 'Who We Are', bn: 'আমাদের পরিচয় ও লক্ষ্য' },
+    titleMain: { en: 'People First. Humanity Always.', bn: 'মানুষের পাশে দাঁড়ানোই আমাদের ব্রত —' },
+    titleHighlight: { en: 'Serving with Empathy.', bn: 'মানুষ প্রথম, মানবতাই মূল।' },
+    description: {
+      en: 'Founded in Hathazari, Chattogram in 2015, Infinity Bangladesh has grown into a transparent youth humanitarian platform.',
+      bn: '২০১৫ সালে চট্টগ্রামের হাটহাজারী থেকে যাত্রা শুরু করে ইনফিনিটি বাংলাদেশ আজ দেশজুড়ে এক স্বচ্ছ ও নিবেদিত তারুণ্যের শক্তিতে পরিণত হয়েছে।'
+    },
+    quoteText: {
+      en: '“Youth with Purpose. Community with Empathy.”',
+      bn: '“মানবতার জয়গান গাইতে তারুণ্যের এই নিঃস্বার্থ ঐক্য।”'
+    },
+    quoteAuthor: 'Team Infinity',
+    ctaText: { en: 'Explore Our Full Journey', bn: 'আমাদের সম্পূর্ণ গল্প জানুন' },
+    ctaUrl: 'about',
+    imageUrl: '/images/events/winter-warmth.jpg'
+  },
+  sectionOrder: [
+    'hero',
+    'impact',
+    'about',
+    'programs',
+    'campaigns',
+    'stories',
+    'gallery',
+    'volunteer',
+    'transparency',
+    'support'
+  ],
+  sectionVisibility: {
+    hero: true,
+    impact: true,
+    about: true,
+    programs: true,
+    campaigns: true,
+    stories: true,
+    gallery: true,
+    volunteer: true,
+    transparency: true,
+    support: true
+  }
+};
+
+export const INITIAL_ABOUT_SETTINGS: AboutSettings = {
+  title: {
+    en: 'About Infinity Bangladesh',
+    bn: 'ইনফিনিটি বাংলাদেশ সম্পর্কে'
+  },
+  subtitle: {
+    en: 'United for Humanity Since 2015',
+    bn: '২০১৫ সাল থেকে মানবতার সেবায় একতাবদ্ধ'
+  },
+  mission: {
+    en: 'To restore human dignity and bring hope to vulnerable communities through transparent, youth-led humanitarian action, seasonal relief, and education support.',
+    bn: 'স্বচ্ছ ও তারুণ্যনির্ভর মানবিক কার্যক্রম, মৌসুমী ত্রাণ এবং শিক্ষা সহায়তার মাধ্যমে প্রান্তিক মানুষের সামাজিক মর্যাদা ও অধিকার প্রতিষ্ঠা করা।'
+  },
+  vision: {
+    en: 'A compassionate society where every underprivileged individual receives dignity, nourishment, warmth, and educational opportunity without discrimination.',
+    bn: 'একটি সমানুভূতিশীল সমাজ গঠন যেখানে প্রতিটি সুবিধাবঞ্চিত মানুষ ভেদাভেদহীনভাবে মর্যাদা, পুষ্টি, নিরাপত্তা এবং শিক্ষার সমান সুযোগ পায়।'
+  },
+  history: {
+    en: 'Infinity Bangladesh began its humble journey in Hathazari, Chattogram in 2015 when a small circle of passionate students united to share festival joy with street children. Over the past decade, it has evolved into a disciplined, ethical youth network with 350+ volunteers serving tens of thousands of beneficiaries.',
+    bn: '২০১৫ সালে চট্টগ্রামের হাটহাজারীতে একদল নিবেদিতপ্রাণ তরুণ শিক্ষার্থীদের উদ্যোগে যাত্রা শুরু করে ইনফিনিটি বাংলাদেশ। বিগত এক দশকে এটি ৩৫০+ নিবেদিতপ্রাণ স্বেচ্ছাসেবকের এক সুসংগঠিত পরিবারে পরিণত হয়েছে।'
+  },
+  establishedYear: '2015',
+  location: 'Hathazari, Chattogram, Bangladesh',
+  heroImageUrl: '/images/infinity-cover-hero.jpg',
+  secondaryImageUrl: '/images/events/winter-warmth.jpg',
+  ctaText: { en: 'Join Our Volunteer Mission', bn: 'আমাদের স্বেচ্ছাসেবী অভিযানে যোগ দিন' },
+  ctaUrl: 'volunteer'
+};
+
+export const INITIAL_HEADER_SETTINGS: HeaderSettings = {
+  logoUrl: '/brand/infinity-logo.png',
+  logoAlt: 'Infinity Bangladesh Official Logo',
+  showNoticeBar: true,
+  noticeBarText: {
+    en: 'Welcome to the official digital platform of Infinity Bangladesh — Team Infinity | United for Humanity | Est. 2015',
+    bn: 'ইনফিনিটি বাংলাদেশ-এর অফিসিয়াল ডিজিটাল প্ল্যাটফর্মে স্বাগতম — টিম ইনফিনিটি | মানবতার জন্য একতাবদ্ধ | প্রতিষ্ঠিত ২০১৫'
+  },
+  noticeBarLink: 'transparency',
+  showSearch: true,
+  showLanguageSwitcher: true,
+  supportButtonText: {
+    en: 'Support Us',
+    bn: 'সহায়তা করুন'
+  },
+  supportButtonUrl: 'donate',
+  showSupportButton: true
+};
+
+export const INITIAL_FOOTER_SETTINGS: FooterSettings = {
+  footerLogoUrl: '/brand/infinity-logo.png',
+  description: {
+    en: 'Infinity Bangladesh (Team Infinity) is a youth-driven volunteer social organization founded in Hathazari, Chattogram in 2015. Dedicated to child education, festive Eid happiness, winter warmth, and community dignity across Bangladesh.',
+    bn: 'ইনফিনিটি বাংলাদেশ (টিম ইনফিনিটি) একটি তারুণ্যনির্ভর অলাভজনক সামাজিক ও মানবিক সংগঠন। ২০১৫ সালে চট্টগ্রামের হাটহাজারী থেকে শুরু করে আজ দেশজুড়ে সুবিধাবঞ্চিত শিশু, অসহায় পরিবার ও দুর্যোগকবলিত মানুষের পাশে দাঁড়িয়ে মানবিক মর্যাদা প্রতিষ্ঠায় আমরা প্রতিজ্ঞাবদ্ধ।'
+  },
+  address: 'Hathazari, Chattogram, Bangladesh',
+  phone: '+880 1800-000000',
+  email: 'contact@infinitybangladesh.org',
+  copyrightText: {
+    en: '© 2015–2026 Infinity Bangladesh. All rights reserved. United for Humanity.',
+    bn: '© ২০১৫–২০২৬ ইনফিনিটি বাংলাদেশ। সর্বস্বত্ব সংরক্ষিত। মানবতার জন্য একতাবদ্ধ।'
+  },
+  showNewsletter: true
+};
+
+export const INITIAL_SOCIAL_LINKS: SocialLink[] = [
+  { id: 'soc-1', platform: 'facebook', url: 'https://www.facebook.com/infinitybangladesh', label: 'Facebook', active: true, displayOrder: 1 },
+  { id: 'soc-2', platform: 'youtube', url: 'https://youtube.com', label: 'YouTube', active: true, displayOrder: 2 },
+  { id: 'soc-3', platform: 'instagram', url: 'https://instagram.com', label: 'Instagram', active: true, displayOrder: 3 },
+  { id: 'soc-4', platform: 'linkedin', url: 'https://linkedin.com', label: 'LinkedIn', active: true, displayOrder: 4 },
+  { id: 'soc-5', platform: 'whatsapp', url: 'https://wa.me/8801800000000', label: 'WhatsApp', active: true, displayOrder: 5 }
+];
+
+export const INITIAL_VOLUNTEER_SETTINGS: VolunteerSettings = {
+  ctaText: { en: 'Become a Volunteer', bn: 'স্বেচ্ছাসেবী হিসেবে যোগ দিন' },
+  googleFormUrl: '', // Editable by admin if external Google Form is linked
+  description: {
+    en: 'Join a vibrant, ethical youth community committed to transparent grassroots humanitarian action across Bangladesh.',
+    bn: 'আপনার মেধা, সময় এবং সহমর্মিতা দিয়ে একজন মানুষের মুখে হাসি ফোটাতে টিম ইনফিনিটির সাথে যুক্ত হোন।'
+  },
+  coverImageUrl: '/images/events/winter-warmth.jpg',
+  benefits: {
+    en: [
+      'Hands-on grassroots field experience across seasonal drives',
+      'Official Certificate of Humanitarian Service & leadership recognition',
+      'Disaster preparedness, event management & ethical volunteering training',
+      'Vibrant network of passionate young changemakers across Bangladesh'
+    ],
+    bn: [
+      'মাঠপর্যায়ে সরাসরি সামাজিক কাজের বাস্তব অভিজ্ঞতা ও টিমওয়ার্ক',
+      'অফিসিয়াল সার্টিফিকেট ও নেতৃত্বের স্বীকৃতি',
+      'দুর্যোগ মোকাবেলা, ইভেন্ট ব্যবস্থাপনা ও মাঠপর্যায়ের মানবিক প্রশিক্ষণ',
+      'দেশজুড়ে মানবিক কাজে নিবেদিত তরুণদের সাথে ইতিবাচক সম্পর্ক'
+    ]
+  },
+  requirements: {
+    en: [
+      'Dedication to selfless humanitarian service with compassion',
+      'Strict adherence to Team Infinity Code of Conduct & child safety rules',
+      'Mutual respect, teamwork, and reliability during field drives'
+    ],
+    bn: [
+      'মানবকল্যাণে কাজ করার আন্তরিক ইচ্ছা ও নিষ্ঠা',
+      'সংগঠনের নৈতিক আচরণবিধি ও শিশু সুরক্ষা নীতিমালার প্রতি শ্রদ্ধাশীলতা',
+      'মাঠপর্যায়ের কাজে দায়িত্বশীলতা ও শৃঙ্খলা বজায় রাখা'
+    ]
+  },
+  contactEmail: 'volunteer@infinitybangladesh.org'
+};
+
+export const INITIAL_SUPPORT_SETTINGS: SupportSettings = {
+  ctaText: { en: 'Support Our Humanitarian Work', bn: 'মানবতার সেবায় সহায়তা করুন' },
+  description: {
+    en: 'Your contribution transforms directly into verified aid on the ground. 100% transparent and audited with itemized receipts published.',
+    bn: 'আপনার সহায়তা সরাসরি মাঠপর্যায়ে সুবিধাবঞ্চিত মানুষের কাছে পৌঁছে দেওয়া হয়। শতভাগ স্বচ্ছ ও জবাবদিহিতামূলক।'
+  },
+  bKashNumber: '01800-000000 [Official Helpline/Merchant]',
+  bKashType: 'Merchant / Personal Number',
+  nagadNumber: '01800-000000 [Official Nagad]',
+  nagadType: 'Official Personal / Merchant',
+  bankDetails: {
+    bankName: '[OFFICIAL BANK NAME REQUIRED]',
+    accountName: 'Infinity Bangladesh / Team Infinity',
+    accountNumber: '[OFFICIAL ACCOUNT NUMBER REQUIRED]',
+    branchName: 'Hathazari Branch, Chattogram',
+    routingNumber: '[OFFICIAL ROUTING NUMBER REQUIRED]'
+  },
+  qrCodeImageUrl: '',
+  paymentInstructions: {
+    en: 'Please include your name and campaign reference in the transaction counter or note. An automated digital receipt can be downloaded.',
+    bn: 'অনুগ্রহ করে ট্রানজেকশনে আপনার নাম ও রেফারেন্স উল্লেখ করুন। অনুদান নিশ্চিতকরণের পর ডিজিটাল মানি রিসিট ডাউনলোড করতে পারবেন।'
+  },
+  supportEmail: 'donate@infinitybangladesh.org',
+  supportPhone: '+880 1800-000000'
+};
+
+export const INITIAL_CONTACT_SETTINGS: ContactSettings = {
+  address: {
+    en: 'Hathazari, Chattogram, Bangladesh',
+    bn: 'হাটহাজারী, চট্টগ্রাম, বাংলাদেশ'
+  },
+  phone: '+880 1800-000000',
+  email: 'contact@infinitybangladesh.org',
+  officeHours: {
+    en: 'Saturday – Thursday: 10:00 AM – 6:00 PM (Friday Closed)',
+    bn: 'শনিবার – বৃহস্পতিবার: সকাল ১০:০০ – সন্ধ্যা ৬:০০ (শুক্রবার বন্ধ)'
+  },
+  googleMapsEmbedUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3686.2736208047025!2d91.8049!3d22.5073!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30ad2f1a6f022417%3A0x7d6f51c11bb8c8e9!2sHathazari%2C%20Chattogram!5e0!3m2!1sen!2sbd!4v1700000000000!5m2!1sen!2sbd',
+  emergencyHelpline: '+880 1800-000000'
+};
+
+export const INITIAL_SEO_SETTINGS: GlobalSEOSettings = {
+  siteTitle: {
+    en: 'Infinity Bangladesh | United for Humanity | Official Website',
+    bn: 'ইনফিনিটি বাংলাদেশ | মানবতার জন্য একতাবদ্ধ | অফিসিয়াল ওয়েবসাইট'
+  },
+  metaDescription: {
+    en: 'Infinity Bangladesh (Team Infinity) is a youth-driven humanitarian organization founded in 2015 in Hathazari, Chattogram. Standing united for humanity.',
+    bn: 'ইনফিনিটি বাংলাদেশ (টিম ইনফিনিটি) একটি তারুণ্যনির্ভর সামাজিক ও মানবিক সংগঠন। প্রতিষ্ঠিত ২০১৫, হাটহাজারী, চট্টগ্রাম। মানবতার জন্য একতাবদ্ধ।'
+  },
+  keywords: [
+    'Infinity Bangladesh',
+    'Team Infinity',
+    'United for Humanity',
+    'Hathazari',
+    'Chattogram',
+    'Eid Joy',
+    'Winter Relief',
+    'Humanitarian NGO Bangladesh',
+    'Youth Volunteers Bangladesh'
+  ],
+  ogImageUrl: '/images/infinity-cover-hero.jpg',
+  organizationName: 'Infinity Bangladesh',
+  canonicalUrl: 'https://infinitybangladesh.org'
+};
+
+export const INITIAL_NAVIGATION_ITEMS: NavigationItem[] = [
+  {
+    id: 'nav-1',
+    label: { en: 'Home', bn: 'হোম' },
+    path: 'home',
+    displayOrder: 1,
+    active: true
+  },
+  {
+    id: 'nav-2',
+    label: { en: 'About', bn: 'আমাদের সম্পর্কে' },
+    path: 'about',
+    isDropdown: true,
+    children: [
+      { id: 'sub-1', label: { en: 'Story & History', bn: 'আমাদের গল্প ও ইতিহাস' }, path: 'about/story', active: true },
+      { id: 'sub-2', label: { en: 'Mission & Vision', bn: 'লক্ষ্য ও দর্শন' }, path: 'about/mission-vision', active: true },
+      { id: 'sub-3', label: { en: 'Executive Committee 2026', bn: 'কার্যনির্বাহী কমিটি ২০২৬' }, path: 'about/executive-committee', active: true },
+      { id: 'sub-4', label: { en: 'Standing Committee', bn: 'স্থায়ী কমিটি' }, path: 'about/standing-committees', active: true },
+      { id: 'sub-5', label: { en: 'Past Committees', bn: 'প্রাক্তন কমিটিসমূহ' }, path: 'about/past-committees', active: true }
+    ],
+    displayOrder: 2,
+    active: true
+  },
+  {
+    id: 'nav-3',
+    label: { en: 'Our Work', bn: 'আমাদের কাজ' },
+    path: 'programs',
+    displayOrder: 3,
+    active: true
+  },
+  {
+    id: 'nav-4',
+    label: { en: 'Campaigns', bn: 'ক্যাম্পেইন' },
+    path: 'campaigns',
+    displayOrder: 4,
+    active: true
+  },
+  {
+    id: 'nav-5',
+    label: { en: 'Impact', bn: 'প্রভাব' },
+    path: 'impact',
+    displayOrder: 5,
+    active: true
+  },
+  {
+    id: 'nav-6',
+    label: { en: 'Stories', bn: 'বাস্তব গল্প' },
+    path: 'stories',
+    displayOrder: 6,
+    active: true
+  },
+  {
+    id: 'nav-7',
+    label: { en: 'Media & Gallery', bn: 'মিডিয়া ও গ্যালারি' },
+    path: 'gallery',
+    isDropdown: true,
+    children: [
+      { id: 'sub-6', label: { en: 'Photo Gallery', bn: 'আলোকচিত্র গ্যালারি' }, path: 'gallery', active: true },
+      { id: 'sub-7', label: { en: 'Video Documentation', bn: 'ভিডিও ডকুমেন্টেশন' }, path: 'videos', active: true },
+      { id: 'sub-8', label: { en: 'News & Announcements', bn: 'সংবাদ ও নোটিশ' }, path: 'news', active: true },
+      { id: 'sub-9', label: { en: 'Events & Schedules', bn: 'ইভেন্ট ও সময়সূচি' }, path: 'events', active: true }
+    ],
+    displayOrder: 7,
+    active: true
+  },
+  {
+    id: 'nav-8',
+    label: { en: 'Volunteer', bn: 'স্বেচ্ছাসেবী' },
+    path: 'volunteer',
+    displayOrder: 8,
+    active: true
+  },
+  {
+    id: 'nav-9',
+    label: { en: 'Transparency', bn: 'স্বচ্ছতা ও অডিট' },
+    path: 'transparency',
+    displayOrder: 9,
+    active: true
+  },
+  {
+    id: 'nav-10',
+    label: { en: 'Contact', bn: 'যোগাযোগ' },
+    path: 'contact',
+    displayOrder: 10,
+    active: true
+  }
+];
+
+export const INITIAL_BANNERS: BannerItem[] = [
+  {
+    id: 'ban-1',
+    title: { en: 'United for Humanity — Est. 2015', bn: 'মানবতার জন্য একতাবদ্ধ — প্রতিষ্ঠিত ২০১৫' },
+    subtitle: { en: 'Empowering youth to bring smiles and dignity across Bangladesh', bn: 'তারুণ্যের শক্তিতে সুবিধাবঞ্চিত মানুষের মুখে হাসি ফোটানোর প্রত্যয়' },
+    desktopImageUrl: '/images/infinity-cover-hero.jpg',
+    mobileImageUrl: '/images/infinity-cover-hero.jpg',
+    ctaText: { en: 'Support Our Mission', bn: 'সহায়তা করুন' },
+    ctaUrl: 'donate',
+    placement: 'homepage_hero',
+    displayOrder: 1,
+    active: true
+  },
+  {
+    id: 'ban-2',
+    title: { en: 'Eid Joy Drive for Underprivileged Children', bn: 'সুবিধাবঞ্চিত শিশুদের সাথে ঈদ আনন্দ' },
+    subtitle: { en: 'Join our seasonal drive to gift new clothes to marginalized children', bn: 'নতুন জামা ও ঈদের খুশি পৌঁছে দিতে আমাদের সাথে থাকুন' },
+    desktopImageUrl: 'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=1200&q=80',
+    ctaText: { en: 'Learn More', bn: 'বিস্তারিত দেখুন' },
+    ctaUrl: 'campaigns',
+    placement: 'campaign_feature',
+    displayOrder: 2,
+    active: true
+  }
+];
+
+export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
+  {
+    id: 'med-hero-1',
+    fileName: 'infinity-cover-hero.jpg',
+    url: '/images/infinity-cover-hero.jpg',
+    fileSize: '974 KB',
+    mimeType: 'image/jpeg',
+    category: 'Hero',
+    altText: 'Infinity Bangladesh Official Group Photo with Children in Hathazari',
+    caption: 'Official Team Infinity Field Gathering with Eid Joy Banner',
+    uploadedAt: '2025-01-01',
+    usageTags: ['Homepage Hero', 'About Hero']
+  },
+  {
+    id: 'med-logo-1',
+    fileName: 'infinity-logo.png',
+    url: '/brand/infinity-logo.png',
+    fileSize: '38 KB',
+    mimeType: 'image/png',
+    category: 'Logos',
+    altText: 'Infinity Bangladesh Official Authoritative Logo',
+    caption: 'United for Humanity Brand Mark with Infinity Wings',
+    uploadedAt: '2025-01-01',
+    usageTags: ['Header Logo', 'Footer Logo', 'Brand System']
+  },
+  {
+    id: 'med-event-1',
+    fileName: 'winter-warmth.jpg',
+    url: '/images/events/winter-warmth.jpg',
+    fileSize: '915 KB',
+    mimeType: 'image/jpeg',
+    category: 'Events',
+    altText: 'Team Infinity Volunteers during Winter Blanket Distribution',
+    caption: 'Direct ground-level delivery to cold-affected communities',
+    uploadedAt: '2025-01-05',
+    usageTags: ['About Section Preview', 'Winter Relief Campaign']
+  },
+  {
+    id: 'med-ref-1',
+    fileName: 'executive-committee-2026.png',
+    url: '/reference/executive-committee-2026.png',
+    fileSize: '465 KB',
+    mimeType: 'image/png',
+    category: 'Volunteers',
+    altText: 'Executive Committee 2026 Official Declaration Poster',
+    caption: 'Official roster of 27 executive leaders',
+    uploadedAt: '2026-01-01',
+    usageTags: ['Executive Committee Page']
+  },
+  {
+    id: 'med-ref-2',
+    fileName: 'standing-committee-poster.png',
+    url: '/reference/standing-committee-poster.png',
+    fileSize: '336 KB',
+    mimeType: 'image/png',
+    category: 'Volunteers',
+    altText: 'Standing Committee Official Declaration Poster',
+    caption: 'Official roster of 9 standing committee members',
+    uploadedAt: '2026-01-01',
+    usageTags: ['Standing Committee Page']
+  }
+];
+
+export const INITIAL_GALLERY_ALBUMS: GalleryAlbum[] = [
+  {
+    id: 'alb-1',
+    slug: 'eid-joy-underprivileged',
+    title: { en: 'Eid Joy for Underprivileged (সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ)', bn: 'সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ' },
+    description: { en: 'Distribution of brand new festive clothes and food packets to street children and families.', bn: 'সুবিধাবঞ্চিত শিশুদের মাঝে নতুন জামা ও উপহার বিতরণ।' },
+    coverImageUrl: '/images/infinity-cover-hero.jpg',
+    category: 'Campaigns',
+    date: 'Eid-ul-Fitr',
+    isPublished: true,
+    displayOrder: 1,
+    photos: []
+  },
+  {
+    id: 'alb-2',
+    slug: 'winter-warmth-blanket-relief',
+    title: { en: 'Winter Warmth & Blanket Relief', bn: 'শীতবস্ত্র ও কম্বল বিতরণ কার্যক্রম' },
+    description: { en: 'Late-night blanket distribution to pavement dwellers and remote village elders.', bn: 'শীতার্ত মানুষের মাঝে উষ্ণতার পরশ পৌঁছে দেওয়ার উদ্যোগ।' },
+    coverImageUrl: '/images/events/winter-warmth.jpg',
+    category: 'Distribution',
+    date: 'Winter Season',
+    isPublished: true,
+    displayOrder: 2,
+    photos: []
+  }
+];
+
+export const INITIAL_ADMIN_PROFILES: AdminProfile[] = [
+  {
+    id: 'admin-1',
+    email: 'admin@infinitybangladesh.org',
+    fullName: 'Chief Administrator (Super Admin)',
+    role: 'super_admin',
+    avatarUrl: '/brand/infinity-logo.png',
+    isActive: true
+  },
+  {
+    id: 'admin-2',
+    email: 'editor@infinitybangladesh.org',
+    fullName: 'Content Lead (Content Admin)',
+    role: 'content_admin',
+    isActive: true
+  },
+  {
+    id: 'admin-3',
+    email: 'media@infinitybangladesh.org',
+    fullName: 'Media Manager',
+    role: 'media_manager',
+    isActive: true
+  },
+  {
+    id: 'admin-4',
+    email: 'auditor@infinitybangladesh.org',
+    fullName: 'Governance Viewer (Read-only)',
+    role: 'viewer',
+    isActive: true
+  }
+];
+
 
 export const INITIAL_IMPACT_METRICS: ImpactMetric[] = [
   {

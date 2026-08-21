@@ -15,9 +15,11 @@ import {
   Image as ImageIcon,
   Sparkles,
   Sliders,
-  Maximize2
+  Maximize2,
+  Loader2
 } from 'lucide-react';
 import { getAssetUrl } from '../lib/utils/assetHelper';
+import { uploadToCloudinary } from '../lib/cloudinary';
 
 export type AspectRatioType = 'free' | '1:1' | '4:5' | '3:4' | '4:3' | '16:9' | '21:9';
 
@@ -72,6 +74,9 @@ export const ImageEditorModal: React.FC<ImageEditorModalProps> = ({
   // Metadata
   const [altText, setAltText] = useState(initialAltText);
   const [caption, setCaption] = useState(initialCaption);
+
+  // Cloudinary upload state
+  const [isUploadingToCloud, setIsUploadingToCloud] = useState(false);
 
   // Drag interaction state
   const [isDragging, setIsDragging] = useState(false);
@@ -276,7 +281,7 @@ export const ImageEditorModal: React.FC<ImageEditorModalProps> = ({
   };
 
   // Final Export & Save
-  const handleSaveCrop = () => {
+  const handleSaveCrop = async () => {
     const previewCanvas = previewCanvasRef.current;
     if (!previewCanvas) {
       onSave(currentSrc, { altText, caption });
@@ -285,8 +290,23 @@ export const ImageEditorModal: React.FC<ImageEditorModalProps> = ({
     }
 
     try {
+      setIsUploadingToCloud(true);
       const dataUrl = previewCanvas.toDataURL('image/jpeg', 0.92);
-      onSave(dataUrl, {
+
+      let finalUrl = dataUrl;
+      try {
+        // Upload cropped canvas image directly to Cloudinary
+        const uploadRes = await uploadToCloudinary(dataUrl, {
+          tags: ['infinity_crop', 'cms_image']
+        });
+        if (uploadRes && uploadRes.secure_url) {
+          finalUrl = uploadRes.secure_url;
+        }
+      } catch (cloudErr) {
+        console.warn('Cloudinary direct upload for crop failed, falling back to data URL:', cloudErr);
+      }
+
+      onSave(finalUrl, {
         altText,
         caption,
         cropMetadata: {
@@ -299,9 +319,11 @@ export const ImageEditorModal: React.FC<ImageEditorModalProps> = ({
           originalSrc: currentSrc
         }
       });
+      setIsUploadingToCloud(false);
       onClose();
     } catch (err) {
       console.error('Failed to export cropped canvas:', err);
+      setIsUploadingToCloud(false);
       onSave(currentSrc, { altText, caption });
       onClose();
     }
@@ -595,10 +617,20 @@ export const ImageEditorModal: React.FC<ImageEditorModalProps> = ({
           <button
             type="button"
             onClick={handleSaveCrop}
-            className="px-6 py-2.5 rounded-xl bg-[#006A4E] hover:bg-[#00523C] text-white text-xs font-extrabold shadow-warm-md flex items-center gap-2 cursor-pointer transition-all"
+            disabled={isUploadingToCloud}
+            className="px-6 py-2.5 rounded-xl bg-[#006A4E] hover:bg-[#00523C] disabled:bg-slate-300 disabled:cursor-not-allowed text-white text-xs font-extrabold shadow-warm-md flex items-center gap-2 cursor-pointer transition-all"
           >
-            <Check className="w-4 h-4" />
-            <span>{isBn ? 'ক্রপ সংরক্ষণ করুন' : 'Apply & Save Crop'}</span>
+            {isUploadingToCloud ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>{isBn ? 'ক্লাউডে আপলোড হচ্ছে...' : 'Saving to Cloudinary...'}</span>
+              </>
+            ) : (
+              <>
+                <Check className="w-4 h-4" />
+                <span>{isBn ? 'ক্রপ সংরক্ষণ করুন' : 'Apply & Save Crop'}</span>
+              </>
+            )}
           </button>
         </div>
 

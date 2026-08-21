@@ -16,7 +16,7 @@ import {
   Info
 } from 'lucide-react';
 import { StorageService } from '../lib/storage/storageService';
-import { uploadFileToSupabase, isSupabaseConfigured } from '../lib/supabase';
+import { uploadToCloudinary, isCloudinaryConfigured, CLOUDINARY_CLOUD_NAME } from '../lib/cloudinary';
 
 export interface MediaPickerModalProps {
   isOpen: boolean;
@@ -127,24 +127,26 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
         return;
       }
 
-      // Upload to Supabase Storage if live, or local storage fallback
-      const uploadRes = await uploadFileToSupabase('infinity-media', file);
+      // Upload directly to Cloudinary using unsigned REST API endpoint
+      const uploadRes = await uploadToCloudinary(file);
 
-      if (!uploadRes.success || !uploadRes.url) {
-        setUploadError(uploadRes.error || 'Failed to upload media file.');
+      if (!uploadRes || !uploadRes.secure_url) {
+        setUploadError('Failed to receive secure image URL from Cloudinary.');
         setIsUploading(false);
         return;
       }
 
       const newMedia: Omit<MediaItem, 'id' | 'uploadedAt'> = {
         fileName: file.name,
-        url: uploadRes.url,
-        fileSize: `${(file.size / 1024).toFixed(1)} KB`,
+        url: uploadRes.secure_url,
+        fileSize: uploadRes.bytes
+          ? `${(uploadRes.bytes / 1024).toFixed(1)} KB`
+          : `${(file.size / 1024).toFixed(1)} KB`,
         mimeType: file.type,
         category: uploadCategory,
         altText: uploadAltText || file.name.replace(/\.[^/.]+$/, ''),
         caption: '',
-        usageTags: ['Direct CMS Selection']
+        usageTags: ['Cloudinary Upload', 'Direct CMS Selection']
       };
 
       const created = addMediaItem(newMedia);
@@ -153,7 +155,8 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
       setIsUploading(false);
       safeClose();
     } catch (err: any) {
-      setUploadError(err.message || 'Error occurred during file upload.');
+      console.error('Upload to Cloudinary failed:', err);
+      setUploadError(err.message || 'Error occurred during file upload to Cloudinary.');
       setIsUploading(false);
     }
   };
@@ -181,8 +184,8 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
               </h3>
               <p className="text-xs text-slate-500">
                 {isBn
-                  ? 'সংগঠনের সংরক্ষিত মিডিয়া থেকে নির্বাচন করুন অথবা নতুন ছবি আপলোড করুন'
-                  : 'Select an official organizational photograph or upload a new asset'}
+                  ? 'সংগঠনের সংরক্ষিত মিডিয়া থেকে নির্বাচন করুন অথবা নতুন ছবি ক্লাউডে আপলোড করুন'
+                  : 'Select an official organizational photograph or upload a new cloud asset'}
               </p>
             </div>
           </div>
@@ -225,7 +228,7 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
               }`}
             >
               <Upload className="w-4 h-4" />
-              <span>{isBn ? 'নতুন ছবি আপলোড' : 'Upload New Asset'}</span>
+              <span>{isBn ? 'ক্লাউড আপলোড' : 'Cloudinary Upload'}</span>
             </button>
 
             <button
@@ -242,9 +245,9 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
             </button>
           </div>
 
-          <div className="text-[11px] text-slate-400 hidden sm:flex items-center gap-1">
-            <span className={`w-2 h-2 rounded-full ${isSupabaseConfigured ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-            <span>{isSupabaseConfigured ? 'Supabase Storage Live' : 'Local Storage Cache'}</span>
+          <div className="text-[11px] text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full hidden sm:flex items-center gap-1.5 font-semibold">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Cloudinary Cloud Active ({CLOUDINARY_CLOUD_NAME})</span>
           </div>
         </div>
 
@@ -363,7 +366,7 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
                     {isBn ? 'ছবি টেনে এনে এখানে ছাড়ুন অথবা কম্পিউটার থেকে বেছে নিন' : 'Drag & drop image here or click to browse'}
                   </p>
                   <p className="text-xs text-slate-400">
-                    JPG, PNG, WebP, AVIF up to 5 MB
+                    JPG, PNG, WebP, GIF, SVG up to 10 MB &bull; Uploaded directly to Cloudinary CDN
                   </p>
                 </div>
 
@@ -371,7 +374,7 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
                   <span>{isBn ? 'ফাইল নির্বাচন করুন' : 'Browse Files'}</span>
                   <input
                     type="file"
-                    accept="image/jpeg,image/png,image/webp,image/svg+xml"
+                    accept="image/jpeg,image/png,image/webp,image/svg+xml,image/gif"
                     className="hidden"
                     onChange={e => {
                       if (e.target.files && e.target.files.length > 0) {

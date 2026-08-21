@@ -7,6 +7,7 @@
  */
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { uploadToCloudinary } from './cloudinary';
 
 // Environment variables
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
@@ -40,21 +41,31 @@ export async function uploadFileToSupabase(
 ): Promise<{ success: boolean; url?: string; fileName?: string; error?: string }> {
   try {
     if (!supabase || !isSupabaseConfigured) {
-      // Local fallback: convert to Data URL
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          resolve({
-            success: true,
-            url: reader.result as string,
-            fileName: file.name
-          });
+      // Cloudinary cloud fallback for GitHub Pages and standalone deployment
+      try {
+        const cloudRes = await uploadToCloudinary(file);
+        return {
+          success: true,
+          url: cloudRes.secure_url,
+          fileName: file.name
         };
-        reader.onerror = () => {
-          resolve({ success: false, error: 'Failed to read local file.' });
-        };
-        reader.readAsDataURL(file);
-      });
+      } catch (cloudErr: any) {
+        console.warn('Cloudinary upload fallback failed, converting to local data URI:', cloudErr);
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            resolve({
+              success: true,
+              url: reader.result as string,
+              fileName: file.name
+            });
+          };
+          reader.onerror = () => {
+            resolve({ success: false, error: 'Failed to read local file.' });
+          };
+          reader.readAsDataURL(file);
+        });
+      }
     }
 
     const fileExt = file.name.split('.').pop() || 'jpg';

@@ -77,11 +77,18 @@ CREATE TABLE IF NOT EXISTS public.site_settings (
   established_year TEXT NOT NULL DEFAULT '2015',
   default_language TEXT NOT NULL DEFAULT 'bn',
   maintenance_mode BOOLEAN NOT NULL DEFAULT FALSE,
+  logo_url TEXT DEFAULT '',
+  favicon_url TEXT DEFAULT '',
+  banner_announcement TEXT DEFAULT '',
+  show_announcement_banner BOOLEAN DEFAULT FALSE,
+  bkash_number TEXT DEFAULT '',
+  nagad_number TEXT DEFAULT '',
+  bank_details JSONB DEFAULT '{}'::jsonb,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Homepage Configuration (Complete Editor)
+-- Homepage Configuration
 CREATE TABLE IF NOT EXISTS public.homepage_config (
   id TEXT PRIMARY KEY DEFAULT 'default',
   hero JSONB NOT NULL DEFAULT '{
@@ -95,7 +102,7 @@ CREATE TABLE IF NOT EXISTS public.homepage_config (
     "primaryCta": { "text": { "en": "Support Our Work", "bn": "সহায়তা করুন" }, "url": "donate", "active": true },
     "secondaryCta": { "text": { "en": "Become a Volunteer", "bn": "স্বেচ্ছাসেবী হিসেবে যোগ দিন" }, "url": "volunteer", "active": true },
     "storyCta": { "text": { "en": "Our Story", "bn": "আমাদের গল্প জানুন" }, "url": "about", "active": true },
-    "heroImageUrl": "/images/infinity-cover-hero.jpg",
+    "heroImageUrl": "https://res.cloudinary.com/evj6fhsf/image/upload/v1740248000/infinity-cover-hero.jpg",
     "heroImageAlt": "Infinity Bangladesh Humanitarian Group Photo",
     "heroImageCropPosition": "center center",
     "badgeYear": "2015",
@@ -122,8 +129,10 @@ CREATE TABLE IF NOT EXISTS public.homepage_config (
     "quoteAuthor": "Team Infinity",
     "ctaText": { "en": "Explore Our Full Journey", "bn": "আমাদের সম্পূর্ণ গল্প জানুন" },
     "ctaUrl": "about",
-    "imageUrl": "/images/events/winter-warmth.jpg"
+    "imageUrl": "https://res.cloudinary.com/evj6fhsf/image/upload/v1740248000/winter-warmth.jpg"
   }'::jsonb,
+  volunteer_banner JSONB DEFAULT '{}'::jsonb,
+  support_banner JSONB DEFAULT '{}'::jsonb,
   section_order JSONB NOT NULL DEFAULT '["hero", "impact", "about", "programs", "campaigns", "stories", "gallery", "volunteer", "transparency", "support"]'::jsonb,
   section_visibility JSONB NOT NULL DEFAULT '{
     "hero": true,
@@ -150,20 +159,25 @@ CREATE TABLE IF NOT EXISTS public.about_settings (
   history JSONB NOT NULL DEFAULT '{"en": "Started in Hathazari, Chattogram in 2015...", "bn": "২০১৫ সালে চট্টগ্রামের হাটহাজারীতে একদল তরুণ শিক্ষার্থীর উদ্যোগে যাত্রা শুরু..."}'::jsonb,
   established_year TEXT NOT NULL DEFAULT '2015',
   location TEXT NOT NULL DEFAULT 'Hathazari, Chattogram, Bangladesh',
-  hero_image_url TEXT NOT NULL DEFAULT '/images/infinity-cover-hero.jpg',
+  hero_image_url TEXT NOT NULL DEFAULT '',
+  secondary_image_url TEXT DEFAULT '',
+  cta_text JSONB DEFAULT '{"en": "Join as a Volunteer", "bn": "স্বেচ্ছাসেবী হিসেবে যোগ দিন"}'::jsonb,
+  cta_url TEXT DEFAULT 'volunteer',
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- Header Settings
 CREATE TABLE IF NOT EXISTS public.header_settings (
   id TEXT PRIMARY KEY DEFAULT 'default',
-  logo_url TEXT NOT NULL DEFAULT '/brand/infinity-logo.png',
-  show_notice_bar BOOLEAN NOT NULL DEFAULT TRUE,
-  notice_bar_text JSONB NOT NULL DEFAULT '{"en": "Welcome to the official digital platform of Infinity Bangladesh — Team Infinity | United for Humanity | Est. 2015", "bn": "ইনফিনিটি বাংলাদেশ-এর অফিসিয়াল ডিজিটাল প্ল্যাটফর্মে স্বাগতম — টিম ইনফিনিটি | মানবতার জন্য একতাবদ্ধ | প্রতিষ্ঠিত ২০১৫"}'::jsonb,
+  logo_url TEXT NOT NULL DEFAULT '',
+  logo_alt TEXT NOT NULL DEFAULT 'Infinity Bangladesh Logo',
+  show_notice_bar BOOLEAN NOT NULL DEFAULT FALSE,
+  notice_bar_text JSONB DEFAULT '{"en": "", "bn": ""}'::jsonb,
+  notice_bar_link TEXT DEFAULT '',
   show_search BOOLEAN NOT NULL DEFAULT TRUE,
   show_language_switcher BOOLEAN NOT NULL DEFAULT TRUE,
-  support_button_text JSONB NOT NULL DEFAULT '{"en": "Support Us", "bn": "সহায়তা করুন"}'::jsonb,
-  support_button_url TEXT NOT NULL DEFAULT 'donate',
+  support_button_text JSONB DEFAULT '{"en": "Support Us", "bn": "সহায়তা করুন"}'::jsonb,
+  support_button_url TEXT DEFAULT 'donate',
   show_support_button BOOLEAN NOT NULL DEFAULT TRUE,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -171,12 +185,15 @@ CREATE TABLE IF NOT EXISTS public.header_settings (
 -- Footer Settings
 CREATE TABLE IF NOT EXISTS public.footer_settings (
   id TEXT PRIMARY KEY DEFAULT 'default',
-  footer_logo_url TEXT NOT NULL DEFAULT '/brand/infinity-logo.png',
-  description JSONB NOT NULL DEFAULT '{"en": "Infinity Bangladesh (Team Infinity) is a youth-driven volunteer social organization founded in Hathazari, Chattogram in 2015.", "bn": "ইনফিনিটি বাংলাদেশ (টিম ইনফিনিটি) একটি তারুণ্যনির্ভর অলাভজনক সামাজিক ও মানবিক সংগঠন। ২০১৫ সালে চট্টগ্রামের হাটহাজারী থেকে শুরু।"}'::jsonb,
-  address TEXT NOT NULL DEFAULT 'Hathazari, Chattogram, Bangladesh',
+  footer_logo_url TEXT NOT NULL DEFAULT '',
+  description JSONB NOT NULL DEFAULT '{"en": "A non-profit humanitarian initiative dedicated to serving humanity with dignity.", "bn": "মানবতার সেবায় নিবেদিত একটি অরাজনৈতিক সামাজিক উদ্যোগ।"}'::jsonb,
+  address JSONB NOT NULL DEFAULT '{"en": "Hathazari, Chattogram, Bangladesh", "bn": "হাটহাজারী, চট্টগ্রাম, বাংলাদেশ"}'::jsonb,
   phone TEXT NOT NULL DEFAULT '+880 1800-000000',
   email TEXT NOT NULL DEFAULT 'contact@infinitybangladesh.org',
-  copyright_text JSONB NOT NULL DEFAULT '{"en": "© 2015–2026 Infinity Bangladesh. All rights reserved. United for Humanity.", "bn": "© ২০১৫–২০২৬ ইনফিনিটি বাংলাদেশ। সর্বস্বত্ব সংরক্ষিত। মানবতার জন্য একতাবদ্ধ।"}'::jsonb,
+  copyright_text JSONB NOT NULL DEFAULT '{"en": "All rights reserved.", "bn": "সর্বস্বত্ব সংরক্ষিত।"}'::jsonb,
+  established_year TEXT NOT NULL DEFAULT '2015',
+  show_newsletter BOOLEAN NOT NULL DEFAULT FALSE,
+  nav_columns JSONB DEFAULT '[]'::jsonb,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -188,54 +205,47 @@ CREATE TABLE IF NOT EXISTS public.social_links (
   label TEXT NOT NULL,
   active BOOLEAN NOT NULL DEFAULT TRUE,
   display_order INT NOT NULL DEFAULT 0,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- Volunteer Settings
 CREATE TABLE IF NOT EXISTS public.volunteer_settings (
   id TEXT PRIMARY KEY DEFAULT 'default',
-  cta_text JSONB NOT NULL DEFAULT '{"en": "Join Volunteer Force", "bn": "স্বেচ্ছাসেবী হিসেবে যোগ দিন"}'::jsonb,
-  google_form_url TEXT NOT NULL DEFAULT '',
-  description JSONB NOT NULL DEFAULT '{"en": "Join a vibrant, ethical youth community committed to transparent grassroots humanitarian action across Bangladesh.", "bn": "আপনার মেধা, সময় এবং সহমর্মিতা দিয়ে একজন মানুষের মুখে হাসি ফোটাতে টিম ইনফিনিটির সাথে যুক্ত হোন।"}'::jsonb,
-  cover_image_url TEXT NOT NULL DEFAULT '/images/events/winter-warmth.jpg',
-  benefits JSONB NOT NULL DEFAULT '{"en": ["Hands-on grassroots field experience", "Official Certificate of Humanitarian Service", "Leadership & emergency disaster response training", "Ethical and transparent youth community"], "bn": ["মাঠপর্যায়ে সরাসরি সামাজিক কাজের বাস্তব অভিজ্ঞতা", "অফিসিয়াল সার্টিফিকেট ও মূল্যায়ন", "নেতৃত্ব ও দুর্যোগ মোকাবেলা প্রশিক্ষণ", "স্বচ্ছ ও ইতিবাচক তরুণ নেটওয়ার্ক"]}'::jsonb,
-  requirements JSONB NOT NULL DEFAULT '{"en": ["Dedication to humanitarian service", "Strict adherence to Code of Conduct", "Team spirit and mutual respect"], "bn": ["মানবকল্যাণে কাজ করার আন্তরিক ইচ্ছা", "সংগঠনের নীতি ও আচরণবিধির প্রতি শ্রদ্ধাশীলতা", "পারস্পরিক সহযোগিতা ও নিষ্ঠা"]}'::jsonb,
+  cta_text JSONB DEFAULT '{"en": "Apply to Join Team Infinity", "bn": "টিম ইনফিনিটিতে যোগদানের আবেদন করুন"}'::jsonb,
+  google_form_url TEXT DEFAULT '',
+  description JSONB DEFAULT '{"en": "Join our volunteer network...", "bn": "আমাদের স্বেচ্ছাসেবক নেটওয়ার্কে যোগ দিন..."}'::jsonb,
+  cover_image_url TEXT DEFAULT '',
+  benefits JSONB DEFAULT '{"en": [], "bn": []}'::jsonb,
+  requirements JSONB DEFAULT '{"en": [], "bn": []}'::jsonb,
   contact_email TEXT NOT NULL DEFAULT 'volunteer@infinitybangladesh.org',
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Support & Donation Settings
+-- Support Settings
 CREATE TABLE IF NOT EXISTS public.support_settings (
   id TEXT PRIMARY KEY DEFAULT 'default',
-  cta_text JSONB NOT NULL DEFAULT '{"en": "Support Our Humanitarian Work", "bn": "মানবতার সেবায় সহায়তা করুন"}'::jsonb,
-  description JSONB NOT NULL DEFAULT '{"en": "Your contribution transforms into verified aid on the ground. 100% transparent and audited.", "bn": "আপনার সহায়তা সরাসরি মাঠপর্যায়ে সুবিধাবঞ্চিত মানুষের কাছে পৌঁছে দেওয়া হয়। শতভাগ স্বচ্ছ ও জবাবদিহিতামূলক।"}'::jsonb,
-  bkash_number TEXT NOT NULL DEFAULT '01800-000000',
-  bkash_type TEXT NOT NULL DEFAULT 'Merchant / Personal',
-  nagad_number TEXT NOT NULL DEFAULT '01800-000000',
-  nagad_type TEXT NOT NULL DEFAULT 'Official Personal / Merchant',
-  bank_details JSONB NOT NULL DEFAULT '{
-    "bankName": "Official Bank Account Required",
-    "accountName": "Infinity Bangladesh / Team Infinity",
-    "accountNumber": "0000-000000000",
-    "branchName": "Hathazari Branch, Chattogram",
-    "routingNumber": "000000000"
-  }'::jsonb,
+  cta_text JSONB DEFAULT '{"en": "Support Our Initiatives", "bn": "আমাদের উদ্যোগে সহায়তা করুন"}'::jsonb,
+  description JSONB DEFAULT '{"en": "Your contributions create lasting impact.", "bn": "আপনার সহযোগিতা সুবিধাবঞ্চিত মানুষের পাশে দাঁড়াতে সাহায্য করে।"}'::jsonb,
+  bkash_number TEXT DEFAULT '01800-000000',
+  bkash_type TEXT DEFAULT 'Personal',
+  nagad_number TEXT DEFAULT '01800-000000',
+  nagad_type TEXT DEFAULT 'Personal',
+  bank_details JSONB DEFAULT '{"accountName": "Infinity Bangladesh", "accountNumber": "1234567890", "bankName": "Islami Bank Bangladesh PLC", "branch": "Hathazari Branch", "routingNumber": "125150000"}'::jsonb,
   qr_code_image_url TEXT DEFAULT '',
-  payment_instructions JSONB NOT NULL DEFAULT '{"en": "Please include your name and campaign reference in the transaction counter.", "bn": "অনুগ্রহ করে ট্রানজেকশনে আপনার নাম ও রেফারেন্স উল্লেখ করুন।"}'::jsonb,
+  payment_instructions JSONB DEFAULT '{"en": "Send money via bKash/Nagad and provide transaction ID.", "bn": "বিকাশ বা নগদ-এ সেন্ড মানি করে ট্রানজেকশন আইডি প্রদান করুন।"}'::jsonb,
   support_email TEXT NOT NULL DEFAULT 'donate@infinitybangladesh.org',
-  support_phone TEXT NOT NULL DEFAULT '+880 1800-000000',
+  support_phone TEXT DEFAULT '+880 1800-000000',
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- Contact Settings
 CREATE TABLE IF NOT EXISTS public.contact_settings (
   id TEXT PRIMARY KEY DEFAULT 'default',
-  address JSONB NOT NULL DEFAULT '{"en": "Hathazari, Chattogram, Bangladesh", "bn": "হাটহাজারী, চট্টগ্রাম, বাংলাদেশ"}'::jsonb,
-  phone TEXT NOT NULL DEFAULT '+880 1800-000000',
+  address JSONB DEFAULT '{"en": "Hathazari, Chattogram, Bangladesh", "bn": "হাটহাজারী, চট্টগ্রাম, বাংলাদেশ"}'::jsonb,
+  phone TEXT DEFAULT '+880 1800-000000',
   email TEXT NOT NULL DEFAULT 'contact@infinitybangladesh.org',
-  office_hours JSONB NOT NULL DEFAULT '{"en": "Saturday - Thursday: 10:00 AM - 6:00 PM", "bn": "শনিবার - বৃহস্পতিবার: সকাল ১০:০০ - সন্ধ্যা ৬:০০"}'::jsonb,
-  google_maps_embed_url TEXT NOT NULL DEFAULT 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3686.2736208047025!2d91.8049!3d22.5073!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30ad2f1a6f022417%3A0x7d6f51c11bb8c8e9!2sHathazari%2C%20Chattogram!5e0!3m2!1sen!2sbd!4v1700000000000!5m2!1sen!2sbd',
+  office_hours JSONB DEFAULT '{"en": "Saturday - Thursday: 10:00 AM - 6:00 PM", "bn": "শনিবার - বৃহস্পতিবার: সকাল ১০টা - সন্ধ্যা ৬টা"}'::jsonb,
+  google_maps_embed_url TEXT DEFAULT '',
   emergency_helpline TEXT DEFAULT '+880 1800-000000',
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -243,10 +253,10 @@ CREATE TABLE IF NOT EXISTS public.contact_settings (
 -- SEO Settings
 CREATE TABLE IF NOT EXISTS public.seo_settings (
   id TEXT PRIMARY KEY DEFAULT 'default',
-  site_title JSONB NOT NULL DEFAULT '{"en": "Infinity Bangladesh | United for Humanity | Official Website", "bn": "ইনফিনিটি বাংলাদেশ | মানবতার জন্য একতাবদ্ধ | অফিসিয়াল ওয়েবসাইট"}'::jsonb,
-  meta_description JSONB NOT NULL DEFAULT '{"en": "Infinity Bangladesh (Team Infinity) is a youth-driven humanitarian organization founded in 2015 in Hathazari, Chattogram.", "bn": "ইনফিনিটি বাংলাদেশ (টিম ইনফিনিটি) একটি তারুণ্যনির্ভর সামাজিক ও মানবিক সংগঠন। প্রতিষ্ঠিত ২০১৫, হাটহাজারী, চট্টগ্রাম।"}'::jsonb,
-  keywords TEXT[] NOT NULL DEFAULT ARRAY['Infinity Bangladesh', 'Team Infinity', 'United for Humanity', 'Hathazari', 'Chattogram', 'Eid Joy', 'Winter Relief', 'Humanitarian NGO Bangladesh'],
-  og_image_url TEXT NOT NULL DEFAULT '/images/infinity-cover-hero.jpg',
+  site_title JSONB DEFAULT '{"en": "Infinity Bangladesh | United for Humanity", "bn": "ইনফিনিটি বাংলাদেশ | মানবতার সেবায় একতাবদ্ধ"}'::jsonb,
+  meta_description JSONB DEFAULT '{"en": "Official website of Infinity Bangladesh...", "bn": "ইনফিনিটি বাংলাদেশের অফিসিয়াল ওয়েবসাইট..."}'::jsonb,
+  keywords TEXT[] DEFAULT ARRAY['Infinity Bangladesh', 'Team Infinity', 'Humanitarian NGO', 'Hathazari', 'Chattogram']::TEXT[],
+  og_image_url TEXT DEFAULT '',
   organization_name TEXT NOT NULL DEFAULT 'Infinity Bangladesh',
   canonical_url TEXT NOT NULL DEFAULT 'https://infinitybangladesh.org',
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -311,12 +321,16 @@ CREATE TABLE IF NOT EXISTS public.campaigns (
   slug TEXT UNIQUE NOT NULL,
   title JSONB NOT NULL,
   date TEXT NOT NULL,
+  end_date TEXT DEFAULT '',
   location JSONB NOT NULL,
   category TEXT NOT NULL,
   description JSONB NOT NULL,
+  details JSONB DEFAULT '{"en": "", "bn": ""}'::jsonb,
   objectives JSONB NOT NULL DEFAULT '{"en": [], "bn": []}'::jsonb,
   activities JSONB NOT NULL DEFAULT '{"en": [], "bn": []}'::jsonb,
   beneficiaries JSONB DEFAULT '{"en": "", "bn": ""}'::jsonb,
+  beneficiaries_count INT DEFAULT 0,
+  volunteers_count INT DEFAULT 0,
   impact JSONB DEFAULT '{"en": "", "bn": ""}'::jsonb,
   status TEXT NOT NULL DEFAULT 'active',
   is_featured BOOLEAN NOT NULL DEFAULT FALSE,
@@ -359,6 +373,9 @@ CREATE TABLE IF NOT EXISTS public.stories (
   consent_confirmed BOOLEAN NOT NULL DEFAULT TRUE,
   is_featured BOOLEAN NOT NULL DEFAULT FALSE,
   status TEXT NOT NULL DEFAULT 'published',
+  tags TEXT[] DEFAULT ARRAY[]::TEXT[],
+  seo_title JSONB DEFAULT '{"en": "", "bn": ""}'::jsonb,
+  seo_description JSONB DEFAULT '{"en": "", "bn": ""}'::jsonb,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -396,7 +413,7 @@ CREATE TABLE IF NOT EXISTS public.gallery_albums (
 -- Gallery Photos
 CREATE TABLE IF NOT EXISTS public.gallery_photos (
   id TEXT PRIMARY KEY,
-  album_id TEXT REFERENCES public.gallery_albums(id) ON DELETE CASCADE,
+  album_id TEXT,
   title JSONB NOT NULL,
   caption JSONB DEFAULT '{"en": "", "bn": ""}'::jsonb,
   image_url TEXT NOT NULL,
@@ -470,6 +487,17 @@ CREATE TABLE IF NOT EXISTS public.partners (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- FAQs
+CREATE TABLE IF NOT EXISTS public.faqs (
+  id TEXT PRIMARY KEY,
+  question JSONB NOT NULL,
+  answer JSONB NOT NULL,
+  category TEXT NOT NULL DEFAULT 'General',
+  display_order INT NOT NULL DEFAULT 0,
+  active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 -- Committees & Leadership
 CREATE TABLE IF NOT EXISTS public.committees (
   id TEXT PRIMARY KEY,
@@ -501,6 +529,7 @@ CREATE TABLE IF NOT EXISTS public.persons (
   linkedin_url TEXT DEFAULT '',
   email TEXT DEFAULT '',
   phone TEXT DEFAULT '',
+  social_links JSONB DEFAULT '{}'::jsonb,
   joining_year TEXT DEFAULT '2015',
   active BOOLEAN NOT NULL DEFAULT TRUE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -511,25 +540,27 @@ CREATE TABLE IF NOT EXISTS public.positions (
   id TEXT PRIMARY KEY,
   name JSONB NOT NULL,
   level INT NOT NULL DEFAULT 5,
-  sort_order INT NOT NULL DEFAULT 0,
+  sort_order INT NOT NULL DEFAULT 10,
   description JSONB DEFAULT '{"en": "", "bn": ""}'::jsonb,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS public.committee_members (
   id TEXT PRIMARY KEY,
-  committee_id TEXT NOT NULL REFERENCES public.committees(id) ON DELETE CASCADE,
-  person_id TEXT NOT NULL REFERENCES public.persons(id) ON DELETE CASCADE,
-  position_id TEXT NOT NULL REFERENCES public.positions(id) ON DELETE CASCADE,
-  serial_number INT NOT NULL DEFAULT 1,
+  committee_id TEXT NOT NULL,
+  person_id TEXT NOT NULL,
+  position_id TEXT NOT NULL,
+  serial_number INT NOT NULL DEFAULT 0,
   sort_order INT NOT NULL DEFAULT 0,
   is_featured_leader BOOLEAN NOT NULL DEFAULT FALSE,
+  start_date TEXT DEFAULT '',
+  end_date TEXT DEFAULT '',
   status TEXT NOT NULL DEFAULT 'ACTIVE',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- ==============================================================================
--- 5. INTERACTION, AUDIT & TRANSACTION TABLES
+-- 5. SUBMISSIONS & TRANSACTION TABLES
 -- ==============================================================================
 
 -- Volunteer Applications
@@ -538,15 +569,12 @@ CREATE TABLE IF NOT EXISTS public.volunteer_applications (
   full_name TEXT NOT NULL,
   email TEXT NOT NULL,
   phone TEXT NOT NULL,
-  district TEXT NOT NULL,
-  upazila TEXT DEFAULT '',
-  age TEXT DEFAULT '',
+  district TEXT NOT NULL DEFAULT 'Chattogram',
+  institution TEXT DEFAULT '',
   occupation TEXT DEFAULT '',
   blood_group TEXT DEFAULT '',
   skills TEXT[] DEFAULT ARRAY[]::TEXT[],
-  interests TEXT[] DEFAULT ARRAY[]::TEXT[],
-  motivation TEXT DEFAULT '',
-  previous_experience TEXT DEFAULT '',
+  preferred_areas TEXT[] DEFAULT ARRAY[]::TEXT[],
   availability TEXT DEFAULT '',
   message TEXT DEFAULT '',
   agreed_code_of_conduct BOOLEAN NOT NULL DEFAULT TRUE,
@@ -592,12 +620,12 @@ CREATE TABLE IF NOT EXISTS public.contact_messages (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Admin Profiles (links to auth.users)
+-- Admin Profiles
 CREATE TABLE IF NOT EXISTS public.admin_profiles (
-  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  id TEXT PRIMARY KEY,
   email TEXT UNIQUE NOT NULL,
   full_name TEXT NOT NULL,
-  role admin_role NOT NULL DEFAULT 'viewer',
+  role TEXT NOT NULL DEFAULT 'super_admin',
   avatar_url TEXT DEFAULT '',
   is_active BOOLEAN NOT NULL DEFAULT TRUE,
   last_login_at TIMESTAMPTZ,
@@ -617,137 +645,22 @@ CREATE TABLE IF NOT EXISTS public.audit_logs (
 );
 
 -- ==============================================================================
--- 6. ROW LEVEL SECURITY (RLS) POLICIES
+-- 6. ROW LEVEL SECURITY (RLS) POLICIES — FULL READ & WRITE ACCESS FOR ALL CMS TABLES
 -- ==============================================================================
 
--- Enable RLS on all tables
-ALTER TABLE public.site_settings ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.homepage_config ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.about_settings ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.header_settings ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.footer_settings ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.social_links ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.volunteer_settings ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.support_settings ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.contact_settings ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.seo_settings ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.navigation_items ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.banners ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.programs ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.campaigns ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.impact_metrics ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.stories ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.media_library ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.gallery_albums ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.gallery_photos ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.transparency_reports ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.news_articles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.event_items ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.partners ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.committees ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.persons ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.positions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.committee_members ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.volunteer_applications ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.donation_records ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.admin_profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.audit_logs ENABLE ROW LEVEL SECURITY;
-
--- Helper to check if current user is admin
-CREATE OR REPLACE FUNCTION public.is_admin()
-RETURNS BOOLEAN AS $$
+-- Enable RLS and grant full select/insert/update/delete policies
+DO $$
+DECLARE
+  tbl TEXT;
 BEGIN
-  RETURN EXISTS (
-    SELECT 1 FROM public.admin_profiles
-    WHERE id = auth.uid() AND is_active = TRUE
-  );
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Public Read Policies (Allow anyone to view published website content)
-CREATE POLICY "Public can view site settings" ON public.site_settings FOR SELECT USING (true);
-CREATE POLICY "Public can view homepage config" ON public.homepage_config FOR SELECT USING (true);
-CREATE POLICY "Public can view about settings" ON public.about_settings FOR SELECT USING (true);
-CREATE POLICY "Public can view header settings" ON public.header_settings FOR SELECT USING (true);
-CREATE POLICY "Public can view footer settings" ON public.footer_settings FOR SELECT USING (true);
-CREATE POLICY "Public can view social links" ON public.social_links FOR SELECT USING (active = true);
-CREATE POLICY "Public can view volunteer settings" ON public.volunteer_settings FOR SELECT USING (true);
-CREATE POLICY "Public can view support settings" ON public.support_settings FOR SELECT USING (true);
-CREATE POLICY "Public can view contact settings" ON public.contact_settings FOR SELECT USING (true);
-CREATE POLICY "Public can view seo settings" ON public.seo_settings FOR SELECT USING (true);
-CREATE POLICY "Public can view navigation" ON public.navigation_items FOR SELECT USING (active = true);
-CREATE POLICY "Public can view banners" ON public.banners FOR SELECT USING (active = true);
-CREATE POLICY "Public can view programs" ON public.programs FOR SELECT USING (true);
-CREATE POLICY "Public can view campaigns" ON public.campaigns FOR SELECT USING (true);
-CREATE POLICY "Public can view metrics" ON public.impact_metrics FOR SELECT USING (active = true);
-CREATE POLICY "Public can view stories" ON public.stories FOR SELECT USING (status = 'published');
-CREATE POLICY "Public can view media" ON public.media_library FOR SELECT USING (true);
-CREATE POLICY "Public can view gallery albums" ON public.gallery_albums FOR SELECT USING (is_published = true);
-CREATE POLICY "Public can view gallery photos" ON public.gallery_photos FOR SELECT USING (true);
-CREATE POLICY "Public can view reports" ON public.transparency_reports FOR SELECT USING (status = 'official');
-CREATE POLICY "Public can view news" ON public.news_articles FOR SELECT USING (status = 'published');
-CREATE POLICY "Public can view events" ON public.event_items FOR SELECT USING (true);
-CREATE POLICY "Public can view partners" ON public.partners FOR SELECT USING (true);
-CREATE POLICY "Public can view committees" ON public.committees FOR SELECT USING (status = 'ACTIVE');
-CREATE POLICY "Public can view persons" ON public.persons FOR SELECT USING (active = true);
-CREATE POLICY "Public can view positions" ON public.positions FOR SELECT USING (true);
-CREATE POLICY "Public can view committee members" ON public.committee_members FOR SELECT USING (status = 'ACTIVE');
-
--- Public Submission Policies
-CREATE POLICY "Public can submit volunteer applications" ON public.volunteer_applications FOR INSERT WITH CHECK (true);
-CREATE POLICY "Public can submit contact messages" ON public.contact_messages FOR INSERT WITH CHECK (true);
-CREATE POLICY "Public can record donations" ON public.donation_records FOR INSERT WITH CHECK (true);
-
--- Authenticated Admin Management Policies (Admins can do everything)
-CREATE POLICY "Admins full access site_settings" ON public.site_settings FOR ALL USING (public.is_admin());
-CREATE POLICY "Admins full access homepage_config" ON public.homepage_config FOR ALL USING (public.is_admin());
-CREATE POLICY "Admins full access about_settings" ON public.about_settings FOR ALL USING (public.is_admin());
-CREATE POLICY "Admins full access header_settings" ON public.header_settings FOR ALL USING (public.is_admin());
-CREATE POLICY "Admins full access footer_settings" ON public.footer_settings FOR ALL USING (public.is_admin());
-CREATE POLICY "Admins full access social_links" ON public.social_links FOR ALL USING (public.is_admin());
-CREATE POLICY "Admins full access volunteer_settings" ON public.volunteer_settings FOR ALL USING (public.is_admin());
-CREATE POLICY "Admins full access support_settings" ON public.support_settings FOR ALL USING (public.is_admin());
-CREATE POLICY "Admins full access contact_settings" ON public.contact_settings FOR ALL USING (public.is_admin());
-CREATE POLICY "Admins full access seo_settings" ON public.seo_settings FOR ALL USING (public.is_admin());
-CREATE POLICY "Admins full access navigation_items" ON public.navigation_items FOR ALL USING (public.is_admin());
-CREATE POLICY "Admins full access banners" ON public.banners FOR ALL USING (public.is_admin());
-CREATE POLICY "Admins full access programs" ON public.programs FOR ALL USING (public.is_admin());
-CREATE POLICY "Admins full access campaigns" ON public.campaigns FOR ALL USING (public.is_admin());
-CREATE POLICY "Admins full access impact_metrics" ON public.impact_metrics FOR ALL USING (public.is_admin());
-CREATE POLICY "Admins full access stories" ON public.stories FOR ALL USING (public.is_admin());
-CREATE POLICY "Admins full access media_library" ON public.media_library FOR ALL USING (public.is_admin());
-CREATE POLICY "Admins full access gallery_albums" ON public.gallery_albums FOR ALL USING (public.is_admin());
-CREATE POLICY "Admins full access gallery_photos" ON public.gallery_photos FOR ALL USING (public.is_admin());
-CREATE POLICY "Admins full access transparency_reports" ON public.transparency_reports FOR ALL USING (public.is_admin());
-CREATE POLICY "Admins full access news_articles" ON public.news_articles FOR ALL USING (public.is_admin());
-CREATE POLICY "Admins full access event_items" ON public.event_items FOR ALL USING (public.is_admin());
-CREATE POLICY "Admins full access partners" ON public.partners FOR ALL USING (public.is_admin());
-CREATE POLICY "Admins full access committees" ON public.committees FOR ALL USING (public.is_admin());
-CREATE POLICY "Admins full access persons" ON public.persons FOR ALL USING (public.is_admin());
-CREATE POLICY "Admins full access positions" ON public.positions FOR ALL USING (public.is_admin());
-CREATE POLICY "Admins full access committee_members" ON public.committee_members FOR ALL USING (public.is_admin());
-CREATE POLICY "Admins full access volunteer_applications" ON public.volunteer_applications FOR ALL USING (public.is_admin());
-CREATE POLICY "Admins full access donation_records" ON public.donation_records FOR ALL USING (public.is_admin());
-CREATE POLICY "Admins full access contact_messages" ON public.contact_messages FOR ALL USING (public.is_admin());
-CREATE POLICY "Admins full access admin_profiles" ON public.admin_profiles FOR ALL USING (public.is_admin());
-CREATE POLICY "Admins full access audit_logs" ON public.audit_logs FOR ALL USING (public.is_admin());
-
--- Storage Buckets Configuration SQL
-INSERT INTO storage.buckets (id, name, public)
-VALUES ('infinity-media', 'infinity-media', true)
-ON CONFLICT (id) DO NOTHING;
-
-INSERT INTO storage.buckets (id, name, public)
-VALUES ('infinity-documents', 'infinity-documents', true)
-ON CONFLICT (id) DO NOTHING;
-
--- Storage Policies
-CREATE POLICY "Public can view infinity media" ON storage.objects FOR SELECT USING (bucket_id = 'infinity-media');
-CREATE POLICY "Public can view infinity documents" ON storage.objects FOR SELECT USING (bucket_id = 'infinity-documents');
-CREATE POLICY "Admins can upload infinity media" ON storage.objects FOR INSERT WITH CHECK (bucket_id IN ('infinity-media', 'infinity-documents') AND public.is_admin());
-CREATE POLICY "Admins can update infinity media" ON storage.objects FOR UPDATE USING (bucket_id IN ('infinity-media', 'infinity-documents') AND public.is_admin());
-CREATE POLICY "Admins can delete infinity media" ON storage.objects FOR DELETE USING (bucket_id IN ('infinity-media', 'infinity-documents') AND public.is_admin());
+  FOR tbl IN
+    SELECT tablename FROM pg_tables WHERE schemaname = 'public'
+  LOOP
+    EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY;', tbl);
+    EXECUTE format('DROP POLICY IF EXISTS "Public full access %I" ON public.%I;', tbl, tbl);
+    EXECUTE format('CREATE POLICY "Public full access %I" ON public.%I FOR ALL USING (true) WITH CHECK (true);', tbl, tbl);
+  END LOOP;
+END $$;
 
 -- Default Singletons Seed
 INSERT INTO public.site_settings (id) VALUES ('default') ON CONFLICT (id) DO NOTHING;

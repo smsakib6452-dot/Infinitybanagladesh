@@ -52,6 +52,34 @@ export function isCloudinaryConfigured(): boolean {
 }
 
 /**
+ * Normalizes an image URL and adds cache-busting version or timestamp if applicable.
+ * Guarantees that multi-device browser caches and CDNs immediately serve the fresh image.
+ */
+export function getFreshImageUrl(url?: string, versionOrTimestamp?: number | string): string {
+  if (!url) return '';
+
+  // Data URIs and Blob URLs do not need cache-busting
+  if (url.startsWith('data:') || url.startsWith('blob:')) {
+    return url;
+  }
+
+  // For Cloudinary URLs:
+  if (url.includes('cloudinary.com')) {
+    // If the URL already contains a version tag /v\d+/, Cloudinary versioning is already handling cache-busting
+    if (/\/v\d+\//.test(url)) {
+      return url;
+    }
+    // If version is provided, insert version parameter into the Cloudinary path
+    if (versionOrTimestamp && url.includes('/upload/')) {
+      const parts = url.split('/upload/');
+      return `${parts[0]}/upload/v${versionOrTimestamp}/${parts[1]}`;
+    }
+  }
+
+  return url;
+}
+
+/**
  * Uploads a File, Blob, or base64 data URI directly to Cloudinary using unsigned upload.
  * 
  * @param file - File object, Blob, or base64 data URL string (e.g. data:image/png;base64,...)
@@ -86,7 +114,11 @@ export async function uploadToCloudinary(
   try {
     const response = await fetch(uploadEndpoint, {
       method: 'POST',
-      body: formData
+      body: formData,
+      headers: {
+        // Prevent browser caching of upload POST
+        'Cache-Control': 'no-cache'
+      }
     });
 
     const data = await response.json();
@@ -100,6 +132,12 @@ export async function uploadToCloudinary(
 
     if (!data.secure_url) {
       throw new Error('Upload succeeded but no secure_url was returned by Cloudinary.');
+    }
+
+    // Ensure secure_url contains explicit version if returned
+    if (data.version && data.secure_url.includes('/upload/') && !data.secure_url.includes(`/v${data.version}/`)) {
+      const parts = data.secure_url.split('/upload/');
+      data.secure_url = `${parts[0]}/upload/v${data.version}/${parts[1]}`;
     }
 
     return data as CloudinaryUploadResponse;

@@ -165,7 +165,7 @@ export const AdminPage: React.FC = () => {
     persons, addPerson, updatePerson, deletePerson,
     positions, addPosition, updatePosition, deletePosition,
     committeeMembers, addCommitteeMember, updateCommitteeMember, deleteCommitteeMember, reorderCommitteeMembers, getMembersWithDetails,
-    isLiveSupabase, isSyncing, syncWithSupabase, resetToDefaultData, exportDatabaseJSON, importDatabaseJSON
+    isLiveSupabase, isSyncing, lastSyncedAt, syncWithSupabase, pushAllToSupabase, resetToDefaultData, exportDatabaseJSON, importDatabaseJSON
   } = useData();
 
   // Auth State
@@ -527,15 +527,35 @@ export const AdminPage: React.FC = () => {
             </button>
 
             {isLiveSupabase && (
-              <button
-                type="button"
-                onClick={syncWithSupabase}
-                disabled={isSyncing}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#006A4E] hover:bg-[#008562] text-xs text-white font-bold transition-all cursor-pointer"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
-                <span>{isSyncing ? 'Syncing...' : 'Sync DB'}</span>
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const res = await pushAllToSupabase();
+                    setToastMessage(res.message);
+                  }}
+                  disabled={isSyncing}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs text-white font-bold transition-all cursor-pointer shadow-sm"
+                  title="Push all local CMS changes and image URLs directly to Supabase cloud database"
+                >
+                  <Upload className="w-3.5 h-3.5" />
+                  <span>{isSyncing ? 'Pushing...' : (isBn ? 'ক্লাউডে সেভ করুন' : 'Push to Cloud')}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await syncWithSupabase();
+                    setToastMessage(isBn ? 'সফলভাবে ক্লাউড ডাটাবেস থেকে লোড করা হয়েছে।' : 'Pulled latest data from cloud database.');
+                  }}
+                  disabled={isSyncing}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#006A4E] hover:bg-[#008562] text-xs text-white font-bold transition-all cursor-pointer"
+                  title="Fetch latest updates from Supabase"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+                  <span>{isSyncing ? 'Syncing...' : (isBn ? 'সিঙ্ক' : 'Pull DB')}</span>
+                </button>
+              </>
             )}
 
             <button

@@ -47,9 +47,9 @@ export const ContactPage: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-12 sm:space-y-16">
       <SectionHeading
         badge={isBn ? 'যোগাযোগ ও তথ্যসেবা' : 'Connect With Us'}
-        title={tText(contactSettings.title) || (isBn ? 'আমাদের সাথে যোগাযোগ করুন' : 'Get in Touch with Team Infinity')}
+        title={tText(contactSettings.title as any) || (isBn ? 'আমাদের সাথে যোগাযোগ করুন' : 'Get in Touch with Team Infinity')}
         subtitle={
-          tText(contactSettings.subtitle) || (isBn
+          tText(contactSettings.subtitle as any) || (isBn
             ? 'যেকোনো পরামর্শ, সহযোগিতা বা তথ্যের প্রয়োজনে আমাদের সাথে নির্দ্বিধায় যোগাযোগ করুন।'
             : 'Whether you want to partner with us, ask a question, or visit our volunteer hubs, we are here for you.')
         }
@@ -189,7 +189,7 @@ export const ContactPage: React.FC = () => {
                 </div>
                 <div>
                   <strong className="block text-slate-900">{isBn ? 'হেডকোয়ার্টার:' : 'Headquarters:'}</strong>
-                  <p className="text-slate-600 text-xs">{address}</p>
+                  <p className="text-slate-600 text-xs">{typeof address === 'string' ? address : tText(address as any)}</p>
                 </div>
               </div>
 
@@ -219,7 +219,7 @@ export const ContactPage: React.FC = () => {
                 </div>
                 <div>
                   <strong className="block text-slate-900">{isBn ? 'কার্যকাল:' : 'Operational Hours:'}</strong>
-                  <p className="text-slate-600 text-xs">{hours}</p>
+                  <p className="text-slate-600 text-xs">{typeof hours === 'string' ? hours : tText(hours as any)}</p>
                 </div>
               </div>
             </div>

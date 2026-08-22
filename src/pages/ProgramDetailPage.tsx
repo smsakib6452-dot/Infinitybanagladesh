@@ -105,7 +105,7 @@ export const ProgramDetailPage: React.FC = () => {
             {isBn ? 'কর্মসূচির বিশদ বিবরণ ও কৌশল' : 'Program Scope & Approach'}
           </h3>
           <p className="text-slate-700 leading-relaxed text-sm">
-            {tText(program.fullDescription)}
+            {tText(program.fullDescription || program.fullDetails)}
           </p>
 
           <div className="space-y-3 pt-4 border-t border-slate-100">
@@ -113,12 +113,18 @@ export const ProgramDetailPage: React.FC = () => {
               {isBn ? 'মূল কার্যপদ্ধতি ও লক্ষ্যসমূহ:' : 'Key Methodologies & Goals:'}
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {(isBn ? program.impactPoints.bn : program.impactPoints.en).map((point, index) => (
-                <div key={index} className="flex items-start gap-2.5 p-3 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] text-xs text-slate-700">
-                  <CheckCircle2 className="w-4 h-4 text-[#006A4E] shrink-0 mt-0.5" />
-                  <span>{point}</span>
-                </div>
-              ))}
+              {(() => {
+                const hl = program.impactHighlights || (program.impactPoints as any);
+                if (!hl) return null;
+                const list = isBn ? hl.bn : hl.en;
+                if (!Array.isArray(list)) return null;
+                return list.map((point: string, index: number) => (
+                  <div key={index} className="flex items-start gap-2.5 p-3 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] text-xs text-slate-700">
+                    <CheckCircle2 className="w-4 h-4 text-[#006A4E] shrink-0 mt-0.5" />
+                    <span>{point}</span>
+                  </div>
+                ));
+              })()}
             </div>
           </div>
         </div>

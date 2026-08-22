@@ -236,8 +236,8 @@ export const VolunteerPage: React.FC = () => {
                     className="w-full px-4 py-2.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-2xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#006A4E] focus:bg-white"
                   >
                     {BANGLADESH_DISTRICTS.map(d => (
-                      <option key={d} value={d}>
-                        {d}
+                      <option key={d.nameEn} value={d.nameEn}>
+                        {isBn ? d.nameBn : d.nameEn}
                       </option>
                     ))}
                   </select>

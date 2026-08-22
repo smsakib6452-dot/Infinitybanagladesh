@@ -116,11 +116,11 @@ export const PartnersPage: React.FC = () => {
 
                   <div>
                     <h3 className="text-xl font-bold text-slate-900 group-hover:text-[#006A4E] transition-colors font-display">
-                      {tText(partner.name)}
+                      {typeof partner.name === 'string' ? partner.name : tText(partner.name as any)}
                     </h3>
                     <p className="text-xs text-slate-500 mt-1 flex items-center gap-1 font-medium">
                       <span>{isBn ? 'সহযোগিতা বর্ষ:' : 'Alliance Since:'}</span>
-                      <strong className="text-slate-700">{partner.since}</strong>
+                      <strong className="text-slate-700">{partner.since || partner.partnershipYear}</strong>
                     </p>
                   </div>
 

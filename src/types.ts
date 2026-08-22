@@ -110,22 +110,33 @@ export interface AboutPreviewConfig {
 }
 
 export interface HomepageVolunteerBanner {
-  eyebrow: BilingualText;
+  eyebrow?: BilingualText;
+  badge?: BilingualText;
   title: BilingualText;
-  description: BilingualText;
-  primaryCtaText: BilingualText;
-  primaryCtaUrl: string;
-  secondaryCtaText: BilingualText;
-  secondaryCtaUrl: string;
+  subtitle?: BilingualText;
+  description?: BilingualText;
+  primaryCtaText?: BilingualText;
+  primaryCtaUrl?: string;
+  secondaryCtaText?: BilingualText;
+  secondaryCtaUrl?: string;
+  primaryButtonText?: BilingualText;
+  primaryButtonUrl?: string;
+  secondaryButtonText?: BilingualText;
+  secondaryButtonUrl?: string;
 }
 
 export interface HomepageSupportBanner {
   title: BilingualText;
-  description: BilingualText;
-  primaryCtaText: BilingualText;
-  primaryCtaUrl: string;
-  secondaryCtaText: BilingualText;
-  secondaryCtaUrl: string;
+  subtitle?: BilingualText;
+  description?: BilingualText;
+  primaryCtaText?: BilingualText;
+  primaryCtaUrl?: string;
+  secondaryCtaText?: BilingualText;
+  secondaryCtaUrl?: string;
+  primaryButtonText?: BilingualText;
+  primaryButtonUrl?: string;
+  secondaryButtonText?: BilingualText;
+  secondaryButtonUrl?: string;
 }
 
 export interface HomepageConfig {
@@ -183,6 +194,7 @@ export interface FooterSettings {
   phone: string;
   email: string;
   copyrightText: BilingualText;
+  establishedYear?: string;
   showNewsletter?: boolean;
   navColumns?: FooterColumn[];
   calloutEyebrow?: BilingualText;
@@ -315,7 +327,9 @@ export interface Program {
   category: string;
   shortDescription: BilingualText;
   fullDetails: BilingualText;
+  fullDescription?: BilingualText;
   impactHighlights: BilingualList;
+  impactPoints?: BilingualList | string[];
   imageUrl: string;
   iconName: string;
   status: 'active' | 'planning' | 'archived';
@@ -427,6 +441,7 @@ export interface Partner {
   type: 'Institutional' | 'Community Alliance' | 'Resource Partner' | 'Academic';
   description: BilingualText;
   partnershipYear: string;
+  since?: string;
 }
 
 // ----------------------------------------------------
@@ -446,6 +461,7 @@ export interface SupportSettings {
   ctaText: BilingualText;
   description: BilingualText;
   bKashNumber: string;
+  bkashNumber?: string;
   bKashType: string;
   nagadNumber: string;
   nagadType: string;
@@ -467,6 +483,9 @@ export interface ContactSettings {
   phone: string;
   email: string;
   officeHours: BilingualText;
+  workingHours?: BilingualText | string;
+  title?: BilingualText | string;
+  subtitle?: BilingualText | string;
   googleMapsEmbedUrl: string;
   emergencyHelpline?: string;
 }
@@ -542,7 +561,7 @@ export interface FAQItem {
 // SITE SETTINGS, SEO & AUDIT
 // ----------------------------------------------------
 export interface SiteSettings {
-  organizationName: string;
+  organizationName: any;
   teamIdentity: string;
   tagline: string;
   slogan?: BilingualText;
@@ -552,7 +571,7 @@ export interface SiteSettings {
   logoUrl?: string;
   faviconUrl?: string;
   country: string;
-  officialAddress: string;
+  officialAddress: any;
   officialPhone: string;
   officialEmail: string;
   facebookUrl: string;
@@ -612,6 +631,7 @@ export interface AuditLog {
   user: string;
   action: string;
   entity: string;
+  entityType?: string;
   entityId: string;
   timestamp: string;
   details: string;

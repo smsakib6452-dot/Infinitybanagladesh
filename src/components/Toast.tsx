@@ -6,7 +6,8 @@ export type ToastType = 'success' | 'error' | 'info';
 export interface ToastProps {
   message: string;
   type?: ToastType;
-  isOpen: boolean;
+  isOpen?: boolean;
+  isVisible?: boolean;
   onClose: () => void;
   duration?: number;
 }
@@ -15,19 +16,22 @@ export const Toast: React.FC<ToastProps> = ({
   message,
   type = 'success',
   isOpen,
+  isVisible,
   onClose,
   duration = 4000
 }) => {
+  const show = isOpen ?? isVisible ?? true;
+
   useEffect(() => {
-    if (isOpen && duration > 0) {
+    if (show && duration > 0) {
       const timer = setTimeout(() => {
         onClose();
       }, duration);
       return () => clearTimeout(timer);
     }
-  }, [isOpen, duration, onClose]);
+  }, [show, duration, onClose]);
 
-  if (!isOpen) return null;
+  if (!show) return null;
 
   const bgStyles = {
     success: 'bg-emerald-900/95 text-emerald-100 border-emerald-700/50 shadow-emerald-950/40',

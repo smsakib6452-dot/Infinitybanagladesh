@@ -7,16 +7,20 @@ export interface SocialShareModalProps {
   onClose: () => void;
   title: string;
   url?: string;
+  path?: string;
 }
 
 export const SocialShareModal: React.FC<SocialShareModalProps> = ({
   isOpen,
   onClose,
   title,
-  url = typeof window !== 'undefined' ? window.location.href : 'https://infinitybangladesh.org'
+  url: propsUrl,
+  path
 }) => {
   const { isBn } = useLanguage();
   const [copied, setCopied] = useState(false);
+
+  const url = propsUrl || (path ? (typeof window !== 'undefined' ? `${window.location.origin}${path}` : `https://infinitybangladesh.org${path}`) : (typeof window !== 'undefined' ? window.location.href : 'https://infinitybangladesh.org'));
 
   if (!isOpen) return null;
 

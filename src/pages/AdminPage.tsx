@@ -582,10 +582,37 @@ export const AdminPage: React.FC = () => {
       </div>
 
       {/* 2. Admin Workspace Grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+        {/* Mobile Quick Section Selector */}
+        <div className="lg:hidden mb-4 bg-white rounded-2xl border border-[#EAE3D9] p-3.5 shadow-warm-sm space-y-2">
+          <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+            <span>{isBn ? 'সেকশন নির্বাচন করুন:' : 'Admin Section:'}</span>
+            <span className="text-[11px] text-[#00523C] bg-[#E6F3EF] px-2.5 py-0.5 rounded-full font-bold border border-[#C2E2D7]">
+              {tabGroups.flatMap(g => g.items).find(i => i.id === activeTab)?.label}
+            </span>
+          </div>
+          <select
+            value={activeTab}
+            onChange={(e) => {
+              setActiveTab(e.target.value as AdminTab);
+            }}
+            className="w-full p-2.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#006A4E]"
+          >
+            {tabGroups.map((g, gIdx) => (
+              <optgroup key={gIdx} label={g.group}>
+                {g.items.map(item => (
+                  <option key={item.id} value={item.id}>
+                    {item.label}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
-          {/* Left Sidebar Menu */}
-          <div className="lg:col-span-3 bg-white rounded-3xl border border-[#EAE3D9] p-4 shadow-warm-sm space-y-6">
+          {/* Desktop Left Sidebar Menu */}
+          <div className="hidden lg:block lg:col-span-3 bg-white rounded-3xl border border-[#EAE3D9] p-4 shadow-warm-sm space-y-6">
             {tabGroups.map((group, gIdx) => (
               <div key={gIdx} className="space-y-1">
                 <span className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider px-3 block">

@@ -285,12 +285,12 @@ export const ExecutiveCommitteePage: React.FC = () => {
               </span>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
               {tier4Members.map(m => (
                 <div
                   key={m.id}
                   onClick={() => setSelectedMember(m)}
-                  className="group cursor-pointer bg-[#FAF7F2] hover:bg-white rounded-3xl p-3.5 sm:p-4 text-center border border-[#EAE3D9] hover:border-[#006A4E] hover:shadow-warm-md transition-all relative flex flex-col justify-between"
+                  className="group cursor-pointer bg-[#FAF7F2] hover:bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-4 text-center border border-[#EAE3D9] hover:border-[#006A4E] hover:shadow-warm-md transition-all relative flex flex-col justify-between"
                 >
                   <div className="absolute top-2.5 right-2.5 bg-white text-slate-700 font-mono font-bold text-[10px] px-1.5 py-0.5 rounded-full border border-slate-200 shadow-2xs">
                     #{String(m.serialNumber).padStart(2, '0')}

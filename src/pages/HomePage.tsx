@@ -136,12 +136,12 @@ export const HomePage: React.FC = () => {
                   </p>
 
                   {/* CTA Action Cluster */}
-                  <div className="pt-2 flex flex-wrap items-center gap-3 sm:gap-4">
+                  <div className="pt-2 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 sm:gap-4">
                     {hero.primaryCta.active && (
                       <button
                         type="button"
                         onClick={() => handleCtaClick(hero.primaryCta.url, hero.primaryCta.openInNewTab)}
-                        className="px-6 sm:px-7 py-3.5 rounded-2xl bg-[#006A4E] hover:bg-[#00523C] active:bg-[#00402E] text-white text-sm sm:text-base font-extrabold shadow-warm-md hover:shadow-warm-lg transition-all duration-200 flex items-center gap-2.5 cursor-pointer transform hover:-translate-y-0.5"
+                        className="px-6 sm:px-7 py-3.5 rounded-2xl bg-[#006A4E] hover:bg-[#00523C] active:bg-[#00402E] text-white text-sm sm:text-base font-extrabold shadow-warm-md hover:shadow-warm-lg transition-all duration-200 flex items-center justify-center gap-2.5 cursor-pointer transform hover:-translate-y-0.5 touch-min-btn"
                       >
                         <Heart className="w-5 h-5 fill-white text-white" />
                         <span>{tText(hero.primaryCta.text)}</span>
@@ -152,7 +152,7 @@ export const HomePage: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => handleCtaClick(hero.secondaryCta.url, hero.secondaryCta.openInNewTab)}
-                        className="px-6 sm:px-7 py-3.5 rounded-2xl bg-white hover:bg-[#FAF7F2] active:bg-[#F2ECE1] text-slate-800 text-sm sm:text-base font-bold border-2 border-[#D8CFC4] hover:border-[#006A4E] hover:text-[#006A4E] shadow-warm-sm transition-all duration-200 flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5"
+                        className="px-6 sm:px-7 py-3.5 rounded-2xl bg-white hover:bg-[#FAF7F2] active:bg-[#F2ECE1] text-slate-800 text-sm sm:text-base font-bold border-2 border-[#D8CFC4] hover:border-[#006A4E] hover:text-[#006A4E] shadow-warm-sm transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer transform hover:-translate-y-0.5 touch-min-btn"
                       >
                         <Users className="w-5 h-5 text-[#006A4E]" />
                         <span>{tText(hero.secondaryCta.text)}</span>

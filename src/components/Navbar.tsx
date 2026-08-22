@@ -228,7 +228,8 @@ export const Navbar: React.FC = () => {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer"
+              aria-label="Toggle navigation menu"
+              className="p-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer touch-min-btn flex items-center justify-center"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -237,7 +238,7 @@ export const Navbar: React.FC = () => {
 
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
-          <div className="lg:hidden border-t border-[#EAE3D9] bg-white px-4 pt-3 pb-6 space-y-3 animate-in slide-in-from-top-4">
+          <div className="lg:hidden border-t border-[#EAE3D9] bg-white px-4 pt-3 pb-8 space-y-3 animate-in slide-in-from-top-4 max-h-[82vh] overflow-y-auto shadow-2xl">
             <div className="space-y-1">
               {activeNavItems.map(item => {
                 if (item.isDropdown && item.children && item.children.length > 0) {

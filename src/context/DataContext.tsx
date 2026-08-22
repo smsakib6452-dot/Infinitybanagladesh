@@ -420,22 +420,25 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (homeData) {
         setHomepageConfig(prev => ({
           ...prev,
-          hero: homeData.hero
-            ? {
-                ...homeData.hero,
-                heroImageUrl: getFreshImageUrl(homeData.hero.heroImageUrl || prev.hero.heroImageUrl)
-              }
-            : prev.hero,
-          aboutPreview: homeData.about_preview
-            ? {
-                ...homeData.about_preview,
-                imageUrl: getFreshImageUrl(homeData.about_preview.imageUrl || prev.aboutPreview.imageUrl)
-              }
-            : prev.aboutPreview,
-          volunteerBanner: homeData.volunteer_banner || prev.volunteerBanner,
-          supportBanner: homeData.support_banner || prev.supportBanner,
-          sectionOrder: homeData.section_order || prev.sectionOrder,
-          sectionVisibility: homeData.section_visibility || prev.sectionVisibility
+          hero: {
+            ...prev.hero,
+            ...(homeData.hero || {}),
+            headlineMain: (homeData.hero?.headlineMain && homeData.hero.headlineMain.bn) ? homeData.hero.headlineMain : prev.hero.headlineMain,
+            headlineHighlight: (homeData.hero?.headlineHighlight && homeData.hero.headlineHighlight.bn) ? homeData.hero.headlineHighlight : prev.hero.headlineHighlight,
+            description: (homeData.hero?.description && homeData.hero.description.bn) ? homeData.hero.description : prev.hero.description,
+            heroImageUrl: getFreshImageUrl(homeData.hero?.heroImageUrl || prev.hero.heroImageUrl)
+          },
+          aboutPreview: {
+            ...prev.aboutPreview,
+            ...(homeData.about_preview || {}),
+            titleMain: (homeData.about_preview?.titleMain && homeData.about_preview.titleMain.bn) ? homeData.about_preview.titleMain : prev.aboutPreview.titleMain,
+            description: (homeData.about_preview?.description && homeData.about_preview.description.bn) ? homeData.about_preview.description : prev.aboutPreview.description,
+            imageUrl: getFreshImageUrl(homeData.about_preview?.imageUrl || prev.aboutPreview.imageUrl)
+          },
+          volunteerBanner: { ...prev.volunteerBanner, ...(homeData.volunteer_banner || {}) },
+          supportBanner: { ...prev.supportBanner, ...(homeData.support_banner || {}) },
+          sectionOrder: (Array.isArray(homeData.section_order) && homeData.section_order.length > 0) ? homeData.section_order : prev.sectionOrder,
+          sectionVisibility: (homeData.section_visibility && Object.keys(homeData.section_visibility).length > 0) ? { ...prev.sectionVisibility, ...homeData.section_visibility } : prev.sectionVisibility
         }));
       }
 
@@ -444,11 +447,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (aboutData) {
         setAboutSettings(prev => ({
           ...prev,
-          title: aboutData.title || prev.title,
-          subtitle: aboutData.subtitle || prev.subtitle,
-          mission: aboutData.mission || prev.mission,
-          vision: aboutData.vision || prev.vision,
-          history: aboutData.history || prev.history,
+          title: (aboutData.title && aboutData.title.bn) ? aboutData.title : prev.title,
+          subtitle: (aboutData.subtitle && aboutData.subtitle.bn) ? aboutData.subtitle : prev.subtitle,
+          mission: (aboutData.mission && aboutData.mission.bn) ? aboutData.mission : prev.mission,
+          vision: (aboutData.vision && aboutData.vision.bn) ? aboutData.vision : prev.vision,
+          history: (aboutData.history && aboutData.history.bn) ? aboutData.history : prev.history,
           establishedYear: aboutData.established_year || prev.establishedYear,
           location: aboutData.location || prev.location,
           heroImageUrl: getFreshImageUrl(aboutData.hero_image_url || prev.heroImageUrl),
@@ -463,8 +466,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           ...prev,
           logoUrl: getFreshImageUrl(headerData.logo_url || prev.logoUrl),
           showNoticeBar: headerData.show_notice_bar ?? prev.showNoticeBar,
-          noticeBarText: headerData.notice_bar_text || prev.noticeBarText,
-          supportButtonText: headerData.support_button_text || prev.supportButtonText,
+          noticeBarText: (headerData.notice_bar_text && headerData.notice_bar_text.bn) ? headerData.notice_bar_text : prev.noticeBarText,
+          supportButtonText: (headerData.support_button_text && headerData.support_button_text.bn) ? headerData.support_button_text : prev.supportButtonText,
           supportButtonUrl: headerData.support_button_url || prev.supportButtonUrl
         }));
       }
@@ -475,11 +478,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setFooterSettings(prev => ({
           ...prev,
           footerLogoUrl: getFreshImageUrl(footerData.footer_logo_url || prev.footerLogoUrl),
-          description: footerData.description || prev.description,
-          address: footerData.address || prev.address,
+          description: (footerData.description && footerData.description.bn) ? footerData.description : prev.description,
+          address: (footerData.address && footerData.address.bn) ? footerData.address : prev.address,
           phone: footerData.phone || prev.phone,
           email: footerData.email || prev.email,
-          copyrightText: footerData.copyright_text || prev.copyrightText
+          copyrightText: (footerData.copyright_text && footerData.copyright_text.bn) ? footerData.copyright_text : prev.copyrightText
         }));
       }
 

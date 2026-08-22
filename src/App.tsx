@@ -5,6 +5,7 @@ import { RouterProvider, useRouter } from './context/RouterContext';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { GlobalSearchModal } from './components/GlobalSearchModal';
+import { AdminErrorBoundary } from './components/AdminErrorBoundary';
 
 // Pages
 import { HomePage } from './pages/HomePage';
@@ -117,7 +118,9 @@ const AppContent: React.FC = () => {
 
       {/* Main Routed Content */}
       <main className="flex-1">
-        {renderPage()}
+        <AdminErrorBoundary fallbackTitle="Page Load Notice">
+          {renderPage()}
+        </AdminErrorBoundary>
       </main>
 
       {/* Global Footer (shown on all pages for consistency) */}

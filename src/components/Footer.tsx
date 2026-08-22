@@ -111,7 +111,7 @@ export const Footer: React.FC = () => {
             </p>
 
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-emerald-950/60 border border-emerald-800/60 text-[11px] text-emerald-300 font-semibold">
-              <span>Established {settings.establishedYear || '2015'} &bull; {footerSettings.address || settings.officialAddress || 'Hathazari, Chattogram, Bangladesh'}</span>
+              <span>Established {settings.establishedYear || '2015'} &bull; {typeof footerSettings.address === 'object' ? tText(footerSettings.address as any) : (footerSettings.address || settings.officialAddress || 'Hathazari, Chattogram, Bangladesh')}</span>
             </div>
 
             {/* Official Social Channels */}
@@ -209,7 +209,7 @@ export const Footer: React.FC = () => {
             <ul className="space-y-2.5 text-xs text-emerald-200/80">
               <li className="flex items-start gap-2">
                 <MapPin className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                <span>{footerSettings.address || settings.officialAddress}</span>
+                <span>{typeof footerSettings.address === 'object' ? tText(footerSettings.address as any) : (footerSettings.address || settings.officialAddress)}</span>
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="w-3.5 h-3.5 text-emerald-400 shrink-0" />

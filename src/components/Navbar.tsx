@@ -188,8 +188,8 @@ export const Navbar: React.FC = () => {
             })}
           </div>
 
-          {/* Right Action Cluster */}
-          <div className="hidden sm:flex items-center gap-2.5 shrink-0">
+          {/* Desktop Right Action Cluster (Large Screens) */}
+          <div className="hidden lg:flex items-center gap-2.5 shrink-0">
             {headerSettings.showSearch && (
               <button
                 type="button"
@@ -213,13 +213,26 @@ export const Navbar: React.FC = () => {
             )}
           </div>
 
-          {/* Mobile Hamburger Button */}
-          <div className="flex lg:hidden items-center gap-2">
+          {/* Mobile Right Action Cluster (Mobile & Tablet) */}
+          <div className="flex lg:hidden items-center gap-1.5 sm:gap-2 shrink-0">
+            {headerSettings.showSupportButton && (
+              <button
+                type="button"
+                onClick={() => handleNavClick(headerSettings.supportButtonUrl || 'donate')}
+                className="px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-[#006A4E] hover:bg-[#00523C] active:bg-[#00402E] text-white text-xs sm:text-sm font-extrabold shadow-xs transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
+                title={tText(headerSettings.supportButtonText)}
+              >
+                <Heart className="w-3.5 h-3.5 fill-white shrink-0" />
+                <span className="whitespace-nowrap">{tText(headerSettings.supportButtonText)}</span>
+              </button>
+            )}
+
             {headerSettings.showSearch && (
               <button
                 type="button"
                 onClick={() => setIsSearchOpen(true)}
-                className="p-2 rounded-xl bg-[#FAF7F2] text-slate-700 border border-[#EAE3D9]"
+                className="p-1.5 sm:p-2 rounded-xl bg-[#FAF7F2] hover:bg-[#F2ECE1] text-slate-700 hover:text-[#006A4E] border border-[#EAE3D9] cursor-pointer"
+                title={isBn ? 'অনুসন্ধান করুন (Search)' : 'Search'}
               >
                 <Search className="w-4 h-4" />
               </button>
@@ -229,7 +242,7 @@ export const Navbar: React.FC = () => {
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label="Toggle navigation menu"
-              className="p-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer touch-min-btn flex items-center justify-center"
+              className="p-1.5 sm:p-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer touch-min-btn flex items-center justify-center"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>

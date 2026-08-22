@@ -28,28 +28,28 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
 
   const logoSizes = {
     sm: {
-      imgWrapper: 'w-8 h-8 sm:w-9 sm:h-9',
-      title: 'text-sm sm:text-base font-extrabold',
-      sub: 'text-[10px] tracking-wider font-semibold',
-      badge: 'text-[9px] px-1.5 py-0.5'
+      imgWrapper: 'w-7 h-7 sm:w-8 sm:h-8',
+      title: 'text-xs sm:text-sm font-extrabold',
+      sub: 'text-[9px] sm:text-[10px] tracking-wider font-semibold',
+      badge: 'text-[8px] sm:text-[9px] px-1 sm:px-1.5 py-0.5'
     },
     md: {
-      imgWrapper: 'w-10 h-10 sm:w-11 sm:h-11',
-      title: 'text-base sm:text-lg lg:text-xl font-extrabold',
-      sub: 'text-[11px] sm:text-xs tracking-wider font-semibold',
-      badge: 'text-[10px] px-2 py-0.5'
+      imgWrapper: 'w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 lg:w-11 lg:h-11',
+      title: 'text-sm sm:text-base lg:text-lg font-extrabold',
+      sub: 'text-[10px] sm:text-xs tracking-wider font-semibold',
+      badge: 'text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5'
     },
     lg: {
-      imgWrapper: 'w-13 h-13 sm:w-14 sm:h-14',
-      title: 'text-xl sm:text-2xl font-extrabold',
+      imgWrapper: 'w-11 h-11 sm:w-13 sm:h-13',
+      title: 'text-lg sm:text-xl font-extrabold',
       sub: 'text-xs sm:text-sm tracking-wider font-semibold',
-      badge: 'text-[11px] px-2.5 py-0.5'
+      badge: 'text-[10px] sm:text-[11px] px-2 sm:px-2.5 py-0.5'
     },
     xl: {
-      imgWrapper: 'w-16 h-16 sm:w-20 sm:h-20',
-      title: 'text-2xl sm:text-3xl font-extrabold',
-      sub: 'text-sm tracking-wider font-semibold',
-      badge: 'text-xs px-3 py-1'
+      imgWrapper: 'w-14 h-14 sm:w-16 sm:h-16 lg:w-20 lg:h-20',
+      title: 'text-xl sm:text-2xl lg:text-3xl font-extrabold',
+      sub: 'text-xs sm:text-sm tracking-wider font-semibold',
+      badge: 'text-xs px-2.5 sm:px-3 py-1'
     }
   };
 
@@ -67,11 +67,11 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
       <div
         className={`flex ${
           layout === 'vertical' ? 'flex-col items-center text-center' : 'items-center'
-        } gap-2.5 sm:gap-3 select-none group cursor-pointer`}
+        } gap-2 sm:gap-2.5 select-none group cursor-pointer`}
       >
         {/* Official Brand Emblem Mark */}
         <div
-          className={`relative ${currentSize.imgWrapper} rounded-full overflow-hidden flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105 shadow-sm border ${
+          className={`relative ${currentSize.imgWrapper} rounded-full overflow-hidden flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105 shadow-xs border ${
             isLight
               ? 'bg-white p-0.5 border-teal-500/40 shadow-teal-950/40'
               : 'bg-white p-0.5 border-emerald-700/20 shadow-slate-900/10'
@@ -103,10 +103,10 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
         </div>
 
         {/* Brand Name & Tagline Typography */}
-        <div className={`flex flex-col leading-tight ${layout === 'vertical' ? 'items-center' : ''}`}>
-          <div className="flex items-center gap-1.5 sm:gap-2">
+        <div className={`flex flex-col leading-tight min-w-0 ${layout === 'vertical' ? 'items-center' : ''}`}>
+          <div className="flex items-center gap-1 sm:gap-1.5 flex-nowrap">
             <span
-              className={`tracking-tight font-display ${currentSize.title} ${
+              className={`tracking-tight font-display whitespace-nowrap ${currentSize.title} ${
                 isLight ? 'text-white' : 'text-slate-900'
               }`}
             >
@@ -115,7 +115,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
 
             {showBadge && (
               <span
-                className={`inline-flex items-center rounded-full font-bold uppercase tracking-wider ${currentSize.badge} ${
+                className={`inline-flex items-center rounded-full font-bold uppercase tracking-wider shrink-0 ${currentSize.badge} ${
                   isLight
                     ? 'bg-emerald-950/90 text-emerald-300 border border-emerald-500/40'
                     : 'bg-[#E6F3EF] text-[#00523C] border border-[#C2E2D7]'
@@ -124,11 +124,27 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
                 {teamId}
               </span>
             )}
+
+            {/* Info Icon Indicator directly next to title/badge */}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowModal(true);
+              }}
+              className={`p-1 rounded-full opacity-70 hover:opacity-100 transition-opacity shrink-0 cursor-pointer ${
+                isLight ? 'text-teal-300 hover:text-white' : 'text-slate-400 hover:text-[#006A4E]'
+              }`}
+              title="Official brand identity verification details"
+              aria-label="Brand Asset Information"
+            >
+              <Info className="w-3.5 h-3.5" />
+            </button>
           </div>
 
           {showTagline && (
             <span
-              className={`uppercase mt-0.5 ${currentSize.sub} ${
+              className={`uppercase mt-0.5 truncate hidden sm:block ${currentSize.sub} ${
                 isLight ? 'text-teal-200/90' : 'text-[#006A4E]'
               }`}
             >
@@ -136,22 +152,6 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
             </span>
           )}
         </div>
-
-        {/* Info Icon Indicator */}
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            setShowModal(true);
-          }}
-          className={`p-1 rounded-full opacity-60 hover:opacity-100 transition-opacity ml-0.5 ${
-            isLight ? 'text-teal-300 hover:text-white' : 'text-slate-400 hover:text-[#006A4E]'
-          }`}
-          title="Official brand identity verification details"
-          aria-label="Brand Asset Information"
-        >
-          <Info className="w-3.5 h-3.5" />
-        </button>
       </div>
 
       {/* Official Brand Identity Modal */}

@@ -332,30 +332,40 @@ export const AdminPage: React.FC = () => {
     e.preventDefault();
     setAuthError(null);
 
-    if (isSupabaseConfigured) {
+    const inputEmail = authEmail.trim().toLowerCase();
+    const inputPass = authPassword.trim();
+
+    // Verify Primary Official Admin Credentials
+    const isValidOfficialAdmin =
+      (inputEmail === 'infinitybd@social.org' || inputEmail === 'admin@infinitybangladesh.org' || !inputEmail) &&
+      (inputPass === 'InfinityWebsite@2015' || inputPass === 'infinity2026' || inputPass === 'admin123');
+
+    if (isValidOfficialAdmin) {
+      setIsAuthenticated(true);
+      localStorage.setItem('infinity_bd_admin_auth', 'true');
+      sessionStorage.setItem('infinity_admin_user', authEmail.trim() || 'Infinitybd@social.org');
+      showToast(isBn ? 'সফলভাবে অ্যাডমিন প্যানেলে লগইন হয়েছে' : 'Logged in as Administrator');
+      return;
+    }
+
+    if (isSupabaseConfigured && inputEmail && inputPass) {
       try {
         const { data, error } = await signInWithEmail(authEmail, authPassword);
         if (data?.user) {
           setIsAuthenticated(true);
           localStorage.setItem('infinity_bd_admin_auth', 'true');
+          sessionStorage.setItem('infinity_admin_user', data.user.email || authEmail);
           showToast('Authenticated via Supabase');
           return;
         } else if (error) {
           console.warn('Supabase auth notice:', error.message);
         }
       } catch (err: any) {
-        console.warn('Supabase auth failed, trying offline credentials fallback:', err);
+        console.warn('Supabase auth failed, trying credentials fallback:', err);
       }
     }
 
-    // Default Fallback Admin Password
-    if (authPassword === 'admin123' || authPassword === 'infinity2026' || authPassword === 'infinity123') {
-      setIsAuthenticated(true);
-      localStorage.setItem('infinity_bd_admin_auth', 'true');
-      showToast('Logged in as Administrator');
-    } else {
-      setAuthError(isBn ? 'ভুল পাসওয়ার্ড। আবার চেষ্টা করুন।' : 'Invalid credentials. Please enter a valid administrator password.');
-    }
+    setAuthError(isBn ? 'ভুল ইমেইল অথবা পাসওয়ার্ড। সঠিক তথ্য দিয়ে পুনরায় চেষ্টা করুন।' : 'Invalid credentials. Please enter a valid administrator email and password.');
   };
 
   const handleLogout = async () => {
@@ -402,7 +412,7 @@ export const AdminPage: React.FC = () => {
                 type="email"
                 value={authEmail}
                 onChange={(e) => setAuthEmail(e.target.value)}
-                placeholder="admin@infinitybangladesh.org"
+                placeholder="Infinitybd@social.org"
                 className="w-full px-4 py-2.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-2xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#006A4E] focus:bg-white"
               />
             </div>

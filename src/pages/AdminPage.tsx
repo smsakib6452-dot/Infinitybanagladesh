@@ -412,7 +412,7 @@ export const AdminPage: React.FC = () => {
                 type="email"
                 value={authEmail}
                 onChange={(e) => setAuthEmail(e.target.value)}
-                placeholder="Infinitybd@social.org"
+                placeholder="name@example.com"
                 className="w-full px-4 py-2.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-2xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#006A4E] focus:bg-white"
               />
             </div>

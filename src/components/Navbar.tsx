@@ -102,21 +102,6 @@ export const Navbar: React.FC = () => {
                 </>
               )}
 
-              {/* Only render Admin link if user is already authenticated as administrator */}
-              {isAdminAuthenticated && (
-                <>
-                  <span className="hidden sm:inline text-emerald-800">|</span>
-                  <button
-                    type="button"
-                    onClick={() => navigate('admin')}
-                    className="hover:text-white inline-flex items-center gap-1 transition-colors text-[11px] font-medium text-emerald-300/80 cursor-pointer"
-                    title="Admin Portal"
-                  >
-                    <Lock className="w-3 h-3 text-emerald-400" />
-                    <span>{isBn ? 'অ্যাডমিন' : 'Admin'}</span>
-                  </button>
-                </>
-              )}
             </div>
           </div>
         </div>

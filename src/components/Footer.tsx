@@ -223,16 +223,6 @@ export const Footer: React.FC = () => {
                   {footerSettings.email || settings.officialEmail}
                 </a>
               </li>
-              <li className="pt-2 border-t border-emerald-900/60">
-                <button
-                  type="button"
-                  onClick={() => handleNav('admin')}
-                  className="inline-flex items-center gap-1.5 text-[11px] text-emerald-300 hover:text-white transition-colors font-medium cursor-pointer"
-                >
-                  <Lock className="w-3 h-3 text-emerald-400" />
-                  <span>{isBn ? 'অ্যাডমিন পোর্টাল লগইন' : 'Admin CMS Portal'}</span>
-                </button>
-              </li>
             </ul>
           </div>
         </div>

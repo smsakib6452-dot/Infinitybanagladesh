@@ -115,7 +115,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
 
             {showBadge && (
               <span
-                className={`inline-flex items-center rounded-full font-bold uppercase tracking-wider shrink-0 ${currentSize.badge} ${
+                className={`hidden md:inline-flex items-center rounded-full font-bold uppercase tracking-wider shrink-0 ${currentSize.badge} ${
                   isLight
                     ? 'bg-emerald-950/90 text-emerald-300 border border-emerald-500/40'
                     : 'bg-[#E6F3EF] text-[#00523C] border border-[#C2E2D7]'
@@ -132,7 +132,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
                 e.stopPropagation();
                 setShowModal(true);
               }}
-              className={`p-1 rounded-full opacity-70 hover:opacity-100 transition-opacity shrink-0 cursor-pointer ${
+              className={`hidden md:inline-flex p-1 rounded-full opacity-70 hover:opacity-100 transition-opacity shrink-0 cursor-pointer ${
                 isLight ? 'text-teal-300 hover:text-white' : 'text-slate-400 hover:text-[#006A4E]'
               }`}
               title="Official brand identity verification details"

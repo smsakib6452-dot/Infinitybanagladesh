@@ -264,7 +264,7 @@ export const Navbar: React.FC = () => {
               <button
                 type="button"
                 onClick={() => handleNavClick(headerSettings.supportButtonUrl || 'donate')}
-                className="px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-[#006A4E] hover:bg-[#00523C] active:bg-[#00402E] text-white text-xs sm:text-sm font-extrabold shadow-xs transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
+                className="hidden sm:flex px-3 py-1.5 rounded-xl bg-[#006A4E] hover:bg-[#00523C] active:bg-[#00402E] text-white text-xs font-extrabold shadow-xs transition-all items-center gap-1.5 cursor-pointer shrink-0"
                 title={tText(headerSettings.supportButtonText)}
               >
                 <Heart className="w-3.5 h-3.5 fill-white shrink-0" />
@@ -276,8 +276,9 @@ export const Navbar: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsSearchOpen(true)}
-                className="p-1.5 sm:p-2 rounded-xl bg-[#FAF7F2] hover:bg-[#F2ECE1] text-slate-700 hover:text-[#006A4E] border border-[#EAE3D9] cursor-pointer"
+                className="p-2 rounded-xl bg-[#FAF7F2] hover:bg-[#F2ECE1] text-slate-700 hover:text-[#006A4E] border border-[#EAE3D9] cursor-pointer shrink-0"
                 title={isBn ? 'অনুসন্ধান করুন (Search)' : 'Search'}
+                aria-label="Search"
               >
                 <Search className="w-4 h-4" />
               </button>
@@ -287,7 +288,7 @@ export const Navbar: React.FC = () => {
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label="Toggle navigation menu"
-              className="p-1.5 sm:p-2.5 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer touch-min-btn flex items-center justify-center"
+              className="p-2 sm:p-2.5 rounded-xl bg-[#006A4E] text-white hover:bg-[#00523C] transition-colors cursor-pointer shrink-0 flex items-center justify-center shadow-xs"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>

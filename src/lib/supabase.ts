@@ -9,9 +9,11 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { uploadToCloudinary } from './cloudinary';
 
-// Environment variables
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+// Environment variables with fallback
+const supabaseUrl =
+  import.meta.env.VITE_SUPABASE_URL || 'https://pzpnphgnexfaxxaorqsq.supabase.co';
+const supabaseAnonKey =
+  import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_Vqapvc2C91UpllwvFevK9w_OJPdTi3V';
 
 export const isSupabaseConfigured = Boolean(
   supabaseUrl &&

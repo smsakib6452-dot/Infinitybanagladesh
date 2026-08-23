@@ -3682,7 +3682,7 @@ export const AdminPage: React.FC = () => {
                                 : 'bg-[#FAF7F2] text-slate-700 border-[#EAE3D9] hover:border-slate-400'
                             }`}
                           >
-                            <span>{comm.name.bn || comm.name.en}</span>
+                            <span>{isBn ? (comm.name.bn || comm.name.en) : (comm.name.en || comm.name.bn)}</span>
                             <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
                               isSelected ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
                             }`}>
@@ -3886,7 +3886,12 @@ export const AdminPage: React.FC = () => {
                             <div className="space-y-0.5">
                               <div className="flex flex-wrap items-center gap-2">
                                 <h4 className="font-extrabold text-sm text-slate-900 font-display">
-                                  {item.person?.banglaName || item.person?.fullName || 'সদস্য'} {item.person?.englishName ? `(${item.person.englishName})` : ''}
+                                  {isBn
+                                    ? (item.person?.banglaName || item.person?.fullName || item.person?.englishName || 'সদস্য')
+                                    : (item.person?.englishName || item.person?.fullName || item.person?.banglaName || 'Member')}
+                                  {isBn && item.person?.englishName
+                                    ? ` (${item.person.englishName})`
+                                    : (!isBn && item.person?.banglaName ? ` (${item.person.banglaName})` : '')}
                                 </h4>
                                 {item.isFeaturedLeader && (
                                   <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
@@ -3900,11 +3905,18 @@ export const AdminPage: React.FC = () => {
                                 )}
                               </div>
                               <p className="text-xs font-semibold text-[#006A4E]">
-                                {item.position?.name?.bn || 'সদস্য'} &bull; <span className="font-sans text-slate-600">{item.position?.name?.en || 'Member'}</span>
+                                {isBn
+                                  ? (item.position?.name?.bn || item.position?.name?.en || 'সদস্য')
+                                  : (item.position?.name?.en || item.position?.name?.bn || 'Member')}
+                                {item.position?.name?.en && item.position?.name?.bn && (
+                                  <span className="font-sans text-slate-500 font-normal">
+                                    {' '}&bull; {isBn ? item.position.name.en : item.position.name.bn}
+                                  </span>
+                                )}
                               </p>
-                              {item.person?.shortBio?.bn && (
-                                <p className="text-[11px] text-slate-500 line-clamp-1 italic font-bengali">
-                                  "{item.person.shortBio.bn}"
+                              {(isBn ? item.person?.shortBio?.bn : (item.person?.shortBio?.en || item.person?.shortBio?.bn)) && (
+                                <p className="text-[11px] text-slate-500 line-clamp-1 italic">
+                                  "{isBn ? item.person?.shortBio?.bn : (item.person?.shortBio?.en || item.person?.shortBio?.bn)}"
                                 </p>
                               )}
                             </div>

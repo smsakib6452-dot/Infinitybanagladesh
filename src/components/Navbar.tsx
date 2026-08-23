@@ -28,6 +28,7 @@ export const Navbar: React.FC = () => {
   const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+  const dropdownTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -40,6 +41,35 @@ export const Navbar: React.FC = () => {
   useEffect(() => {
     setIsAdminAuthenticated(localStorage.getItem('infinity_bd_admin_auth') === 'true');
   }, [currentPage]);
+
+  // Click outside to close dropdowns
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('.nav-dropdown-container')) {
+        setActiveDropdownId(null);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
+
+  const handleMouseEnterDropdown = (itemId: string) => {
+    if (dropdownTimeoutRef.current) {
+      clearTimeout(dropdownTimeoutRef.current);
+      dropdownTimeoutRef.current = null;
+    }
+    setActiveDropdownId(itemId);
+  };
+
+  const handleMouseLeaveDropdown = () => {
+    if (dropdownTimeoutRef.current) {
+      clearTimeout(dropdownTimeoutRef.current);
+    }
+    dropdownTimeoutRef.current = setTimeout(() => {
+      setActiveDropdownId(null);
+    }, 220);
+  };
 
   const handleNavClick = (path: string, isExternal?: boolean) => {
     if (isExternal || path.startsWith('http://') || path.startsWith('https://')) {
@@ -55,6 +85,8 @@ export const Navbar: React.FC = () => {
     if (path === 'home' && currentPage === 'home') return true;
     if (path === currentPage) return true;
     if (currentPage.startsWith(path + '/')) return true;
+    if (path === 'gallery' && (currentPage === 'gallery' || currentPage === 'videos')) return true;
+    if (path === 'about' && (currentPage === 'about/executive-committee' || currentPage === 'about/standing-committees' || currentPage === 'about/past-committees')) return true;
     return false;
   };
 
@@ -130,13 +162,21 @@ export const Navbar: React.FC = () => {
                 return (
                   <div
                     key={item.id}
-                    className="relative"
-                    onMouseEnter={() => setActiveDropdownId(item.id)}
-                    onMouseLeave={() => setActiveDropdownId(null)}
+                    className="relative nav-dropdown-container"
+                    onMouseEnter={() => handleMouseEnterDropdown(item.id)}
+                    onMouseLeave={handleMouseLeaveDropdown}
                   >
                     <button
                       type="button"
-                      onClick={() => handleNavClick(item.path, item.isExternal)}
+                      onClick={() => {
+                        // Toggle dropdown or navigate to default path
+                        if (isDropdownOpen) {
+                          handleNavClick(item.path, item.isExternal);
+                        } else {
+                          setActiveDropdownId(item.id);
+                          handleNavClick(item.path, item.isExternal);
+                        }
+                      }}
                       className={`px-3 py-2 rounded-xl flex items-center gap-1 transition-colors cursor-pointer ${
                         isChildActive || isItemActive(item.path)
                           ? 'text-[#006A4E] bg-[#E6F3EF]'
@@ -147,24 +187,29 @@ export const Navbar: React.FC = () => {
                       <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180 text-[#006A4E]' : 'text-slate-400'}`} />
                     </button>
 
-                    {/* Dropdown Menu */}
+                    {/* Dropdown Menu with Seamless Hover Bridge */}
                     {isDropdownOpen && (
-                      <div className="absolute top-full left-0 mt-1 w-56 bg-white rounded-2xl shadow-warm-lg border border-[#EAE3D9] p-2 space-y-1 animate-in fade-in zoom-in-95 z-50">
-                        {item.children.filter(c => c.active !== false).map(subItem => (
-                          <button
-                            key={subItem.id}
-                            type="button"
-                            onClick={() => handleNavClick(subItem.path, subItem.isExternal)}
-                            className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold transition-colors flex items-center justify-between cursor-pointer ${
-                              isItemActive(subItem.path)
-                                ? 'bg-[#E6F3EF] text-[#00523C] font-bold'
-                                : 'text-slate-700 hover:bg-[#FAF7F2] hover:text-[#006A4E]'
-                            }`}
-                          >
-                            <span>{tText(subItem.label)}</span>
-                            {subItem.isExternal && <ExternalLink className="w-3 h-3 text-slate-400" />}
-                          </button>
-                        ))}
+                      <div className="absolute top-full left-0 pt-1.5 w-60 z-50 animate-in fade-in zoom-in-95 duration-150">
+                        <div className="bg-white rounded-2xl shadow-warm-lg border border-[#EAE3D9] p-2 space-y-1">
+                          {item.children.filter(c => c.active !== false).map(subItem => (
+                            <button
+                              key={subItem.id}
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleNavClick(subItem.path, subItem.isExternal);
+                              }}
+                              className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold transition-colors flex items-center justify-between cursor-pointer ${
+                                isItemActive(subItem.path)
+                                  ? 'bg-[#E6F3EF] text-[#00523C] font-bold'
+                                  : 'text-slate-700 hover:bg-[#FAF7F2] hover:text-[#006A4E]'
+                              }`}
+                            >
+                              <span>{tText(subItem.label)}</span>
+                              {subItem.isExternal && <ExternalLink className="w-3 h-3 text-slate-400" />}
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>

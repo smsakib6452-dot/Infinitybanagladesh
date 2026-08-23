@@ -196,7 +196,7 @@ export const CommitteeMemberModal: React.FC<CommitteeMemberModalProps> = ({
                   >
                     {committees.map(c => (
                       <option key={c.id} value={c.id}>
-                        {c.name.bn || c.name.en} ({c.type === 'EXECUTIVE' ? 'কার্যনির্বাহী' : 'স্থায়ী'})
+                        {isBn ? (c.name.bn || c.name.en) : (c.name.en || c.name.bn)} ({isBn ? (c.type === 'EXECUTIVE' ? 'কার্যনির্বাহী' : 'স্থায়ী') : (c.type === 'EXECUTIVE' ? 'Executive' : 'Standing')})
                       </option>
                     ))}
                   </select>

@@ -56,7 +56,13 @@ import {
   FileSpreadsheet,
   ToggleLeft,
   ToggleRight,
-  HelpCircle
+  HelpCircle,
+  Play,
+  Star,
+  Copy,
+  Crop,
+  Filter,
+  Maximize2
 } from 'lucide-react';
 import {
   Campaign,
@@ -80,6 +86,7 @@ import {
   NavigationItem,
   BannerItem,
   MediaItem,
+  MediaCategory,
   GalleryAlbum,
   AdminProfile,
   AdminRole,
@@ -95,8 +102,11 @@ import { ProgramModal } from '../components/ProgramModal';
 import { StoryModal } from '../components/StoryModal';
 import { FAQModal } from '../components/FAQModal';
 import { CommitteeMemberModal, CommitteeMemberFormData } from '../components/CommitteeMemberModal';
+import { ImageEditorModal } from '../components/ImageEditorModal';
 import { AdminErrorBoundary } from '../components/AdminErrorBoundary';
 import { isSupabaseConfigured, signInWithEmail, signOutAdmin } from '../lib/supabase';
+import { detectAndNormalizeMedia } from '../lib/utils/mediaHelper';
+import { uploadToCloudinary } from '../lib/cloudinary';
 
 type AdminTab =
   | 'overview'
@@ -139,8 +149,8 @@ export const AdminPage: React.FC = () => {
     faqs, addFAQ, updateFAQ, deleteFAQ,
     news, addNews, updateNews, deleteNews,
     events, addEvent, updateEvent, deleteEvent,
-    gallery, addGalleryPhoto, deleteGalleryPhoto,
-    videos, addVideo, deleteVideo,
+    gallery, addGalleryPhoto, updateGalleryPhoto, deleteGalleryPhoto,
+    videos, addVideo, updateVideo, deleteVideo,
     reports, addReport, updateReport, deleteReport,
     volunteers, updateVolunteerStatus, deleteVolunteerApplication,
     donations, addDonationRecord, updateDonationStatus,
@@ -210,6 +220,27 @@ export const AdminPage: React.FC = () => {
 
   const [editingAdmin, setEditingAdmin] = useState<AdminProfile | null>(null);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+
+  // Unified Media Library States
+  const [mediaLibraryFilter, setMediaLibraryFilter] = useState<'all' | 'image' | 'video' | 'youtube' | 'facebook' | 'featured'>('all');
+  const [mediaCategoryFilter, setMediaCategoryFilter] = useState<string>('All');
+  const [mediaSearchQuery, setMediaSearchQuery] = useState<string>('');
+  const [previewingMedia, setPreviewingMedia] = useState<MediaItem | null>(null);
+  const [editingMedia, setEditingMedia] = useState<MediaItem | null>(null);
+  const [isNewMediaModalOpen, setIsNewMediaModalOpen] = useState<boolean>(false);
+  const [isCropperModalOpen, setIsCropperModalOpen] = useState<boolean>(false);
+  const [cropperSourceUrl, setCropperSourceUrl] = useState<string>('');
+  const [cropperCallback, setCropperCallback] = useState<((croppedUrl: string) => void) | null>(null);
+
+  // New Media Form States
+  const [newMediaSourceTab, setNewMediaSourceTab] = useState<'url' | 'upload'>('url');
+  const [newMediaUrl, setNewMediaUrl] = useState<string>('');
+  const [newMediaTitle, setNewMediaTitle] = useState<string>('');
+  const [newMediaCategory, setNewMediaCategory] = useState<MediaCategory>('General');
+  const [newMediaAlt, setNewMediaAlt] = useState<string>('');
+  const [newMediaIsFeatured, setNewMediaIsFeatured] = useState<boolean>(false);
+  const [isUploadingMedia, setIsUploadingMedia] = useState<boolean>(false);
+  const [mediaUploadError, setMediaUploadError] = useState<string>('');
 
   // Committee & Member Management States
   const [selectedCommitteeId, setSelectedCommitteeId] = useState<string>(committees[0]?.id || 'comm-exec-2026');
@@ -2955,82 +2986,365 @@ export const AdminPage: React.FC = () => {
                 </div>
               </div>
             )}
-            {activeTab === 'media_library' && (
-              <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div>
-                    <h2 className="text-xl font-extrabold text-slate-900 font-display">
-                      {isBn ? 'মিডিয়া ও আলোকচিত্র লাইব্রেরি' : 'Media Assets & Authentic Photography'}
-                    </h2>
-                    <p className="text-xs text-slate-500">
-                      {isBn ? 'মাঠপর্যায়ের গ্রুপ ফটো, ইভেন্ট ও লোগো আপলোড ও ম্যানেজ করুন।' : 'Upload verified photographs from field drives, assign categories, and use anywhere on the website.'}
-                    </p>
+            {activeTab === 'media_library' && (() => {
+              const MEDIA_CATEGORIES: MediaCategory[] = [
+                'General', 'Hero', 'Campaigns', 'Volunteers', 'Events', 'Children & Community', 'Logos', 'Banners', 'Stories', 'Gallery', 'Documents'
+              ];
+
+              const filteredMediaList = mediaLibrary.filter(media => {
+                // Type / Platform filter
+                if (mediaLibraryFilter === 'image' && media.type === 'video') return false;
+                if (mediaLibraryFilter === 'video' && media.type !== 'video') return false;
+                if (mediaLibraryFilter === 'youtube' && media.platform !== 'youtube') return false;
+                if (mediaLibraryFilter === 'facebook' && media.platform !== 'facebook') return false;
+                if (mediaLibraryFilter === 'featured' && !media.isFeatured) return false;
+
+                // Category filter
+                if (mediaCategoryFilter !== 'All' && media.category !== mediaCategoryFilter) return false;
+
+                // Search query
+                if (mediaSearchQuery.trim()) {
+                  const q = mediaSearchQuery.toLowerCase();
+                  const matchName = media.fileName.toLowerCase().includes(q);
+                  const matchAlt = (media.altText || '').toLowerCase().includes(q);
+                  const matchCaption = (media.caption || '').toLowerCase().includes(q);
+                  const matchTitle = (media.title || '').toLowerCase().includes(q);
+                  if (!matchName && !matchAlt && !matchCaption && !matchTitle) return false;
+                }
+
+                return true;
+              });
+
+              const totalImages = mediaLibrary.filter(m => m.type !== 'video').length;
+              const totalVideos = mediaLibrary.filter(m => m.type === 'video').length;
+              const totalFeatured = mediaLibrary.filter(m => m.isFeatured).length;
+
+              return (
+                <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+                  {/* Section Title & Primary Actions */}
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="p-1.5 rounded-xl bg-[#E6F3EF] text-[#006A4E]">
+                          <FolderOpen className="w-5 h-5" />
+                        </span>
+                        <h2 className="text-xl font-extrabold text-slate-900 font-display">
+                          {isBn ? 'ইউনিফাইড মিডিয়া ও ভিডিও লাইব্রেরি' : 'Unified Media & Video Library'}
+                        </h2>
+                      </div>
+                      <p className="text-xs text-slate-500 mt-1">
+                        {isBn
+                          ? 'অফিসিয়াল ছবি, ইউটিউব/ফেসবুক ভিডিও এবং ক্লাউড সম্পদ কেন্দ্রীয়ভাবে পরিচালনা করুন।'
+                          : 'Manage official photography, YouTube/Facebook video footage, and cloud assets in one unified console.'}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCropperSourceUrl(mediaLibrary[0]?.url || '');
+                          setCropperCallback(() => (croppedUrl: string) => {
+                            addMediaItem({
+                              fileName: `cropped-${Date.now()}.jpg`,
+                              url: croppedUrl,
+                              fileSize: 'Cropped High-Res',
+                              mimeType: 'image/jpeg',
+                              type: 'image',
+                              sourceType: 'upload',
+                              platform: 'cloudinary',
+                              category: 'General',
+                              altText: 'Custom Cropped Photo',
+                              caption: '',
+                              usageTags: ['Cropped Asset'],
+                              status: 'published'
+                            });
+                            showToast('Cropped image added to media library');
+                          });
+                          setIsCropperModalOpen(true);
+                        }}
+                        className="px-3.5 py-2.5 rounded-xl bg-white border border-[#EAE3D9] hover:bg-[#FAF7F2] text-slate-700 font-bold text-xs shadow-2xs flex items-center gap-1.5 cursor-pointer transition-colors"
+                      >
+                        <Crop className="w-4 h-4 text-[#006A4E]" />
+                        <span>{isBn ? 'ক্রপ এডিটর চালান' : 'Crop Tool'}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setNewMediaUrl('');
+                          setNewMediaTitle('');
+                          setNewMediaAlt('');
+                          setNewMediaCategory('General');
+                          setNewMediaIsFeatured(false);
+                          setMediaUploadError('');
+                          setIsNewMediaModalOpen(true);
+                        }}
+                        className="px-4 py-2.5 rounded-xl bg-[#006A4E] hover:bg-[#00523C] text-white font-bold text-xs shadow-warm-sm flex items-center gap-2 cursor-pointer transition-colors"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>{isBn ? 'নতুন মিডিয়া যুক্ত করুন' : 'Add New Media'}</span>
+                      </button>
+                    </div>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => openMediaPicker((url) => {
-                      showToast(`Asset selected: ${url}`);
-                    })}
-                    className="px-4 py-2.5 rounded-xl bg-[#006A4E] hover:bg-[#00523C] text-white font-bold text-xs shadow-warm-sm flex items-center gap-2 cursor-pointer"
-                  >
-                    <Upload className="w-4 h-4" />
-                    <span>{isBn ? 'নতুন ছবি আপলোড / নির্বাচন' : 'Upload / Pick Media'}</span>
-                  </button>
-                </div>
+                  {/* Summary Stat Badges */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div className="p-3.5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] flex items-center justify-between">
+                      <div>
+                        <p className="text-[11px] text-slate-500 font-semibold">{isBn ? 'মোট মিডিয়া' : 'Total Assets'}</p>
+                        <p className="text-lg font-extrabold text-slate-900 font-display">{mediaLibrary.length}</p>
+                      </div>
+                      <ImageIcon className="w-5 h-5 text-slate-400" />
+                    </div>
 
-                {/* Media Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 pt-2">
-                  {mediaLibrary.map(media => (
-                    <div
-                      key={media.id}
-                      className="rounded-2xl border border-[#EAE3D9] bg-[#FAF7F2] p-3 space-y-2 group relative overflow-hidden"
-                    >
-                      <div className="aspect-4/3 rounded-xl overflow-hidden bg-slate-200 border border-slate-300">
-                        <img
-                          src={getAssetUrl(media.url)}
-                          alt={media.altText || media.fileName}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                    <div className="p-3.5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] flex items-center justify-between">
+                      <div>
+                        <p className="text-[11px] text-slate-500 font-semibold">{isBn ? 'আলোকচিত্র' : 'Images'}</p>
+                        <p className="text-lg font-extrabold text-[#006A4E] font-display">{totalImages}</p>
+                      </div>
+                      <ImageIcon className="w-5 h-5 text-[#006A4E]" />
+                    </div>
+
+                    <div className="p-3.5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] flex items-center justify-between">
+                      <div>
+                        <p className="text-[11px] text-slate-500 font-semibold">{isBn ? 'ভিডিও ফুটেজ' : 'Videos'}</p>
+                        <p className="text-lg font-extrabold text-amber-600 font-display">{totalVideos}</p>
+                      </div>
+                      <VideoIcon className="w-5 h-5 text-amber-600" />
+                    </div>
+
+                    <div className="p-3.5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] flex items-center justify-between">
+                      <div>
+                        <p className="text-[11px] text-slate-500 font-semibold">{isBn ? 'হাইলাইটেড' : 'Featured'}</p>
+                        <p className="text-lg font-extrabold text-purple-600 font-display">{totalFeatured}</p>
+                      </div>
+                      <Star className="w-5 h-5 text-purple-600" />
+                    </div>
+                  </div>
+
+                  {/* Multi-Dimensional Filter Controls */}
+                  <div className="space-y-3 pt-2">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      {/* Type Filter Pills */}
+                      <div className="flex flex-wrap items-center gap-1.5 text-xs">
+                        {[
+                          { id: 'all', label: isBn ? 'সকল' : 'All' },
+                          { id: 'image', label: isBn ? 'ছবি' : 'Images' },
+                          { id: 'video', label: isBn ? 'ভিডিও' : 'Videos' },
+                          { id: 'youtube', label: 'YouTube' },
+                          { id: 'facebook', label: 'Facebook' },
+                          { id: 'featured', label: isBn ? 'হাইলাইটেড' : 'Featured' }
+                        ].map(tab => (
+                          <button
+                            key={tab.id}
+                            type="button"
+                            onClick={() => setMediaLibraryFilter(tab.id as any)}
+                            className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
+                              mediaLibraryFilter === tab.id
+                                ? 'bg-[#006A4E] text-white shadow-warm-xs'
+                                : 'bg-[#FAF7F2] text-slate-600 hover:bg-slate-200 border border-[#EAE3D9]'
+                            }`}
+                          >
+                            {tab.label}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Search Bar */}
+                      <div className="relative w-full sm:w-64">
+                        <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <input
+                          type="text"
+                          value={mediaSearchQuery}
+                          onChange={e => setMediaSearchQuery(e.target.value)}
+                          placeholder={isBn ? 'নাম বা ট্যাগ দিয়ে খুঁজুন...' : 'Search media by title/tag...'}
+                          className="w-full pl-8.5 pr-3 py-1.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs focus:outline-none focus:border-[#006A4E] focus:bg-white"
                         />
                       </div>
-                      <div className="space-y-0.5">
-                        <p className="text-xs font-bold text-slate-900 truncate">{media.fileName}</p>
-                        <div className="flex items-center justify-between text-[10px] text-slate-500">
-                          <span className="px-1.5 py-0.5 rounded bg-white font-bold">{media.category}</span>
-                          <span>{media.fileSize || 'Standard'}</span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between pt-1 border-t border-slate-200/80">
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            navigator.clipboard.writeText(media.url);
-                            showToast('Asset URL copied to clipboard');
-                          }}
-                          className="text-[11px] text-slate-600 font-bold hover:underline cursor-pointer"
-                        >
-                          Copy URL
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (confirm(`Delete media asset: ${media.fileName}?`)) {
-                              deleteMediaItem(media.id);
-                              showToast('Media asset removed');
-                            }
-                          }}
-                          className="text-rose-500 hover:text-rose-700 p-1 cursor-pointer"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
                     </div>
-                  ))}
+
+                    {/* Category Filter Pills */}
+                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+                      {['All', ...MEDIA_CATEGORIES].map(cat => (
+                        <button
+                          key={cat}
+                          type="button"
+                          onClick={() => setMediaCategoryFilter(cat)}
+                          className={`px-3 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+                            mediaCategoryFilter === cat
+                              ? 'bg-slate-900 text-white'
+                              : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                          }`}
+                        >
+                          {cat}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Media Grid */}
+                  {filteredMediaList.length === 0 ? (
+                    <div className="py-16 text-center space-y-3 bg-[#FAF7F2] rounded-2xl border border-[#EAE3D9]">
+                      <ImageIcon className="w-10 h-10 text-slate-300 mx-auto" />
+                      <p className="text-sm font-bold text-slate-700">
+                        {isBn ? 'কোনো মিডিয়া পাওয়া যায়নি' : 'No media assets found'}
+                      </p>
+                      <p className="text-xs text-slate-400">
+                        {isBn ? 'ফিল্টার পরিবর্তন করুন অথবা নতুন ছবি/ভিডিও আপলোড করুন।' : 'Try selecting another category or add a new media asset.'}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pt-2">
+                      {filteredMediaList.map(media => {
+                        const isVideo = media.type === 'video';
+                        const displayThumbnail = media.thumbnailUrl || media.url;
+
+                        return (
+                          <div
+                            key={media.id}
+                            className="rounded-2xl border border-[#EAE3D9] bg-[#FAF7F2] p-3 space-y-2.5 group relative overflow-hidden flex flex-col justify-between shadow-2xs hover:shadow-warm-sm transition-all"
+                          >
+                            {/* Media Thumbnail Container */}
+                            <div className="aspect-4/3 rounded-xl overflow-hidden bg-slate-950 border border-slate-300 relative">
+                              <img
+                                src={getAssetUrl(displayThumbnail)}
+                                alt={media.altText || media.fileName}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                loading="lazy"
+                              />
+
+                              {/* Video Play Overlay */}
+                              {isVideo && (
+                                <div
+                                  onClick={() => setPreviewingMedia(media)}
+                                  className="absolute inset-0 bg-slate-950/30 group-hover:bg-slate-950/15 transition-colors flex items-center justify-center cursor-pointer"
+                                >
+                                  <div className="w-10 h-10 rounded-full bg-[#006A4E]/90 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                    <Play className="w-5 h-5 fill-current ml-0.5" />
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Platform Tag */}
+                              <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-slate-950/80 text-white text-[10px] font-extrabold capitalize backdrop-blur-xs shadow-xs">
+                                {media.platform || (isVideo ? 'Video' : 'Image')}
+                              </span>
+
+                              {/* Featured Star Toggle */}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  updateMediaItem(media.id, { isFeatured: !media.isFeatured });
+                                  showToast(media.isFeatured ? 'Removed from featured' : 'Marked as featured asset');
+                                }}
+                                className={`absolute top-2 right-2 p-1.5 rounded-full backdrop-blur-xs transition-colors cursor-pointer ${
+                                  media.isFeatured
+                                    ? 'bg-amber-400 text-slate-950 shadow-md'
+                                    : 'bg-slate-950/60 text-white hover:bg-slate-950/80'
+                                }`}
+                                title={media.isFeatured ? 'Featured asset' : 'Click to feature'}
+                              >
+                                <Star className={`w-3.5 h-3.5 ${media.isFeatured ? 'fill-current' : ''}`} />
+                              </button>
+
+                              {/* Category Badge */}
+                              <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded-md bg-[#006A4E]/90 text-white text-[10px] font-bold backdrop-blur-xs">
+                                {media.category}
+                              </div>
+
+                              {media.duration && (
+                                <div className="absolute bottom-2 right-2 px-1.5 py-0.5 rounded bg-slate-950/80 text-white text-[10px] font-mono">
+                                  {media.duration}
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Meta Info */}
+                            <div className="space-y-1">
+                              <p className="text-xs font-bold text-slate-900 truncate" title={media.title || media.fileName}>
+                                {media.title || media.fileName}
+                              </p>
+                              <div className="flex items-center justify-between text-[10px] text-slate-500">
+                                <span className="truncate max-w-[65%]">{media.altText || media.caption || 'No description'}</span>
+                                <span className="font-mono">{media.fileSize || 'Asset'}</span>
+                              </div>
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="flex items-center justify-between pt-2 border-t border-slate-200/80 text-xs">
+                              <div className="flex items-center gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => setPreviewingMedia(media)}
+                                  className="p-1 rounded-lg hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+                                  title="Preview Media"
+                                >
+                                  <Eye className="w-3.5 h-3.5" />
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingMedia(media)}
+                                  className="p-1 rounded-lg hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+                                  title="Edit Metadata"
+                                >
+                                  <Edit2 className="w-3.5 h-3.5" />
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setCropperSourceUrl(media.url);
+                                    setCropperCallback(() => (croppedUrl: string) => {
+                                      updateMediaItem(media.id, { url: croppedUrl });
+                                      showToast('Asset replaced with cropped image');
+                                    });
+                                    setIsCropperModalOpen(true);
+                                  }}
+                                  className="p-1 rounded-lg hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+                                  title="Crop Image"
+                                >
+                                  <Crop className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+
+                              <div className="flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(media.url);
+                                    showToast('Asset URL copied to clipboard');
+                                  }}
+                                  className="text-[11px] text-[#006A4E] font-bold hover:underline cursor-pointer flex items-center gap-0.5"
+                                >
+                                  <Copy className="w-3 h-3" />
+                                  <span>Copy</span>
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    if (confirm(`Delete media asset: ${media.fileName}?`)) {
+                                      deleteMediaItem(media.id);
+                                      showToast('Media asset removed');
+                                    }
+                                  }}
+                                  className="text-rose-500 hover:text-rose-700 p-1 cursor-pointer"
+                                  title="Delete Media"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
             {/* -------------------------------------------------------- */}
             {/* TAB: BANNERS */}
@@ -3953,6 +4267,492 @@ export const AdminPage: React.FC = () => {
         onOpenMediaPicker={openMediaPicker}
       />
 
+
+      {/* ======================================================== */}
+      {/* MEDIA PREVIEW MODAL */}
+      {/* ======================================================== */}
+      {previewingMedia && (() => {
+        const isVideo = previewingMedia.type === 'video';
+        const norm = detectAndNormalizeMedia(previewingMedia.url);
+
+        return (
+          <div
+            className="fixed inset-0 z-[9999] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-fade-in"
+            onClick={() => setPreviewingMedia(null)}
+          >
+            <div
+              className="bg-white rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl border border-slate-200 relative animate-in zoom-in-95 flex flex-col max-h-[92vh]"
+              onClick={e => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="px-5 py-4 flex items-center justify-between border-b border-slate-100 bg-[#FAF7F2]">
+                <div className="flex items-center gap-2 truncate max-w-[80%]">
+                  <span className="p-1 rounded-lg bg-[#E6F3EF] text-[#006A4E]">
+                    {isVideo ? <VideoIcon className="w-4 h-4" /> : <ImageIcon className="w-4 h-4" />}
+                  </span>
+                  <h3 className="font-extrabold text-slate-900 text-sm sm:text-base font-display truncate">
+                    {previewingMedia.title || previewingMedia.fileName}
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPreviewingMedia(null)}
+                  className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Media Body */}
+              <div className="aspect-video bg-black relative flex items-center justify-center overflow-hidden">
+                {isVideo ? (
+                  norm.isValid && norm.embedUrl ? (
+                    norm.type === 'direct_video' ? (
+                      <video src={norm.originalUrl} controls autoPlay className="w-full h-full object-contain" />
+                    ) : (
+                      <iframe
+                        src={norm.embedUrl}
+                        title={previewingMedia.title || 'Video Player'}
+                        className="w-full h-full border-0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    )
+                  ) : (
+                    <div className="p-6 text-center text-white space-y-2">
+                      <AlertCircle className="w-8 h-8 text-amber-400 mx-auto" />
+                      <p className="text-xs">{norm.errorMessage || 'Cannot play video embed directly.'}</p>
+                      <a
+                        href={previewingMedia.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 text-xs text-emerald-400 font-bold underline"
+                      >
+                        Open original URL <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
+                  )
+                ) : (
+                  <img
+                    src={getAssetUrl(previewingMedia.url)}
+                    alt={previewingMedia.altText || previewingMedia.fileName}
+                    className="w-full h-full object-contain"
+                  />
+                )}
+              </div>
+
+              {/* Footer Details */}
+              <div className="p-4 sm:p-5 space-y-2.5 text-xs bg-white">
+                <div className="flex flex-wrap items-center justify-between gap-2 text-slate-500">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 rounded-md bg-[#FAF7F2] font-bold border border-[#EAE3D9] text-slate-700 capitalize">
+                      {previewingMedia.platform || previewingMedia.category}
+                    </span>
+                    <span>{previewingMedia.fileSize || 'Standard'}</span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(previewingMedia.url);
+                        showToast('Asset URL copied');
+                      }}
+                      className="px-3 py-1.5 rounded-xl bg-[#FAF7F2] text-[#006A4E] font-bold border border-[#EAE3D9] hover:bg-[#F2ECE1] transition-colors cursor-pointer flex items-center gap-1"
+                    >
+                      <Copy className="w-3 h-3" />
+                      <span>Copy Link</span>
+                    </button>
+                    <a
+                      href={previewingMedia.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-3 py-1.5 rounded-xl bg-[#006A4E] text-white font-bold hover:bg-[#00523C] transition-colors flex items-center gap-1"
+                    >
+                      <span>Open Link</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* ======================================================== */}
+      {/* EDIT MEDIA METADATA MODAL */}
+      {/* ======================================================== */}
+      {editingMedia && (
+        <div
+          className="fixed inset-0 z-[9999] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-fade-in"
+          onClick={() => setEditingMedia(null)}
+        >
+          <div
+            className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-200 relative animate-in zoom-in-95 space-y-4 p-6"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="font-extrabold text-base text-slate-900 font-display">
+                {isBn ? 'মিডিয়া তথ্য সম্পাদনা' : 'Edit Media Metadata'}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setEditingMedia(null)}
+                className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Title / Display Name:</label>
+                <input
+                  type="text"
+                  value={editingMedia.title || editingMedia.fileName}
+                  onChange={e => setEditingMedia({ ...editingMedia, title: e.target.value })}
+                  className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs focus:outline-none focus:border-[#006A4E]"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Alt Text (Accessibility & SEO):</label>
+                <input
+                  type="text"
+                  value={editingMedia.altText || ''}
+                  onChange={e => setEditingMedia({ ...editingMedia, altText: e.target.value })}
+                  className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs focus:outline-none focus:border-[#006A4E]"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Category:</label>
+                <select
+                  value={editingMedia.category}
+                  onChange={e => setEditingMedia({ ...editingMedia, category: e.target.value as MediaCategory })}
+                  className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs focus:outline-none focus:border-[#006A4E]"
+                >
+                  {['General', 'Hero', 'Campaigns', 'Volunteers', 'Events', 'Children & Community', 'Logos', 'Banners', 'Stories', 'Gallery', 'Documents'].map(c => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Caption / Description:</label>
+                <textarea
+                  rows={2}
+                  value={editingMedia.caption || ''}
+                  onChange={e => setEditingMedia({ ...editingMedia, caption: e.target.value })}
+                  className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs focus:outline-none focus:border-[#006A4E]"
+                />
+              </div>
+
+              <div className="flex items-center gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  id="editIsFeatured"
+                  checked={editingMedia.isFeatured || false}
+                  onChange={e => setEditingMedia({ ...editingMedia, isFeatured: e.target.checked })}
+                  className="rounded text-[#006A4E] focus:ring-[#006A4E]"
+                />
+                <label htmlFor="editIsFeatured" className="font-bold text-slate-700 cursor-pointer">
+                  Mark as Featured Highlight Asset
+                </label>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setEditingMedia(null)}
+                className="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 text-xs font-bold transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  updateMediaItem(editingMedia.id, {
+                    title: editingMedia.title,
+                    altText: editingMedia.altText,
+                    caption: editingMedia.caption,
+                    category: editingMedia.category,
+                    isFeatured: editingMedia.isFeatured
+                  });
+                  setEditingMedia(null);
+                  showToast('Media metadata updated');
+                }}
+                className="px-5 py-2.5 rounded-xl bg-[#006A4E] hover:bg-[#00523C] text-white text-xs font-bold shadow-warm-xs transition-colors cursor-pointer"
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* ADD NEW MEDIA MODAL (URL PASTE OR CLOUDINARY UPLOAD) */}
+      {/* ======================================================== */}
+      {isNewMediaModalOpen && (() => {
+        const detected = newMediaUrl.trim() ? detectAndNormalizeMedia(newMediaUrl.trim()) : null;
+
+        return (
+          <div
+            className="fixed inset-0 z-[9999] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-fade-in"
+            onClick={() => setIsNewMediaModalOpen(false)}
+          >
+            <div
+              className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-200 relative animate-in zoom-in-95 space-y-4 p-6 text-left"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 className="font-extrabold text-base text-slate-900 font-display">
+                  {isBn ? 'নতুন মিডিয়া সম্পদ যুক্ত করুন' : 'Add New Media Asset'}
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setIsNewMediaModalOpen(false)}
+                  className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Source Tabs */}
+              <div className="flex items-center gap-2 border-b border-slate-100 pb-2 text-xs font-bold">
+                <button
+                  type="button"
+                  onClick={() => setNewMediaSourceTab('url')}
+                  className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
+                    newMediaSourceTab === 'url'
+                      ? 'bg-[#006A4E] text-white shadow-warm-xs'
+                      : 'bg-[#FAF7F2] text-slate-600 hover:bg-slate-100 border border-[#EAE3D9]'
+                  }`}
+                >
+                  YouTube / Facebook / URL
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setNewMediaSourceTab('upload')}
+                  className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
+                    newMediaSourceTab === 'upload'
+                      ? 'bg-[#006A4E] text-white shadow-warm-xs'
+                      : 'bg-[#FAF7F2] text-slate-600 hover:bg-slate-100 border border-[#EAE3D9]'
+                  }`}
+                >
+                  Cloudinary PC Upload
+                </button>
+              </div>
+
+              {/* Tab 1: Direct URL & Embed Detection */}
+              {newMediaSourceTab === 'url' && (
+                <div className="space-y-3 text-xs">
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">
+                      Media URL (YouTube, Facebook, Image CDN, Direct Video):
+                    </label>
+                    <input
+                      type="text"
+                      value={newMediaUrl}
+                      onChange={e => setNewMediaUrl(e.target.value)}
+                      placeholder="https://www.youtube.com/watch?v=... or https://..."
+                      className="w-full px-3.5 py-2.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-mono focus:outline-none focus:border-[#006A4E]"
+                    />
+                  </div>
+
+                  {/* Detection Feedback */}
+                  {detected && (
+                    <div className="space-y-2">
+                      {detected.isValid ? (
+                        <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-[#00523C] space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold capitalize">Verified: {detected.type} ({detected.platform})</span>
+                            <span className="text-[10px] px-2 py-0.5 bg-white font-bold rounded-full text-[#006A4E]">Ready</span>
+                          </div>
+                          {detected.embedUrl && (
+                            <div className="aspect-video rounded-lg overflow-hidden bg-black max-h-36">
+                              <iframe src={detected.embedUrl} title="Preview" className="w-full h-full border-0" />
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-800 flex items-center gap-2">
+                          <AlertCircle className="w-4 h-4 shrink-0 text-amber-600" />
+                          <span>{detected.errorMessage}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Title / Display Name:</label>
+                    <input
+                      type="text"
+                      value={newMediaTitle}
+                      onChange={e => setNewMediaTitle(e.target.value)}
+                      placeholder="e.g. Winter Relief Campaign Field Video"
+                      className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs focus:outline-none focus:border-[#006A4E]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Category:</label>
+                    <select
+                      value={newMediaCategory}
+                      onChange={e => setNewMediaCategory(e.target.value as MediaCategory)}
+                      className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs focus:outline-none focus:border-[#006A4E]"
+                    >
+                      {['General', 'Hero', 'Campaigns', 'Volunteers', 'Events', 'Children & Community', 'Logos', 'Banners', 'Stories', 'Gallery', 'Documents'].map(c => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )}
+
+              {/* Tab 2: Upload File */}
+              {newMediaSourceTab === 'upload' && (
+                <div className="space-y-3 text-xs">
+                  <div className="p-6 border-2 border-dashed border-slate-300 hover:border-[#006A4E] rounded-2xl text-center space-y-2 bg-[#FAF7F2]">
+                    <Upload className="w-8 h-8 text-[#006A4E] mx-auto" />
+                    <p className="font-bold text-slate-700">Choose photo/video to upload to Cloudinary</p>
+                    <label className="inline-block px-4 py-2 bg-[#006A4E] text-white font-bold rounded-xl cursor-pointer hover:bg-[#00523C] transition-colors">
+                      <span>Select File</span>
+                      <input
+                        type="file"
+                        accept="image/*,video/*"
+                        className="hidden"
+                        onChange={async e => {
+                          if (e.target.files && e.target.files.length > 0) {
+                            const file = e.target.files[0];
+                            setIsUploadingMedia(true);
+                            setMediaUploadError('');
+                            try {
+                              const res = await uploadToCloudinary(file);
+                              if (res && res.secure_url) {
+                                addMediaItem({
+                                  fileName: file.name,
+                                  url: res.secure_url,
+                                  fileSize: `${(file.size / 1024).toFixed(1)} KB`,
+                                  mimeType: file.type,
+                                  type: file.type.startsWith('video/') ? 'video' : 'image',
+                                  sourceType: 'upload',
+                                  platform: 'cloudinary',
+                                  category: newMediaCategory,
+                                  altText: newMediaAlt || file.name,
+                                  title: newMediaTitle || file.name,
+                                  usageTags: ['Cloudinary Upload'],
+                                  status: 'published'
+                                });
+                                setIsUploadingMedia(false);
+                                setIsNewMediaModalOpen(false);
+                                showToast('File uploaded to Cloudinary');
+                              }
+                            } catch (err: any) {
+                              setMediaUploadError(err.message || 'Upload failed');
+                              setIsUploadingMedia(false);
+                            }
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+
+                  {isUploadingMedia && (
+                    <div className="p-2.5 rounded-xl bg-emerald-50 text-[#00523C] font-bold text-xs flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-[#006A4E] animate-ping" />
+                      <span>Uploading to Cloudinary CDN...</span>
+                    </div>
+                  )}
+
+                  {mediaUploadError && (
+                    <div className="p-2.5 rounded-xl bg-rose-50 text-rose-700 text-xs">
+                      {mediaUploadError}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsNewMediaModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 text-xs font-bold transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                {newMediaSourceTab === 'url' && (
+                  <button
+                    type="button"
+                    disabled={!newMediaUrl.trim()}
+                    onClick={() => {
+                      const det = detectAndNormalizeMedia(newMediaUrl.trim());
+                      const isVideo = det.type === 'youtube' || det.type === 'facebook' || det.type === 'direct_video';
+                      
+                      const created = addMediaItem({
+                        fileName: newMediaTitle || `media-${Date.now()}`,
+                        url: det.originalUrl,
+                        embedUrl: det.embedUrl,
+                        thumbnailUrl: det.thumbnailUrl || (isVideo ? 'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80' : undefined),
+                        fileSize: isVideo ? 'Embedded Stream' : 'External URL',
+                        mimeType: isVideo ? 'video/mp4' : 'image/jpeg',
+                        type: isVideo ? 'video' : 'image',
+                        sourceType: 'url',
+                        platform: det.platform as any,
+                        category: newMediaCategory,
+                        title: newMediaTitle || (isVideo ? 'Official Field Footage' : 'Photographic Archive'),
+                        altText: newMediaAlt || newMediaTitle || 'Team Infinity Media',
+                        usageTags: ['External Media URL'],
+                        status: 'published',
+                        isFeatured: newMediaIsFeatured
+                      });
+
+                      // Also sync to videos if video item
+                      if (isVideo) {
+                        addVideo({
+                          title: { en: newMediaTitle || 'Field Drive Video', bn: newMediaTitle || 'মাঠপর্যায়ের ভিডিও' },
+                          description: { en: 'Team Infinity official field drive coverage.', bn: 'টিম ইনফিনিটি অফিশিয়াল মানবিক কার্যক্রম।' },
+                          videoUrl: det.originalUrl,
+                          thumbnailUrl: det.thumbnailUrl || 'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80',
+                          date: new Date().toISOString().split('T')[0],
+                          duration: 'Video',
+                          platform: (det.platform === 'youtube' ? 'youtube' : det.platform === 'facebook' ? 'facebook' : 'custom') as any,
+                          category: 'Field Drives'
+                        });
+                      }
+
+                      setIsNewMediaModalOpen(false);
+                      showToast('Media asset registered and available in library');
+                    }}
+                    className="px-5 py-2.5 rounded-xl bg-[#006A4E] hover:bg-[#00523C] disabled:bg-slate-300 text-white text-xs font-bold shadow-warm-xs transition-colors cursor-pointer"
+                  >
+                    Save to Media Library
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* ======================================================== */}
+      {/* DYNAMIC IMAGE CROPPER MODAL */}
+      {/* ======================================================== */}
+      <ImageEditorModal
+        isOpen={isCropperModalOpen}
+        onClose={() => setIsCropperModalOpen(false)}
+        imageUrl={cropperSourceUrl}
+        onSave={(croppedUrl) => {
+          if (typeof cropperCallback === 'function') {
+            cropperCallback(croppedUrl);
+          }
+          setIsCropperModalOpen(false);
+        }}
+      />
 
       {/* Universal Media Picker Modal */}
       <MediaPickerModal

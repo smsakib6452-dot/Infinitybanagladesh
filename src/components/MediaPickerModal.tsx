@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
 import { MediaItem, MediaCategory } from '../types';
@@ -13,10 +13,15 @@ import {
   Link2,
   Trash2,
   Eye,
-  Info
+  Info,
+  Video,
+  Play,
+  CheckCircle2,
+  AlertCircle
 } from 'lucide-react';
 import { StorageService } from '../lib/storage/storageService';
 import { uploadToCloudinary, isCloudinaryConfigured, CLOUDINARY_CLOUD_NAME } from '../lib/cloudinary';
+import { detectAndNormalizeMedia } from '../lib/utils/mediaHelper';
 
 export interface MediaPickerModalProps {
   isOpen: boolean;
@@ -26,6 +31,7 @@ export interface MediaPickerModalProps {
   currentImageUrl?: string;
   defaultCategory?: MediaCategory;
   title?: string;
+  allowVideos?: boolean;
 }
 
 const CATEGORIES: MediaCategory[] = [
@@ -49,18 +55,27 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
   onSelectMedia,
   currentImageUrl = '',
   defaultCategory = 'General',
-  title
+  title,
+  allowVideos = true
 }) => {
   const { isBn } = useLanguage();
   const { mediaLibrary, addMediaItem } = useData();
 
   const [activeTab, setActiveTab] = useState<'library' | 'upload' | 'url'>('library');
+  const [mediaTypeFilter, setMediaTypeFilter] = useState<'all' | 'image' | 'video'>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>(defaultCategory === 'General' ? 'All' : defaultCategory);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null);
   const [customUrl, setCustomUrl] = useState(currentImageUrl);
 
-  // Safe callback dispatcher preventing any TypeError if onSelect or onSelectMedia is undefined
+  // Upload Tab State
+  const [uploadCategory, setUploadCategory] = useState<MediaCategory>(defaultCategory);
+  const [uploadAltText, setUploadAltText] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
+  const [dragOver, setDragOver] = useState(false);
+
+  // Safe callback dispatcher
   const dispatchSelect = (url: string, mediaItem?: MediaItem) => {
     try {
       if (typeof onSelect === 'function') {
@@ -79,28 +94,38 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
     }
   };
 
-  // Upload Tab State
-  const [uploadCategory, setUploadCategory] = useState<MediaCategory>(defaultCategory);
-  const [uploadAltText, setUploadAltText] = useState('');
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadError, setUploadError] = useState('');
-  const [dragOver, setDragOver] = useState(false);
+  // URL Auto-detection
+  const urlDetection = useMemo(() => {
+    if (!customUrl.trim()) return null;
+    return detectAndNormalizeMedia(customUrl.trim());
+  }, [customUrl]);
 
   if (!isOpen) return null;
 
   const filteredMedia = mediaLibrary.filter(item => {
+    // Type filter
+    if (mediaTypeFilter === 'image' && item.type === 'video') return false;
+    if (mediaTypeFilter === 'video' && item.type !== 'video') return false;
+
+    // Category filter
     const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
+
+    // Search query
     const matchesSearch = !searchQuery || 
       item.fileName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.altText.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (item.caption && item.caption.toLowerCase().includes(searchQuery.toLowerCase()));
+      (item.caption && item.caption.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (item.title && item.title.toLowerCase().includes(searchQuery.toLowerCase()));
+
     return matchesCategory && matchesSearch;
   });
 
   const handleConfirmSelection = () => {
     if (activeTab === 'url') {
       if (customUrl.trim()) {
-        dispatchSelect(customUrl.trim());
+        const det = detectAndNormalizeMedia(customUrl.trim());
+        const selectedUrl = det.isValid ? (det.type === 'image' ? det.originalUrl : det.thumbnailUrl || det.originalUrl) : customUrl.trim();
+        dispatchSelect(selectedUrl);
         safeClose();
       }
       return;
@@ -127,7 +152,7 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
         return;
       }
 
-      // Upload directly to Cloudinary using unsigned REST API endpoint
+      // Upload directly to Cloudinary
       const uploadRes = await uploadToCloudinary(file);
 
       if (!uploadRes || !uploadRes.secure_url) {
@@ -143,10 +168,14 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
           ? `${(uploadRes.bytes / 1024).toFixed(1)} KB`
           : `${(file.size / 1024).toFixed(1)} KB`,
         mimeType: file.type,
+        type: file.type.startsWith('video/') ? 'video' : 'image',
+        sourceType: 'upload',
+        platform: 'cloudinary',
         category: uploadCategory,
         altText: uploadAltText || file.name.replace(/\.[^/.]+$/, ''),
         caption: '',
-        usageTags: ['Cloudinary Upload', 'Direct CMS Selection']
+        usageTags: ['Cloudinary Upload', 'Direct CMS Selection'],
+        status: 'published'
       };
 
       const created = addMediaItem(newMedia);
@@ -170,8 +199,9 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-950/75 backdrop-blur-sm animate-in fade-in">
-      <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden text-left animate-in zoom-in-95">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+      <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden text-left animate-in zoom-in-95">
+        
         {/* Header */}
         <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-[#FAF7F2]">
           <div className="flex items-center gap-3">
@@ -180,12 +210,12 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
             </div>
             <div>
               <h3 className="font-extrabold text-slate-900 text-base sm:text-lg font-display">
-                {title || (isBn ? 'মিডিয়া লাইব্রেরি ও ছবি নির্বাচন' : 'Media Library & Asset Picker')}
+                {title || (isBn ? 'মিডিয়া লাইব্রেরি ও সম্পদ নির্বাচন' : 'Media Library & Asset Picker')}
               </h3>
               <p className="text-xs text-slate-500">
                 {isBn
-                  ? 'সংগঠনের সংরক্ষিত মিডিয়া থেকে নির্বাচন করুন অথবা নতুন ছবি ক্লাউডে আপলোড করুন'
-                  : 'Select an official organizational photograph or upload a new cloud asset'}
+                  ? 'সংগঠনের সংরক্ষিত মিডিয়া থেকে নির্বাচন করুন অথবা নতুন ছবি/ভিডিও যুক্ত করুন'
+                  : 'Select an official organizational photograph/video or import a new asset'}
               </p>
             </div>
           </div>
@@ -241,21 +271,23 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
               }`}
             >
               <Link2 className="w-4 h-4" />
-              <span>{isBn ? 'সরাসরি লিঙ্ক' : 'External Image URL'}</span>
+              <span>{isBn ? 'সরাসরি URL / ভিডিও' : 'Direct URL & Video'}</span>
             </button>
           </div>
 
           <div className="text-[11px] text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full hidden sm:flex items-center gap-1.5 font-semibold">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Cloudinary Cloud Active ({CLOUDINARY_CLOUD_NAME})</span>
+            <span>Cloudinary Active</span>
           </div>
         </div>
 
         {/* Tab Body */}
         <div className="flex-1 overflow-y-auto p-6 space-y-5 bg-[#FAF7F2]/40">
+          
           {/* TAB 1: MEDIA LIBRARY */}
           {activeTab === 'library' && (
             <div className="space-y-4">
+              
               {/* Category Pills & Search */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full text-xs">
@@ -281,27 +313,30 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
                     type="text"
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
-                    placeholder={isBn ? 'ছবি খুঁজুন...' : 'Search media by name...'}
+                    placeholder={isBn ? 'ছবি বা ভিডিও খুঁজুন...' : 'Search media by name...'}
                     className="w-full pl-8.5 pr-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs focus:outline-none focus:border-[#006A4E]"
                   />
                 </div>
               </div>
 
-              {/* Grid of Images */}
+              {/* Media Grid */}
               {filteredMedia.length === 0 ? (
                 <div className="py-16 text-center space-y-3 bg-white rounded-2xl border border-slate-200">
                   <ImageIcon className="w-10 h-10 text-slate-300 mx-auto" />
                   <p className="text-sm font-bold text-slate-700">
-                    {isBn ? 'কোনো ছবি পাওয়া যায়নি' : 'No media items found'}
+                    {isBn ? 'কোনো মিডিয়া পাওয়া যায়নি' : 'No media items found'}
                   </p>
                   <p className="text-xs text-slate-400">
-                    {isBn ? 'ক্যাটাগরি পরিবর্তন করুন অথবা "নতুন ছবি আপলোড" ট্যাবে যান।' : 'Try selecting another category or upload a new photo.'}
+                    {isBn ? 'ক্যাটাগরি পরিবর্তন করুন অথবা "ক্লাউড আপলোড" ট্যাবে যান।' : 'Try selecting another category or upload a new asset.'}
                   </p>
                 </div>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5">
                   {filteredMedia.map(item => {
                     const isSelected = selectedItem?.id === item.id || (!selectedItem && currentImageUrl === item.url);
+                    const isVideo = item.type === 'video';
+                    const displayThumb = item.thumbnailUrl || item.url;
+
                     return (
                       <div
                         key={item.id}
@@ -312,19 +347,26 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
                             : 'border-slate-200 hover:border-slate-300 shadow-2xs hover:shadow-warm-xs'
                         }`}
                       >
-                        <div className="aspect-4/3 bg-slate-100 overflow-hidden relative">
+                        <div className="aspect-4/3 bg-slate-900 overflow-hidden relative">
                           <img
-                            src={item.url}
+                            src={displayThumb}
                             alt={item.altText || item.fileName}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                             loading="lazy"
                           />
+                          {isVideo && (
+                            <div className="absolute inset-0 bg-slate-950/30 flex items-center justify-center">
+                              <div className="w-8 h-8 rounded-full bg-[#006A4E]/90 text-white flex items-center justify-center shadow-md">
+                                <Play className="w-4 h-4 fill-current ml-0.5" />
+                              </div>
+                            </div>
+                          )}
                           {isSelected && (
-                            <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-[#006A4E] text-white flex items-center justify-center shadow-md">
+                            <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-[#006A4E] text-white flex items-center justify-center shadow-md z-10">
                               <Check className="w-3.5 h-3.5" />
                             </div>
                           )}
-                          <div className="absolute bottom-1.5 left-1.5 px-2 py-0.5 rounded-md bg-slate-950/70 text-white text-[10px] font-semibold backdrop-blur-xs">
+                          <div className="absolute bottom-1.5 left-1.5 px-2 py-0.5 rounded-md bg-slate-950/80 text-white text-[10px] font-semibold backdrop-blur-xs">
                             {item.category}
                           </div>
                         </div>
@@ -334,7 +376,7 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
                             {item.fileName}
                           </p>
                           <p className="text-[10px] text-slate-400 truncate">
-                            {item.altText || item.fileSize}
+                            {item.altText || item.fileSize || item.platform}
                           </p>
                         </div>
                       </div>
@@ -345,7 +387,7 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
             </div>
           )}
 
-          {/* TAB 2: UPLOAD */}
+          {/* TAB 2: CLOUDINARY UPLOAD */}
           {activeTab === 'upload' && (
             <div className="space-y-5 max-w-xl mx-auto py-2">
               <div
@@ -431,18 +473,18 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
             </div>
           )}
 
-          {/* TAB 3: DIRECT URL */}
+          {/* TAB 3: DIRECT URL & VIDEO EMBED */}
           {activeTab === 'url' && (
-            <div className="space-y-4 max-w-xl mx-auto py-4">
+            <div className="space-y-4 max-w-xl mx-auto py-2">
               <div className="bg-white p-6 rounded-3xl border border-slate-200 space-y-4 text-xs">
                 <div className="space-y-1">
                   <label className="block font-bold text-slate-800 text-sm">
-                    {isBn ? 'ছবির সরাসরি ওয়েব লিঙ্ক (URL):' : 'Direct Image Web URL:'}
+                    {isBn ? 'সরাসরি লিঙ্ক বা ভিডিও URL:' : 'Direct Media or Video URL:'}
                   </label>
-                  <p className="text-slate-400 text-xs">
+                  <p className="text-slate-400 text-xs leading-relaxed">
                     {isBn
-                      ? 'যেকোনো পাবলিক বা ক্লাউড স্টোরেজের ছবির লিঙ্ক এখানে পেস্ট করুন।'
-                      : 'Paste the direct URL to an image hosted on Cloudinary, S3, Supabase or project assets.'}
+                      ? 'YouTube (watch/shorts/youtu.be), Facebook Public Video, বা সরাসরি ছবির লিঙ্ক পেস্ট করুন।'
+                      : 'Paste YouTube, Facebook video, or direct image URL. Platform and embed parameters are auto-detected.'}
                   </p>
                 </div>
 
@@ -450,28 +492,60 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
                   type="text"
                   value={customUrl}
                   onChange={e => setCustomUrl(e.target.value)}
-                  placeholder="https://... or /images/..."
+                  placeholder="https://www.youtube.com/watch?v=... or https://fb.watch/..."
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono focus:outline-none focus:border-[#006A4E]"
                 />
 
-                {customUrl && (
-                  <div className="space-y-2 pt-2">
-                    <span className="font-bold text-slate-700 block">Preview:</span>
-                    <div className="aspect-16/9 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 max-h-48">
-                      <img
-                        src={customUrl}
-                        alt="Custom preview"
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLElement).style.display = 'none';
-                        }}
-                      />
-                    </div>
+                {/* Auto Detection Result Card */}
+                {urlDetection && (
+                  <div className="space-y-3 pt-2">
+                    {urlDetection.isValid ? (
+                      <div className="p-4 rounded-2xl bg-[#E6F3EF] border border-[#C2E2D7] space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <CheckCircle2 className="w-4 h-4 text-[#006A4E]" />
+                            <span className="font-bold text-[#00523C] capitalize">
+                              Detected: {urlDetection.type === 'youtube' ? 'YouTube Video' : urlDetection.type === 'facebook' ? 'Facebook Video' : urlDetection.type === 'image' ? 'Image Asset' : 'Direct Video'}
+                            </span>
+                          </div>
+                          <span className="px-2 py-0.5 rounded-full bg-white text-[10px] font-extrabold text-[#006A4E]">
+                            Verified
+                          </span>
+                        </div>
+
+                        {/* Embed or Thumbnail Preview */}
+                        <div className="aspect-video rounded-xl overflow-hidden bg-slate-900 border border-[#C2E2D7] relative">
+                          {urlDetection.type === 'youtube' || urlDetection.type === 'facebook' ? (
+                            <iframe
+                              src={urlDetection.embedUrl}
+                              title="Media Preview"
+                              className="w-full h-full border-0"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            />
+                          ) : (
+                            <img
+                              src={urlDetection.originalUrl}
+                              alt="Custom URL Preview"
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                (e.target as HTMLElement).style.display = 'none';
+                              }}
+                            />
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4 shrink-0 text-amber-600" />
+                        <span>{urlDetection.errorMessage || 'Invalid or unrecognized media URL.'}</span>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
             </div>
           )}
+
         </div>
 
         {/* Footer Actions */}
@@ -484,7 +558,7 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
             ) : currentImageUrl ? (
               <span className="truncate block">Current: {currentImageUrl}</span>
             ) : (
-              <span>No image selected</span>
+              <span>No asset selected</span>
             )}
           </div>
 
@@ -504,10 +578,11 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({
               className="px-6 py-2.5 rounded-xl bg-[#006A4E] hover:bg-[#00523C] disabled:bg-slate-300 disabled:cursor-not-allowed text-white text-xs font-extrabold shadow-warm-sm transition-all flex items-center gap-2 cursor-pointer"
             >
               <Check className="w-4 h-4" />
-              <span>{isBn ? 'ছবি নিশ্চিত করুন' : 'Apply Selection'}</span>
+              <span>{isBn ? 'মিডিয়া নির্বাচন করুন' : 'Apply Selection'}</span>
             </button>
           </div>
         </div>
+
       </div>
     </div>
   );

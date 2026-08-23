@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import {
   Crop,
@@ -27,7 +27,7 @@ export interface ImageEditorModalProps {
   isOpen: boolean;
   onClose: () => void;
   imageUrl: string;
-  onSave: (croppedDataUrl: string, metadata?: { altText?: string; caption?: string; cropMetadata?: any }) => void;
+  onSave: (croppedDataUrl: string, metadata?: { altText?: string; caption?: string; cropMetadata?: any; aspectRatio?: AspectRatioType }) => void;
   title?: string;
   defaultAspectRatio?: AspectRatioType;
   allowedAspectRatios?: AspectRatioType[];
@@ -36,14 +36,14 @@ export interface ImageEditorModalProps {
   onOpenMediaLibrary?: () => void;
 }
 
-const ASPECT_RATIO_PRESETS: { id: AspectRatioType; label: string; ratio: number | null; iconTag: string }[] = [
-  { id: '1:1', label: '1:1 Square (Profile/Logo)', ratio: 1, iconTag: '1:1' },
-  { id: '4:5', label: '4:5 Portrait', ratio: 4 / 5, iconTag: '4:5' },
-  { id: '3:4', label: '3:4 Portrait', ratio: 3 / 4, iconTag: '3:4' },
-  { id: '4:3', label: '4:3 Standard', ratio: 4 / 3, iconTag: '4:3' },
-  { id: '16:9', label: '16:9 Widescreen', ratio: 16 / 9, iconTag: '16:9' },
-  { id: '21:9', label: '21:9 Hero / Banner', ratio: 21 / 9, iconTag: '21:9' },
-  { id: 'free', label: 'Free / Original', ratio: null, iconTag: 'Free' }
+const ASPECT_RATIO_PRESETS: { id: AspectRatioType; label: string; ratio: number | null; iconTag: string; subLabel: string }[] = [
+  { id: '1:1', label: '1:1 Square', ratio: 1, iconTag: '1:1', subLabel: 'Profile / Logo' },
+  { id: '4:5', label: '4:5 Portrait', ratio: 4 / 5, iconTag: '4:5', subLabel: 'Member / Story' },
+  { id: '3:4', label: '3:4 Portrait', ratio: 3 / 4, iconTag: '3:4', subLabel: 'Roster / Card' },
+  { id: '4:3', label: '4:3 Standard', ratio: 4 / 3, iconTag: '4:3', subLabel: 'Gallery / Event' },
+  { id: '16:9', label: '16:9 Widescreen', ratio: 16 / 9, iconTag: '16:9', subLabel: 'Hero / Banner' },
+  { id: '21:9', label: '21:9 Ultra-Wide', ratio: 21 / 9, iconTag: '21:9', subLabel: 'Header Banner' },
+  { id: 'free', label: 'Free / Original', ratio: null, iconTag: 'Free', subLabel: 'Natural Aspect' }
 ];
 
 export const ImageEditorModal: React.FC<ImageEditorModalProps> = ({
@@ -60,7 +60,7 @@ export const ImageEditorModal: React.FC<ImageEditorModalProps> = ({
 }) => {
   const { isBn } = useLanguage();
 
-  // Current active image URL (can be switched via local file upload)
+  // Active Image Source (allows local PC replace)
   const [currentSrc, setCurrentSrc] = useState(imageUrl);
   const [aspectRatio, setAspectRatio] = useState<AspectRatioType>(defaultAspectRatio);
 
@@ -75,7 +75,7 @@ export const ImageEditorModal: React.FC<ImageEditorModalProps> = ({
   const [altText, setAltText] = useState(initialAltText);
   const [caption, setCaption] = useState(initialCaption);
 
-  // Cloudinary upload state
+  // Cloud upload state
   const [isUploadingToCloud, setIsUploadingToCloud] = useState(false);
 
   // Drag interaction state
@@ -89,7 +89,33 @@ export const ImageEditorModal: React.FC<ImageEditorModalProps> = ({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Sync props on open
+  // Container dimensions for dynamic crop box calculations
+  const [containerSize, setContainerSize] = useState<{ width: number; height: number }>({
+    width: 480,
+    height: 360
+  });
+
+  // Track container size
+  useEffect(() => {
+    if (!isOpen || !containerRef.current) return;
+    const updateSize = () => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        if (rect.width > 50 && rect.height > 50) {
+          setContainerSize({ width: rect.width, height: rect.height });
+        }
+      }
+    };
+    updateSize();
+    window.addEventListener('resize', updateSize);
+    const timer = setTimeout(updateSize, 100);
+    return () => {
+      window.removeEventListener('resize', updateSize);
+      clearTimeout(timer);
+    };
+  }, [isOpen]);
+
+  // Sync initial props on open
   useEffect(() => {
     if (isOpen) {
       setCurrentSrc(imageUrl);
@@ -120,6 +146,37 @@ export const ImageEditorModal: React.FC<ImageEditorModalProps> = ({
     img.src = getAssetUrl(currentSrc);
   }, [currentSrc]);
 
+  // Determine current numeric aspect ratio
+  const activeRatio = useMemo(() => {
+    const preset = ASPECT_RATIO_PRESETS.find(p => p.id === aspectRatio);
+    if (preset && preset.ratio !== null) return preset.ratio;
+    if (imageObjRef.current && imageObjRef.current.width > 0) {
+      return imageObjRef.current.width / imageObjRef.current.height;
+    }
+    return 1;
+  }, [aspectRatio]);
+
+  // Calculate dynamic crop frame dimensions within the interactive editing container
+  const cropBox = useMemo(() => {
+    const cW = containerSize.width || 480;
+    const cH = containerSize.height || 360;
+    const maxW = cW * 0.85;
+    const maxH = cH * 0.85;
+
+    let width = maxW;
+    let height = width / activeRatio;
+
+    if (height > maxH) {
+      height = maxH;
+      width = height * activeRatio;
+    }
+
+    const x = (cW - width) / 2;
+    const y = (cH - height) / 2;
+
+    return { x, y, width, height };
+  }, [containerSize, activeRatio]);
+
   // Draw main interactive editing canvas
   const drawCanvas = useCallback(() => {
     const canvas = canvasRef.current;
@@ -129,19 +186,19 @@ export const ImageEditorModal: React.FC<ImageEditorModalProps> = ({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const containerWidth = containerRef.current.clientWidth || 500;
-    const containerHeight = containerRef.current.clientHeight || 400;
+    const cW = containerSize.width || 480;
+    const cH = containerSize.height || 360;
 
-    canvas.width = containerWidth;
-    canvas.height = containerHeight;
+    canvas.width = cW;
+    canvas.height = cH;
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, cW, cH);
 
-    // Save state
+    // Save context
     ctx.save();
 
     // Center coordinates
-    ctx.translate(canvas.width / 2 + pan.x, canvas.height / 2 + pan.y);
+    ctx.translate(cW / 2 + pan.x, cH / 2 + pan.y);
 
     // Apply rotation
     ctx.rotate((rotation * Math.PI) / 180);
@@ -149,22 +206,17 @@ export const ImageEditorModal: React.FC<ImageEditorModalProps> = ({
     // Apply flips
     ctx.scale(flipH ? -1 : 1, flipV ? -1 : 1);
 
-    // Calculate base draw size maintaining aspect ratio
-    const imgAspect = img.width / img.height;
-    let drawWidth = canvas.width * 0.8 * zoom;
-    let drawHeight = drawWidth / imgAspect;
+    // Base cover scale: Image covers the cropBox at zoom=1.0
+    const coverScale = Math.max(cropBox.width / img.width, cropBox.height / img.height);
+    const drawW = img.width * coverScale * zoom;
+    const drawH = img.height * coverScale * zoom;
 
-    if (drawHeight > canvas.height * 0.8 * zoom) {
-      drawHeight = canvas.height * 0.8 * zoom;
-      drawWidth = drawHeight * imgAspect;
-    }
-
-    ctx.drawImage(img, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
+    ctx.drawImage(img, -drawW / 2, -drawH / 2, drawW, drawH);
 
     ctx.restore();
-  }, [pan, zoom, rotation, flipH, flipV]);
+  }, [containerSize, cropBox, pan, zoom, rotation, flipH, flipV]);
 
-  // Draw final crop preview
+  // Draw final crop preview (matching exact cropBox region and aspect ratio)
   const drawPreview = useCallback(() => {
     const previewCanvas = previewCanvasRef.current;
     const img = imageObjRef.current;
@@ -173,42 +225,40 @@ export const ImageEditorModal: React.FC<ImageEditorModalProps> = ({
     const ctx = previewCanvas.getContext('2d');
     if (!ctx) return;
 
-    const preset = ASPECT_RATIO_PRESETS.find(p => p.id === aspectRatio);
-    const targetRatio = preset?.ratio || img.width / img.height;
+    // Set preview canvas dimensions matching selected aspect ratio
+    const baseDimension = 280;
+    let outW = baseDimension;
+    let outH = baseDimension / activeRatio;
 
-    // Set export canvas dimensions
-    const baseSize = 400;
-    let outWidth = baseSize;
-    let outHeight = baseSize / targetRatio;
-    if (outHeight > baseSize) {
-      outHeight = baseSize;
-      outWidth = baseSize * targetRatio;
+    if (outH > baseDimension) {
+      outH = baseDimension;
+      outW = baseDimension * activeRatio;
     }
 
-    previewCanvas.width = outWidth;
-    previewCanvas.height = outHeight;
+    previewCanvas.width = outW;
+    previewCanvas.height = outH;
 
-    ctx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+    ctx.clearRect(0, 0, outW, outH);
 
     ctx.save();
-    ctx.translate(previewCanvas.width / 2 + (pan.x * (previewCanvas.width / 400)), previewCanvas.height / 2 + (pan.y * (previewCanvas.height / 400)));
+
+    // Scale factor from interactive crop box to preview canvas
+    const scaleRatio = outW / cropBox.width;
+
+    ctx.translate(outW / 2 + pan.x * scaleRatio, outH / 2 + pan.y * scaleRatio);
     ctx.rotate((rotation * Math.PI) / 180);
     ctx.scale(flipH ? -1 : 1, flipV ? -1 : 1);
 
-    const imgAspect = img.width / img.height;
-    let drawW = previewCanvas.width * zoom;
-    let drawH = drawW / imgAspect;
-
-    if (drawH < previewCanvas.height * zoom) {
-      drawH = previewCanvas.height * zoom;
-      drawW = drawH * imgAspect;
-    }
+    const coverScale = Math.max(cropBox.width / img.width, cropBox.height / img.height);
+    const drawW = img.width * coverScale * zoom * scaleRatio;
+    const drawH = img.height * coverScale * zoom * scaleRatio;
 
     ctx.drawImage(img, -drawW / 2, -drawH / 2, drawW, drawH);
-    ctx.restore();
-  }, [aspectRatio, pan, zoom, rotation, flipH, flipV]);
 
-  // Redraw when transform parameters change
+    ctx.restore();
+  }, [activeRatio, cropBox, pan, zoom, rotation, flipH, flipV]);
+
+  // Redraw when any parameter changes
   useEffect(() => {
     drawCanvas();
     drawPreview();
@@ -230,6 +280,25 @@ export const ImageEditorModal: React.FC<ImageEditorModalProps> = ({
 
   const handleMouseUp = () => {
     setIsDragging(false);
+  };
+
+  // Touch Support
+  const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (e.touches.length === 1) {
+      setIsDragging(true);
+      setDragStart({
+        x: e.touches[0].clientX - pan.x,
+        y: e.touches[0].clientY - pan.y
+      });
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (!isDragging || e.touches.length !== 1) return;
+    setPan({
+      x: e.touches[0].clientX - dragStart.x,
+      y: e.touches[0].clientY - dragStart.y
+    });
   };
 
   // Zoom helpers
@@ -280,24 +349,59 @@ export const ImageEditorModal: React.FC<ImageEditorModalProps> = ({
     }
   };
 
-  // Final Export & Save
+  // High Resolution Render & Export
   const handleSaveCrop = async () => {
-    const previewCanvas = previewCanvasRef.current;
-    if (!previewCanvas) {
-      onSave(currentSrc, { altText, caption });
+    const img = imageObjRef.current;
+    if (!img) {
+      onSave(currentSrc, { altText, caption, aspectRatio });
       onClose();
       return;
     }
 
     try {
       setIsUploadingToCloud(true);
-      const dataUrl = previewCanvas.toDataURL('image/jpeg', 0.92);
+
+      // Create high-resolution export canvas
+      const exportCanvas = document.createElement('canvas');
+      const exportBase = 1200;
+      let expW = exportBase;
+      let expH = Math.round(exportBase / activeRatio);
+
+      if (expH > exportBase * 1.5) {
+        expH = Math.round(exportBase * 1.5);
+        expW = Math.round(expH * activeRatio);
+      }
+
+      exportCanvas.width = expW;
+      exportCanvas.height = expH;
+
+      const expCtx = exportCanvas.getContext('2d');
+      if (expCtx) {
+        expCtx.imageSmoothingEnabled = true;
+        expCtx.imageSmoothingQuality = 'high';
+
+        const scaleRatio = expW / cropBox.width;
+
+        expCtx.save();
+        expCtx.translate(expW / 2 + pan.x * scaleRatio, expH / 2 + pan.y * scaleRatio);
+        expCtx.rotate((rotation * Math.PI) / 180);
+        expCtx.scale(flipH ? -1 : 1, flipV ? -1 : 1);
+
+        const coverScale = Math.max(cropBox.width / img.width, cropBox.height / img.height);
+        const drawW = img.width * coverScale * zoom * scaleRatio;
+        const drawH = img.height * coverScale * zoom * scaleRatio;
+
+        expCtx.drawImage(img, -drawW / 2, -drawH / 2, drawW, drawH);
+        expCtx.restore();
+      }
+
+      const dataUrl = exportCanvas.toDataURL('image/jpeg', 0.94);
 
       let finalUrl = dataUrl;
       try {
-        // Upload cropped canvas image directly to Cloudinary
+        // Upload cropped high-res image directly to Cloudinary
         const uploadRes = await uploadToCloudinary(dataUrl, {
-          tags: ['infinity_crop', 'cms_image']
+          tags: ['infinity_crop', 'verified_media']
         });
         if (uploadRes && uploadRes.secure_url) {
           finalUrl = uploadRes.secure_url;
@@ -309,6 +413,7 @@ export const ImageEditorModal: React.FC<ImageEditorModalProps> = ({
       onSave(finalUrl, {
         altText,
         caption,
+        aspectRatio,
         cropMetadata: {
           aspectRatio,
           zoom,
@@ -322,9 +427,9 @@ export const ImageEditorModal: React.FC<ImageEditorModalProps> = ({
       setIsUploadingToCloud(false);
       onClose();
     } catch (err) {
-      console.error('Failed to export cropped canvas:', err);
+      console.error('Failed to export cropped image:', err);
       setIsUploadingToCloud(false);
-      onSave(currentSrc, { altText, caption });
+      onSave(currentSrc, { altText, caption, aspectRatio });
       onClose();
     }
   };
@@ -350,7 +455,9 @@ export const ImageEditorModal: React.FC<ImageEditorModalProps> = ({
                 <span>{title || (isBn ? 'ছবি ক্রপ ও পজিশন এডিটর' : 'Interactive Image Crop & Position Editor')}</span>
               </h2>
               <p className="text-xs text-slate-500 font-sans">
-                {isBn ? 'জুম করুন, ড্র্যাগ করে পজিশন ঠিক করুন এবং রেশিও অনুযায়ী নিখুঁত ক্রপ সংরক্ষণ করুন।' : 'Zoom, pan focal area, crop to aspect ratio, and fine-tune orientation.'}
+                {isBn
+                  ? 'রেশিও নির্বাচন করুন, জুম ও ড্র্যাগ করে নিখুঁত ক্রপ নির্ধারণ করুন।'
+                  : 'Select target aspect ratio, pan/zoom focal area, and apply high-precision crop.'}
               </p>
             </div>
           </div>
@@ -399,7 +506,7 @@ export const ImageEditorModal: React.FC<ImageEditorModalProps> = ({
         {/* Main Body */}
         <div className="flex-1 overflow-y-auto grid grid-cols-1 lg:grid-cols-12 gap-6 p-6">
           
-          {/* Left Canvas: Interactive Editor View */}
+          {/* Left Column: Interactive Editor View */}
           <div className="lg:col-span-7 flex flex-col space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
@@ -407,46 +514,58 @@ export const ImageEditorModal: React.FC<ImageEditorModalProps> = ({
                 <span>{isBn ? 'ইন্টারেক্টিভ এডিটিং ক্যানভাস' : 'Interactive Editing Canvas'}</span>
               </span>
               <span className="text-[11px] text-slate-400">
-                {isBn ? 'ড্র্যাগ করে পজিশন করুন' : 'Drag canvas to reposition focal point'}
+                {isBn ? 'ড্র্যাগ করে পজিশন করুন' : 'Drag to pan • Scroll to zoom'}
               </span>
             </div>
 
             <div
               ref={containerRef}
-              className="relative w-full h-80 sm:h-96 rounded-2xl bg-slate-900 overflow-hidden border-2 border-slate-700/50 shadow-inner flex items-center justify-center cursor-grab active:cursor-grabbing select-none"
+              className="relative w-full h-80 sm:h-96 rounded-2xl bg-slate-950 overflow-hidden border-2 border-slate-700/60 shadow-inner flex items-center justify-center cursor-grab active:cursor-grabbing select-none"
             >
-              {/* Main Transform Canvas */}
+              {/* Transform Canvas */}
               <canvas
                 ref={canvasRef}
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
                 onMouseLeave={handleMouseUp}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleMouseUp}
                 className="w-full h-full"
               />
 
-              {/* Crop Box Overlay Frame with Rule of Thirds Guide */}
-              <div className="absolute inset-8 sm:inset-10 border-2 border-white/80 pointer-events-none rounded-xl shadow-[0_0_0_9999px_rgba(0,0,0,0.45)]">
+              {/* Dynamic Crop Box Frame Overlay matching selected aspect ratio */}
+              <div
+                style={{
+                  left: `${cropBox.x}px`,
+                  top: `${cropBox.y}px`,
+                  width: `${cropBox.width}px`,
+                  height: `${cropBox.height}px`,
+                  boxShadow: '0 0 0 9999px rgba(15, 23, 42, 0.65)'
+                }}
+                className="absolute border-2 border-[#006A4E] pointer-events-none rounded-xl transition-all duration-200"
+              >
                 {/* Rule of Thirds grid lines */}
-                <div className="absolute top-1/3 left-0 right-0 h-px bg-white/30" />
-                <div className="absolute top-2/3 left-0 right-0 h-px bg-white/30" />
-                <div className="absolute left-1/3 top-0 bottom-0 w-px bg-white/30" />
-                <div className="absolute left-2/3 top-0 bottom-0 w-px bg-white/30" />
+                <div className="absolute top-1/3 left-0 right-0 h-px bg-white/40" />
+                <div className="absolute top-2/3 left-0 right-0 h-px bg-white/40" />
+                <div className="absolute left-1/3 top-0 bottom-0 w-px bg-white/40" />
+                <div className="absolute left-2/3 top-0 bottom-0 w-px bg-white/40" />
 
-                {/* Corner Accents */}
-                <div className="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-[#006A4E]" />
-                <div className="absolute -top-1 -right-1 w-4 h-4 border-t-2 border-r-2 border-[#006A4E]" />
-                <div className="absolute -bottom-1 -left-1 w-4 h-4 border-b-2 border-l-2 border-[#006A4E]" />
-                <div className="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 border-[#006A4E]" />
+                {/* Corner Accent Brackets */}
+                <div className="absolute -top-1 -left-1 w-4 h-4 border-t-3 border-l-3 border-[#008764]" />
+                <div className="absolute -top-1 -right-1 w-4 h-4 border-t-3 border-r-3 border-[#008764]" />
+                <div className="absolute -bottom-1 -left-1 w-4 h-4 border-b-3 border-l-3 border-[#008764]" />
+                <div className="absolute -bottom-1 -right-1 w-4 h-4 border-b-3 border-r-3 border-[#008764]" />
 
                 {/* Active Aspect Ratio Badge */}
-                <div className="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-black/60 text-white font-mono text-[10px] font-bold">
+                <div className="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-slate-900/90 text-white font-mono text-[10px] font-bold border border-slate-700 shadow-md">
                   {aspectRatio}
                 </div>
               </div>
             </div>
 
-            {/* Quick Canvas Toolbar below */}
+            {/* Quick Canvas Controls */}
             <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9]">
               {/* Zoom Controls */}
               <div className="flex items-center gap-2 flex-1 min-w-[200px]">
@@ -527,7 +646,7 @@ export const ImageEditorModal: React.FC<ImageEditorModalProps> = ({
             </div>
           </div>
 
-          {/* Right Panel: Aspect Ratio & Live Preview & Metadata */}
+          {/* Right Panel: Aspect Ratio Presets & Real Live Preview */}
           <div className="lg:col-span-5 flex flex-col space-y-5">
             
             {/* Aspect Ratio Preset Selector */}
@@ -536,7 +655,7 @@ export const ImageEditorModal: React.FC<ImageEditorModalProps> = ({
                 <Sliders className="w-3.5 h-3.5 text-[#006A4E]" />
                 <span>{isBn ? 'অ্যাসপেক্ট রেশিও নির্বাচন' : 'Aspect Ratio Preset'}</span>
               </label>
-              <div className="grid grid-cols-3 sm:grid-cols-4 gap-1.5">
+              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-1.5">
                 {visiblePresets.map(preset => {
                   const isSelected = aspectRatio === preset.id;
                   return (
@@ -544,14 +663,14 @@ export const ImageEditorModal: React.FC<ImageEditorModalProps> = ({
                       key={preset.id}
                       type="button"
                       onClick={() => setAspectRatio(preset.id)}
-                      className={`px-2.5 py-2 rounded-xl text-xs font-bold text-center border transition-all cursor-pointer ${
+                      className={`p-2 rounded-xl text-xs font-bold text-center border transition-all cursor-pointer ${
                         isSelected
-                          ? 'bg-[#006A4E] text-white border-[#006A4E] shadow-warm-xs'
+                          ? 'bg-[#006A4E] text-white border-[#006A4E] shadow-warm-xs scale-102'
                           : 'bg-[#FAF7F2] text-slate-700 border-[#EAE3D9] hover:border-slate-400'
                       }`}
                     >
-                      <span className="block font-mono text-[11px]">{preset.iconTag}</span>
-                      <span className="text-[10px] opacity-80 truncate block">{preset.label.split(' ')[1] || preset.label}</span>
+                      <span className="block font-mono text-xs font-extrabold">{preset.iconTag}</span>
+                      <span className="text-[10px] opacity-80 truncate block">{preset.subLabel}</span>
                     </button>
                   );
                 })}
@@ -560,14 +679,19 @@ export const ImageEditorModal: React.FC<ImageEditorModalProps> = ({
 
             {/* Live Crop Output Preview */}
             <div className="space-y-2">
-              <span className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-[#006A4E]" />
-                <span>{isBn ? 'ফাইনাল প্রিভিউ' : 'Final Cropped Preview'}</span>
-              </span>
-              <div className="w-full h-44 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] p-3 flex items-center justify-center overflow-hidden">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-[#006A4E]" />
+                  <span>{isBn ? 'ফাইনাল প্রিভিউ' : 'Final Cropped Preview'}</span>
+                </span>
+                <span className="font-mono text-[10px] text-slate-500 font-bold">
+                  {aspectRatio}
+                </span>
+              </div>
+              <div className="w-full h-48 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] p-3 flex items-center justify-center overflow-hidden">
                 <canvas
                   ref={previewCanvasRef}
-                  className="max-h-full max-w-full rounded-xl shadow-warm-sm border border-slate-200 object-contain"
+                  className="max-h-full max-w-full rounded-xl shadow-warm-md border border-slate-300 object-contain bg-slate-900"
                 />
               </div>
             </div>

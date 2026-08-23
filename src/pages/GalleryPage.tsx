@@ -4,6 +4,7 @@ import { useData } from '../context/DataContext';
 import { SectionHeading } from '../components/SectionHeading';
 import { GalleryLightbox } from '../components/GalleryLightbox';
 import { Image as ImageIcon } from 'lucide-react';
+import { getAssetUrl } from '../lib/utils/assetHelper';
 
 export const GalleryPage: React.FC = () => {
   const { isBn, tText } = useLanguage();
@@ -57,14 +58,14 @@ export const GalleryPage: React.FC = () => {
             onClick={() => setSelectedImageIndex(index)}
             className="group bg-white rounded-3xl border border-[#EAE3D9] overflow-hidden shadow-warm-sm hover:shadow-warm-md transition-all cursor-pointer flex flex-col"
           >
-            <div className="relative aspect-4/3 overflow-hidden bg-slate-100">
+            <div className="relative aspect-4/3 overflow-hidden bg-slate-900">
               <img
-                src={photo.imageUrl}
+                src={getAssetUrl(photo.imageUrl)}
                 alt={tText(photo.title)}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                className="w-full h-full object-cover group-hover:scale-106 transition-transform duration-500"
                 loading="lazy"
               />
-              <span className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#006A4E]/90 text-white backdrop-blur-xs">
+              <span className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#006A4E]/90 text-white backdrop-blur-xs shadow-xs">
                 {photo.category}
               </span>
               <div className="absolute inset-0 bg-[#006A4E]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">

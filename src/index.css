@@ -55,6 +55,12 @@
     letter-spacing: -0.025em;
     color: var(--brand-dark);
   }
+
+  /* Default responsive media in base layer so utility classes can override */
+  img, video, canvas, iframe {
+    max-width: 100%;
+    display: block;
+  }
 }
 
 /* Typography Helpers */
@@ -220,16 +226,19 @@ body {
   scrollbar-width: none;
 }
 
-/* Responsive Images & Media */
-img, video {
-  max-width: 100%;
-  height: auto;
-}
-
-/* Fluid Mobile Card Helpers */
+/* Fluid Mobile Card Helpers & Media Fit */
 @media (max-width: 640px) {
   .touch-min-btn {
     min-height: 42px;
   }
 }
+
+/* Media Card Image Fit Utility ensuring no empty dead space */
+.media-cover-fill {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 

@@ -268,6 +268,10 @@ export type MediaCategory =
   | 'Documents'
   | 'General';
 
+export type MediaType = 'image' | 'video';
+export type MediaSourceType = 'upload' | 'url' | 'youtube' | 'facebook' | 'direct';
+export type MediaPlatform = 'local' | 'cloudinary' | 'youtube' | 'facebook' | 'direct';
+
 export interface MediaItem {
   id: string;
   fileName: string;
@@ -279,6 +283,18 @@ export interface MediaItem {
   caption?: string;
   uploadedAt: string;
   usageTags: string[]; // e.g. ['Homepage Hero', 'Eid Joy Campaign']
+  type?: MediaType;
+  sourceType?: MediaSourceType;
+  platform?: MediaPlatform;
+  embedUrl?: string;
+  thumbnailUrl?: string;
+  title?: string;
+  description?: string;
+  aspectRatio?: '1:1' | '4:5' | '3:4' | '4:3' | '16:9' | '21:9' | 'free';
+  status?: 'published' | 'draft';
+  isFeatured?: boolean;
+  duration?: string;
+  updatedAt?: string;
 }
 
 export interface GalleryPhoto {
@@ -418,6 +434,11 @@ export interface VideoItem {
   thumbnailUrl: string;
   date: string;
   description: BilingualText;
+  embedUrl?: string;
+  category?: string;
+  status?: 'published' | 'draft';
+  isFeatured?: boolean;
+  sourceType?: 'youtube' | 'facebook' | 'url' | 'upload';
 }
 
 export interface TransparencyReport {

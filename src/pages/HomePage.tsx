@@ -191,36 +191,39 @@ export const HomePage: React.FC = () => {
                   <div className="absolute -inset-3 bg-gradient-to-tr from-[#D97706]/20 via-[#006A4E]/15 to-transparent rounded-[2.5rem] blur-xl" />
                   <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-[#D97706]/15 rounded-full blur-2xl" />
 
-                  <div className="relative rounded-[2.5rem] overflow-hidden shadow-warm-xl border-4 border-white bg-slate-100 aspect-4/3 sm:aspect-5/4 lg:aspect-4/5">
-                    <img
-                      src={getAssetUrl(hero.heroImageUrl)}
-                      alt={hero.heroImageAlt || 'Infinity Bangladesh Official Photo'}
-                      style={{ objectPosition: hero.heroImageCropPosition || 'center center' }}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent" />
+                  {/* Hero Card Container */}
+                  <div className="relative rounded-[2.5rem] overflow-hidden shadow-warm-xl border-4 border-white bg-[#0F221D]">
+                    <div className="relative w-full aspect-4/3 sm:aspect-5/4 lg:aspect-4/5 overflow-hidden">
+                      <img
+                        src={getAssetUrl(hero.heroImageUrl)}
+                        alt={hero.heroImageAlt || 'Infinity Bangladesh Official Photo'}
+                        style={{ objectPosition: hero.heroImageCropPosition || 'center center' }}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-950/15 to-transparent pointer-events-none" />
 
-                    {/* Floating Since 2015 Badge */}
-                    <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md rounded-2xl p-3.5 shadow-warm-lg border border-[#EAE3D9] flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-[#006A4E] text-white flex items-center justify-center font-bold font-display text-sm shrink-0">
-                          {hero.badgeYear || '2015'}
+                      {/* Floating Established 2015 Badge */}
+                      <div className="absolute bottom-3.5 left-3.5 right-3.5 bg-white/95 backdrop-blur-md rounded-2xl p-3.5 shadow-warm-lg border border-[#EAE3D9] flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-[#006A4E] text-white flex items-center justify-center font-bold font-display text-sm shrink-0 shadow-xs">
+                            {hero.badgeYear || '2015'}
+                          </div>
+                          <div>
+                            <p className="text-xs font-extrabold text-slate-900 font-display">
+                              {isBn ? `প্রতিষ্ঠিত ${hero.badgeYear || '২০১৫'}` : `Established ${hero.badgeYear || '2015'}`}
+                            </p>
+                            <p className="text-[11px] text-slate-600 flex items-center gap-1 font-medium">
+                              <MapPin className="w-3 h-3 text-[#006A4E]" />
+                              <span>{hero.badgeLocation || 'Hathazari, Chattogram'}</span>
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-xs font-bold text-slate-900">
-                            {isBn ? `প্রতিষ্ঠিত ${hero.badgeYear}` : `Established ${hero.badgeYear}`}
-                          </p>
-                          <p className="text-[11px] text-slate-500 flex items-center gap-1">
-                            <MapPin className="w-3 h-3 text-[#006A4E]" />
-                            <span>{hero.badgeLocation || 'Hathazari, Chattogram'}</span>
-                          </p>
-                        </div>
-                      </div>
 
-                      <div className="text-right">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#E6F3EF] text-[#00523C]">
-                          {hero.badgeTag || 'Team Infinity'}
-                        </span>
+                        <div className="text-right shrink-0">
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-[#E6F3EF] text-[#00523C] border border-[#C2E2D7]">
+                            {hero.badgeTag || 'Team Infinity'}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -477,16 +480,16 @@ export const HomePage: React.FC = () => {
                 <div
                   key={photo.id}
                   onClick={() => setLightboxIndex(i)}
-                  className="aspect-square rounded-2xl overflow-hidden bg-slate-100 cursor-pointer shadow-warm-xs border border-[#EAE3D9] group relative"
+                  className="group relative aspect-square rounded-2xl overflow-hidden bg-slate-900 cursor-pointer shadow-warm-xs hover:shadow-warm-md border border-[#EAE3D9] transition-all"
                 >
                   <img
                     src={getAssetUrl(photo.imageUrl)}
                     alt={tText(photo.title)}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500"
                     loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-slate-950/20 group-hover:bg-slate-950/40 transition-colors flex items-end p-2.5">
-                    <span className="text-[10px] text-white font-bold truncate">
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent flex items-end p-2.5 transition-all">
+                    <span className="text-[11px] text-white font-bold truncate leading-tight drop-shadow-sm">
                       {tText(photo.title)}
                     </span>
                   </div>

@@ -184,9 +184,11 @@ interface DataContextType {
   deleteEvent: (id: string) => void;
 
   addGalleryPhoto: (photo: Omit<GalleryPhoto, 'id'>) => GalleryPhoto;
+  updateGalleryPhoto: (id: string, photo: Partial<GalleryPhoto>) => void;
   deleteGalleryPhoto: (id: string) => void;
 
   addVideo: (video: Omit<VideoItem, 'id'>) => VideoItem;
+  updateVideo: (id: string, video: Partial<VideoItem>) => void;
   deleteVideo: (id: string) => void;
 
   addReport: (report: Omit<TransparencyReport, 'id'>) => TransparencyReport;
@@ -1819,6 +1821,36 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return newPhoto;
   }, [logAudit, safeDbUpsert]);
 
+  const updateGalleryPhoto = useCallback((id: string, photo: Partial<GalleryPhoto>) => {
+    setGallery(prev => {
+      const updated = prev.map(g => {
+        if (g.id !== id) return g;
+        return {
+          ...g,
+          ...photo,
+          imageUrl: photo.imageUrl ? getFreshImageUrl(photo.imageUrl) : g.imageUrl
+        };
+      });
+      const match = updated.find(g => g.id === id);
+      if (match) {
+        safeDbUpsert('gallery_photos', {
+          id: match.id,
+          album_id: match.albumId || null,
+          title: match.title,
+          caption: match.caption,
+          image_url: match.imageUrl,
+          category: match.category,
+          date: match.date,
+          location: match.location,
+          campaign_slug: match.campaignSlug || '',
+          display_order: match.displayOrder || 0
+        });
+      }
+      return updated;
+    });
+    logAudit('UPDATE', 'GalleryPhoto', id, 'Updated gallery photo metadata');
+  }, [logAudit, safeDbUpsert]);
+
   const deleteGalleryPhoto = useCallback((id: string) => {
     setGallery(prev => prev.filter(g => g.id !== id));
     logAudit('DELETE', 'GalleryPhoto', id, 'Deleted photo');
@@ -1832,9 +1864,24 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       id,
       thumbnailUrl: getFreshImageUrl(video.thumbnailUrl)
     };
-    setVideos(prev => [...prev, newVid]);
+    setVideos(prev => [newVid, ...prev]);
     logAudit('CREATE', 'VideoItem', id, `Added video: ${video.title.en}`);
     return newVid;
+  }, [logAudit]);
+
+  const updateVideo = useCallback((id: string, video: Partial<VideoItem>) => {
+    setVideos(prev => {
+      const updated = prev.map(v => {
+        if (v.id !== id) return v;
+        return {
+          ...v,
+          ...video,
+          thumbnailUrl: video.thumbnailUrl ? getFreshImageUrl(video.thumbnailUrl) : v.thumbnailUrl
+        };
+      });
+      return updated;
+    });
+    logAudit('UPDATE', 'VideoItem', id, 'Updated video metadata');
   }, [logAudit]);
 
   const deleteVideo = useCallback((id: string) => {
@@ -2666,9 +2713,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         deleteEvent,
 
         addGalleryPhoto,
+        updateGalleryPhoto,
         deleteGalleryPhoto,
 
         addVideo,
+        updateVideo,
         deleteVideo,
 
         addReport,

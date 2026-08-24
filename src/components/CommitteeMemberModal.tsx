@@ -36,7 +36,7 @@ export interface CommitteeMemberFormData {
   facebookUrl: string;
   linkedinUrl: string;
   isFeaturedLeader: boolean;
-  status: 'ACTIVE' | 'FORMER' | 'INACTIVE';
+  status: 'ACTIVE' | 'FORMER' | 'INACTIVE' | 'ARCHIVED';
   level: number;
 }
 

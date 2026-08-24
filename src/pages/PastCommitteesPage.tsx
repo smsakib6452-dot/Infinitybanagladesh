@@ -126,6 +126,10 @@ export const PastCommitteesPage: React.FC = () => {
                                 src={getAssetUrl(m.person.photoUrl)}
                                 alt={m.person.fullName}
                                 className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = getAssetUrl('assets/images/infinity-logo.png');
+                                }}
+                                loading="lazy"
                               />
                             ) : (
                               <Users className="w-8 h-8 text-slate-400" />

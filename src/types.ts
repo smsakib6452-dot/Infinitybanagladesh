@@ -729,7 +729,7 @@ export interface CommitteeMember {
   isFeaturedLeader: boolean;
   startDate?: string;
   endDate?: string;
-  status: 'ACTIVE' | 'FORMER' | 'INACTIVE';
+  status: 'ACTIVE' | 'FORMER' | 'INACTIVE' | 'ARCHIVED';
   person?: Person;
   position?: Position;
   committee?: Committee;

@@ -58,21 +58,27 @@ export function isCloudinaryConfigured(): boolean {
 export function getFreshImageUrl(url?: string, versionOrTimestamp?: number | string): string {
   if (!url) return '';
 
-  // Data URIs and Blob URLs do not need cache-busting
-  if (url.startsWith('data:') || url.startsWith('blob:')) {
+  // Data URIs, Blob URLs, and local relative paths do not need Cloudinary transformation
+  if (url.startsWith('data:') || url.startsWith('blob:') || (!url.startsWith('http://') && !url.startsWith('https://'))) {
     return url;
   }
 
   // For Cloudinary URLs:
   if (url.includes('cloudinary.com')) {
-    // If the URL already contains a version tag /v\d+/, Cloudinary versioning is already handling cache-busting
+    // If the URL already contains an explicit version tag /v\d+/, Cloudinary versioning is active
     if (/\/v\d+\//.test(url)) {
       return url;
     }
-    // If version is provided, insert version parameter into the Cloudinary path
+    // If version or timestamp is provided, insert version parameter into the Cloudinary path
     if (versionOrTimestamp && url.includes('/upload/')) {
       const parts = url.split('/upload/');
       return `${parts[0]}/upload/v${versionOrTimestamp}/${parts[1]}`;
+    }
+    // If no version tag exists in the raw Cloudinary URL, inject a timestamp version to prevent stale browser/CDN caching
+    if (url.includes('/upload/')) {
+      const parts = url.split('/upload/');
+      const ts = Math.floor(Date.now() / (1000 * 60 * 30)); // 30-min freshness window
+      return `${parts[0]}/upload/v${ts}/${parts[1]}`;
     }
   }
 

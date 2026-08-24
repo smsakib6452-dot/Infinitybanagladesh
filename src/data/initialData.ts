@@ -1953,5 +1953,22 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
   // 08 - Member
   { id: 'cm-sc-8', committeeId: 'comm-stand-central', personId: 'person-sc-8', positionId: 'pos-member', serialNumber: 8, sortOrder: 8, isFeaturedLeader: false, status: 'ACTIVE' },
   // 09 - Member
-  { id: 'cm-sc-9', committeeId: 'comm-stand-central', personId: 'person-sc-9', positionId: 'pos-member', serialNumber: 9, sortOrder: 9, isFeaturedLeader: false, status: 'ACTIVE' }
+  { id: 'cm-sc-9', committeeId: 'comm-stand-central', personId: 'person-sc-9', positionId: 'pos-member', serialNumber: 9, sortOrder: 9, isFeaturedLeader: false, status: 'ACTIVE' },
+
+  // Standing Committee on Youth & Education
+  { id: 'cm-sc-youth-1', committeeId: 'comm-stand-youth', personId: 'person-sc-4', positionId: 'pos-chairman', serialNumber: 1, sortOrder: 1, isFeaturedLeader: true, status: 'ACTIVE' },
+  { id: 'cm-sc-youth-2', committeeId: 'comm-stand-youth', personId: 'person-sc-5', positionId: 'pos-member', serialNumber: 2, sortOrder: 2, isFeaturedLeader: false, status: 'ACTIVE' },
+
+  // Standing Committee on Relief & Disaster Response
+  { id: 'cm-sc-relief-1', committeeId: 'comm-stand-relief', personId: 'person-sc-6', positionId: 'pos-chairman', serialNumber: 1, sortOrder: 1, isFeaturedLeader: true, status: 'ACTIVE' },
+  { id: 'cm-sc-relief-2', committeeId: 'comm-stand-relief', personId: 'person-sc-7', positionId: 'pos-member', serialNumber: 2, sortOrder: 2, isFeaturedLeader: false, status: 'ACTIVE' },
+
+  // Standing Committee on Child Welfare & Dignity
+  { id: 'cm-sc-child-1', committeeId: 'comm-stand-child', personId: 'person-sc-8', positionId: 'pos-chairman', serialNumber: 1, sortOrder: 1, isFeaturedLeader: true, status: 'ACTIVE' },
+  { id: 'cm-sc-child-2', committeeId: 'comm-stand-child', personId: 'person-sc-9', positionId: 'pos-member', serialNumber: 2, sortOrder: 2, isFeaturedLeader: false, status: 'ACTIVE' },
+
+  // Past Committee 2025 Archive
+  { id: 'cm-past-25-1', committeeId: 'comm-exec-2025', personId: 'person-1', positionId: 'pos-1', serialNumber: 1, sortOrder: 1, isFeaturedLeader: true, status: 'ARCHIVED' },
+  { id: 'cm-past-25-2', committeeId: 'comm-exec-2025', personId: 'person-6', positionId: 'pos-5', serialNumber: 2, sortOrder: 2, isFeaturedLeader: true, status: 'ARCHIVED' },
+  { id: 'cm-past-25-3', committeeId: 'comm-exec-2025', personId: 'person-2', positionId: 'pos-2', serialNumber: 3, sortOrder: 3, isFeaturedLeader: false, status: 'ARCHIVED' }
 ];

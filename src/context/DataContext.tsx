@@ -371,6 +371,18 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setMediaLibrary(parsed);
         } else if (entityKey === 'gallery' && Array.isArray(parsed)) {
           setGallery(parsed);
+        } else if (entityKey === 'persons' && Array.isArray(parsed)) {
+          setPersons(parsed);
+        } else if (entityKey === 'committees' && Array.isArray(parsed)) {
+          setCommittees(parsed);
+        } else if (entityKey === 'positions' && Array.isArray(parsed)) {
+          setPositions(parsed);
+        } else if (entityKey === 'committeeMembers' && Array.isArray(parsed)) {
+          setCommitteeMembers(parsed);
+        } else if (entityKey === 'news' && Array.isArray(parsed)) {
+          setNews(parsed);
+        } else if (entityKey === 'events' && Array.isArray(parsed)) {
+          setEvents(parsed);
         }
       } catch (err) {
         console.warn('Storage sync error:', err);
@@ -608,6 +620,18 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         })));
       }
 
+      // 9.5. Positions
+      const { data: posData } = await supabase.from('positions').select('*').order('sort_order', { ascending: true });
+      if (posData && posData.length > 0) {
+        setPositions(posData.map(p => ({
+          id: p.id,
+          name: p.name,
+          level: Number(p.level) || 5,
+          sortOrder: Number(p.sort_order) || 10,
+          description: p.description
+        })));
+      }
+
       // 10. Committees
       const { data: comData } = await supabase.from('committees').select('*').order('sort_order', { ascending: true });
       if (comData && comData.length > 0) {
@@ -762,11 +786,28 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  // Sync on initial mount
+  // Sync on initial mount & dynamic window revalidation
   useEffect(() => {
     if (isSupabaseConfigured) {
       syncWithSupabase();
     }
+
+    // Dynamic revalidation when user switches tabs or window regains focus
+    const handleRevalidate = () => {
+      if (isSupabaseConfigured && document.visibilityState === 'visible') {
+        syncWithSupabase();
+      }
+    };
+
+    window.addEventListener('focus', handleRevalidate);
+    window.addEventListener('online', handleRevalidate);
+    document.addEventListener('visibilitychange', handleRevalidate);
+
+    return () => {
+      window.removeEventListener('focus', handleRevalidate);
+      window.removeEventListener('online', handleRevalidate);
+      document.removeEventListener('visibilitychange', handleRevalidate);
+    };
   }, [syncWithSupabase]);
 
   // Real-time Supabase Broadcast/Change subscription
@@ -941,6 +982,17 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
       }
 
+      // Positions
+      for (const pos of positions) {
+        await supabase.from('positions').upsert({
+          id: pos.id,
+          name: pos.name,
+          level: pos.level,
+          sort_order: pos.sortOrder,
+          description: pos.description
+        });
+      }
+
       // Committees
       for (const com of committees) {
         await supabase.from('committees').upsert({
@@ -1007,6 +1059,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           status: vid.status || 'published',
           is_featured: vid.isFeatured || false,
           source_type: vid.sourceType || 'url',
+          aspect_ratio: vid.aspectRatio || '16/9',
+          is_shorts: vid.isShorts || false,
           created_at: vid.createdAt || new Date().toISOString(),
           updated_at: new Date().toISOString()
         });
@@ -1023,7 +1077,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [
     settings, homepageConfig, aboutSettings, headerSettings, footerSettings,
-    programs, campaigns, persons, committees, committeeMembers, mediaLibrary, videos, logAudit
+    programs, campaigns, positions, persons, committees, committeeMembers, mediaLibrary, videos, logAudit
   ]);
 
   // MUTATIONS: Global Settings

@@ -22,13 +22,14 @@ export const ExecutiveCommitteePage: React.FC = () => {
   const { navigate } = useRouter();
   const { committees, getMembersWithDetails } = useData();
 
-  const activeExecCommittee = committees.find(c => c.type === 'EXECUTIVE' && c.status === 'ACTIVE') || committees[0];
-  const [selectedCommitteeId] = useState<string>(activeExecCommittee?.id || 'comm-exec-2026');
+  const activeExecCommittee = committees.find(c => c.type === 'EXECUTIVE' && c.status === 'ACTIVE') || committees.find(c => c.type === 'EXECUTIVE') || committees[0];
+  const [selectedCommitteeId, setSelectedCommitteeId] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMember, setSelectedMember] = useState<(CommitteeMember & { person: Person; position: Position }) | null>(null);
 
-  const currentCommittee = committees.find(c => c.id === selectedCommitteeId) || activeExecCommittee;
-  const allMembers = getMembersWithDetails(selectedCommitteeId);
+  const committeeIdToUse = selectedCommitteeId || activeExecCommittee?.id || 'comm-exec-2026';
+  const currentCommittee = committees.find(c => c.id === committeeIdToUse) || activeExecCommittee;
+  const allMembers = getMembersWithDetails(committeeIdToUse);
 
   // Filter members if search query exists
   const filteredMembers = allMembers.filter(m => {
@@ -151,6 +152,10 @@ export const ExecutiveCommitteePage: React.FC = () => {
                           objectPosition: m.person.photoPosition || 'center 15%',
                           transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
                         }}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = getAssetUrl('assets/images/infinity-logo.png');
+                        }}
+                        loading="lazy"
                       />
                     ) : (
                       <Users className="w-16 h-16 text-[#006A4E]/60" />
@@ -204,6 +209,10 @@ export const ExecutiveCommitteePage: React.FC = () => {
                           objectPosition: m.person.photoPosition || 'center 15%',
                           transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
                         }}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = getAssetUrl('assets/images/infinity-logo.png');
+                        }}
+                        loading="lazy"
                       />
                     ) : (
                       <Users className="w-12 h-12 text-slate-400" />
@@ -253,6 +262,10 @@ export const ExecutiveCommitteePage: React.FC = () => {
                           objectPosition: m.person.photoPosition || 'center 15%',
                           transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
                         }}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = getAssetUrl('assets/images/infinity-logo.png');
+                        }}
+                        loading="lazy"
                       />
                     ) : (
                       <Users className="w-16 h-16 text-[#D4182E]/60" />
@@ -308,6 +321,10 @@ export const ExecutiveCommitteePage: React.FC = () => {
                             objectPosition: m.person.photoPosition || 'center 15%',
                             transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
                           }}
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = getAssetUrl('assets/images/infinity-logo.png');
+                          }}
+                          loading="lazy"
                         />
                       ) : (
                         <Users className="w-8 h-8 text-rose-200/70" />
@@ -344,7 +361,7 @@ export const ExecutiveCommitteePage: React.FC = () => {
             <button
               type="button"
               onClick={() => setSelectedMember(null)}
-              className="absolute top-4 right-4 p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+              className="absolute top-4 right-4 p-2 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
             >
               ✕
             </button>
@@ -359,6 +376,9 @@ export const ExecutiveCommitteePage: React.FC = () => {
                     style={{
                       objectPosition: selectedMember.person.photoPosition || 'center 15%',
                       transform: selectedMember.person.photoZoom ? `scale(${selectedMember.person.photoZoom})` : undefined
+                    }}
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = getAssetUrl('assets/images/infinity-logo.png');
                     }}
                   />
                 ) : (

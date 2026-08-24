@@ -511,28 +511,49 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // 2. Homepage Config
       const { data: homeData } = await supabase.from('homepage_config').select('*').single();
       if (homeData) {
-        setHomepageConfig(prev => ({
-          ...prev,
-          hero: {
+        setHomepageConfig(prev => {
+          let syncedHero = {
             ...prev.hero,
             ...(homeData.hero || {}),
             headlineMain: (homeData.hero?.headlineMain && homeData.hero.headlineMain.bn) ? homeData.hero.headlineMain : prev.hero.headlineMain,
             headlineHighlight: (homeData.hero?.headlineHighlight && homeData.hero.headlineHighlight.bn) ? homeData.hero.headlineHighlight : prev.hero.headlineHighlight,
             description: (homeData.hero?.description && homeData.hero.description.bn) ? homeData.hero.description : prev.hero.description,
             heroImageUrl: getFreshImageUrl(homeData.hero?.heroImageUrl || prev.hero.heroImageUrl)
-          },
-          aboutPreview: {
-            ...prev.aboutPreview,
-            ...(homeData.about_preview || {}),
-            titleMain: (homeData.about_preview?.titleMain && homeData.about_preview.titleMain.bn) ? homeData.about_preview.titleMain : prev.aboutPreview.titleMain,
-            description: (homeData.about_preview?.description && homeData.about_preview.description.bn) ? homeData.about_preview.description : prev.aboutPreview.description,
-            imageUrl: getFreshImageUrl(homeData.about_preview?.imageUrl || prev.aboutPreview.imageUrl)
-          },
-          volunteerBanner: { ...prev.volunteerBanner, ...(homeData.volunteer_banner || {}) },
-          supportBanner: { ...prev.supportBanner, ...(homeData.support_banner || {}) },
-          sectionOrder: (Array.isArray(homeData.section_order) && homeData.section_order.length > 0) ? homeData.section_order : prev.sectionOrder,
-          sectionVisibility: (homeData.section_visibility && Object.keys(homeData.section_visibility).length > 0) ? { ...prev.sectionVisibility, ...homeData.section_visibility } : prev.sectionVisibility
-        }));
+          };
+          if (
+            !syncedHero.eyebrow ||
+            syncedHero.eyebrow.en === 'TEAM INFINITY — UNITED FOR HUMANITY' ||
+            syncedHero.eyebrow.bn === 'টিম ইনফিনিটি — মানবতার জন্য একতাবদ্ধ' ||
+            syncedHero.eyebrow.bn === 'টিম ইনফিনিটি — ইউনাইটেড ফর হিউম্যানিটি'
+          ) {
+            syncedHero.eyebrow = INITIAL_HOMEPAGE_CONFIG.hero.eyebrow;
+            safeDbUpsert('homepage_config', {
+              id: 'default',
+              hero: syncedHero,
+              about_preview: homeData.about_preview || prev.aboutPreview,
+              volunteer_banner: homeData.volunteer_banner || prev.volunteerBanner,
+              support_banner: homeData.support_banner || prev.supportBanner,
+              section_order: homeData.section_order || prev.sectionOrder,
+              section_visibility: homeData.section_visibility || prev.sectionVisibility,
+              updated_at: new Date().toISOString()
+            });
+          }
+          return {
+            ...prev,
+            hero: syncedHero,
+            aboutPreview: {
+              ...prev.aboutPreview,
+              ...(homeData.about_preview || {}),
+              titleMain: (homeData.about_preview?.titleMain && homeData.about_preview.titleMain.bn) ? homeData.about_preview.titleMain : prev.aboutPreview.titleMain,
+              description: (homeData.about_preview?.description && homeData.about_preview.description.bn) ? homeData.about_preview.description : prev.aboutPreview.description,
+              imageUrl: getFreshImageUrl(homeData.about_preview?.imageUrl || prev.aboutPreview.imageUrl)
+            },
+            volunteerBanner: { ...prev.volunteerBanner, ...(homeData.volunteer_banner || {}) },
+            supportBanner: { ...prev.supportBanner, ...(homeData.support_banner || {}) },
+            sectionOrder: (Array.isArray(homeData.section_order) && homeData.section_order.length > 0) ? homeData.section_order : prev.sectionOrder,
+            sectionVisibility: (homeData.section_visibility && Object.keys(homeData.section_visibility).length > 0) ? { ...prev.sectionVisibility, ...homeData.section_visibility } : prev.sectionVisibility
+          };
+        });
       }
 
       // 3. About Settings
@@ -555,14 +576,34 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // 4. Header Settings
       const { data: headerData } = await supabase.from('header_settings').select('*').single();
       if (headerData) {
-        setHeaderSettings(prev => ({
-          ...prev,
-          logoUrl: getFreshImageUrl(headerData.logo_url || prev.logoUrl),
-          showNoticeBar: headerData.show_notice_bar ?? prev.showNoticeBar,
-          noticeBarText: (headerData.notice_bar_text && headerData.notice_bar_text.bn) ? headerData.notice_bar_text : prev.noticeBarText,
-          supportButtonText: (headerData.support_button_text && headerData.support_button_text.bn) ? headerData.support_button_text : prev.supportButtonText,
-          supportButtonUrl: headerData.support_button_url || prev.supportButtonUrl
-        }));
+        setHeaderSettings(prev => {
+          let syncedNotice = (headerData.notice_bar_text && headerData.notice_bar_text.bn) ? headerData.notice_bar_text : prev.noticeBarText;
+          if (
+            !syncedNotice ||
+            syncedNotice.en?.includes('Team Infinity | United for Humanity') ||
+            syncedNotice.bn?.includes('টিম ইনফিনিটি | মানবতার জন্য একতাবদ্ধ') ||
+            syncedNotice.bn?.includes('টিম ইনফিনিটি | ইউনাইটেড ফর হিউম্যানিটি')
+          ) {
+            syncedNotice = INITIAL_HEADER_SETTINGS.noticeBarText;
+            safeDbUpsert('header_settings', {
+              id: 'default',
+              logo_url: headerData.logo_url || prev.logoUrl,
+              show_notice_bar: headerData.show_notice_bar ?? prev.showNoticeBar,
+              notice_bar_text: syncedNotice,
+              support_button_text: headerData.support_button_text || prev.supportButtonText,
+              support_button_url: headerData.support_button_url || prev.supportButtonUrl,
+              updated_at: new Date().toISOString()
+            });
+          }
+          return {
+            ...prev,
+            logoUrl: getFreshImageUrl(headerData.logo_url || prev.logoUrl),
+            showNoticeBar: headerData.show_notice_bar ?? prev.showNoticeBar,
+            noticeBarText: syncedNotice,
+            supportButtonText: (headerData.support_button_text && headerData.support_button_text.bn) ? headerData.support_button_text : prev.supportButtonText,
+            supportButtonUrl: headerData.support_button_url || prev.supportButtonUrl
+          };
+        });
       }
 
       // 5. Footer Settings

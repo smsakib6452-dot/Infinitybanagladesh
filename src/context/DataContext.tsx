@@ -1420,8 +1420,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const deleteMediaItem = useCallback((id: string) => {
     setMediaLibrary(prev => prev.filter(m => m.id !== id));
+    setVideos(prev => prev.filter(v => v.id !== id && v.videoUrl !== id));
+    setGallery(prev => prev.filter(g => g.id !== id && g.imageUrl !== id));
     logAudit('DELETE', 'MediaItem', id, 'Deleted media asset');
     safeDbDelete('media_library', 'id', id);
+    safeDbDelete('video_items', 'id', id);
+    safeDbDelete('gallery_photos', 'id', id);
   }, [logAudit, safeDbDelete]);
 
   const addGalleryAlbum = useCallback((album: Omit<GalleryAlbum, 'id'>) => {
@@ -2037,8 +2041,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const deleteVideo = useCallback((id: string) => {
     setVideos(prev => prev.filter(v => v.id !== id));
+    setMediaLibrary(prev => prev.filter(m => m.id !== id && m.url !== id));
     logAudit('DELETE', 'VideoItem', id, 'Deleted video');
     safeDbDelete('video_items', 'id', id);
+    safeDbDelete('media_library', 'id', id);
   }, [logAudit, safeDbDelete]);
 
   const addReport = useCallback((report: Omit<TransparencyReport, 'id'>) => {

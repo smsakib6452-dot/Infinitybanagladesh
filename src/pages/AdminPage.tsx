@@ -2995,7 +2995,37 @@ export const AdminPage: React.FC = () => {
                 'General', 'Hero', 'Campaigns', 'Volunteers', 'Events', 'Children & Community', 'Logos', 'Banners', 'Stories', 'Gallery', 'Documents'
               ];
 
-              const filteredMediaList = mediaLibrary.filter(media => {
+              // Build unified list of all media assets including video items
+              const allUnifiedMedia: MediaItem[] = [...mediaLibrary];
+              videos.forEach(v => {
+                const exists = allUnifiedMedia.some(m => m.id === v.id || m.url === v.videoUrl);
+                if (!exists) {
+                  const vTitle = typeof v.title === 'string' ? v.title : (v.title?.en || 'Video Footage');
+                  const vDesc = typeof v.description === 'string' ? v.description : (v.description?.en || '');
+                  allUnifiedMedia.push({
+                    id: v.id,
+                    fileName: vTitle,
+                    url: v.videoUrl,
+                    embedUrl: v.embedUrl,
+                    thumbnailUrl: v.thumbnailUrl,
+                    fileSize: v.duration || 'Stream',
+                    mimeType: 'video/mp4',
+                    type: 'video',
+                    platform: (v.platform as any) || 'youtube',
+                    sourceType: 'url',
+                    category: (v.category as any) || 'General',
+                    title: vTitle,
+                    altText: vTitle,
+                    caption: vDesc,
+                    uploadedAt: v.date || v.createdAt?.split('T')[0] || new Date().toISOString().split('T')[0],
+                    usageTags: [v.category || 'General', 'Video Documentation'],
+                    status: (v.status as any) || 'published',
+                    isFeatured: v.isFeatured
+                  });
+                }
+              });
+
+              const filteredMediaList = allUnifiedMedia.filter(media => {
                 // Type / Platform filter
                 if (mediaLibraryFilter === 'image' && media.type === 'video') return false;
                 if (mediaLibraryFilter === 'video' && media.type !== 'video') return false;
@@ -3019,9 +3049,9 @@ export const AdminPage: React.FC = () => {
                 return true;
               });
 
-              const totalImages = mediaLibrary.filter(m => m.type !== 'video').length;
-              const totalVideos = mediaLibrary.filter(m => m.type === 'video').length;
-              const totalFeatured = mediaLibrary.filter(m => m.isFeatured).length;
+              const totalImages = allUnifiedMedia.filter(m => m.type !== 'video').length;
+              const totalVideos = allUnifiedMedia.filter(m => m.type === 'video').length;
+              const totalFeatured = allUnifiedMedia.filter(m => m.isFeatured).length;
 
               return (
                 <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
@@ -3301,28 +3331,51 @@ export const AdminPage: React.FC = () => {
 
                                 <button
                                   type="button"
-                                  onClick={() => setEditingMedia(media)}
+                                  onClick={() => {
+                                    if (media.type === 'video') {
+                                      const matchVid = videos.find(v => v.id === media.id || v.videoUrl === media.url) || {
+                                        id: media.id,
+                                        title: { en: media.title || media.fileName, bn: media.altText || media.title || media.fileName },
+                                        description: { en: media.caption || '', bn: media.caption || '' },
+                                        videoUrl: media.url,
+                                        embedUrl: media.embedUrl,
+                                        thumbnailUrl: media.thumbnailUrl,
+                                        platform: (media.platform as any) || 'youtube',
+                                        category: media.category || 'General',
+                                        duration: media.fileSize || 'Video',
+                                        date: media.uploadedAt || new Date().toISOString().split('T')[0],
+                                        status: (media.status as any) || 'published',
+                                        isFeatured: media.isFeatured
+                                      };
+                                      setEditingVideo(matchVid);
+                                      setIsVideoModalOpen(true);
+                                    } else {
+                                      setEditingMedia(media);
+                                    }
+                                  }}
                                   className="p-1 rounded-lg hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
                                   title="Edit Metadata"
                                 >
                                   <Edit2 className="w-3.5 h-3.5" />
                                 </button>
 
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setCropperSourceUrl(media.url);
-                                    setCropperCallback(() => (croppedUrl: string) => {
-                                      updateMediaItem(media.id, { url: croppedUrl });
-                                      showToast('Asset replaced with cropped image');
-                                    });
-                                    setIsCropperModalOpen(true);
-                                  }}
-                                  className="p-1 rounded-lg hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
-                                  title="Crop Image"
-                                >
-                                  <Crop className="w-3.5 h-3.5" />
-                                </button>
+                                {media.type !== 'video' && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setCropperSourceUrl(media.url);
+                                      setCropperCallback(() => (croppedUrl: string) => {
+                                        updateMediaItem(media.id, { url: croppedUrl });
+                                        showToast('Asset replaced with cropped image');
+                                      });
+                                      setIsCropperModalOpen(true);
+                                    }}
+                                    className="p-1 rounded-lg hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
+                                    title="Crop Image"
+                                  >
+                                    <Crop className="w-3.5 h-3.5" />
+                                  </button>
+                                )}
                               </div>
 
                               <div className="flex items-center gap-2">
@@ -3341,9 +3394,10 @@ export const AdminPage: React.FC = () => {
                                 <button
                                   type="button"
                                   onClick={() => {
-                                    if (confirm(`Delete media asset: ${media.fileName}?`)) {
+                                    if (confirm(`Delete media asset: ${media.title || media.fileName}?`)) {
                                       deleteMediaItem(media.id);
-                                      showToast('Media asset removed');
+                                      deleteVideo(media.id);
+                                      showToast('Media asset removed from database and library');
                                     }
                                   }}
                                   className="text-rose-500 hover:text-rose-700 p-1 cursor-pointer"

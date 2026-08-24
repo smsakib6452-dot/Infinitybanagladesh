@@ -305,7 +305,7 @@ export interface GalleryPhoto {
   imageUrl: string;
   category: 'Campaigns' | 'Volunteers' | 'Children' | 'Events' | 'Distribution' | 'Awareness' | 'Community' | string;
   date: string;
-  location?: BilingualText;
+  location?: BilingualText | string;
   campaignSlug?: string;
   displayOrder?: number;
 }

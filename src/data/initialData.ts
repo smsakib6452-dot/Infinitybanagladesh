@@ -601,11 +601,14 @@ export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
     url: '/images/infinity-cover-hero.jpg',
     fileSize: '974 KB',
     mimeType: 'image/jpeg',
+    type: 'image',
     category: 'Hero',
+    title: 'Infinity Bangladesh Official Group Photo with Children in Hathazari',
     altText: 'Infinity Bangladesh Official Group Photo with Children in Hathazari',
     caption: 'Official Team Infinity Field Gathering with Eid Joy Banner',
     uploadedAt: '2025-01-01',
-    usageTags: ['Homepage Hero', 'About Hero']
+    usageTags: ['Homepage Hero', 'About Hero', 'Campaigns'],
+    status: 'published'
   },
   {
     id: 'med-logo-1',
@@ -613,11 +616,14 @@ export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
     url: '/brand/infinity-logo.png',
     fileSize: '38 KB',
     mimeType: 'image/png',
+    type: 'image',
     category: 'Logos',
+    title: 'Infinity Bangladesh Official Authoritative Logo',
     altText: 'Infinity Bangladesh Official Authoritative Logo',
     caption: 'United for Humanity Brand Mark with Infinity Wings',
     uploadedAt: '2025-01-01',
-    usageTags: ['Header Logo', 'Footer Logo', 'Brand System']
+    usageTags: ['Header Logo', 'Footer Logo', 'Brand System'],
+    status: 'published'
   },
   {
     id: 'med-event-1',
@@ -625,11 +631,14 @@ export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
     url: '/images/events/winter-warmth.jpg',
     fileSize: '915 KB',
     mimeType: 'image/jpeg',
+    type: 'image',
     category: 'Events',
+    title: 'Team Infinity Volunteers during Winter Blanket Distribution',
     altText: 'Team Infinity Volunteers during Winter Blanket Distribution',
     caption: 'Direct ground-level delivery to cold-affected communities',
     uploadedAt: '2025-01-05',
-    usageTags: ['About Section Preview', 'Winter Relief Campaign']
+    usageTags: ['About Section Preview', 'Winter Relief Campaign', 'Events'],
+    status: 'published'
   },
   {
     id: 'med-ref-1',
@@ -637,11 +646,14 @@ export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
     url: '/reference/executive-committee-2026.png',
     fileSize: '465 KB',
     mimeType: 'image/png',
+    type: 'image',
     category: 'Volunteers',
+    title: 'Executive Committee 2026 Official Declaration Poster',
     altText: 'Executive Committee 2026 Official Declaration Poster',
     caption: 'Official roster of 27 executive leaders',
     uploadedAt: '2026-01-01',
-    usageTags: ['Executive Committee Page']
+    usageTags: ['Executive Committee Page', 'Volunteers', 'Committees'],
+    status: 'published'
   },
   {
     id: 'med-ref-2',
@@ -649,11 +661,33 @@ export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
     url: '/reference/standing-committee-poster.png',
     fileSize: '336 KB',
     mimeType: 'image/png',
+    type: 'image',
     category: 'Volunteers',
+    title: 'Standing Committee Official Declaration Poster',
     altText: 'Standing Committee Official Declaration Poster',
     caption: 'Official roster of 9 standing committee members',
     uploadedAt: '2026-01-01',
-    usageTags: ['Standing Committee Page']
+    usageTags: ['Standing Committee Page', 'Volunteers', 'Committees'],
+    status: 'published'
+  },
+  {
+    id: 'vid-1',
+    fileName: 'team-infinity-intro-video',
+    url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0',
+    thumbnailUrl: 'https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg',
+    fileSize: '3:45 Stream',
+    mimeType: 'video/mp4',
+    type: 'video',
+    platform: 'youtube',
+    sourceType: 'url',
+    category: 'General',
+    title: 'Team Infinity: United for Humanity — Who We Are',
+    altText: 'Team Infinity Official Introduction & Field Drive Overview',
+    caption: 'An overview of our volunteer-driven initiatives, seasonal drives, and vision for compassionate youth empowerment.',
+    uploadedAt: '2025-01-01',
+    usageTags: ['Official Introduction', 'Video Documentation', 'General'],
+    status: 'published'
   }
 ];
 
@@ -1233,53 +1267,50 @@ export const INITIAL_EVENTS: EventItem[] = [
 
 export const INITIAL_GALLERY: GalleryPhoto[] = [
   {
-    id: 'gal-1',
-    title: { en: 'Eid Clothes Distribution', bn: 'ঈদ পোশাক বিতরণ' },
-    caption: { en: 'Distributing new clothes with respect and dignity to young boys and girls.', bn: 'সম্মান ও ভালোবাসার সাথে শিশুদের মাঝে নতুন পোশাক বিতরণ।' },
-    imageUrl: 'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80',
+    id: 'gal-hero-1',
+    title: { en: 'Infinity Bangladesh Official Gathering', bn: 'টিম ইনফিনিটি অফিশিয়াল সমাবেশ ও শিশুদের মিলনমেলা' },
+    caption: { en: 'Team Infinity volunteers and children gather together in solidarity and joy in Hathazari.', bn: 'হাটহাজারীতে শিশুদের মুখে হাসি ফোটানোর মুহূর্তে টিম ইনফিনিটির ভলান্টিয়ারবৃন্দ।' },
+    imageUrl: '/images/infinity-cover-hero.jpg',
     category: 'Campaigns',
-    date: 'Seasonal Drive',
+    date: 'Official Fieldwork',
+    location: 'Hathazari, Chattogram',
     campaignSlug: 'eid-anondo-underprivileged'
   },
   {
-    id: 'gal-2',
-    title: { en: 'Volunteer Sorting Hub', bn: 'স্বেচ্ছাসেবকদের কার্যক্রম' },
-    caption: { en: 'Team Infinity youth volunteers packing dry groceries for families.', bn: 'টিম ইনফিনিটির তরুণদের খাদ্যসামগ্রী প্যাকেটজাতকরণ।' },
-    imageUrl: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=800&q=80',
+    id: 'gal-event-1',
+    title: { en: 'Winter Warmth Blanket Drive', bn: 'শীতবস্ত্র ও কম্বল বিতরণ কার্যক্রম' },
+    caption: { en: 'Direct ground-level delivery of warm blankets to vulnerable families during peak winter.', bn: 'তীব্র শীতে অসহায় পরিবারের মাঝে সরাসরি কম্বল পৌঁছে দেওয়ার মানবিক উদ্যোগ।' },
+    imageUrl: '/images/events/winter-warmth.jpg',
+    category: 'Events',
+    date: 'Winter Season',
+    location: 'Hathazari & Northern Bangladesh'
+  },
+  {
+    id: 'gal-ref-1',
+    title: { en: 'Executive Committee 2026 Declaration', bn: 'কার্যনির্বাহী কমিটি ২০২৬ ঘোষণা' },
+    caption: { en: 'Official declaration and leadership roster of 27 dedicated executive leaders leading the organization.', bn: 'সংগঠনের নেতৃত্ব প্রদানকারী ২৭ সদস্যবিশিষ্ট কার্যনির্বাহী পরিষদের আনুষ্ঠানিক ঘোষণাপত্র।' },
+    imageUrl: '/reference/executive-committee-2026.png',
     category: 'Volunteers',
-    date: 'Fieldwork'
+    date: '2026 Session',
+    location: 'Central Committee Hub'
   },
   {
-    id: 'gal-3',
-    title: { en: 'Winter Warmth Fieldwork', bn: 'শীতবস্ত্র বিতরণ মুহূর্ত' },
-    caption: { en: 'Distributing high-density blankets to rural seniors.', bn: 'অসহায় প্রবীণদের মাঝে মানসম্মত কম্বল বিতরণ।' },
-    imageUrl: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=800&q=80',
-    category: 'Distribution',
-    date: 'Winter Season'
-  },
-  {
-    id: 'gal-4',
-    title: { en: 'Education Kit Supplies', bn: 'শিক্ষা উপকরণ প্রদান' },
-    caption: { en: 'Children receiving stationery and bags for the school term.', bn: 'নতুন শিক্ষাবর্ষে শিশুদের শিক্ষা উপকরণ প্রাপ্তির মুহূর্ত।' },
-    imageUrl: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80',
-    category: 'Children',
-    date: 'Academic Term'
-  },
-  {
-    id: 'gal-5',
-    title: { en: 'Community Engagement', bn: 'সামাজিক সম্পৃক্ততা' },
-    caption: { en: 'Youth leaders connecting with local community members.', bn: 'স্থানীয় মানুষের সাথে যুব নেতাদের মতবিনিময়।' },
-    imageUrl: 'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?auto=format&fit=crop&w=800&q=80',
-    category: 'Community',
-    date: 'Community Outreach'
-  },
-  {
-    id: 'gal-6',
-    title: { en: 'Team Unity & Spirit', bn: 'টিমের একতা ও সংকল্প' },
-    caption: { en: 'Volunteers standing united for humanitarian service.', bn: 'মানবতার সেবায় একতাবদ্ধ স্বেচ্ছাসেবক দল।' },
-    imageUrl: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=800&q=80',
+    id: 'gal-ref-2',
+    title: { en: 'Standing Committee Official Announcement', bn: 'স্থায়ী কমিটি ২০২৬ ঘোষণা' },
+    caption: { en: 'Standing committee members guiding structural governance, transparency, and strategic oversight.', bn: 'সাংগঠনিক সিদ্ধান্ত ও পরিচালনায় দিকনির্দেশনা প্রদানকারী স্থায়ী কমিটির সদস্যবৃন্দ।' },
+    imageUrl: '/reference/standing-committee-poster.png',
     category: 'Volunteers',
-    date: 'Orientation'
+    date: '2026 Session',
+    location: 'Central Committee Hub'
+  },
+  {
+    id: 'gal-logo-1',
+    title: { en: 'Infinity Bangladesh Official Emblem', bn: 'ইনফিনিটি বাংলাদেশ অফিশিয়াল প্রতীক' },
+    caption: { en: 'United for Humanity authoritative brand symbol representing endless compassion and youth power.', bn: 'মানবতার সেবায় একতাবদ্ধ ইনফিনিটি বাংলাদেশের অফিশিয়াল ব্রান্ড প্রতীক।' },
+    imageUrl: '/brand/infinity-logo.png',
+    category: 'Logos',
+    date: 'Brand Identity',
+    location: 'Official Archive'
   }
 ];
 

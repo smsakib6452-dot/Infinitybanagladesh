@@ -21,7 +21,7 @@ import { detectAndNormalizeMedia, DEFAULT_VIDEO_THUMBNAIL, getYouTubeEmbedUrl } 
 
 export const VideosPage: React.FC = () => {
   const { isBn, tText } = useLanguage();
-  const { videos } = useData();
+  const { videos, mediaLibrary } = useData();
   const { navigate } = useRouter();
 
   const [activeFilter, setActiveFilter] = useState<string>('All');
@@ -37,6 +37,31 @@ export const VideosPage: React.FC = () => {
     { id: 'Volunteer Drives', labelEn: 'Volunteer Drives', labelBn: 'স্বেচ্ছাসেবী কার্যক্রম' },
     { id: 'Community Impact', labelEn: 'Community Impact', labelBn: 'সামাজিক প্রভাব' }
   ];
+
+  // Unify videos from videos state & mediaLibrary video assets
+  const allVideos: VideoItem[] = useMemo(() => {
+    const list: VideoItem[] = [...videos];
+    mediaLibrary.filter(m => m.type === 'video').forEach(m => {
+      const exists = list.some(v => v.id === m.id || v.videoUrl === m.url);
+      if (!exists) {
+        list.push({
+          id: m.id,
+          title: { en: m.title || m.fileName, bn: m.altText || m.title || m.fileName },
+          description: { en: m.caption || '', bn: m.caption || '' },
+          videoUrl: m.url,
+          embedUrl: m.embedUrl,
+          thumbnailUrl: m.thumbnailUrl || DEFAULT_VIDEO_THUMBNAIL,
+          platform: (m.platform as any) || 'youtube',
+          category: m.category || 'General',
+          duration: m.fileSize || 'Video',
+          date: m.uploadedAt || 'Recent',
+          status: (m.status as any) || 'published',
+          isFeatured: m.isFeatured
+        });
+      }
+    });
+    return list;
+  }, [videos, mediaLibrary]);
 
   // Prevent background scroll when video modal is active & handle Escape key
   useEffect(() => {
@@ -59,7 +84,7 @@ export const VideosPage: React.FC = () => {
 
   // Filter & Search videos
   const filteredVideos = useMemo(() => {
-    return videos.filter(item => {
+    return allVideos.filter(item => {
       // Hide drafts if status is draft
       if (item.status === 'draft') return false;
 
@@ -93,7 +118,7 @@ export const VideosPage: React.FC = () => {
 
       return matchesFilter && matchesSearch;
     });
-  }, [videos, activeFilter, searchQuery]);
+  }, [allVideos, activeFilter, searchQuery]);
 
   // Compute safe embed URL for active modal
   const activeEmbedInfo = useMemo(() => {

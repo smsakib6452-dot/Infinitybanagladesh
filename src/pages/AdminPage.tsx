@@ -62,7 +62,8 @@ import {
   Copy,
   Crop,
   Filter,
-  Maximize2
+  Maximize2,
+  Smartphone
 } from 'lucide-react';
 import {
   Campaign,
@@ -106,7 +107,7 @@ import { ImageEditorModal } from '../components/ImageEditorModal';
 import { VideoModal } from '../components/VideoModal';
 import { AdminErrorBoundary } from '../components/AdminErrorBoundary';
 import { isSupabaseConfigured, signInWithEmail, signOutAdmin } from '../lib/supabase';
-import { detectAndNormalizeMedia, DEFAULT_VIDEO_THUMBNAIL } from '../lib/utils/mediaHelper';
+import { detectAndNormalizeMedia, DEFAULT_VIDEO_THUMBNAIL, isPortraitVideo } from '../lib/utils/mediaHelper';
 import { uploadToCloudinary } from '../lib/cloudinary';
 
 type AdminTab =
@@ -3272,10 +3273,18 @@ export const AdminPage: React.FC = () => {
                                 </div>
                               )}
 
-                              {/* Platform Tag */}
-                              <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-slate-950/80 text-white text-[10px] font-extrabold capitalize backdrop-blur-xs shadow-xs">
-                                {media.platform || (isVideo ? 'Video' : 'Image')}
-                              </span>
+                              {/* Platform Tag & Portrait Badge */}
+                              <div className="absolute top-2 left-2 flex items-center gap-1">
+                                <span className="px-2 py-0.5 rounded-md bg-slate-950/80 text-white text-[10px] font-extrabold capitalize backdrop-blur-xs shadow-xs">
+                                  {media.platform || (isVideo ? 'Video' : 'Image')}
+                                </span>
+                                {isPortraitVideo(media) && (
+                                  <span className="px-1.5 py-0.5 rounded-md bg-rose-600 text-white text-[9px] font-extrabold uppercase flex items-center gap-0.5 shadow-xs">
+                                    <Smartphone className="w-2.5 h-2.5" />
+                                    <span>9:16</span>
+                                  </span>
+                                )}
+                              </div>
 
                               {/* Featured Star Toggle */}
                               <button

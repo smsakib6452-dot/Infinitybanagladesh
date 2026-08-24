@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { X, Play, Video, AlertCircle, Sparkles, Check, Globe } from 'lucide-react';
+import { X, Play, Video, AlertCircle, Check, Smartphone, Monitor } from 'lucide-react';
 import { VideoItem } from '../types';
 import { useLanguage } from '../context/LanguageContext';
-import { detectAndNormalizeMedia, DEFAULT_VIDEO_THUMBNAIL } from '../lib/utils/mediaHelper';
+import { detectAndNormalizeMedia, DEFAULT_VIDEO_THUMBNAIL, isPortraitVideo } from '../lib/utils/mediaHelper';
 
 interface VideoModalProps {
   isOpen: boolean;
@@ -30,6 +30,8 @@ export const VideoModal: React.FC<VideoModalProps> = ({
   const [status, setStatus] = useState<'published' | 'draft'>('published');
   const [isFeatured, setIsFeatured] = useState(false);
   const [customThumbnail, setCustomThumbnail] = useState('');
+  const [aspectRatio, setAspectRatio] = useState<'16/9' | '9/16'>('16/9');
+  const [isShorts, setIsShorts] = useState(false);
 
   // Reset or populate fields when modal opens/changes
   useEffect(() => {
@@ -45,6 +47,9 @@ export const VideoModal: React.FC<VideoModalProps> = ({
       setStatus((videoToEdit.status as 'published' | 'draft') || 'published');
       setIsFeatured(Boolean(videoToEdit.isFeatured));
       setCustomThumbnail(videoToEdit.thumbnailUrl || '');
+      const portrait = isPortraitVideo(videoToEdit);
+      setAspectRatio(portrait ? '9/16' : '16/9');
+      setIsShorts(portrait);
     } else {
       setTitleEn('');
       setTitleBn('');
@@ -57,13 +62,27 @@ export const VideoModal: React.FC<VideoModalProps> = ({
       setStatus('published');
       setIsFeatured(false);
       setCustomThumbnail('');
+      setAspectRatio('16/9');
+      setIsShorts(false);
     }
   }, [videoToEdit, isOpen]);
+
+  // Auto-detect aspect ratio when videoUrl changes
+  useEffect(() => {
+    if (!videoToEdit && videoUrl.trim()) {
+      const det = detectAndNormalizeMedia(videoUrl.trim());
+      if (det.isValid) {
+        setAspectRatio(det.aspectRatio);
+        setIsShorts(det.isShorts);
+      }
+    }
+  }, [videoUrl, videoToEdit]);
 
   if (!isOpen) return null;
 
   const detection = detectAndNormalizeMedia(videoUrl.trim());
   const effectiveThumbnail = customThumbnail.trim() || detection.thumbnailUrl || DEFAULT_VIDEO_THUMBNAIL;
+  const isPortraitMode = aspectRatio === '9/16' || isShorts;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,11 +105,13 @@ export const VideoModal: React.FC<VideoModalProps> = ({
       embedUrl: detection.embedUrl || '',
       thumbnailUrl: effectiveThumbnail,
       platform: detection.platform === 'youtube' ? 'youtube' : detection.platform === 'facebook' ? 'facebook' : 'custom',
-      duration: duration.trim() || 'Video',
+      duration: duration.trim() || (isPortraitMode ? 'Shorts' : 'Video'),
       date: date.trim() || new Date().toISOString().split('T')[0],
       category,
       status,
       isFeatured,
+      aspectRatio: isPortraitMode ? '9/16' : '16/9',
+      isShorts: isPortraitMode,
       sourceType: detection.type === 'youtube' ? 'youtube' : 'url'
     };
 
@@ -136,12 +157,12 @@ export const VideoModal: React.FC<VideoModalProps> = ({
               <h3 className="font-extrabold text-base text-slate-900 font-display">
                 {videoToEdit
                   ? (isBn ? 'ভিডিও তথ্য সম্পাদনা' : 'Edit Video Details')
-                  : (isBn ? 'নতুন ইউটিউব / ফেসবুক ভিডিও প্রকাশ করুন' : 'Publish New Video to Website')}
+                  : (isBn ? 'নতুন ভিডিও / শর্টস প্রকাশ করুন' : 'Publish New Video or Shorts')}
               </h3>
               <p className="text-[11px] text-slate-500">
                 {isBn
-                  ? 'ভিডিও লিংক দিলে স্বয়ংক্রিয়ভাবে থাম্বনেইল ও প্লেয়ার এম্বেড তৈরি হবে।'
-                  : 'Automatic YouTube ID extraction, HQ thumbnail generation, and public embed.'}
+                  ? 'ল্যান্ডস্কেপ (১৬:৯) এবং পোর্ট্রেট (৯:১৬ ইউটিউব শর্টস ও রিলস) উভয়ের জন্য অটো প্লেয়ার সাপোর্ট।'
+                  : 'Full dynamic support for Landscape (16:9) and Portrait (9:16 Shorts & Reels).'}
               </p>
             </div>
           </div>
@@ -159,19 +180,59 @@ export const VideoModal: React.FC<VideoModalProps> = ({
           {/* Video URL Input */}
           <div className="space-y-1">
             <label className="block font-bold text-slate-800">
-              {isBn ? 'ভিডিও লিংক (YouTube / Facebook / Direct Video URL) *' : 'Video URL (YouTube / Facebook / Direct Video URL) *'}
+              {isBn ? 'ভিডিও লিংক (YouTube / Shorts / Facebook / Reel / Direct URL) *' : 'Video URL (YouTube / Shorts / Facebook / Reel / Direct URL) *'}
             </label>
             <input
               type="text"
               required
               value={videoUrl}
               onChange={e => setVideoUrl(e.target.value)}
-              placeholder="e.g. https://www.youtube.com/watch?v=dQw4w9WgXcQ or https://youtu.be/..."
+              placeholder="e.g. https://www.youtube.com/watch?v=... or https://youtube.com/shorts/..."
               className="w-full px-3.5 py-2.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl font-mono text-xs focus:outline-none focus:border-[#006A4E] focus:bg-white transition-colors"
             />
             <p className="text-[10px] text-slate-500">
-              Supports <code className="font-mono text-[#006A4E]">youtube.com/watch?v=...</code>, <code className="font-mono text-[#006A4E]">youtu.be/...</code>, <code className="font-mono text-[#006A4E]">/embed/</code>, and <code className="font-mono text-[#006A4E]">/shorts/</code>
+              Auto-detects <code className="font-mono text-[#006A4E]">youtube.com/shorts/...</code>, <code className="font-mono text-[#006A4E]">/watch?v=...</code>, <code className="font-mono text-[#006A4E]">youtu.be/...</code>, and Facebook Reels.
             </p>
+          </div>
+
+          {/* Aspect Ratio & Format Orientation Switcher */}
+          <div className="p-3 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-2">
+            <label className="block font-bold text-slate-800">
+              {isBn ? 'ভিডিও ফরম্যাট ও অ্যাসপেক্ট রেশিও (Aspect Ratio):' : 'Video Format & Aspect Ratio:'}
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setAspectRatio('16/9');
+                  setIsShorts(false);
+                }}
+                className={`py-2.5 px-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                  !isPortraitMode
+                    ? 'bg-[#006A4E] text-white shadow-warm-xs'
+                    : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'
+                }`}
+              >
+                <Monitor className="w-4 h-4" />
+                <span>Landscape (16:9 Standard)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setAspectRatio('9/16');
+                  setIsShorts(true);
+                }}
+                className={`py-2.5 px-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                  isPortraitMode
+                    ? 'bg-[#006A4E] text-white shadow-warm-xs'
+                    : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'
+                }`}
+              >
+                <Smartphone className="w-4 h-4" />
+                <span>Portrait (9:16 Shorts / Reel)</span>
+              </button>
+            </div>
           </div>
 
           {/* Real-time Detection & Preview Box */}
@@ -182,7 +243,7 @@ export const VideoModal: React.FC<VideoModalProps> = ({
                   <div className="flex items-center justify-between text-[11px]">
                     <span className="font-bold text-emerald-800 flex items-center gap-1.5">
                       <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                      Detected: {detection.platform.toUpperCase()} ({detection.type})
+                      Detected: {detection.platform.toUpperCase()} ({isPortraitMode ? 'Portrait 9:16 Shorts/Reel' : 'Landscape 16:9 Video'})
                     </span>
                     {detection.videoId && (
                       <span className="font-mono text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">
@@ -192,11 +253,11 @@ export const VideoModal: React.FC<VideoModalProps> = ({
                   </div>
 
                   {/* Visual Preview */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  <div className={`grid gap-3 pt-1 ${isPortraitMode ? 'grid-cols-1 sm:grid-cols-2 place-items-center' : 'grid-cols-1 sm:grid-cols-2'}`}>
                     {/* Thumbnail Preview */}
-                    <div className="space-y-1">
-                      <span className="text-[10px] font-bold text-slate-500">Auto-Generated Thumbnail:</span>
-                      <div className="aspect-video rounded-xl overflow-hidden bg-slate-950 border border-slate-200 relative">
+                    <div className="space-y-1 w-full flex flex-col items-center">
+                      <span className="text-[10px] font-bold text-slate-500 self-start">Thumbnail Preview:</span>
+                      <div className={`rounded-xl overflow-hidden bg-slate-950 border border-slate-200 relative ${isPortraitMode ? 'aspect-[9/16] w-36 max-h-56' : 'aspect-video w-full'}`}>
                         <img
                           src={effectiveThumbnail}
                           alt="Thumbnail Preview"
@@ -212,14 +273,14 @@ export const VideoModal: React.FC<VideoModalProps> = ({
                     </div>
 
                     {/* Embed Player Preview */}
-                    <div className="space-y-1">
-                      <span className="text-[10px] font-bold text-slate-500">Live Embed Player Preview:</span>
-                      <div className="aspect-video rounded-xl overflow-hidden bg-black border border-slate-200">
+                    <div className="space-y-1 w-full flex flex-col items-center">
+                      <span className="text-[10px] font-bold text-slate-500 self-start">Live Embed Player Preview:</span>
+                      <div className={`rounded-xl overflow-hidden bg-black border border-slate-200 ${isPortraitMode ? 'aspect-[9/16] w-36 max-h-56' : 'aspect-video w-full'}`}>
                         {detection.embedUrl ? (
                           <iframe
                             src={detection.embedUrl}
                             title="Preview"
-                            className="w-full h-full border-0"
+                            className="w-full h-full border-0 object-contain"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowFullScreen
                           />
@@ -282,12 +343,12 @@ export const VideoModal: React.FC<VideoModalProps> = ({
             </div>
 
             <div className="space-y-1">
-              <label className="block font-bold text-slate-700">Duration (e.g. 4:15)</label>
+              <label className="block font-bold text-slate-700">Duration (e.g. 0:45 / 3:30)</label>
               <input
                 type="text"
                 value={duration}
                 onChange={e => setDuration(e.target.value)}
-                placeholder="e.g. 3:45"
+                placeholder={isPortraitMode ? 'Shorts / 0:59' : '3:45'}
                 className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-mono focus:outline-none focus:border-[#006A4E]"
               />
             </div>
@@ -405,3 +466,4 @@ export const VideoModal: React.FC<VideoModalProps> = ({
     </div>
   );
 };
+

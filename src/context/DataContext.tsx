@@ -730,20 +730,24 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (vidData && vidData.length > 0) {
         setVideos(vidData.map(v => {
           const det = detectAndNormalizeMedia(v.video_url || '');
+          const isShorts = v.is_shorts ?? det.isShorts;
+          const aspectRatio = v.aspect_ratio || det.aspectRatio || (isShorts ? '9/16' : '16/9');
           return {
             id: v.id,
             title: v.title,
-            videoUrl: v.video_url,
+            videoUrl: det.originalUrl || v.video_url,
             embedUrl: v.embed_url || det.embedUrl || '',
             thumbnailUrl: getFreshImageUrl(v.thumbnail_url || det.thumbnailUrl || DEFAULT_VIDEO_THUMBNAIL),
             platform: v.platform || det.platform || 'youtube',
-            duration: v.duration || '',
+            duration: v.duration || (isShorts ? 'Shorts' : 'Video'),
             date: v.date || '',
             description: v.description || { en: '', bn: '' },
             category: v.category || 'General',
             status: v.status || 'published',
             isFeatured: v.is_featured ?? false,
             sourceType: v.source_type || 'url',
+            aspectRatio,
+            isShorts,
             createdAt: v.created_at,
             updatedAt: v.updated_at
           };
@@ -1948,6 +1952,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       ? { en: video.description, bn: video.description }
       : (video.description || { en: '', bn: '' });
 
+    const isShorts = video.isShorts ?? det.isShorts;
+    const aspectRatio = video.aspectRatio || det.aspectRatio || (isShorts ? '9/16' : '16/9');
+
     const newVid: VideoItem = {
       ...video,
       id,
@@ -1961,8 +1968,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       status: video.status || 'published',
       isFeatured: video.isFeatured ?? false,
       sourceType: video.sourceType || 'url',
+      aspectRatio,
+      isShorts,
       date: video.date || new Date().toISOString().split('T')[0],
-      duration: video.duration || 'Video',
+      duration: video.duration || (isShorts ? 'Shorts' : 'Video'),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
@@ -1984,6 +1993,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       status: newVid.status,
       is_featured: newVid.isFeatured,
       source_type: newVid.sourceType,
+      aspect_ratio: newVid.aspectRatio,
+      is_shorts: newVid.isShorts,
       created_at: newVid.createdAt,
       updated_at: newVid.updatedAt
     });
@@ -2003,6 +2014,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const nextEmbed = video.embedUrl !== undefined
           ? (video.embedUrl || det.embedUrl || '')
           : (v.embedUrl || det.embedUrl || '');
+        const isShorts = video.isShorts !== undefined ? video.isShorts : (v.isShorts ?? det.isShorts);
+        const aspectRatio = video.aspectRatio !== undefined ? video.aspectRatio : (v.aspectRatio || det.aspectRatio);
 
         return {
           ...v,
@@ -2010,6 +2023,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           videoUrl: det.originalUrl || nextVideoUrl,
           embedUrl: nextEmbed,
           thumbnailUrl: nextThumbnail ? getFreshImageUrl(nextThumbnail) : v.thumbnailUrl,
+          aspectRatio,
+          isShorts,
           updatedAt: new Date().toISOString()
         };
       });
@@ -2030,6 +2045,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           status: match.status || 'published',
           is_featured: match.isFeatured || false,
           source_type: match.sourceType || 'url',
+          aspect_ratio: match.aspectRatio || '16/9',
+          is_shorts: match.isShorts || false,
           created_at: match.createdAt || new Date().toISOString(),
           updated_at: new Date().toISOString()
         });

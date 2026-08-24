@@ -21,9 +21,34 @@ export interface MediaDetectionResult {
   videoId?: string;
   suggestedTitle?: string;
   errorMessage?: string;
+  aspectRatio: '16/9' | '9/16';
+  isShorts: boolean;
 }
 
 export const DEFAULT_VIDEO_THUMBNAIL = 'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80';
+
+/**
+ * Check if a video is Portrait (9:16 - YouTube Shorts, Facebook Reels)
+ */
+export function isPortraitVideo(video?: { aspectRatio?: string; isShorts?: boolean; videoUrl?: string; url?: string }): boolean {
+  if (!video) return false;
+  if (video.isShorts) return true;
+  const ratio = (video.aspectRatio || '').toLowerCase().trim();
+  if (ratio === '9/16' || ratio === '9:16' || ratio === 'portrait') return true;
+  
+  const targetUrl = video.videoUrl || video.url || '';
+  if (targetUrl.includes('/shorts/') || targetUrl.includes('/reel/') || targetUrl.includes('/reels/')) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Get normalized aspect ratio ('16/9' or '9/16')
+ */
+export function getVideoAspectRatio(video?: { aspectRatio?: string; isShorts?: boolean; videoUrl?: string; url?: string }): '16/9' | '9/16' {
+  return isPortraitVideo(video) ? '9/16' : '16/9';
+}
 
 /**
  * Extract YouTube Video ID from any standard YouTube URL format
@@ -105,6 +130,7 @@ export function isFacebookVideoUrl(url: string): boolean {
     (lower.includes('/videos/') ||
       lower.includes('/watch') ||
       lower.includes('/reel/') ||
+      lower.includes('/reels/') ||
       lower.includes('v=') ||
       lower.includes('fb.watch'))
   );
@@ -156,7 +182,9 @@ export function detectAndNormalizeMedia(rawUrl: string): MediaDetectionResult {
       originalUrl: '',
       embedUrl: '',
       thumbnailUrl: '',
-      errorMessage: 'Please enter a valid URL.'
+      errorMessage: 'Please enter a valid URL.',
+      aspectRatio: '16/9',
+      isShorts: false
     };
   }
 
@@ -167,11 +195,15 @@ export function detectAndNormalizeMedia(rawUrl: string): MediaDetectionResult {
     }
   }
 
+  const isShortsUrl = url.includes('/shorts/') || url.includes('/reel/') || url.includes('/reels/');
+  const detectedAspectRatio: '16/9' | '9/16' = isShortsUrl ? '9/16' : '16/9';
+
   // 1. YouTube Check
   const ytId = extractYouTubeId(url);
   if (ytId) {
     const embedUrl = getYouTubeEmbedUrl(ytId);
     const thumbnailUrl = getYouTubeThumbnail(ytId, 'hq');
+    const isShorts = url.includes('/shorts/');
     return {
       type: 'youtube',
       isValid: true,
@@ -180,12 +212,15 @@ export function detectAndNormalizeMedia(rawUrl: string): MediaDetectionResult {
       videoId: ytId,
       embedUrl,
       thumbnailUrl,
-      suggestedTitle: `Infinity Bangladesh Video (${ytId})`
+      suggestedTitle: isShorts ? `Infinity Bangladesh Shorts (${ytId})` : `Infinity Bangladesh Video (${ytId})`,
+      aspectRatio: isShorts ? '9/16' : '16/9',
+      isShorts
     };
   }
 
   // 2. Facebook Video Check
   if (isFacebookVideoUrl(url)) {
+    const isReel = url.includes('/reel/') || url.includes('/reels/');
     return {
       type: 'facebook',
       isValid: true,
@@ -193,7 +228,9 @@ export function detectAndNormalizeMedia(rawUrl: string): MediaDetectionResult {
       originalUrl: url,
       embedUrl: getFacebookEmbedUrl(url),
       thumbnailUrl: DEFAULT_VIDEO_THUMBNAIL,
-      suggestedTitle: 'Infinity Bangladesh Facebook Video'
+      suggestedTitle: isReel ? 'Infinity Bangladesh Facebook Reel' : 'Infinity Bangladesh Facebook Video',
+      aspectRatio: isReel ? '9/16' : '16/9',
+      isShorts: isReel
     };
   }
 
@@ -206,7 +243,9 @@ export function detectAndNormalizeMedia(rawUrl: string): MediaDetectionResult {
       originalUrl: url,
       embedUrl: url,
       thumbnailUrl: DEFAULT_VIDEO_THUMBNAIL,
-      suggestedTitle: url.split('/').pop()?.replace(/\.[^/.]+$/, '') || 'Direct Video'
+      suggestedTitle: url.split('/').pop()?.replace(/\.[^/.]+$/, '') || 'Direct Video',
+      aspectRatio: detectedAspectRatio,
+      isShorts: isShortsUrl
     };
   }
 
@@ -220,7 +259,9 @@ export function detectAndNormalizeMedia(rawUrl: string): MediaDetectionResult {
       originalUrl: url,
       embedUrl: url,
       thumbnailUrl: url,
-      suggestedTitle: url.split('/').pop()?.replace(/\.[^/.]+$/, '') || 'Image Asset'
+      suggestedTitle: url.split('/').pop()?.replace(/\.[^/.]+$/, '') || 'Image Asset',
+      aspectRatio: '16/9',
+      isShorts: false
     };
   }
 
@@ -233,7 +274,9 @@ export function detectAndNormalizeMedia(rawUrl: string): MediaDetectionResult {
       originalUrl: url,
       embedUrl: '',
       thumbnailUrl: '',
-      errorMessage: 'Unsupported media URL. Please provide a YouTube (watch, youtu.be, embed, shorts), Facebook video, or direct image/video URL.'
+      errorMessage: 'Unsupported media URL. Please provide a YouTube (watch, youtu.be, embed, shorts), Facebook video/reel, or direct image/video URL.',
+      aspectRatio: '16/9',
+      isShorts: false
     };
   }
 
@@ -244,6 +287,8 @@ export function detectAndNormalizeMedia(rawUrl: string): MediaDetectionResult {
     originalUrl: url,
     embedUrl: '',
     thumbnailUrl: '',
-    errorMessage: 'Invalid URL format. Make sure it starts with http:// or https://'
+    errorMessage: 'Invalid URL format. Make sure it starts with http:// or https://',
+    aspectRatio: '16/9',
+    isShorts: false
   };
 }

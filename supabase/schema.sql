@@ -440,6 +440,8 @@ CREATE TABLE IF NOT EXISTS public.video_items (
   status TEXT NOT NULL DEFAULT 'published',
   is_featured BOOLEAN NOT NULL DEFAULT FALSE,
   source_type TEXT DEFAULT 'url',
+  aspect_ratio TEXT NOT NULL DEFAULT '16/9',
+  is_shorts BOOLEAN NOT NULL DEFAULT FALSE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

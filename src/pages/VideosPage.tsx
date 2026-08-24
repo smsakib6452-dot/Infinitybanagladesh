@@ -1,23 +1,27 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
 import { useRouter } from '../context/RouterContext';
+import { VideoItem } from '../types';
 import {
-  Video,
   Play,
-  ExternalLink,
   Calendar,
   Clock,
-  X,
-  Heart,
-  ShieldCheck,
-  Sparkles,
   Search,
-  Filter,
-  AlertCircle
+  X,
+  ExternalLink,
+  Share2,
+  AlertCircle,
+  Video,
+  Smartphone,
+  Monitor
 } from 'lucide-react';
-import { VideoItem } from '../types';
-import { detectAndNormalizeMedia, DEFAULT_VIDEO_THUMBNAIL, getYouTubeEmbedUrl } from '../lib/utils/mediaHelper';
+import {
+  detectAndNormalizeMedia,
+  DEFAULT_VIDEO_THUMBNAIL,
+  getYouTubeEmbedUrl,
+  isPortraitVideo
+} from '../lib/utils/mediaHelper';
 
 export const VideosPage: React.FC = () => {
   const { isBn, tText } = useLanguage();
@@ -31,6 +35,7 @@ export const VideosPage: React.FC = () => {
   // Filter Categories / Platforms
   const filterTabs = [
     { id: 'All', labelEn: 'All Footage', labelBn: 'সকল ভিডিও' },
+    { id: 'shorts', labelEn: 'Shorts & Reels (9:16)', labelBn: 'শর্টস ও রিলস (৯:১৬)' },
     { id: 'youtube', labelEn: 'YouTube', labelBn: 'ইউটিউব' },
     { id: 'facebook', labelEn: 'Facebook', labelBn: 'ফেসবুক' },
     { id: 'Relief Campaigns', labelEn: 'Relief Campaigns', labelBn: 'ত্রাণ অভিযান' },
@@ -56,7 +61,9 @@ export const VideosPage: React.FC = () => {
           duration: m.fileSize || 'Video',
           date: m.uploadedAt || 'Recent',
           status: (m.status as any) || 'published',
-          isFeatured: m.isFeatured
+          isFeatured: m.isFeatured,
+          aspectRatio: m.aspectRatio,
+          isShorts: m.isShorts
         });
       }
     });
@@ -88,12 +95,14 @@ export const VideosPage: React.FC = () => {
       // Hide drafts if status is draft
       if (item.status === 'draft') return false;
 
-      // Platform / Category filter
+      // Platform / Category / Format filter
       let matchesFilter = true;
       const platformLower = (item.platform || '').toLowerCase();
       const itemCat = (item.category || '').toLowerCase();
 
-      if (activeFilter === 'youtube') {
+      if (activeFilter === 'shorts') {
+        matchesFilter = isPortraitVideo(item);
+      } else if (activeFilter === 'youtube') {
         matchesFilter = platformLower === 'youtube';
       } else if (activeFilter === 'facebook') {
         matchesFilter = platformLower === 'facebook';
@@ -132,6 +141,8 @@ export const VideosPage: React.FC = () => {
     }
     return det;
   }, [selectedVideo]);
+
+  const isModalPortrait = isPortraitVideo(selectedVideo || undefined);
 
   return (
     <div className="py-10 sm:py-16">
@@ -196,13 +207,14 @@ export const VideosPage: React.FC = () => {
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveFilter(tab.id)}
-                  className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
+                  className={`px-4 py-2 rounded-2xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                     isSelected
                       ? 'bg-[#006A4E] text-white shadow-warm-sm scale-102'
                       : 'bg-white border border-[#EAE3D9] text-slate-700 hover:bg-[#FAF7F2]'
                   }`}
                 >
-                  {isBn ? tab.labelBn : tab.labelEn}
+                  {tab.id === 'shorts' && <Smartphone className="w-3.5 h-3.5" />}
+                  <span>{isBn ? tab.labelBn : tab.labelEn}</span>
                 </button>
               );
             })}
@@ -223,17 +235,17 @@ export const VideosPage: React.FC = () => {
 
         {/* Video Grid */}
         {filteredVideos.length === 0 ? (
-          <div className="bg-white rounded-3xl p-12 text-center border border-[#EAE3D9] shadow-warm-sm max-w-lg mx-auto space-y-3">
-            <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto text-slate-400">
-              <Video className="w-7 h-7" />
+          <div className="bg-white rounded-3xl p-12 text-center border border-[#EAE3D9] shadow-warm-sm max-w-lg mx-auto space-y-4">
+            <div className="w-16 h-16 rounded-2xl bg-[#E6F3EF] text-[#006A4E] flex items-center justify-center mx-auto">
+              <Video className="w-8 h-8" />
             </div>
-            <h3 className="font-bold text-slate-800 text-base">
+            <h3 className="font-extrabold text-slate-900 text-lg font-display">
               {isBn ? 'কোনো ভিডিও পাওয়া যায়নি' : 'No Videos Found'}
             </h3>
             <p className="text-slate-500 text-xs">
               {isBn
-                ? 'অনুসন্ধানের সাথে মিলে এমন কোনো ভিডিও নেই। ভিন্ন শব্দ দিয়ে অনুসন্ধান করুন।'
-                : 'No videos match the selected filter or search query.'}
+                ? 'আপনার বাছাইকৃত ফিল্টার বা কীওয়ার্ড অনুযায়ী কোনো ভিডিও অন্তর্ভুক্ত নেই।'
+                : 'No video footage matches the active filter tab or search keywords.'}
             </p>
           </div>
         ) : (
@@ -243,6 +255,7 @@ export const VideosPage: React.FC = () => {
               const displayThumbnail = item.thumbnailUrl || detection.thumbnailUrl || DEFAULT_VIDEO_THUMBNAIL;
               const videoTitle = tText(item.title) || 'Infinity Bangladesh Video';
               const videoDesc = tText(item.description);
+              const isPortrait = isPortraitVideo(item);
 
               return (
                 <div
@@ -251,7 +264,7 @@ export const VideosPage: React.FC = () => {
                   onClick={() => setSelectedVideo(item)}
                 >
                   {/* Thumbnail with Play Overlay */}
-                  <div className="relative aspect-video bg-slate-950 overflow-hidden">
+                  <div className="relative aspect-video bg-slate-950 overflow-hidden flex items-center justify-center">
                     <img
                       src={displayThumbnail}
                       alt={videoTitle}
@@ -273,9 +286,17 @@ export const VideosPage: React.FC = () => {
                       </span>
                     )}
 
-                    <span className="absolute top-3 left-3 bg-[#006A4E]/90 text-white text-[10px] px-2.5 py-0.5 rounded-full font-extrabold uppercase tracking-wide backdrop-blur-sm shadow-xs">
-                      {item.platform === 'youtube' ? 'YouTube' : item.platform === 'facebook' ? 'Facebook' : (item.platform || 'Video')}
-                    </span>
+                    <div className="absolute top-3 left-3 flex items-center gap-1.5">
+                      <span className="bg-[#006A4E]/90 text-white text-[10px] px-2.5 py-0.5 rounded-full font-extrabold uppercase tracking-wide backdrop-blur-sm shadow-xs">
+                        {item.platform === 'youtube' ? 'YouTube' : item.platform === 'facebook' ? 'Facebook' : (item.platform || 'Video')}
+                      </span>
+                      {isPortrait && (
+                        <span className="bg-rose-600 text-white text-[10px] px-2 py-0.5 rounded-full font-extrabold uppercase tracking-wide backdrop-blur-sm shadow-xs flex items-center gap-1">
+                          <Smartphone className="w-3 h-3" />
+                          <span>Shorts / Reel</span>
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   {/* Video Info */}
@@ -311,20 +332,25 @@ export const VideosPage: React.FC = () => {
         {/* Video Player Modal */}
         {selectedVideo && activeEmbedInfo && (
           <div
-            className="fixed inset-0 z-[9999] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-fade-in"
+            className="fixed inset-0 z-[9999] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-fade-in overflow-y-auto"
             onClick={() => setSelectedVideo(null)}
           >
             <div
-              className="bg-white rounded-3xl max-w-4xl w-full overflow-hidden shadow-2xl border border-slate-200 relative animate-in fade-in zoom-in-95 flex flex-col max-h-[92vh]"
+              className={`bg-white rounded-3xl ${isModalPortrait ? 'max-w-sm sm:max-w-md' : 'max-w-4xl'} w-full overflow-hidden shadow-2xl border border-slate-200 relative animate-in fade-in zoom-in-95 flex flex-col max-h-[94vh] my-auto`}
               onClick={(e) => e.stopPropagation()}
             >
               {/* Modal Header */}
               <div className="px-5 py-4 flex items-center justify-between border-b border-slate-100 bg-[#FAF7F2]">
                 <div className="flex items-center gap-2.5 truncate max-w-[85%]">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#006A4E]" />
+                  <span className={`w-2.5 h-2.5 rounded-full ${isModalPortrait ? 'bg-rose-500' : 'bg-[#006A4E]'}`} />
                   <h3 className="font-extrabold text-slate-900 text-sm sm:text-base font-display truncate">
                     {tText(selectedVideo.title) || 'Field Documentation Video'}
                   </h3>
+                  {isModalPortrait && (
+                    <span className="shrink-0 px-2 py-0.5 rounded-md bg-rose-100 text-rose-800 text-[10px] font-bold">
+                      9:16 Shorts
+                    </span>
+                  )}
                 </div>
                 <button
                   type="button"
@@ -336,8 +362,8 @@ export const VideosPage: React.FC = () => {
                 </button>
               </div>
 
-              {/* Video Player Container */}
-              <div className="aspect-video bg-black relative flex items-center justify-center overflow-hidden">
+              {/* Dynamic Aspect Ratio Video Player Container */}
+              <div className={`${isModalPortrait ? 'aspect-[9/16] max-h-[66vh] mx-auto w-full' : 'aspect-video w-full'} bg-black relative flex items-center justify-center overflow-hidden`}>
                 {activeEmbedInfo.isValid && activeEmbedInfo.embedUrl ? (
                   activeEmbedInfo.type === 'direct_video' ? (
                     <video
@@ -350,7 +376,7 @@ export const VideosPage: React.FC = () => {
                     <iframe
                       src={activeEmbedInfo.embedUrl}
                       title={tText(selectedVideo.title) || 'Video Player'}
-                      className="w-full h-full border-0"
+                      className="w-full h-full border-0 object-contain"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                       allowFullScreen
                     />
@@ -360,9 +386,6 @@ export const VideosPage: React.FC = () => {
                     <AlertCircle className="w-10 h-10 text-amber-400 mx-auto" />
                     <p className="text-sm font-bold">
                       {isBn ? 'এই ভিডিওটি সরাসরি এম্বেড করা সম্ভব হচ্ছে না।' : 'This video cannot be played directly inside the embedded player.'}
-                    </p>
-                    <p className="text-xs text-slate-400">
-                      {activeEmbedInfo.errorMessage || (isBn ? 'প্ল্যাটফর্মের প্রাইভেসি নিয়মের কারণে ভিডিওটি মূল প্ল্যাটফর্মে দেখুন।' : 'Platform privacy or permission settings may require viewing on the original source.')}
                     </p>
                     <a
                       href={selectedVideo.videoUrl}
@@ -378,12 +401,12 @@ export const VideosPage: React.FC = () => {
               </div>
 
               {/* Modal Details Footer */}
-              <div className="p-5 sm:p-6 space-y-4 overflow-y-auto">
+              <div className="p-4 sm:p-5 space-y-3 overflow-y-auto">
                 <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal">
                   {tText(selectedVideo.description)}
                 </p>
 
-                <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100">
+                <div className="flex flex-wrap items-center justify-between gap-3 pt-2.5 border-t border-slate-100">
                   <div className="flex items-center gap-4 text-xs text-slate-500">
                     <span className="flex items-center gap-1.5 font-medium">
                       <Calendar className="w-3.5 h-3.5 text-[#006A4E]" />
@@ -395,20 +418,30 @@ export const VideosPage: React.FC = () => {
                         <span>{selectedVideo.duration}</span>
                       </span>
                     )}
-                    <span className="px-2.5 py-0.5 rounded-full bg-[#FAF7F2] text-slate-700 font-bold border border-[#EAE3D9] uppercase text-[10px]">
-                      {selectedVideo.platform || 'Video'}
-                    </span>
                   </div>
 
-                  <a
-                    href={selectedVideo.videoUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#FAF7F2] hover:bg-[#F2ECE1] text-[#006A4E] text-xs font-extrabold rounded-xl border border-[#EAE3D9] transition-colors"
-                  >
-                    <span>{isBn ? 'মূল প্ল্যাটফর্মে দেখুন' : 'Watch on Official Platform'}</span>
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText(selectedVideo.videoUrl);
+                        alert(isBn ? 'ভিডিও লিংক কপি করা হয়েছে!' : 'Video link copied to clipboard!');
+                      }}
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold transition-colors cursor-pointer"
+                    >
+                      <Share2 className="w-3.5 h-3.5 text-[#006A4E]" />
+                      <span>{isBn ? 'শেয়ার' : 'Share'}</span>
+                    </button>
+                    <a
+                      href={selectedVideo.videoUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-colors"
+                    >
+                      <span>{isBn ? 'মূল সাইটে দেখুন' : 'Source'}</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>

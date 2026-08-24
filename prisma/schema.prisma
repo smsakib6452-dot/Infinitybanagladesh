@@ -303,13 +303,21 @@ model Video {
   titleEn       String
   titleBn       String
   videoUrl      String
+  embedUrl      String?
   platform      String   @default("youtube") // youtube, facebook, direct
   duration      String?
   thumbnailUrl  String
   date          String
   descriptionEn String?  @db.Text
   descriptionBn String?  @db.Text
+  category      String   @default("General")
+  status        String   @default("published")
+  isFeatured    Boolean  @default(false)
+  sourceType    String   @default("url")
+  aspectRatio   String   @default("16/9")
+  isShorts      Boolean  @default(false)
   createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
 }
 
 model TransparencyReport {

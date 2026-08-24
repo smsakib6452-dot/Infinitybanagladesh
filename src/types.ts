@@ -290,7 +290,8 @@ export interface MediaItem {
   thumbnailUrl?: string;
   title?: string;
   description?: string;
-  aspectRatio?: '1:1' | '4:5' | '3:4' | '4:3' | '16:9' | '21:9' | 'free';
+  aspectRatio?: '1:1' | '4:5' | '3:4' | '4:3' | '16:9' | '21:9' | '9:16' | '16/9' | '9/16' | 'landscape' | 'portrait' | 'free' | string;
+  isShorts?: boolean;
   status?: 'published' | 'draft';
   isFeatured?: boolean;
   duration?: string;
@@ -439,6 +440,8 @@ export interface VideoItem {
   status?: 'published' | 'draft' | string;
   isFeatured?: boolean;
   sourceType?: 'youtube' | 'facebook' | 'url' | 'upload' | string;
+  aspectRatio?: '16/9' | '9/16' | '16:9' | '9:16' | 'landscape' | 'portrait' | string;
+  isShorts?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }

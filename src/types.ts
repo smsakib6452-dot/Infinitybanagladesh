@@ -22,6 +22,7 @@ export type PageRoute =
   | 'news/detail'
   | 'gallery'
   | 'videos'
+  | 'media-coverage'
   | 'volunteer'
   | 'donate'
   | 'partners'
@@ -411,6 +412,24 @@ export interface NewsArticle {
   imageUrl: string;
   tags: string[];
   status: 'published' | 'draft' | 'archived';
+}
+
+export type PressCoverageType = 'newspaper' | 'tv' | 'online' | 'blog' | 'social';
+
+export interface PressCoverage {
+  id: string;
+  outletName: string; // e.g. "Prothom Alo", "The Daily Star", "Somoy TV", "Personal Blog"
+  outletLogoUrl?: string;
+  title: BilingualText;
+  articleUrl: string; // Target external link opening in new tab
+  excerpt: BilingualText;
+  coverageType: PressCoverageType;
+  publishedDate: string;
+  imageUrl?: string;
+  isFeatured?: boolean;
+  status: 'published' | 'hidden';
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface EventItem {

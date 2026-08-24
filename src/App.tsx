@@ -24,6 +24,7 @@ import { DonatePage } from './pages/DonatePage';
 import { TransparencyPage } from './pages/TransparencyPage';
 import { GalleryPage } from './pages/GalleryPage';
 import { VideosPage } from './pages/VideosPage';
+import { MediaCoveragePage } from './pages/MediaCoveragePage';
 import { PartnersPage } from './pages/PartnersPage';
 import { PrivacyPage } from './pages/PrivacyPage';
 import { TermsPage } from './pages/TermsPage';
@@ -84,6 +85,8 @@ const AppContent: React.FC = () => {
         return <GalleryPage />;
       case 'videos':
         return <VideosPage />;
+      case 'media-coverage':
+        return <MediaCoveragePage />;
       case 'partners':
         return <PartnersPage />;
       case 'privacy':

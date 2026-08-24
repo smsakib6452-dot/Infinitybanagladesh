@@ -30,7 +30,8 @@ import {
   MediaItem,
   GalleryAlbum,
   AdminProfile,
-  FAQItem
+  FAQItem,
+  PressCoverage
 } from '../types';
 
 export const INITIAL_SITE_SETTINGS: SiteSettings = {
@@ -539,6 +540,7 @@ export const INITIAL_NAVIGATION_ITEMS: NavigationItem[] = [
     children: [
       { id: 'sub-6', label: { en: 'Photo Gallery', bn: 'আলোকচিত্র গ্যালারি' }, path: 'gallery', active: true },
       { id: 'sub-7', label: { en: 'Video Documentation', bn: 'ভিডিও ডকুমেন্টেশন' }, path: 'videos', active: true },
+      { id: 'sub-7-press', label: { en: 'In The News (Press)', bn: 'গণমাধ্যমে ইনফিনিটি' }, path: 'media-coverage', active: true },
       { id: 'sub-8', label: { en: 'News & Announcements', bn: 'সংবাদ ও নোটিশ' }, path: 'news', active: true },
       { id: 'sub-9', label: { en: 'Events & Schedules', bn: 'ইভেন্ট ও সময়সূচি' }, path: 'events', active: true }
     ],
@@ -1331,6 +1333,85 @@ export const INITIAL_REPORTS: TransparencyReport[] = [
     fileUrl: '#',
     fileSize: '[OFFICIAL FILE UPLOAD REQUIRED]',
     status: 'pending_verification'
+  }
+];
+
+export const INITIAL_PRESS_COVERAGE: PressCoverage[] = [
+  {
+    id: 'press-1',
+    outletName: 'Prothom Alo',
+    outletLogoUrl: 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&w=200&q=80',
+    title: {
+      en: 'Youth Volunteer Movement "Infinity Bangladesh" Distributes Winter Clothes Across Remote Villages',
+      bn: 'শীতবস্ত্র নিয়ে প্রত্যন্ত অঞ্চলে তরুণদের প্ল্যাটফর্ম ‘ইনফিনিটি বাংলাদেশ’'
+    },
+    articleUrl: 'https://www.prothomalo.com',
+    excerpt: {
+      en: 'Volunteers of Infinity Bangladesh reached over 2,000 cold-affected underprivileged families with thick blankets and warm sweaters in northern districts.',
+      bn: 'উত্তরাঞ্চলের শীতার্ত অসহায় মানুষের মাঝে কম্বল ও শীতবস্ত্র পৌঁছে দিল ইনফিনিটি বাংলাদেশের একঝাঁক উদ্যমী তরুণ।'
+    },
+    coverageType: 'newspaper',
+    publishedDate: '2025-01-15',
+    imageUrl: '/images/infinity-cover-hero.jpg',
+    isFeatured: true,
+    status: 'published'
+  },
+  {
+    id: 'press-2',
+    outletName: 'The Daily Star',
+    outletLogoUrl: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=200&q=80',
+    title: {
+      en: 'Infinity Bangladesh Sets Benchmark in Transparency for Youth Non-Profits',
+      bn: 'স্বেচ্ছাসেবী কার্যক্রমে স্বচ্ছতার দৃষ্টান্ত স্থাপন করছে ইনফিনিটি বাংলাদেশ'
+    },
+    articleUrl: 'https://www.thedailystar.net',
+    excerpt: {
+      en: 'By publishing every expense voucher and donation ledger online, Team Infinity is creating a culture of trust and ethical social leadership.',
+      bn: 'প্রতিটি আর্থিক হিসাব ও বিতরণ তালিকা উন্মুক্ত করে স্বেচ্ছাসেবার ক্ষেত্রে শতভাগ স্বচ্ছতা বজায় রাখছে সংগঠনটি।'
+    },
+    coverageType: 'newspaper',
+    publishedDate: '2025-02-02',
+    imageUrl: '/images/winter-warmth.jpg',
+    isFeatured: true,
+    status: 'published'
+  },
+  {
+    id: 'press-3',
+    outletName: 'Somoy TV News',
+    outletLogoUrl: 'https://images.unsplash.com/photo-1526470608268-f674ce90ebd4?auto=format&fit=crop&w=200&q=80',
+    title: {
+      en: 'Video Report: Emergency Flood Relief Delivered to Trapped Families in Feni & Noakhali',
+      bn: 'ভিডিও প্রতিবেদন: ফেনী ও নোয়াখালীর পানিবন্দী মানুষের কাছে ইনফিনিটির জরুরি ত্রাণ'
+    },
+    articleUrl: 'https://somoynews.tv',
+    excerpt: {
+      en: 'Special field coverage on rescue boats and dry ration packets distributed during the devastating flash floods by Infinity volunteers.',
+      bn: 'ভয়াবহ বন্যায় ঝুঁকি নিয়ে নৌকায় করে দুর্গতদের দোরগোড়ায় পৌঁছে দেওয়া হয় শুকনো খাবার ও জীবনরক্ষাকারী ওষুধ।'
+    },
+    coverageType: 'tv',
+    publishedDate: '2024-09-10',
+    imageUrl: '/images/infinity-cover-hero.jpg',
+    isFeatured: true,
+    status: 'published'
+  },
+  {
+    id: 'press-4',
+    outletName: 'Dhaka Tribune',
+    outletLogoUrl: 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&w=200&q=80',
+    title: {
+      en: 'Empowering Street Children Through Joyful Learning: "Patho Shishu Smile" Initiative',
+      bn: 'সুবিধাবঞ্চিত শিশুদের জন্য ইনফিনিটি বাংলাদেশের শিক্ষা ও পুষ্টি কর্মসূচি'
+    },
+    articleUrl: 'https://www.dhakatribune.com',
+    excerpt: {
+      en: 'An in-depth feature highlighting basic literacy, moral education, and healthy meals provided to over 150 slum kids every weekend.',
+      bn: 'সাপ্তাহিক ক্লাসের মাধ্যমে শিশুদের প্রাথমিক শিক্ষা ও পুষ্টিকর খাবার সরবরাহ করছে টিম ইনফিনিটি।'
+    },
+    coverageType: 'online',
+    publishedDate: '2024-11-20',
+    imageUrl: '/images/winter-warmth.jpg',
+    isFeatured: false,
+    status: 'published'
   }
 ];
 

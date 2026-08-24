@@ -33,7 +33,8 @@ import {
   MediaItem,
   GalleryAlbum,
   AdminProfile,
-  FAQItem
+  FAQItem,
+  PressCoverage
 } from '../types';
 import {
   INITIAL_CAMPAIGNS,
@@ -67,7 +68,8 @@ import {
   INITIAL_MEDIA_LIBRARY,
   INITIAL_GALLERY_ALBUMS,
   INITIAL_ADMIN_PROFILES,
-  INITIAL_FAQS
+  INITIAL_FAQS,
+  INITIAL_PRESS_COVERAGE
 } from '../data/initialData';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { getFreshImageUrl } from '../lib/cloudinary';
@@ -103,6 +105,7 @@ interface DataContextType {
   banners: BannerItem[];
   mediaLibrary: MediaItem[];
   galleryAlbums: GalleryAlbum[];
+  pressCoverages: PressCoverage[];
   adminProfiles: AdminProfile[];
   auditLogs: AuditLog[];
   committees: Committee[];
@@ -158,6 +161,12 @@ interface DataContextType {
   addGalleryAlbum: (album: Omit<GalleryAlbum, 'id'>) => GalleryAlbum;
   updateGalleryAlbum: (id: string, album: Partial<GalleryAlbum>) => void;
   deleteGalleryAlbum: (id: string) => void;
+  setAlbumPhotos: (albumId: string, photoIds: string[]) => void;
+
+  // Press & Media Coverage
+  addPressCoverage: (press: Omit<PressCoverage, 'id'>) => PressCoverage;
+  updatePressCoverage: (id: string, press: Partial<PressCoverage>) => void;
+  deletePressCoverage: (id: string) => void;
 
   // Core Programs & Campaigns
   addCampaign: (campaign: Omit<Campaign, 'id'>) => Campaign;
@@ -307,6 +316,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return stored.filter(v => v.id !== 'vid-1' && !deletedSet.has(v.id) && !(v.videoUrl && v.videoUrl.includes('dQw4w9WgXcQ')));
   });
   const [reports, setReports] = useState<TransparencyReport[]>(() => getStoredOrDefault('reports', INITIAL_REPORTS));
+  const [pressCoverages, setPressCoverages] = useState<PressCoverage[]>(() => getStoredOrDefault('pressCoverages', INITIAL_PRESS_COVERAGE));
   const [partners, setPartners] = useState<Partner[]>(() => getStoredOrDefault('partners', INITIAL_PARTNERS));
   const [volunteers, setVolunteers] = useState<VolunteerApplication[]>(() => getStoredOrDefault('volunteers', INITIAL_VOLUNTEER_APPLICATIONS));
   const [donations, setDonations] = useState<DonationRecord[]>(() => getStoredOrDefault('donations', INITIAL_DONATIONS));
@@ -336,6 +346,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem(`${STORAGE_PREFIX}banners`, JSON.stringify(banners));
     localStorage.setItem(`${STORAGE_PREFIX}mediaLibrary`, JSON.stringify(mediaLibrary));
     localStorage.setItem(`${STORAGE_PREFIX}galleryAlbums`, JSON.stringify(galleryAlbums));
+    localStorage.setItem(`${STORAGE_PREFIX}pressCoverages`, JSON.stringify(pressCoverages));
     localStorage.setItem(`${STORAGE_PREFIX}adminProfiles`, JSON.stringify(adminProfiles));
     localStorage.setItem(`${STORAGE_PREFIX}campaigns`, JSON.stringify(campaigns));
     localStorage.setItem(`${STORAGE_PREFIX}programs`, JSON.stringify(programs));
@@ -359,7 +370,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [
     settings, homepageConfig, aboutSettings, headerSettings, footerSettings,
     socialLinks, volunteerSettings, supportSettings, contactSettings, seoSettings,
-    navigationItems, banners, mediaLibrary, galleryAlbums, adminProfiles,
+    navigationItems, banners, mediaLibrary, galleryAlbums, pressCoverages, adminProfiles,
     campaigns, programs, metrics, stories, news, events, gallery, videos,
     reports, partners, volunteers, donations, messages, faqs, auditLogs,
     committees, persons, positions, committeeMembers
@@ -882,6 +893,51 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             localStorage.setItem(`${STORAGE_PREFIX}videos`, JSON.stringify(cleaned));
           } catch {}
           return cleaned;
+        });
+      }
+
+      // 18. Press & Media Coverage
+      const { data: pressData } = await supabase.from('press_coverage').select('*').order('published_date', { ascending: false });
+      if (pressData && Array.isArray(pressData) && pressData.length > 0) {
+        const remotePress: PressCoverage[] = pressData.map(p => ({
+          id: p.id,
+          outletName: p.outlet_name || p.outletName || '',
+          outletLogoUrl: getFreshImageUrl(p.outlet_logo_url || p.outletLogoUrl),
+          title: p.title || { en: '', bn: '' },
+          articleUrl: p.article_url || p.articleUrl || '',
+          excerpt: p.excerpt || { en: '', bn: '' },
+          coverageType: p.coverage_type || p.coverageType || 'newspaper',
+          publishedDate: p.published_date || p.publishedDate || '',
+          imageUrl: getFreshImageUrl(p.image_url || p.imageUrl),
+          isFeatured: p.is_featured ?? p.isFeatured ?? false,
+          status: p.status || 'published',
+          createdAt: p.created_at,
+          updatedAt: p.updated_at
+        }));
+        setPressCoverages(prevLocal => {
+          const remoteIds = new Set(remotePress.map(r => r.id));
+          const localOnly = prevLocal.filter(l => !remoteIds.has(l.id));
+          if (localOnly.length > 0) {
+            localOnly.forEach(l => {
+              safeDbUpsert('press_coverage', {
+                id: l.id,
+                outlet_name: l.outletName,
+                outlet_logo_url: l.outletLogoUrl,
+                title: l.title,
+                article_url: l.articleUrl,
+                excerpt: l.excerpt,
+                coverage_type: l.coverageType,
+                published_date: l.publishedDate,
+                image_url: l.imageUrl,
+                is_featured: l.isFeatured,
+                status: l.status,
+                created_at: l.createdAt || new Date().toISOString(),
+                updated_at: l.updatedAt || new Date().toISOString()
+              });
+            });
+            return [...localOnly, ...remotePress];
+          }
+          return remotePress;
         });
       }
 
@@ -1694,6 +1750,132 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setGalleryAlbums(prev => prev.filter(a => a.id !== id));
     logAudit('DELETE', 'GalleryAlbum', id, 'Deleted gallery album');
     safeDbDelete('gallery_albums', 'id', id);
+  }, [logAudit, safeDbDelete]);
+
+  const setAlbumPhotos = useCallback((albumId: string, photoIds: string[]) => {
+    setGallery(prev => {
+      const updated = prev.map(photo => {
+        if (photoIds.includes(photo.id)) {
+          const newPhoto = { ...photo, albumId, displayOrder: photoIds.indexOf(photo.id) + 1 };
+          safeDbUpsert('gallery_photos', {
+            id: newPhoto.id,
+            album_id: albumId,
+            title: newPhoto.title,
+            caption: newPhoto.caption,
+            image_url: newPhoto.imageUrl,
+            category: newPhoto.category,
+            date: newPhoto.date,
+            location: newPhoto.location,
+            campaign_slug: newPhoto.campaignSlug || '',
+            display_order: newPhoto.displayOrder || 0
+          });
+          return newPhoto;
+        } else if (photo.albumId === albumId) {
+          const newPhoto = { ...photo, albumId: undefined };
+          safeDbUpsert('gallery_photos', {
+            id: newPhoto.id,
+            album_id: null,
+            title: newPhoto.title,
+            caption: newPhoto.caption,
+            image_url: newPhoto.imageUrl,
+            category: newPhoto.category,
+            date: newPhoto.date,
+            location: newPhoto.location,
+            campaign_slug: newPhoto.campaignSlug || '',
+            display_order: newPhoto.displayOrder || 0
+          });
+          return newPhoto;
+        }
+        return photo;
+      });
+      return updated;
+    });
+
+    setGalleryAlbums(prev => {
+      return prev.map(alb => {
+        if (alb.id !== albumId) return alb;
+        return {
+          ...alb,
+          photos: gallery.filter(g => photoIds.includes(g.id))
+        };
+      });
+    });
+
+    logAudit('UPDATE', 'GalleryAlbum', albumId, `Updated photos in album (${photoIds.length} photos assigned)`);
+  }, [gallery, logAudit, safeDbUpsert]);
+
+  // MUTATIONS: Press & Media Coverage
+  const addPressCoverage = useCallback((press: Omit<PressCoverage, 'id'>) => {
+    const id = `press-${Date.now()}`;
+    const newPress: PressCoverage = {
+      ...press,
+      id,
+      imageUrl: press.imageUrl ? getFreshImageUrl(press.imageUrl) : undefined,
+      outletLogoUrl: press.outletLogoUrl ? getFreshImageUrl(press.outletLogoUrl) : undefined,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    setPressCoverages(prev => [newPress, ...prev]);
+    logAudit('CREATE', 'PressCoverage', id, `Added press coverage: ${press.title.en}`);
+
+    safeDbUpsert('press_coverage', {
+      id: newPress.id,
+      outlet_name: newPress.outletName,
+      outlet_logo_url: newPress.outletLogoUrl,
+      title: newPress.title,
+      article_url: newPress.articleUrl,
+      excerpt: newPress.excerpt,
+      coverage_type: newPress.coverageType,
+      published_date: newPress.publishedDate,
+      image_url: newPress.imageUrl,
+      is_featured: newPress.isFeatured,
+      status: newPress.status,
+      created_at: newPress.createdAt,
+      updated_at: newPress.updatedAt
+    });
+
+    return newPress;
+  }, [logAudit, safeDbUpsert]);
+
+  const updatePressCoverage = useCallback((id: string, press: Partial<PressCoverage>) => {
+    setPressCoverages(prev => {
+      const updated = prev.map(p => {
+        if (p.id !== id) return p;
+        return {
+          ...p,
+          ...press,
+          imageUrl: press.imageUrl ? getFreshImageUrl(press.imageUrl) : p.imageUrl,
+          outletLogoUrl: press.outletLogoUrl ? getFreshImageUrl(press.outletLogoUrl) : p.outletLogoUrl,
+          updatedAt: new Date().toISOString()
+        };
+      });
+      const match = updated.find(p => p.id === id);
+      if (match) {
+        safeDbUpsert('press_coverage', {
+          id: match.id,
+          outlet_name: match.outletName,
+          outlet_logo_url: match.outletLogoUrl,
+          title: match.title,
+          article_url: match.articleUrl,
+          excerpt: match.excerpt,
+          coverage_type: match.coverageType,
+          published_date: match.publishedDate,
+          image_url: match.imageUrl,
+          is_featured: match.isFeatured,
+          status: match.status,
+          created_at: match.createdAt || new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        });
+      }
+      return updated;
+    });
+    logAudit('UPDATE', 'PressCoverage', id, 'Updated press coverage details');
+  }, [logAudit, safeDbUpsert]);
+
+  const deletePressCoverage = useCallback((id: string) => {
+    setPressCoverages(prev => prev.filter(p => p.id !== id));
+    logAudit('DELETE', 'PressCoverage', id, 'Deleted press coverage item');
+    safeDbDelete('press_coverage', 'id', id);
   }, [logAudit, safeDbDelete]);
 
   // MUTATIONS: Core Programs & Campaigns
@@ -2943,6 +3125,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       banners,
       mediaLibrary,
       galleryAlbums,
+      pressCoverages,
       adminProfiles,
       campaigns,
       programs,
@@ -2967,7 +3150,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [
     settings, homepageConfig, aboutSettings, headerSettings, footerSettings,
     socialLinks, volunteerSettings, supportSettings, contactSettings, seoSettings,
-    navigationItems, banners, mediaLibrary, galleryAlbums, adminProfiles,
+    navigationItems, banners, mediaLibrary, galleryAlbums, pressCoverages, adminProfiles,
     campaigns, programs, metrics, stories, news, events, gallery, videos,
     reports, partners, volunteers, donations, messages, committees,
     persons, positions, committeeMembers, auditLogs
@@ -2990,6 +3173,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (parsed.banners) setBanners(parsed.banners);
       if (parsed.mediaLibrary) setMediaLibrary(parsed.mediaLibrary);
       if (parsed.galleryAlbums) setGalleryAlbums(parsed.galleryAlbums);
+      if (parsed.pressCoverages) setPressCoverages(parsed.pressCoverages);
       if (parsed.adminProfiles) setAdminProfiles(parsed.adminProfiles);
       if (parsed.campaigns) setCampaigns(parsed.campaigns);
       if (parsed.programs) setPrograms(parsed.programs);
@@ -3032,6 +3216,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setBanners(INITIAL_BANNERS);
     setMediaLibrary(INITIAL_MEDIA_LIBRARY);
     setGalleryAlbums(INITIAL_GALLERY_ALBUMS);
+    setPressCoverages(INITIAL_PRESS_COVERAGE);
     setAdminProfiles(INITIAL_ADMIN_PROFILES);
     setCampaigns(INITIAL_CAMPAIGNS);
     setPrograms(INITIAL_PROGRAMS);
@@ -3093,6 +3278,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         banners,
         mediaLibrary,
         galleryAlbums,
+        pressCoverages,
         adminProfiles,
         auditLogs,
         committees,
@@ -3140,6 +3326,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         addGalleryAlbum,
         updateGalleryAlbum,
         deleteGalleryAlbum,
+        setAlbumPhotos,
+
+        addPressCoverage,
+        updatePressCoverage,
+        deletePressCoverage,
 
         addCampaign,
         updateCampaign,

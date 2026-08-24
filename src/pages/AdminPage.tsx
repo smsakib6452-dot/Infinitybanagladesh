@@ -63,7 +63,9 @@ import {
   Crop,
   Filter,
   Maximize2,
-  Smartphone
+  Smartphone,
+  Newspaper,
+  Edit3
 } from 'lucide-react';
 import {
   Campaign,
@@ -92,7 +94,8 @@ import {
   AdminProfile,
   AdminRole,
   PageRoute,
-  FAQItem
+  FAQItem,
+  PressCoverage
 } from '../types';
 import { getAssetUrl } from '../lib/utils/assetHelper';
 import { formatBDT } from '../lib/utils/formatters';
@@ -105,6 +108,11 @@ import { FAQModal } from '../components/FAQModal';
 import { CommitteeMemberModal, CommitteeMemberFormData } from '../components/CommitteeMemberModal';
 import { ImageEditorModal } from '../components/ImageEditorModal';
 import { VideoModal } from '../components/VideoModal';
+import { BannerModal } from '../components/BannerModal';
+import { AlbumModal } from '../components/AlbumModal';
+import { AlbumPhotoManagerModal } from '../components/AlbumPhotoManagerModal';
+import { ImagePublishModal } from '../components/ImagePublishModal';
+import { PressCoverageModal } from '../components/PressCoverageModal';
 import { AdminErrorBoundary } from '../components/AdminErrorBoundary';
 import { isSupabaseConfigured, signInWithEmail, signOutAdmin } from '../lib/supabase';
 import { detectAndNormalizeMedia, DEFAULT_VIDEO_THUMBNAIL, isPortraitVideo } from '../lib/utils/mediaHelper';
@@ -123,6 +131,7 @@ type AdminTab =
   | 'media_library'
   | 'banners'
   | 'gallery_albums'
+  | 'press'
   | 'committees'
   | 'volunteers'
   | 'donations'
@@ -170,7 +179,8 @@ export const AdminPage: React.FC = () => {
     navigationItems, addNavigationItem, updateNavigationItem, deleteNavigationItem, reorderNavigationItems,
     banners, addBanner, updateBanner, deleteBanner,
     mediaLibrary, addMediaItem, updateMediaItem, deleteMediaItem,
-    galleryAlbums, addGalleryAlbum, updateGalleryAlbum, deleteGalleryAlbum,
+    galleryAlbums, addGalleryAlbum, updateGalleryAlbum, deleteGalleryAlbum, setAlbumPhotos,
+    pressCoverages, addPressCoverage, updatePressCoverage, deletePressCoverage,
     adminProfiles, addAdminProfile, updateAdminProfile, deleteAdminProfile,
     auditLogs,
     committees, addCommittee, updateCommittee, deleteCommittee, archiveCommittee, setActiveCommittee,
@@ -216,6 +226,15 @@ export const AdminPage: React.FC = () => {
 
   const [editingAlbum, setEditingAlbum] = useState<GalleryAlbum | null>(null);
   const [isAlbumModalOpen, setIsAlbumModalOpen] = useState(false);
+
+  const [editingAlbumPhotos, setEditingAlbumPhotos] = useState<GalleryAlbum | null>(null);
+  const [isAlbumPhotoManagerOpen, setIsAlbumPhotoManagerOpen] = useState(false);
+
+  const [editingImageItem, setEditingImageItem] = useState<MediaItem | null>(null);
+  const [isImagePublishModalOpen, setIsImagePublishModalOpen] = useState(false);
+
+  const [editingPress, setEditingPress] = useState<PressCoverage | null>(null);
+  const [isPressModalOpen, setIsPressModalOpen] = useState(false);
 
   const [editingNav, setEditingNav] = useState<NavigationItem | null>(null);
   const [isNavModalOpen, setIsNavModalOpen] = useState(false);
@@ -519,6 +538,7 @@ export const AdminPage: React.FC = () => {
         { id: 'media_library' as AdminTab, label: isBn ? 'মিডিয়া লাইব্রেরি' : 'Media Library', icon: FolderOpen },
         { id: 'banners' as AdminTab, label: isBn ? 'ব্যানার ম্যানেজার' : 'Banners & Sliders', icon: ImageIcon },
         { id: 'gallery_albums' as AdminTab, label: isBn ? 'গ্যালারি অ্যালবাম' : 'Gallery Albums', icon: Tag },
+        { id: 'press' as AdminTab, label: isBn ? 'গণমাধ্যমে সংবাদ (প্রেস)' : 'News & Press Coverage', icon: Newspaper },
         { id: 'committees' as AdminTab, label: isBn ? 'কমিটি ও নেতৃত্ব' : 'Committees Roster', icon: Award },
         { id: 'news_events' as AdminTab, label: isBn ? 'সংবাদ ও ইভেন্ট' : 'News & Events', icon: Calendar }
       ]
@@ -2148,67 +2168,100 @@ export const AdminPage: React.FC = () => {
                       {isBn ? 'গ্যালারি অ্যালবাম ব্যবস্থাপনা' : 'Gallery Albums & Event Collections'}
                     </h2>
                     <p className="text-xs text-slate-500">
-                      {isBn ? 'ইভেন্টভিত্তিক ফটো অ্যালবাম পরিচালনা করুন।' : 'Organize and publish event-specific photo albums.'}
+                      {isBn ? 'ইভেন্টভিত্তিক ফটো অ্যালবাম তৈরি, সম্পাদনা ও ছবি যুক্ত করুন।' : 'Organize and publish event-specific photo collections with cover images and batch photo assignments.'}
                     </p>
                   </div>
 
                   <button
                     type="button"
                     onClick={() => {
-                      const newAlb: Omit<GalleryAlbum, 'id'> = {
-                        slug: `album-${Date.now()}`,
-                        title: { en: 'New Field Drive Album', bn: 'নতুন মাঠপর্যায়ের অ্যালবাম' },
-                        description: { en: 'Photographs from humanitarian drives.', bn: 'মানবিক কার্যক্রমের স্থিরচিত্র।' },
-                        coverImageUrl: '/images/infinity-cover-hero.jpg',
-                        category: 'Campaigns',
-                        date: `${new Date().getFullYear()}`,
-                        photos: [],
-                        isPublished: true,
-                        displayOrder: galleryAlbums.length + 1
-                      };
-                      addGalleryAlbum(newAlb);
-                      showToast('Gallery album created');
+                      setEditingAlbum(null);
+                      setIsAlbumModalOpen(true);
                     }}
-                    className="px-4 py-2.5 rounded-xl bg-[#006A4E] text-white font-bold text-xs shadow-warm-sm flex items-center gap-2 cursor-pointer"
+                    className="px-4 py-2.5 rounded-xl bg-[#006A4E] hover:bg-[#00523C] text-white font-bold text-xs shadow-warm-sm flex items-center gap-2 cursor-pointer transition-colors"
                   >
                     <Plus className="w-4 h-4" />
-                    <span>Create Album</span>
+                    <span>{isBn ? 'নতুন অ্যালবাম তৈরি' : 'Create New Album'}</span>
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {galleryAlbums.map(alb => (
-                    <div
-                      key={alb.id}
-                      className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-3"
-                    >
-                      <div className="aspect-16/9 rounded-xl overflow-hidden bg-slate-200 border border-slate-300">
-                        <img
-                          src={getAssetUrl(alb.coverImageUrl)}
-                          alt={alb.title.en}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h4 className="font-bold text-sm text-slate-900">{alb.title.en}</h4>
-                          <p className="text-xs text-slate-500">{alb.title.bn} &bull; {alb.photos?.length || 0} photos</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  {galleryAlbums.map(alb => {
+                    const albumPhotosCount = gallery.filter(g => g.albumId === alb.id).length;
+                    return (
+                      <div
+                        key={alb.id}
+                        className="p-5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-4 hover:border-slate-300 transition-all flex flex-col justify-between"
+                      >
+                        <div className="space-y-3">
+                          <div className="relative aspect-16/9 rounded-xl overflow-hidden bg-slate-200 border border-slate-300">
+                            <img
+                              src={getAssetUrl(alb.coverImageUrl)}
+                              alt={alb.title.en}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = '/images/infinity-cover-hero.jpg';
+                              }}
+                            />
+                            <div className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-slate-900/80 backdrop-blur-xs text-white text-[10px] font-bold">
+                              {alb.category}
+                            </div>
+                            <div className="absolute bottom-2.5 right-2.5 px-2.5 py-0.5 rounded-full bg-emerald-900/80 backdrop-blur-xs text-emerald-100 text-[10px] font-bold">
+                              {albumPhotosCount} photos
+                            </div>
+                          </div>
+
+                          <div>
+                            <h4 className="font-bold text-sm text-slate-900 leading-snug">{alb.title.en}</h4>
+                            <p className="text-xs text-slate-500 font-bengali">{alb.title.bn}</p>
+                            <p className="text-[11px] text-slate-400 mt-0.5">Date: {alb.date}</p>
+                          </div>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (confirm(`Delete album: ${alb.title.en}?`)) {
-                              deleteGalleryAlbum(alb.id);
-                              showToast('Album deleted');
-                            }
-                          }}
-                          className="p-1.5 text-rose-500 hover:text-rose-700 cursor-pointer"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+
+                        <div className="flex items-center justify-between pt-3 border-t border-[#EAE3D9] gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingAlbumPhotos(alb);
+                              setIsAlbumPhotoManagerOpen(true);
+                            }}
+                            className="px-3 py-1.5 rounded-xl bg-white border border-[#EAE3D9] hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-colors shadow-2xs"
+                          >
+                            <ImageIcon className="w-3.5 h-3.5 text-[#006A4E]" />
+                            <span>Manage Photos ({albumPhotosCount})</span>
+                          </button>
+
+                          <div className="flex items-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingAlbum(alb);
+                                setIsAlbumModalOpen(true);
+                              }}
+                              className="p-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 cursor-pointer"
+                              title="Edit Album Details"
+                            >
+                              <Edit3 className="w-3.5 h-3.5" />
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (confirm(`Delete album: ${alb.title.en}? Photos inside will not be deleted from media library.`)) {
+                                  deleteGalleryAlbum(alb.id);
+                                  showToast('Album deleted');
+                                }
+                              }}
+                              className="p-2 rounded-xl bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100 cursor-pointer"
+                              title="Delete Album"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -3119,18 +3172,13 @@ export const AdminPage: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => {
-                          setNewMediaUrl('');
-                          setNewMediaTitle('');
-                          setNewMediaAlt('');
-                          setNewMediaCategory('General');
-                          setNewMediaIsFeatured(false);
-                          setMediaUploadError('');
-                          setIsNewMediaModalOpen(true);
+                          setEditingImageItem(null);
+                          setIsImagePublishModalOpen(true);
                         }}
                         className="px-4 py-2.5 rounded-xl bg-[#006A4E] hover:bg-[#00523C] text-white font-bold text-xs shadow-warm-sm flex items-center gap-2 cursor-pointer transition-colors"
                       >
                         <Plus className="w-4 h-4" />
-                        <span>{isBn ? 'নতুন মিডিয়া যুক্ত করুন' : 'Add New Media'}</span>
+                        <span>{isBn ? 'নতুন ছবি ও মিডিয়া আপলোড' : 'Publish New Image'}</span>
                       </button>
                     </div>
                   </div>
@@ -3359,7 +3407,8 @@ export const AdminPage: React.FC = () => {
                                       setEditingVideo(matchVid);
                                       setIsVideoModalOpen(true);
                                     } else {
-                                      setEditingMedia(media);
+                                      setEditingImageItem(media);
+                                      setIsImagePublishModalOpen(true);
                                     }
                                   }}
                                   className="p-1 rounded-lg hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
@@ -3436,29 +3485,20 @@ export const AdminPage: React.FC = () => {
                       {isBn ? 'ব্যানার ও স্লাইডার ম্যানেজার' : 'Banners & Featured Announcements'}
                     </h2>
                     <p className="text-xs text-slate-500">
-                      {isBn ? 'হোমপেজ ও ক্যাম্পেইন পেজের ব্যানার পরিচালনা করুন।' : 'Configure hero carousel slides, campaign promotional banners, and CTAs.'}
+                      {isBn ? 'হোমপেজ ও ক্যাম্পেইন পেজের ব্যানার ও স্লাইডার পরিচালনা করুন।' : 'Configure hero carousel slides, campaign promotional banners, and CTAs.'}
                     </p>
                   </div>
 
                   <button
                     type="button"
                     onClick={() => {
-                      const newBan: Omit<BannerItem, 'id'> = {
-                        title: { en: 'New Humanitarian Banner', bn: 'নতুন মানবিক ব্যানার' },
-                        desktopImageUrl: '/images/infinity-cover-hero.jpg',
-                        ctaText: { en: 'Support Us', bn: 'সহায়তা করুন' },
-                        ctaUrl: 'donate',
-                        placement: 'homepage_hero',
-                        displayOrder: banners.length + 1,
-                        active: true
-                      };
-                      addBanner(newBan);
-                      showToast('New banner added');
+                      setEditingBanner(null);
+                      setIsBannerModalOpen(true);
                     }}
-                    className="px-4 py-2.5 rounded-xl bg-[#006A4E] hover:bg-[#00523C] text-white font-bold text-xs shadow-warm-sm flex items-center gap-2 cursor-pointer"
+                    className="px-4 py-2.5 rounded-xl bg-[#006A4E] hover:bg-[#00523C] text-white font-bold text-xs shadow-warm-sm flex items-center gap-2 cursor-pointer transition-colors"
                   >
                     <Plus className="w-4 h-4" />
-                    <span>Add New Banner</span>
+                    <span>{isBn ? 'নতুন ব্যানার তৈরি' : 'Add New Banner'}</span>
                   </button>
                 </div>
 
@@ -3466,30 +3506,50 @@ export const AdminPage: React.FC = () => {
                   {banners.map((ban, idx) => (
                     <div
                       key={ban.id}
-                      className="p-5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-3"
+                      className="p-5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-4 hover:border-slate-300 transition-all"
                     >
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div className="flex items-center gap-3">
-                          <span className="w-7 h-7 rounded-xl bg-white text-slate-800 font-mono font-bold text-xs flex items-center justify-center border border-slate-200">
-                            #{idx + 1}
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div className="flex items-center gap-4 min-w-0">
+                          <span className="w-8 h-8 rounded-xl bg-white text-slate-800 font-mono font-bold text-xs flex items-center justify-center border border-slate-200 shrink-0">
+                            #{ban.displayOrder || idx + 1}
                           </span>
-                          <div>
-                            <h4 className="font-bold text-sm text-slate-900">{ban.title.en}</h4>
-                            <p className="text-xs text-slate-500">{ban.title.bn} &bull; {ban.placement}</p>
+
+                          <div className="w-20 h-12 rounded-xl overflow-hidden bg-slate-200 border border-slate-300 shrink-0">
+                            <img
+                              src={getAssetUrl(ban.desktopImageUrl)}
+                              alt={ban.title.en}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = '/images/infinity-cover-hero.jpg';
+                              }}
+                            />
+                          </div>
+
+                          <div className="min-w-0 space-y-1">
+                            <div className="flex items-center gap-2">
+                              <h4 className="font-bold text-sm text-slate-900 truncate">{ban.title.en}</h4>
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#E6F3EF] text-[#00523C]">
+                                {ban.placement}
+                              </span>
+                            </div>
+                            <p className="text-xs text-slate-500 font-bengali truncate">{ban.title.bn}</p>
+                            {ban.subtitle && (
+                              <p className="text-[11px] text-slate-400 truncate">{ban.subtitle.en}</p>
+                            )}
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 shrink-0">
                           <button
                             type="button"
-                            onClick={() => openMediaPicker((url) => {
-                              updateBanner(ban.id, { desktopImageUrl: url });
-                              showToast('Banner image updated');
-                            })}
-                            className="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-[#006A4E] hover:bg-slate-50 flex items-center gap-1 cursor-pointer"
+                            onClick={() => {
+                              setEditingBanner(ban);
+                              setIsBannerModalOpen(true);
+                            }}
+                            className="px-3.5 py-1.5 rounded-xl bg-[#006A4E] text-white hover:bg-[#00523C] text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-warm-xs transition-colors"
                           >
-                            <FolderOpen className="w-3.5 h-3.5" />
-                            <span>Change Image</span>
+                            <Edit3 className="w-3.5 h-3.5" />
+                            <span>{isBn ? 'সম্পাদনা' : 'Edit Slide'}</span>
                           </button>
 
                           <button
@@ -3498,7 +3558,7 @@ export const AdminPage: React.FC = () => {
                               updateBanner(ban.id, { active: !ban.active });
                               showToast(`Banner ${ban.active ? 'deactivated' : 'activated'}`);
                             }}
-                            className={`px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer ${
+                            className={`px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer transition-colors ${
                               ban.active ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'
                             }`}
                           >
@@ -3508,12 +3568,13 @@ export const AdminPage: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => {
-                              if (confirm('Delete banner?')) {
+                              if (confirm(`Delete banner: ${ban.title.en}?`)) {
                                 deleteBanner(ban.id);
                                 showToast('Banner deleted');
                               }
                             }}
-                            className="p-2 rounded-xl bg-rose-50 text-rose-600 border border-rose-200 cursor-pointer"
+                            className="p-2 rounded-xl bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100 cursor-pointer transition-colors"
+                            title="Delete"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -3521,6 +3582,143 @@ export const AdminPage: React.FC = () => {
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {/* -------------------------------------------------------- */}
+            {/* TAB: PRESS & NEWS COVERAGE */}
+            {/* -------------------------------------------------------- */}
+            {activeTab === 'press' && (
+              <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-xl font-extrabold text-slate-900 font-display">
+                      {isBn ? 'গণমাধ্যমে সংবাদ ও প্রেস কভারেজ' : 'Press & News Coverage CMS'}
+                    </h2>
+                    <p className="text-xs text-slate-500">
+                      {isBn ? 'জাতীয় দৈনিক, টিভি ও অনলাইন পোর্টালে প্রকাশিত বাহ্যিক সংবাদের লিংক ও বিবরণ পরিচালনা করুন।' : 'Manage external news features, TV reports, and articles linked to external sources.'}
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingPress(null);
+                      setIsPressModalOpen(true);
+                    }}
+                    className="px-4 py-2.5 rounded-xl bg-[#006A4E] hover:bg-[#00523C] text-white font-bold text-xs shadow-warm-sm flex items-center gap-2 cursor-pointer transition-colors"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>{isBn ? 'নতুন সংবাদ যুক্ত করুন' : 'Add Press Coverage'}</span>
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  {pressCoverages.length === 0 ? (
+                    <div className="text-center py-12 bg-[#FAF7F2] rounded-2xl border border-dashed border-[#EAE3D9] space-y-2">
+                      <Newspaper className="w-8 h-8 text-slate-400 mx-auto" />
+                      <p className="text-sm font-bold text-slate-700">No press coverage entries yet</p>
+                      <p className="text-xs text-slate-500">Click the button above to add your first news or TV report.</p>
+                    </div>
+                  ) : (
+                    pressCoverages.map((item, idx) => (
+                      <div
+                        key={item.id}
+                        className="p-5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] flex flex-col md:flex-row md:items-center justify-between gap-4 hover:border-slate-300 transition-all"
+                      >
+                        <div className="flex items-start sm:items-center gap-4 min-w-0">
+                          <span className="w-7 h-7 rounded-xl bg-white text-slate-800 font-mono font-bold text-xs flex items-center justify-center border border-slate-200 shrink-0">
+                            #{idx + 1}
+                          </span>
+
+                          <div className="w-16 h-12 rounded-xl overflow-hidden bg-slate-200 border border-slate-300 shrink-0">
+                            <img
+                              src={getAssetUrl(item.imageUrl || '/images/infinity-cover-hero.jpg')}
+                              alt={item.title.en}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = '/images/winter-warmth.jpg';
+                              }}
+                            />
+                          </div>
+
+                          <div className="min-w-0 space-y-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#E6F3EF] text-[#00523C]">
+                                {item.outletName}
+                              </span>
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-200 text-slate-700">
+                                {item.coverageType}
+                              </span>
+                              {item.isFeatured && (
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 flex items-center gap-1">
+                                  <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
+                                  <span>Featured</span>
+                                </span>
+                              )}
+                              <span className="text-[11px] text-slate-400 font-mono">{item.publishedDate}</span>
+                            </div>
+
+                            <h4 className="font-bold text-sm text-slate-900 truncate max-w-xl" title={item.title.en}>
+                              {item.title.en}
+                            </h4>
+
+                            <a
+                              href={item.articleUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-[11px] text-[#006A4E] hover:underline font-mono truncate max-w-md"
+                            >
+                              <ExternalLink className="w-3 h-3" />
+                              <span className="truncate">{item.articleUrl}</span>
+                            </a>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              updatePressCoverage(item.id, { status: item.status === 'published' ? 'hidden' : 'published' });
+                              showToast(`Press item ${item.status === 'published' ? 'hidden' : 'published'}`);
+                            }}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer transition-colors ${
+                              item.status === 'published' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'
+                            }`}
+                          >
+                            {item.status === 'published' ? 'Published' : 'Hidden'}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingPress(item);
+                              setIsPressModalOpen(true);
+                            }}
+                            className="p-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 cursor-pointer transition-colors"
+                            title="Edit Press Entry"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" />
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (confirm(`Delete press item: ${item.title.en}?`)) {
+                                deletePressCoverage(item.id);
+                                showToast('Press coverage deleted');
+                              }
+                            }}
+                            className="p-2 rounded-xl bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100 cursor-pointer transition-colors"
+                            title="Delete"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             )}
@@ -4885,6 +5083,129 @@ export const AdminPage: React.FC = () => {
           }
           setMediaPickerOpen(false);
         }}
+      />
+
+      {/* ======================================================== */}
+      {/* BANNER & HERO SLIDER MODAL */}
+      {/* ======================================================== */}
+      <BannerModal
+        isOpen={isBannerModalOpen}
+        onClose={() => {
+          setIsBannerModalOpen(false);
+          setEditingBanner(null);
+        }}
+        banner={editingBanner}
+        onSave={(bannerData) => {
+          if (editingBanner?.id) {
+            updateBanner(editingBanner.id, bannerData);
+            showToast(isBn ? 'ব্যানার সফলভাবে আপডেট হয়েছে' : 'Banner slide updated successfully');
+          } else {
+            addBanner(bannerData);
+            showToast(isBn ? 'নতুন ব্যানার সফলভাবে যুক্ত হয়েছে' : 'New banner slide added successfully');
+          }
+        }}
+        onOpenMediaLibrary={openMediaPicker}
+      />
+
+      {/* ======================================================== */}
+      {/* GALLERY ALBUM DETAILS MODAL */}
+      {/* ======================================================== */}
+      <AlbumModal
+        isOpen={isAlbumModalOpen}
+        onClose={() => {
+          setIsAlbumModalOpen(false);
+          setEditingAlbum(null);
+        }}
+        album={editingAlbum}
+        onSave={(albumData) => {
+          if (editingAlbum?.id) {
+            updateGalleryAlbum(editingAlbum.id, albumData);
+            showToast(isBn ? 'অ্যালবাম তথ্য আপডেট হয়েছে' : 'Album details updated successfully');
+          } else {
+            addGalleryAlbum(albumData);
+            showToast(isBn ? 'নতুন অ্যালবাম সফলভাবে তৈরি হয়েছে' : 'New gallery album created');
+          }
+        }}
+        onOpenMediaLibrary={openMediaPicker}
+      />
+
+      {/* ======================================================== */}
+      {/* ALBUM PHOTO MANAGER MODAL */}
+      {/* ======================================================== */}
+      <AlbumPhotoManagerModal
+        isOpen={isAlbumPhotoManagerOpen}
+        onClose={() => {
+          setIsAlbumPhotoManagerOpen(false);
+          setEditingAlbumPhotos(null);
+        }}
+        album={editingAlbumPhotos}
+        allGalleryPhotos={gallery}
+        allMediaItems={mediaLibrary}
+        onSavePhotos={(albumId, photoIds) => {
+          setAlbumPhotos(albumId, photoIds);
+          showToast(isBn ? 'অ্যালবামের ছবি সফলভাবে সংরক্ষিত হয়েছে' : 'Album photos synchronized successfully');
+        }}
+      />
+
+      {/* ======================================================== */}
+      {/* IMAGE ASSET PUBLISH & METADATA MODAL */}
+      {/* ======================================================== */}
+      <ImagePublishModal
+        isOpen={isImagePublishModalOpen}
+        onClose={() => {
+          setIsImagePublishModalOpen(false);
+          setEditingImageItem(null);
+        }}
+        mediaItem={editingImageItem}
+        campaigns={campaigns}
+        events={events}
+        onSave={(mediaData) => {
+          if (editingImageItem?.id) {
+            updateMediaItem(editingImageItem.id, mediaData);
+            showToast(isBn ? 'ছবির মেটাডাটা আপডেট হয়েছে' : 'Image asset metadata updated successfully');
+          } else {
+            addMediaItem({
+              ...mediaData,
+              fileSize: mediaData.fileSize || 'Optimized',
+              mimeType: mediaData.mimeType || 'image/jpeg',
+              sourceType: 'upload',
+              platform: 'cloudinary',
+              status: 'published'
+            });
+            // Also add to gallery for public gallery showcase
+            addGalleryPhoto({
+              title: { en: mediaData.title || mediaData.fileName, bn: mediaData.description || mediaData.fileName },
+              caption: { en: mediaData.caption || '', bn: mediaData.caption || '' },
+              imageUrl: mediaData.url,
+              category: mediaData.category || 'Campaigns',
+              date: new Date().toISOString().split('T')[0],
+              location: 'Bangladesh'
+            });
+            showToast(isBn ? 'নতুন ছবি সফলভাবে প্রকাশিত ও সংরক্ষিত হয়েছে' : 'Image asset published and added to media library');
+          }
+        }}
+      />
+
+      {/* ======================================================== */}
+      {/* PRESS & NEWS COVERAGE MODAL */}
+      {/* ======================================================== */}
+      <PressCoverageModal
+        isOpen={isPressModalOpen}
+        onClose={() => {
+          setIsPressModalOpen(false);
+          setEditingPress(null);
+        }}
+        pressItem={editingPress}
+        onSave={(pressData) => {
+          if (editingPress?.id) {
+            updatePressCoverage(editingPress.id, pressData);
+            showToast(isBn ? 'সংবাদ কভারেজ আপডেট হয়েছে' : 'Press coverage item updated successfully');
+          } else {
+            addPressCoverage(pressData);
+            showToast(isBn ? 'নতুন সংবাদ কভারেজ যুক্ত হয়েছে' : 'New press coverage item published');
+          }
+        }}
+        onOpenMediaLibrary={openMediaPicker}
       />
 
       {/* Toast Notification */}

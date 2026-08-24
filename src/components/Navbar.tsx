@@ -85,7 +85,7 @@ export const Navbar: React.FC = () => {
     if (path === 'home' && currentPage === 'home') return true;
     if (path === currentPage) return true;
     if (currentPage.startsWith(path + '/')) return true;
-    if (path === 'gallery' && (currentPage === 'gallery' || currentPage === 'videos')) return true;
+    if (path === 'gallery' && (currentPage === 'gallery' || currentPage === 'videos' || currentPage === 'media-coverage')) return true;
     if (path === 'about' && (currentPage === 'about/executive-committee' || currentPage === 'about/standing-committees' || currentPage === 'about/past-committees')) return true;
     return false;
   };

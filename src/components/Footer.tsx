@@ -194,6 +194,11 @@ export const Footer: React.FC = () => {
                 </button>
               </li>
               <li>
+                <button type="button" onClick={() => handleNav('media-coverage')} className="hover:text-white transition-colors cursor-pointer">
+                  {isBn ? 'গণমাধ্যমে ইনফিনিটি (প্রেস)' : 'In The News & Press'}
+                </button>
+              </li>
+              <li>
                 <button type="button" onClick={() => handleNav('stories')} className="hover:text-white transition-colors cursor-pointer">
                   {isBn ? 'বাস্তব জীবনের গল্প' : 'Impact Stories'}
                 </button>

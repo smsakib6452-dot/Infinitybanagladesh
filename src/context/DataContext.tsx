@@ -269,6 +269,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [lastSyncedAt, setLastSyncedAt] = useState<Date | null>(null);
   const [previewMode, setPreviewMode] = useState(false);
 
+  // Deleted IDs tracker to prevent resurrection during sync
+  const deletedIdsRef = useRef<Set<string>>(new Set());
+
   // 1. Site Settings & Global Configurations
   const [settings, setSettings] = useState<SiteSettings>(() => getStoredOrDefault('settings', INITIAL_SITE_SETTINGS));
   const [homepageConfig, setHomepageConfig] = useState<HomepageConfig>(() => getStoredOrDefault('homepageConfig', INITIAL_HOMEPAGE_CONFIG));
@@ -407,13 +410,23 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setAuditLogs(prev => [newLog, ...prev.slice(0, 99)]);
   }, []);
 
-  // Generic DB Upsert helper
+  // Generic DB Upsert helper with fallback for column compatibility
   const safeDbUpsert = useCallback(async (tableName: string, data: any) => {
     if (!supabase || !isSupabaseConfigured) return;
     try {
       const { error } = await supabase.from(tableName).upsert(data);
       if (error) {
         console.warn(`Supabase upsert error on ${tableName}:`, error.message);
+        // Column fallback retry if remote schema is missing extra columns like aspect_ratio or is_shorts
+        if (error.message && (error.message.includes('aspect_ratio') || error.message.includes('is_shorts') || error.message.includes('column'))) {
+          const fallbackData = { ...data };
+          delete fallbackData.aspect_ratio;
+          delete fallbackData.is_shorts;
+          const { error: retryErr } = await supabase.from(tableName).upsert(fallbackData);
+          if (!retryErr) {
+            console.info(`Supabase upsert on ${tableName} succeeded with compatible columns fallback`);
+          }
+        }
       }
     } catch (err: any) {
       console.warn(`Supabase network error on ${tableName}:`, err.message);
@@ -668,36 +681,52 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // 12. Media Library
       const { data: mediaData } = await supabase.from('media_library').select('*').order('created_at', { ascending: false });
-      if (mediaData && mediaData.length > 0) {
-        setMediaLibrary(mediaData.map(m => ({
-          id: m.id,
-          fileName: m.file_name,
-          url: getFreshImageUrl(m.url),
-          fileSize: m.file_size,
-          mimeType: m.mime_type,
-          category: m.category,
-          altText: m.alt_text,
-          caption: m.caption,
-          uploadedAt: m.uploaded_at || m.created_at,
-          usageTags: m.usage_tags || []
-        })));
+      if (mediaData && Array.isArray(mediaData)) {
+        const remoteMedia: MediaItem[] = mediaData
+          .filter(m => !deletedIdsRef.current.has(m.id))
+          .map(m => ({
+            id: m.id,
+            fileName: m.file_name,
+            url: getFreshImageUrl(m.url),
+            fileSize: m.file_size,
+            mimeType: m.mime_type,
+            category: m.category,
+            altText: m.alt_text,
+            caption: m.caption,
+            uploadedAt: m.uploaded_at || m.created_at,
+            usageTags: m.usage_tags || []
+          }));
+
+        setMediaLibrary(prevLocal => {
+          const remoteIds = new Set(remoteMedia.map(r => r.id));
+          const localOnly = prevLocal.filter(l => !remoteIds.has(l.id) && !deletedIdsRef.current.has(l.id));
+          return localOnly.length > 0 ? [...localOnly, ...remoteMedia] : remoteMedia;
+        });
       }
 
       // 13. Gallery Photos
       const { data: galData } = await supabase.from('gallery_photos').select('*').order('created_at', { ascending: false });
-      if (galData && galData.length > 0) {
-        setGallery(galData.map(g => ({
-          id: g.id,
-          albumId: g.album_id,
-          title: g.title,
-          caption: g.caption,
-          imageUrl: getFreshImageUrl(g.image_url),
-          category: g.category,
-          date: g.date,
-          location: g.location,
-          campaignSlug: g.campaign_slug,
-          displayOrder: g.display_order
-        })));
+      if (galData && Array.isArray(galData)) {
+        const remoteGallery = galData
+          .filter(g => !deletedIdsRef.current.has(g.id))
+          .map(g => ({
+            id: g.id,
+            albumId: g.album_id,
+            title: g.title,
+            caption: g.caption,
+            imageUrl: getFreshImageUrl(g.image_url),
+            category: g.category,
+            date: g.date,
+            location: g.location,
+            campaignSlug: g.campaign_slug,
+            displayOrder: g.display_order
+          }));
+
+        setGallery(prevLocal => {
+          const remoteIds = new Set(remoteGallery.map(r => r.id));
+          const localOnly = prevLocal.filter(l => !remoteIds.has(l.id) && !deletedIdsRef.current.has(l.id));
+          return localOnly.length > 0 ? [...localOnly, ...remoteGallery] : remoteGallery;
+        });
       }
 
       // 14. Partners
@@ -751,31 +780,64 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // 17. Video Documentation & Footage
       const { data: vidData } = await supabase.from('video_items').select('*').order('created_at', { ascending: false });
-      if (vidData && vidData.length > 0) {
-        setVideos(vidData.map(v => {
-          const det = detectAndNormalizeMedia(v.video_url || '');
-          const isShorts = v.is_shorts ?? det.isShorts;
-          const aspectRatio = v.aspect_ratio || det.aspectRatio || (isShorts ? '9/16' : '16/9');
-          return {
-            id: v.id,
-            title: v.title,
-            videoUrl: det.originalUrl || v.video_url,
-            embedUrl: v.embed_url || det.embedUrl || '',
-            thumbnailUrl: getFreshImageUrl(v.thumbnail_url || det.thumbnailUrl || DEFAULT_VIDEO_THUMBNAIL),
-            platform: v.platform || det.platform || 'youtube',
-            duration: v.duration || (isShorts ? 'Shorts' : 'Video'),
-            date: v.date || '',
-            description: v.description || { en: '', bn: '' },
-            category: v.category || 'General',
-            status: v.status || 'published',
-            isFeatured: v.is_featured ?? false,
-            sourceType: v.source_type || 'url',
-            aspectRatio,
-            isShorts,
-            createdAt: v.created_at,
-            updatedAt: v.updated_at
-          };
-        }));
+      if (vidData && Array.isArray(vidData)) {
+        const remoteVideos: VideoItem[] = vidData
+          .filter(v => !deletedIdsRef.current.has(v.id))
+          .map(v => {
+            const det = detectAndNormalizeMedia(v.video_url || '');
+            const isShorts = v.is_shorts ?? det.isShorts;
+            const aspectRatio = v.aspect_ratio || det.aspectRatio || (isShorts ? '9/16' : '16/9');
+            return {
+              id: v.id,
+              title: v.title,
+              videoUrl: det.originalUrl || v.video_url,
+              embedUrl: v.embed_url || det.embedUrl || '',
+              thumbnailUrl: getFreshImageUrl(v.thumbnail_url || det.thumbnailUrl || DEFAULT_VIDEO_THUMBNAIL),
+              platform: v.platform || det.platform || 'youtube',
+              duration: v.duration || (isShorts ? 'Shorts' : 'Video'),
+              date: v.date || '',
+              description: v.description || { en: '', bn: '' },
+              category: v.category || 'General',
+              status: v.status || 'published',
+              isFeatured: v.is_featured ?? false,
+              sourceType: v.source_type || 'url',
+              aspectRatio,
+              isShorts,
+              createdAt: v.created_at,
+              updatedAt: v.updated_at
+            };
+          });
+
+        setVideos(prevLocal => {
+          const remoteIds = new Set(remoteVideos.map(r => r.id));
+          const localOnly = prevLocal.filter(l => !remoteIds.has(l.id) && !deletedIdsRef.current.has(l.id));
+          if (localOnly.length > 0) {
+            // Re-sync local unsynced videos to Supabase in background
+            localOnly.forEach(l => {
+              safeDbUpsert('video_items', {
+                id: l.id,
+                title: l.title,
+                video_url: l.videoUrl,
+                embed_url: l.embedUrl || '',
+                thumbnail_url: l.thumbnailUrl,
+                platform: l.platform,
+                duration: l.duration || '',
+                date: l.date,
+                description: l.description,
+                category: l.category,
+                status: l.status,
+                is_featured: l.isFeatured,
+                source_type: l.sourceType,
+                aspect_ratio: l.aspectRatio || '16/9',
+                is_shorts: l.isShorts || false,
+                created_at: l.createdAt,
+                updated_at: l.updatedAt
+              });
+            });
+            return [...localOnly, ...remoteVideos];
+          }
+          return remoteVideos;
+        });
       }
 
       setLastSyncedAt(new Date());
@@ -2033,6 +2095,44 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setVideos(prev => [newVid, ...prev]);
     logAudit('CREATE', 'VideoItem', id, `Added video: ${cleanTitle.en || cleanTitle.bn}`);
 
+    // Also mirror to mediaLibrary so it appears across media tabs and gallery
+    setMediaLibrary(prev => {
+      if (prev.some(m => m.id === id || m.url === newVid.videoUrl)) return prev;
+      const newMedia: MediaItem = {
+        id,
+        fileName: cleanTitle.en || cleanTitle.bn || 'Video Asset',
+        url: newVid.videoUrl,
+        type: 'video',
+        thumbnailUrl: newVid.thumbnailUrl,
+        fileSize: 'External Stream',
+        mimeType: 'video/embed',
+        category: (newVid.category as any) || 'General',
+        altText: cleanTitle.en || cleanTitle.bn,
+        caption: cleanDescription.en || cleanDescription.bn,
+        platform: newVid.platform as any,
+        duration: newVid.duration,
+        aspectRatio: newVid.aspectRatio,
+        isShorts: newVid.isShorts,
+        usageTags: ['Video Gallery', 'Field Footage'],
+        uploadedAt: new Date().toISOString(),
+        isFeatured: newVid.isFeatured,
+        status: (newVid.status === 'draft' ? 'draft' : 'published') as 'published' | 'draft'
+      };
+      safeDbUpsert('media_library', {
+        id: newMedia.id,
+        file_name: newMedia.fileName,
+        url: newMedia.url,
+        file_size: newMedia.fileSize,
+        mime_type: newMedia.mimeType,
+        category: newMedia.category,
+        alt_text: newMedia.altText,
+        caption: newMedia.caption || '',
+        usage_tags: newMedia.usageTags,
+        uploaded_at: newMedia.uploadedAt
+      });
+      return [newMedia, ...prev];
+    });
+
     safeDbUpsert('video_items', {
       id: newVid.id,
       title: newVid.title,
@@ -2111,6 +2211,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [logAudit, safeDbUpsert]);
 
   const deleteVideo = useCallback((id: string) => {
+    deletedIdsRef.current.add(id);
     setVideos(prev => prev.filter(v => v.id !== id));
     setMediaLibrary(prev => prev.filter(m => m.id !== id && m.url !== id));
     logAudit('DELETE', 'VideoItem', id, 'Deleted video');

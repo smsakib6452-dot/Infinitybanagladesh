@@ -29,6 +29,7 @@ import {
   Upload,
   Settings,
   Eye,
+  EyeOff,
   RefreshCw,
   Search,
   Check,
@@ -113,6 +114,7 @@ import { AlbumModal } from '../components/AlbumModal';
 import { AlbumPhotoManagerModal } from '../components/AlbumPhotoManagerModal';
 import { ImagePublishModal } from '../components/ImagePublishModal';
 import { PressCoverageModal } from '../components/PressCoverageModal';
+import { NavigationModal } from '../components/NavigationModal';
 import { AdminErrorBoundary } from '../components/AdminErrorBoundary';
 import { isSupabaseConfigured, signInWithEmail, signOutAdmin } from '../lib/supabase';
 import { detectAndNormalizeMedia, DEFAULT_VIDEO_THUMBNAIL, isPortraitVideo } from '../lib/utils/mediaHelper';
@@ -2650,67 +2652,436 @@ export const AdminPage: React.FC = () => {
             {/* TAB: NAVIGATION & MENUS */}
             {/* -------------------------------------------------------- */}
             {activeTab === 'navigation' && (
-              <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+              <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-8 shadow-warm-sm">
+                {/* Header Title */}
                 <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                   <div>
                     <h2 className="text-xl font-extrabold text-slate-900 font-display">
-                      {isBn ? 'মেনু ও নেভিগেশন বিল্ডার' : 'Navigation & Menu Builder'}
+                      {isBn ? 'হেডার ও মেনু নেভিগেশন বিল্ডার' : 'Header Actions & Navigation Menu Builder'}
                     </h2>
                     <p className="text-xs text-slate-500">
-                      {isBn ? 'ওয়েবসাইটের প্রধান মেনু আইটেমসমূহ পরিচালনা করুন।' : 'Add, rename, or reorder top navbar items and submenus.'}
+                      {isBn
+                        ? 'ওয়েবসাইটের প্রধান মেনু আইটেম, ড্রপডাউন এবং হেডারের বাটনসমূহ (অনুদানের বাটন, সার্চ, ভাষা পরিবর্তন) হাইড/আনহাইড ও এডিট করুন।'
+                        : 'Manage navbar links, submenus, and toggle header action buttons (Donate button, search, language switcher, notice bar) with instant eye toggle.'}
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={() => {
-                      const newNav: Omit<NavigationItem, 'id'> = {
-                        label: { en: 'New Menu Item', bn: 'নতুন মেনু' },
-                        path: 'about',
-                        displayOrder: navigationItems.length + 1,
-                        active: true
-                      };
-                      addNavigationItem(newNav);
-                      showToast('Navigation item added');
+                      setEditingNav(null);
+                      setIsNavModalOpen(true);
                     }}
-                    className="px-4 py-2 rounded-xl bg-[#006A4E] text-white font-bold text-xs shadow-warm-sm flex items-center gap-1.5 cursor-pointer"
+                    className="px-4 py-2 rounded-xl bg-[#006A4E] text-white font-bold text-xs shadow-warm-sm hover:bg-[#00523C] flex items-center gap-1.5 cursor-pointer transition-all"
                   >
                     <Plus className="w-4 h-4" />
-                    <span>Add Link</span>
+                    <span>{isBn ? 'নতুন মেনু লিঙ্ক' : 'Add Menu Link'}</span>
                   </button>
                 </div>
 
-                <div className="space-y-2">
-                  {navigationItems.map((nav, idx) => (
-                    <div
-                      key={nav.id}
-                      className="p-3.5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] flex items-center justify-between gap-3"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="w-6 h-6 rounded-lg bg-white font-mono font-bold text-xs flex items-center justify-center border border-slate-200">
-                          {idx + 1}
-                        </span>
-                        <div>
-                          <p className="text-xs font-bold text-slate-900">{nav.label.en} ({nav.label.bn})</p>
-                          <p className="text-[11px] font-mono text-slate-500">Route: {nav.path}</p>
-                        </div>
-                      </div>
+                {/* 1. Header Action Buttons & Widgets (Eye Hide/Unhide Controls) */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Sliders className="w-4 h-4 text-[#006A4E]" />
+                    <h3 className="text-sm font-bold text-slate-900 font-display">
+                      {isBn ? 'হেডার অ্যাকশন বাটন ও উইজেট নিয়ন্ত্রণ (Eye Hide/Unhide)' : 'Header Action Buttons & Widgets'}
+                    </h3>
+                  </div>
 
-                      <div className="flex items-center gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Support / Donate Button Widget */}
+                    <div className={`p-4 rounded-2xl border transition-all space-y-3 ${
+                      headerSettings.showSupportButton !== false
+                        ? 'bg-[#FAF7F2] border-[#EAE3D9]'
+                        : 'bg-slate-50 border-slate-200 opacity-75'
+                    }`}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Heart className="w-4 h-4 text-rose-600 fill-rose-600" />
+                          <span className="text-xs font-bold text-slate-900">
+                            {isBn ? 'অনুদানের বাটন (Donate / Support Button)' : 'Support / Donate CTA Button'}
+                          </span>
+                        </div>
+
+                        {/* Eye Button */}
                         <button
                           type="button"
                           onClick={() => {
-                            if (confirm(`Remove nav link: ${nav.label.en}?`)) {
-                              deleteNavigationItem(nav.id);
-                              showToast('Nav item removed');
-                            }
+                            const newShow = !headerSettings.showSupportButton;
+                            updateHeaderSettings({ showSupportButton: newShow });
+                            showToast(newShow ? 'Support button is now visible' : 'Support button is now hidden');
                           }}
-                          className="p-1 text-rose-500 hover:text-rose-700 cursor-pointer"
+                          className={`px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all ${
+                            headerSettings.showSupportButton !== false
+                              ? 'bg-emerald-100 text-[#00523C] hover:bg-emerald-200'
+                              : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+                          }`}
+                          title={headerSettings.showSupportButton !== false ? 'Click to Hide button' : 'Click to Show button'}
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          {headerSettings.showSupportButton !== false ? (
+                            <>
+                              <Eye className="w-3.5 h-3.5 text-[#006A4E]" />
+                              <span>{isBn ? 'দৃশ্যমান' : 'Visible'}</span>
+                            </>
+                          ) : (
+                            <>
+                              <EyeOff className="w-3.5 h-3.5 text-slate-500" />
+                              <span>{isBn ? 'লুকানো' : 'Hidden'}</span>
+                            </>
+                          )}
                         </button>
                       </div>
+
+                      {/* Inputs */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                        <div className="space-y-1">
+                          <label className="text-[11px] font-bold text-slate-700">Button Text (English)</label>
+                          <input
+                            type="text"
+                            value={headerSettings.supportButtonText?.en || ''}
+                            onChange={(e) => updateHeaderSettings({
+                              supportButtonText: { ...(headerSettings.supportButtonText || { en: '', bn: '' }), en: e.target.value }
+                            })}
+                            placeholder="Support Us"
+                            className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-xl text-xs"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[11px] font-bold text-slate-700">বাটনের লেখা (বাংলা)</label>
+                          <input
+                            type="text"
+                            value={headerSettings.supportButtonText?.bn || ''}
+                            onChange={(e) => updateHeaderSettings({
+                              supportButtonText: { ...(headerSettings.supportButtonText || { en: '', bn: '' }), bn: e.target.value }
+                            })}
+                            placeholder="সহায়তা করুন"
+                            className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-xl text-xs font-bengali"
+                          />
+                        </div>
+                      </div>
                     </div>
-                  ))}
+
+                    {/* Search Button Widget */}
+                    <div className={`p-4 rounded-2xl border transition-all space-y-3 ${
+                      headerSettings.showSearch !== false
+                        ? 'bg-[#FAF7F2] border-[#EAE3D9]'
+                        : 'bg-slate-50 border-slate-200 opacity-75'
+                    }`}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Search className="w-4 h-4 text-[#006A4E]" />
+                          <span className="text-xs font-bold text-slate-900">
+                            {isBn ? 'অনুসন্ধান বাটন (Search Icon Button)' : 'Search Button'}
+                          </span>
+                        </div>
+
+                        {/* Eye Button */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newShow = !headerSettings.showSearch;
+                            updateHeaderSettings({ showSearch: newShow });
+                            showToast(newShow ? 'Search button is now visible' : 'Search button is now hidden');
+                          }}
+                          className={`px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all ${
+                            headerSettings.showSearch !== false
+                              ? 'bg-emerald-100 text-[#00523C] hover:bg-emerald-200'
+                              : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+                          }`}
+                          title={headerSettings.showSearch !== false ? 'Click to Hide search' : 'Click to Show search'}
+                        >
+                          {headerSettings.showSearch !== false ? (
+                            <>
+                              <Eye className="w-3.5 h-3.5 text-[#006A4E]" />
+                              <span>{isBn ? 'দৃশ্যমান' : 'Visible'}</span>
+                            </>
+                          ) : (
+                            <>
+                              <EyeOff className="w-3.5 h-3.5 text-slate-500" />
+                              <span>{isBn ? 'লুকানো' : 'Hidden'}</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+
+                      <p className="text-[11px] text-slate-600 leading-relaxed">
+                        {isBn
+                          ? 'হেডারের সার্চ বাটনের মাধ্যমে ভিজিটররা ক্যাম্পেইন, খবর ও প্রোগ্রাম সহজে খুঁজে পেতে পারেন।'
+                          : 'Allows visitors to quickly search across active campaigns, news, and programs.'}
+                      </p>
+                    </div>
+
+                    {/* Language Switcher Widget */}
+                    <div className={`p-4 rounded-2xl border transition-all space-y-3 ${
+                      headerSettings.showLanguageSwitcher !== false
+                        ? 'bg-[#FAF7F2] border-[#EAE3D9]'
+                        : 'bg-slate-50 border-slate-200 opacity-75'
+                    }`}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Globe className="w-4 h-4 text-teal-600" />
+                          <span className="text-xs font-bold text-slate-900">
+                            {isBn ? 'ভাষা পরিবর্তন বাটন (Language Switcher)' : 'Language Switcher (বাংলা / EN)'}
+                          </span>
+                        </div>
+
+                        {/* Eye Button */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newShow = !headerSettings.showLanguageSwitcher;
+                            updateHeaderSettings({ showLanguageSwitcher: newShow });
+                            showToast(newShow ? 'Language switcher is now visible' : 'Language switcher is now hidden');
+                          }}
+                          className={`px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all ${
+                            headerSettings.showLanguageSwitcher !== false
+                              ? 'bg-emerald-100 text-[#00523C] hover:bg-emerald-200'
+                              : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+                          }`}
+                          title={headerSettings.showLanguageSwitcher !== false ? 'Click to Hide switcher' : 'Click to Show switcher'}
+                        >
+                          {headerSettings.showLanguageSwitcher !== false ? (
+                            <>
+                              <Eye className="w-3.5 h-3.5 text-[#006A4E]" />
+                              <span>{isBn ? 'দৃশ্যমান' : 'Visible'}</span>
+                            </>
+                          ) : (
+                            <>
+                              <EyeOff className="w-3.5 h-3.5 text-slate-500" />
+                              <span>{isBn ? 'লুকানো' : 'Hidden'}</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+
+                      <p className="text-[11px] text-slate-600 leading-relaxed">
+                        {isBn
+                          ? 'টপ বারে বাংলা ও ইংরেজির মধ্যে এক ক্লিকে ভাষা পরিবর্তনের বাটন।'
+                          : 'Top bar button enabling visitors to switch between English and Bangla.'}
+                      </p>
+                    </div>
+
+                    {/* Top Notice Bar Widget */}
+                    <div className={`p-4 rounded-2xl border transition-all space-y-3 ${
+                      headerSettings.showNoticeBar !== false
+                        ? 'bg-[#FAF7F2] border-[#EAE3D9]'
+                        : 'bg-slate-50 border-slate-200 opacity-75'
+                    }`}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Tag className="w-4 h-4 text-emerald-700" />
+                          <span className="text-xs font-bold text-slate-900">
+                            {isBn ? 'শীর্ষ নোটিশ বার (Top Announcement Bar)' : 'Top Notice Bar'}
+                          </span>
+                        </div>
+
+                        {/* Eye Button */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newShow = !headerSettings.showNoticeBar;
+                            updateHeaderSettings({ showNoticeBar: newShow });
+                            showToast(newShow ? 'Notice bar is now visible' : 'Notice bar is now hidden');
+                          }}
+                          className={`px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all ${
+                            headerSettings.showNoticeBar !== false
+                              ? 'bg-emerald-100 text-[#00523C] hover:bg-emerald-200'
+                              : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+                          }`}
+                          title={headerSettings.showNoticeBar !== false ? 'Click to Hide notice bar' : 'Click to Show notice bar'}
+                        >
+                          {headerSettings.showNoticeBar !== false ? (
+                            <>
+                              <Eye className="w-3.5 h-3.5 text-[#006A4E]" />
+                              <span>{isBn ? 'দৃশ্যমান' : 'Visible'}</span>
+                            </>
+                          ) : (
+                            <>
+                              <EyeOff className="w-3.5 h-3.5 text-slate-500" />
+                              <span>{isBn ? 'লুকানো' : 'Hidden'}</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+
+                      <p className="text-[11px] text-slate-600 leading-relaxed">
+                        {isBn
+                          ? 'ওয়েবসাইটের একেবারে উপরে নোটিশ বা স্বাগত বার্তা প্রদর্শনের বার।'
+                          : 'Slim dark green bar at the very top for official announcements and welcome messages.'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. Main Navigation Menu Links Manager */}
+                <div className="space-y-4 pt-4 border-t border-slate-100">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Compass className="w-4 h-4 text-[#006A4E]" />
+                      <h3 className="text-sm font-bold text-slate-900 font-display">
+                        {isBn ? 'প্রধান মেনু লিঙ্কসমূহ (Main Navbar Links)' : 'Main Navigation Links'}
+                      </h3>
+                    </div>
+                    <span className="text-xs text-slate-500 font-medium">
+                      {navigationItems.length} {isBn ? 'টি মেনু আইটেম' : 'menu links'}
+                    </span>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    {[...navigationItems]
+                      .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
+                      .map((nav, idx, arr) => (
+                        <div
+                          key={nav.id}
+                          className={`p-4 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                            nav.active !== false
+                              ? 'bg-[#FAF7F2] border-[#EAE3D9] shadow-warm-xs'
+                              : 'bg-slate-50 border-slate-200 opacity-70'
+                          }`}
+                        >
+                          {/* Left Details */}
+                          <div className="flex items-center gap-3 min-w-0">
+                            <span className="w-7 h-7 rounded-xl bg-white font-mono font-bold text-xs flex items-center justify-center border border-slate-200 text-slate-700 shrink-0 shadow-2xs">
+                              {idx + 1}
+                            </span>
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <p className="text-xs font-bold text-slate-900">
+                                  {nav.label.en}
+                                </p>
+                                <span className="text-slate-400 text-xs">/</span>
+                                <p className="text-xs font-bold text-slate-700 font-bengali">
+                                  {nav.label.bn}
+                                </p>
+                                {nav.isDropdown && (
+                                  <span className="text-[10px] font-bold px-2 py-0.5 bg-emerald-100 text-[#00523C] rounded-full">
+                                    Dropdown ({nav.children?.length || 0})
+                                  </span>
+                                )}
+                                {nav.isExternal && (
+                                  <span className="text-[10px] font-bold px-2 py-0.5 bg-sky-100 text-sky-800 rounded-full flex items-center gap-0.5">
+                                    <ExternalLink className="w-2.5 h-2.5" />
+                                    External
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-[11px] font-mono text-slate-500 mt-0.5 truncate">
+                                Path: <span className="font-semibold text-slate-700">{nav.path}</span>
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Right Actions: Eye Toggle, Move Up/Down, Edit, Delete */}
+                          <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                            {/* Instant Eye Visibility Toggle Button */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newActive = nav.active === false ? true : false;
+                                updateNavigationItem(nav.id, { active: newActive });
+                                showToast(
+                                  newActive
+                                    ? (isBn ? `"${nav.label.bn}" মেনু এখন দৃশ্যমান` : `"${nav.label.en}" is now visible`)
+                                    : (isBn ? `"${nav.label.bn}" মেনু লুকানো হয়েছে` : `"${nav.label.en}" is now hidden`)
+                                );
+                              }}
+                              className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs transition-all ${
+                                nav.active !== false
+                                  ? 'bg-emerald-100 text-[#00523C] hover:bg-emerald-200'
+                                  : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+                              }`}
+                              title={nav.active !== false ? 'Click to Hide this menu link' : 'Click to Show this menu link'}
+                            >
+                              {nav.active !== false ? (
+                                <>
+                                  <Eye className="w-3.5 h-3.5 text-[#006A4E]" />
+                                  <span>{isBn ? 'দৃশ্যমান' : 'Visible'}</span>
+                                </>
+                              ) : (
+                                <>
+                                  <EyeOff className="w-3.5 h-3.5 text-slate-500" />
+                                  <span>{isBn ? 'লুকানো' : 'Hidden'}</span>
+                                </>
+                              )}
+                            </button>
+
+                            {/* Reorder Buttons (Move Up / Down) */}
+                            <div className="flex items-center bg-white rounded-xl border border-slate-200 overflow-hidden shadow-2xs">
+                              <button
+                                type="button"
+                                disabled={idx === 0}
+                                onClick={() => {
+                                  const sorted = [...navigationItems].sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+                                  const currentIdx = sorted.findIndex(n => n.id === nav.id);
+                                  if (currentIdx > 0) {
+                                    const temp = sorted[currentIdx];
+                                    sorted[currentIdx] = sorted[currentIdx - 1];
+                                    sorted[currentIdx - 1] = temp;
+                                    const updated = sorted.map((item, i) => ({ ...item, displayOrder: i + 1 }));
+                                    reorderNavigationItems(updated);
+                                    updated.forEach(item => updateNavigationItem(item.id, { displayOrder: item.displayOrder }));
+                                    showToast(isBn ? 'মেনুর ক্রম পরিবর্তন হয়েছে' : 'Navigation order updated');
+                                  }
+                                }}
+                                className="px-2 py-1.5 text-slate-600 hover:bg-slate-100 disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer font-bold text-xs"
+                                title="Move Left / Up"
+                              >
+                                ▲
+                              </button>
+                              <div className="w-px h-4 bg-slate-200" />
+                              <button
+                                type="button"
+                                disabled={idx === arr.length - 1}
+                                onClick={() => {
+                                  const sorted = [...navigationItems].sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+                                  const currentIdx = sorted.findIndex(n => n.id === nav.id);
+                                  if (currentIdx < sorted.length - 1) {
+                                    const temp = sorted[currentIdx];
+                                    sorted[currentIdx] = sorted[currentIdx + 1];
+                                    sorted[currentIdx + 1] = temp;
+                                    const updated = sorted.map((item, i) => ({ ...item, displayOrder: i + 1 }));
+                                    reorderNavigationItems(updated);
+                                    updated.forEach(item => updateNavigationItem(item.id, { displayOrder: item.displayOrder }));
+                                    showToast(isBn ? 'মেনুর ক্রম পরিবর্তন হয়েছে' : 'Navigation order updated');
+                                  }
+                                }}
+                                className="px-2 py-1.5 text-slate-600 hover:bg-slate-100 disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer font-bold text-xs"
+                                title="Move Right / Down"
+                              >
+                                ▼
+                              </button>
+                            </div>
+
+                            {/* Edit Button */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingNav(nav);
+                                setIsNavModalOpen(true);
+                              }}
+                              className="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold flex items-center gap-1 cursor-pointer shadow-2xs transition-all"
+                            >
+                              <Edit2 className="w-3.5 h-3.5 text-[#006A4E]" />
+                              <span>{isBn ? 'সম্পাদনা' : 'Edit'}</span>
+                            </button>
+
+                            {/* Delete Button */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (confirm(`Remove nav link "${nav.label.en}"?`)) {
+                                  deleteNavigationItem(nav.id);
+                                  showToast(isBn ? 'মেনু লিঙ্ক মুছে ফেলা হয়েছে' : 'Nav link removed');
+                                }
+                              }}
+                              className="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 cursor-pointer transition-all"
+                              title="Delete Link"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
                 </div>
               </div>
             )}
@@ -5518,6 +5889,36 @@ export const AdminPage: React.FC = () => {
           }
         }}
         onOpenMediaLibrary={openMediaPicker}
+      />
+
+      {/* ======================================================== */}
+      {/* NAVIGATION MENU ITEM MODAL */}
+      {/* ======================================================== */}
+      <NavigationModal
+        isOpen={isNavModalOpen}
+        onClose={() => {
+          setIsNavModalOpen(false);
+          setEditingNav(null);
+        }}
+        item={editingNav}
+        isBn={isBn}
+        onSave={(navData) => {
+          if (editingNav?.id) {
+            updateNavigationItem(editingNav.id, navData);
+            showToast(isBn ? 'মেনু লিঙ্ক আপডেট হয়েছে' : 'Navigation link updated successfully');
+          } else {
+            addNavigationItem({
+              label: navData.label || { en: 'New Link', bn: 'নতুন লিঙ্ক' },
+              path: navData.path || 'home',
+              isExternal: !!navData.isExternal,
+              isDropdown: !!navData.isDropdown,
+              children: navData.children || [],
+              displayOrder: navigationItems.length + 1,
+              active: navData.active !== false
+            });
+            showToast(isBn ? 'নতুন মেনু লিঙ্ক তৈরি হয়েছে' : 'New navigation link created');
+          }
+        }}
       />
 
       {/* Toast Notification */}

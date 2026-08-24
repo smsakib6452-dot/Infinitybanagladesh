@@ -283,9 +283,28 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // 1. Site Settings & Global Configurations
   const [settings, setSettings] = useState<SiteSettings>(() => getStoredOrDefault('settings', INITIAL_SITE_SETTINGS));
-  const [homepageConfig, setHomepageConfig] = useState<HomepageConfig>(() => getStoredOrDefault('homepageConfig', INITIAL_HOMEPAGE_CONFIG));
+  const [homepageConfig, setHomepageConfig] = useState<HomepageConfig>(() => {
+    const stored = getStoredOrDefault<HomepageConfig>('homepageConfig', INITIAL_HOMEPAGE_CONFIG);
+    if (
+      stored?.hero?.eyebrow?.en === 'TEAM INFINITY — UNITED FOR HUMANITY' ||
+      stored?.hero?.eyebrow?.bn === 'টিম ইনফিনিটি — মানবতার জন্য একতাবদ্ধ' ||
+      stored?.hero?.eyebrow?.bn === 'টিম ইনফিনিটি — ইউনাইটেড ফর হিউম্যানিটি'
+    ) {
+      stored.hero.eyebrow = INITIAL_HOMEPAGE_CONFIG.hero.eyebrow;
+    }
+    return stored;
+  });
   const [aboutSettings, setAboutSettings] = useState<AboutSettings>(() => getStoredOrDefault('aboutSettings', INITIAL_ABOUT_SETTINGS));
-  const [headerSettings, setHeaderSettings] = useState<HeaderSettings>(() => getStoredOrDefault('headerSettings', INITIAL_HEADER_SETTINGS));
+  const [headerSettings, setHeaderSettings] = useState<HeaderSettings>(() => {
+    const stored = getStoredOrDefault<HeaderSettings>('headerSettings', INITIAL_HEADER_SETTINGS);
+    if (
+      stored?.noticeBarText?.en?.includes('Team Infinity | United for Humanity') ||
+      stored?.noticeBarText?.bn?.includes('টিম ইনফিনিটি | মানবতার জন্য একতাবদ্ধ')
+    ) {
+      stored.noticeBarText = INITIAL_HEADER_SETTINGS.noticeBarText;
+    }
+    return stored;
+  });
   const [footerSettings, setFooterSettings] = useState<FooterSettings>(() => getStoredOrDefault('footerSettings', INITIAL_FOOTER_SETTINGS));
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>(() => getStoredOrDefault('socialLinks', INITIAL_SOCIAL_LINKS));
   const [volunteerSettings, setVolunteerSettings] = useState<VolunteerSettings>(() => getStoredOrDefault('volunteerSettings', INITIAL_VOLUNTEER_SETTINGS));

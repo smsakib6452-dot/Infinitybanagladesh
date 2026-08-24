@@ -68,8 +68,8 @@ export const INITIAL_SITE_SETTINGS: SiteSettings = {
     routingNumber: '[OFFICIAL ROUTING NUMBER REQUIRED]'
   },
   bannerAnnouncement: {
-    en: 'Welcome to the official digital platform of Infinity Bangladesh — Team Infinity | United for Humanity | Est. 2015',
-    bn: 'ইনফিনিটি বাংলাদেশ-এর অফিসিয়াল ডিজিটাল প্ল্যাটফর্মে স্বাগতম — টিম ইনফিনিটি | মানবতার জন্য একতাবদ্ধ | প্রতিষ্ঠিত ২০১৫'
+    en: 'Welcome to the official platform of Infinity Bangladesh — Established in 2015, Hathazari',
+    bn: 'ইনফিনিটি বাংলাদেশ-এর অফিসিয়াল প্ল্যাটফর্মে স্বাগতম — প্রতিষ্ঠিত ২০১৫, হাটহাজারী'
   },
   showAnnouncementBanner: true,
   registrationNumber: 'Hathazari, Chattogram • Established 2015'
@@ -78,8 +78,8 @@ export const INITIAL_SITE_SETTINGS: SiteSettings = {
 export const INITIAL_HOMEPAGE_CONFIG: HomepageConfig = {
   hero: {
     eyebrow: {
-      en: 'TEAM INFINITY — UNITED FOR HUMANITY',
-      bn: 'টিম ইনফিনিটি — মানবতার জন্য একতাবদ্ধ'
+      en: 'Serving Humanity with Compassion — Since 2015',
+      bn: 'মানুষের পাশে, মানবতার কল্যাণে — ২০১৫ থেকে'
     },
     headlineMain: {
       en: 'Together, We Can Create a',
@@ -233,8 +233,8 @@ export const INITIAL_HEADER_SETTINGS: HeaderSettings = {
   logoAlt: 'Infinity Bangladesh Official Logo',
   showNoticeBar: true,
   noticeBarText: {
-    en: 'Welcome to the official digital platform of Infinity Bangladesh — Team Infinity | United for Humanity | Est. 2015',
-    bn: 'ইনফিনিটি বাংলাদেশ-এর অফিসিয়াল ডিজিটাল প্ল্যাটফর্মে স্বাগতম — টিম ইনফিনিটি | মানবতার জন্য একতাবদ্ধ | প্রতিষ্ঠিত ২০১৫'
+    en: 'Welcome to the official platform of Infinity Bangladesh — Established in 2015, Hathazari',
+    bn: 'ইনফিনিটি বাংলাদেশ-এর অফিসিয়াল প্ল্যাটফর্মে স্বাগতম — প্রতিষ্ঠিত ২০১৫, হাটহাজারী'
   },
   noticeBarLink: 'transparency',
   showSearch: true,

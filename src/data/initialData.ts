@@ -669,25 +669,6 @@ export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
     uploadedAt: '2026-01-01',
     usageTags: ['Standing Committee Page', 'Volunteers', 'Committees'],
     status: 'published'
-  },
-  {
-    id: 'vid-1',
-    fileName: 'team-infinity-intro-video',
-    url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-    embedUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0',
-    thumbnailUrl: 'https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg',
-    fileSize: '3:45 Stream',
-    mimeType: 'video/mp4',
-    type: 'video',
-    platform: 'youtube',
-    sourceType: 'url',
-    category: 'General',
-    title: 'Team Infinity: United for Humanity — Who We Are',
-    altText: 'Team Infinity Official Introduction & Field Drive Overview',
-    caption: 'An overview of our volunteer-driven initiatives, seasonal drives, and vision for compassionate youth empowerment.',
-    uploadedAt: '2025-01-01',
-    usageTags: ['Official Introduction', 'Video Documentation', 'General'],
-    status: 'published'
   }
 ];
 
@@ -1314,24 +1295,7 @@ export const INITIAL_GALLERY: GalleryPhoto[] = [
   }
 ];
 
-export const INITIAL_VIDEOS: VideoItem[] = [
-  {
-    id: 'vid-1',
-    title: {
-      en: 'Team Infinity: United for Humanity — Who We Are',
-      bn: 'টিম ইনফিনিটি: মানবতার জন্য একতাবদ্ধ — আমাদের পরিচয়'
-    },
-    videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-    platform: 'youtube',
-    duration: '3:45',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80',
-    date: 'Recent',
-    description: {
-      en: 'An overview of our volunteer-driven initiatives, seasonal drives, and vision for compassionate youth empowerment.',
-      bn: 'আমাদের স্বেচ্ছাসেবকদের কার্যক্রম ও ভবিষ্যৎ ভাবনার সারসংক্ষেপ।'
-    }
-  }
-];
+export const INITIAL_VIDEOS: VideoItem[] = [];
 
 export const INITIAL_REPORTS: TransparencyReport[] = [
   {

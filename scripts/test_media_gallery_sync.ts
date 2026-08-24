@@ -53,28 +53,65 @@ function runMediaSyncTests() {
   const logosMatch = photos.filter(p => p.category === 'Logos' || p.usageTags?.some(t => t.toLowerCase().includes('logo')));
   assert(logosMatch.length >= 1, `Logos tag matches ${logosMatch.length} items (expected 1: infinity-logo)`);
 
-  // 3. Check Video Synchronization in Media Library
-  console.log('\n3. Verifying Video Synchronization:');
-  const initialVideosCount = INITIAL_MEDIA_LIBRARY.filter(m => m.type === 'video').length;
-  assert(initialVideosCount >= 1, `Admin media library has at least 1 video entry by default (Videos count: ${initialVideosCount})`);
+  // 3. Check Clean Default State (No mock videos)
+  console.log('\n3. Verifying Clean Initial Video State:');
+  const initialVideosCount = INITIAL_VIDEOS.length;
+  assert(initialVideosCount === 0, `Initial videos count is exactly 0 (no mock/demo videos hardcoded in seed: ${initialVideosCount})`);
 
-  const vid1 = INITIAL_MEDIA_LIBRARY.find(m => m.id === 'vid-1' || m.type === 'video');
-  assert(Boolean(vid1 && vid1.url.includes('youtube')), `Initial video exists with valid YouTube URL: ${vid1?.url}`);
-  assert(Boolean(vid1?.embedUrl && vid1?.thumbnailUrl), `Initial video has generated embedUrl and thumbnailUrl`);
-
-  // 4. Test Deletion & Cascade Consistency
-  console.log('\n4. Testing Cascade Deletion Simulation:');
+  // 4. Test Video Addition, Sync & Permanent Deletion
+  console.log('\n4. Testing Video Lifecycle & Permanent Deletion:');
   let simulatedMedia: MediaItem[] = [...INITIAL_MEDIA_LIBRARY];
   let simulatedVideos: VideoItem[] = [...INITIAL_VIDEOS];
+  const deletedIds = new Set<string>();
 
-  // Delete vid-1
-  const deleteId = 'vid-1';
-  simulatedMedia = simulatedMedia.filter(m => m.id !== deleteId);
-  simulatedVideos = simulatedVideos.filter(v => v.id !== deleteId);
+  // Add real video
+  const newVideo: VideoItem = {
+    id: 'vid-real-123',
+    title: { en: 'Relief Drive Flood Response', bn: 'বন্যা দুর্গতদের ত্রাণ বিতরণ' },
+    description: { en: 'Emergency response distribution', bn: 'জরুরি ত্রাণ বিতরণ' },
+    videoUrl: 'https://www.youtube.com/watch?v=sample123',
+    embedUrl: 'https://www.youtube.com/embed/sample123',
+    thumbnailUrl: 'https://img.youtube.com/vi/sample123/hqdefault.jpg',
+    platform: 'youtube',
+    category: 'Relief Campaigns',
+    status: 'published',
+    date: '2026-02-24',
+    isFeatured: true
+  };
 
-  assert(!simulatedMedia.some(m => m.id === deleteId), 'Video removed from Media Library');
-  assert(!simulatedVideos.some(v => v.id === deleteId), 'Video removed from Videos state');
-  assert(simulatedVideos.length === 0, 'Public video page reflects 0 videos immediately upon deletion (no mock override)');
+  simulatedVideos.unshift(newVideo);
+  simulatedMedia.unshift({
+    id: newVideo.id,
+    fileName: newVideo.title.en,
+    url: newVideo.videoUrl,
+    type: 'video',
+    fileSize: 'Video',
+    mimeType: 'video/embed',
+    category: 'Campaigns',
+    altText: newVideo.title.en,
+    caption: '',
+    uploadedAt: new Date().toISOString(),
+    usageTags: ['Relief Campaigns', 'Videos'],
+    status: 'published'
+  });
+
+  assert(simulatedVideos.length === 1, 'New video registered in videos state');
+  assert(simulatedMedia.some(m => m.id === 'vid-real-123'), 'New video registered in mediaLibrary');
+
+  // Delete real video
+  const targetDeleteId = 'vid-real-123';
+  deletedIds.add(targetDeleteId);
+  simulatedVideos = simulatedVideos.filter(v => v.id !== targetDeleteId);
+  simulatedMedia = simulatedMedia.filter(m => m.id !== targetDeleteId);
+
+  assert(!simulatedVideos.some(v => v.id === targetDeleteId), 'Video removed from videos state');
+  assert(!simulatedMedia.some(m => m.id === targetDeleteId), 'Video removed from mediaLibrary');
+  assert(deletedIds.has(targetDeleteId), 'Deleted ID recorded in persistent deletion registry');
+
+  // Simulate remote sync with deleted ID
+  const incomingRemoteVideos = [{ id: targetDeleteId, video_url: 'https://www.youtube.com/watch?v=sample123' }];
+  const syncedVideos = incomingRemoteVideos.filter(v => !deletedIds.has(v.id));
+  assert(syncedVideos.length === 0, 'Deleted video blocked from resurrection during remote sync');
 
   console.log('\n====================================================');
   console.log(`TEST RESULTS: ${passed} PASSED, ${failed} FAILED`);

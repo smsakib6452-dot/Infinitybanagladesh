@@ -269,8 +269,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [lastSyncedAt, setLastSyncedAt] = useState<Date | null>(null);
   const [previewMode, setPreviewMode] = useState(false);
 
-  // Deleted IDs tracker to prevent resurrection during sync
-  const deletedIdsRef = useRef<Set<string>>(new Set());
+  // Deleted IDs tracker to prevent resurrection across page reloads & sync
+  const deletedIdsRef = useRef<Set<string>>(new Set(getStoredOrDefault<string[]>('deleted_video_ids', [])));
 
   // 1. Site Settings & Global Configurations
   const [settings, setSettings] = useState<SiteSettings>(() => getStoredOrDefault('settings', INITIAL_SITE_SETTINGS));
@@ -285,7 +285,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [seoSettings, setSeoSettings] = useState<GlobalSEOSettings>(() => getStoredOrDefault('seoSettings', INITIAL_SEO_SETTINGS));
   const [navigationItems, setNavigationItems] = useState<NavigationItem[]>(() => getStoredOrDefault('navigationItems', INITIAL_NAVIGATION_ITEMS));
   const [banners, setBanners] = useState<BannerItem[]>(() => getStoredOrDefault('banners', INITIAL_BANNERS));
-  const [mediaLibrary, setMediaLibrary] = useState<MediaItem[]>(() => getStoredOrDefault('mediaLibrary', INITIAL_MEDIA_LIBRARY));
+  const [mediaLibrary, setMediaLibrary] = useState<MediaItem[]>(() => {
+    const stored = getStoredOrDefault<MediaItem[]>('mediaLibrary', INITIAL_MEDIA_LIBRARY);
+    const deletedSet = new Set(getStoredOrDefault<string[]>('deleted_video_ids', []));
+    return stored.filter(m => m.id !== 'vid-1' && !deletedSet.has(m.id) && !(m.url && m.url.includes('dQw4w9WgXcQ')));
+  });
   const [galleryAlbums, setGalleryAlbums] = useState<GalleryAlbum[]>(() => getStoredOrDefault('galleryAlbums', INITIAL_GALLERY_ALBUMS));
   const [adminProfiles, setAdminProfiles] = useState<AdminProfile[]>(() => getStoredOrDefault('adminProfiles', INITIAL_ADMIN_PROFILES));
 
@@ -297,7 +301,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [news, setNews] = useState<NewsArticle[]>(() => getStoredOrDefault('news', INITIAL_NEWS));
   const [events, setEvents] = useState<EventItem[]>(() => getStoredOrDefault('events', INITIAL_EVENTS));
   const [gallery, setGallery] = useState<GalleryPhoto[]>(() => getStoredOrDefault('gallery', INITIAL_GALLERY));
-  const [videos, setVideos] = useState<VideoItem[]>(() => getStoredOrDefault('videos', INITIAL_VIDEOS));
+  const [videos, setVideos] = useState<VideoItem[]>(() => {
+    const stored = getStoredOrDefault<VideoItem[]>('videos', INITIAL_VIDEOS);
+    const deletedSet = new Set(getStoredOrDefault<string[]>('deleted_video_ids', []));
+    return stored.filter(v => v.id !== 'vid-1' && !deletedSet.has(v.id) && !(v.videoUrl && v.videoUrl.includes('dQw4w9WgXcQ')));
+  });
   const [reports, setReports] = useState<TransparencyReport[]>(() => getStoredOrDefault('reports', INITIAL_REPORTS));
   const [partners, setPartners] = useState<Partner[]>(() => getStoredOrDefault('partners', INITIAL_PARTNERS));
   const [volunteers, setVolunteers] = useState<VolunteerApplication[]>(() => getStoredOrDefault('volunteers', INITIAL_VOLUNTEER_APPLICATIONS));
@@ -683,7 +691,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data: mediaData } = await supabase.from('media_library').select('*').order('created_at', { ascending: false });
       if (mediaData && Array.isArray(mediaData)) {
         const remoteMedia: MediaItem[] = mediaData
-          .filter(m => !deletedIdsRef.current.has(m.id))
+          .filter(m => m.id !== 'vid-1' && !deletedIdsRef.current.has(m.id) && !(m.url && m.url.includes('dQw4w9WgXcQ')))
           .map(m => ({
             id: m.id,
             fileName: m.file_name,
@@ -699,8 +707,17 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         setMediaLibrary(prevLocal => {
           const remoteIds = new Set(remoteMedia.map(r => r.id));
-          const localOnly = prevLocal.filter(l => !remoteIds.has(l.id) && !deletedIdsRef.current.has(l.id));
-          return localOnly.length > 0 ? [...localOnly, ...remoteMedia] : remoteMedia;
+          const localOnly = prevLocal.filter(l => 
+            l.id !== 'vid-1' && 
+            !remoteIds.has(l.id) && 
+            !deletedIdsRef.current.has(l.id) && 
+            !(l.url && l.url.includes('dQw4w9WgXcQ'))
+          );
+          const merged = localOnly.length > 0 ? [...localOnly, ...remoteMedia] : remoteMedia;
+          try {
+            localStorage.setItem(`${STORAGE_PREFIX}mediaLibrary`, JSON.stringify(merged));
+          } catch {}
+          return merged;
         });
       }
 
@@ -725,7 +742,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setGallery(prevLocal => {
           const remoteIds = new Set(remoteGallery.map(r => r.id));
           const localOnly = prevLocal.filter(l => !remoteIds.has(l.id) && !deletedIdsRef.current.has(l.id));
-          return localOnly.length > 0 ? [...localOnly, ...remoteGallery] : remoteGallery;
+          const merged = localOnly.length > 0 ? [...localOnly, ...remoteGallery] : remoteGallery;
+          try {
+            localStorage.setItem(`${STORAGE_PREFIX}gallery`, JSON.stringify(merged));
+          } catch {}
+          return merged;
         });
       }
 
@@ -782,7 +803,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data: vidData } = await supabase.from('video_items').select('*').order('created_at', { ascending: false });
       if (vidData && Array.isArray(vidData)) {
         const remoteVideos: VideoItem[] = vidData
-          .filter(v => !deletedIdsRef.current.has(v.id))
+          .filter(v => v.id !== 'vid-1' && !deletedIdsRef.current.has(v.id) && !(v.video_url && v.video_url.includes('dQw4w9WgXcQ')))
           .map(v => {
             const det = detectAndNormalizeMedia(v.video_url || '');
             const isShorts = v.is_shorts ?? det.isShorts;
@@ -810,7 +831,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         setVideos(prevLocal => {
           const remoteIds = new Set(remoteVideos.map(r => r.id));
-          const localOnly = prevLocal.filter(l => !remoteIds.has(l.id) && !deletedIdsRef.current.has(l.id));
+          const localOnly = prevLocal.filter(l => 
+            l.id !== 'vid-1' && 
+            !remoteIds.has(l.id) && 
+            !deletedIdsRef.current.has(l.id) && 
+            !(l.videoUrl && l.videoUrl.includes('dQw4w9WgXcQ'))
+          );
           if (localOnly.length > 0) {
             // Re-sync local unsynced videos to Supabase in background
             localOnly.forEach(l => {
@@ -834,9 +860,28 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 updated_at: l.updatedAt
               });
             });
-            return [...localOnly, ...remoteVideos];
+            const merged = [...localOnly, ...remoteVideos];
+            try {
+              localStorage.setItem(`${STORAGE_PREFIX}videos`, JSON.stringify(merged));
+            } catch {}
+            return merged;
           }
+          try {
+            localStorage.setItem(`${STORAGE_PREFIX}videos`, JSON.stringify(remoteVideos));
+          } catch {}
           return remoteVideos;
+        });
+      } else {
+        setVideos(prevLocal => {
+          const cleaned = prevLocal.filter(l => 
+            l.id !== 'vid-1' && 
+            !deletedIdsRef.current.has(l.id) && 
+            !(l.videoUrl && l.videoUrl.includes('dQw4w9WgXcQ'))
+          );
+          try {
+            localStorage.setItem(`${STORAGE_PREFIX}videos`, JSON.stringify(cleaned));
+          } catch {}
+          return cleaned;
         });
       }
 
@@ -1538,15 +1583,58 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     logAudit('UPDATE', 'MediaItem', id, 'Updated media metadata/alt-text');
   }, [logAudit, safeDbUpsert]);
 
-  const deleteMediaItem = useCallback((id: string) => {
-    setMediaLibrary(prev => prev.filter(m => m.id !== id));
-    setVideos(prev => prev.filter(v => v.id !== id && v.videoUrl !== id));
-    setGallery(prev => prev.filter(g => g.id !== id && g.imageUrl !== id));
+  const deleteMediaItem = useCallback(async (id: string) => {
+    deletedIdsRef.current.add(id);
+    try {
+      localStorage.setItem(`${STORAGE_PREFIX}deleted_video_ids`, JSON.stringify(Array.from(deletedIdsRef.current)));
+    } catch (e) {
+      console.warn('Storage error on deleted_video_ids:', e);
+    }
+
+    setMediaLibrary(prev => {
+      const next = prev.filter(m => m.id !== id && m.url !== id);
+      try {
+        localStorage.setItem(`${STORAGE_PREFIX}mediaLibrary`, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+
+    setVideos(prev => {
+      const next = prev.filter(v => v.id !== id && v.videoUrl !== id);
+      try {
+        localStorage.setItem(`${STORAGE_PREFIX}videos`, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+
+    setGallery(prev => {
+      const next = prev.filter(g => g.id !== id && g.imageUrl !== id);
+      try {
+        localStorage.setItem(`${STORAGE_PREFIX}gallery`, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+
     logAudit('DELETE', 'MediaItem', id, 'Deleted media asset');
-    safeDbDelete('media_library', 'id', id);
-    safeDbDelete('video_items', 'id', id);
-    safeDbDelete('gallery_photos', 'id', id);
-  }, [logAudit, safeDbDelete]);
+
+    if (supabase && isSupabaseConfigured) {
+      try {
+        const [res1, res2, res3] = await Promise.allSettled([
+          supabase.from('media_library').delete().eq('id', id),
+          supabase.from('video_items').delete().eq('id', id),
+          supabase.from('gallery_photos').delete().eq('id', id)
+        ]);
+        if (res1.status === 'rejected' || (res1.status === 'fulfilled' && res1.value.error)) {
+          console.error('Supabase media_library delete warning:', res1);
+        }
+        if (res2.status === 'rejected' || (res2.status === 'fulfilled' && res2.value.error)) {
+          console.error('Supabase video_items delete warning:', res2);
+        }
+      } catch (err) {
+        console.error('Supabase delete exception:', err);
+      }
+    }
+  }, [logAudit]);
 
   const addGalleryAlbum = useCallback((album: Omit<GalleryAlbum, 'id'>) => {
     const id = `alb-${Date.now()}`;
@@ -2210,14 +2298,49 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     logAudit('UPDATE', 'VideoItem', id, 'Updated video metadata');
   }, [logAudit, safeDbUpsert]);
 
-  const deleteVideo = useCallback((id: string) => {
+  const deleteVideo = useCallback(async (id: string) => {
     deletedIdsRef.current.add(id);
-    setVideos(prev => prev.filter(v => v.id !== id));
-    setMediaLibrary(prev => prev.filter(m => m.id !== id && m.url !== id));
-    logAudit('DELETE', 'VideoItem', id, 'Deleted video');
-    safeDbDelete('video_items', 'id', id);
-    safeDbDelete('media_library', 'id', id);
-  }, [logAudit, safeDbDelete]);
+    try {
+      localStorage.setItem(`${STORAGE_PREFIX}deleted_video_ids`, JSON.stringify(Array.from(deletedIdsRef.current)));
+    } catch (e) {
+      console.warn('Storage error on deleted_video_ids:', e);
+    }
+
+    setVideos(prev => {
+      const next = prev.filter(v => v.id !== id && v.videoUrl !== id);
+      try {
+        localStorage.setItem(`${STORAGE_PREFIX}videos`, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+
+    setMediaLibrary(prev => {
+      const next = prev.filter(m => m.id !== id && m.url !== id);
+      try {
+        localStorage.setItem(`${STORAGE_PREFIX}mediaLibrary`, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+
+    logAudit('DELETE', 'VideoItem', id, 'Deleted video permanently');
+
+    if (supabase && isSupabaseConfigured) {
+      try {
+        const [res1, res2] = await Promise.allSettled([
+          supabase.from('video_items').delete().eq('id', id),
+          supabase.from('media_library').delete().eq('id', id)
+        ]);
+        if (res1.status === 'rejected' || (res1.status === 'fulfilled' && res1.value.error)) {
+          console.error('Supabase video_items delete failed:', res1);
+        }
+        if (res2.status === 'rejected' || (res2.status === 'fulfilled' && res2.value.error)) {
+          console.error('Supabase media_library delete failed:', res2);
+        }
+      } catch (err) {
+        console.error('Supabase delete exception:', err);
+      }
+    }
+  }, [logAudit]);
 
   const addReport = useCallback((report: Omit<TransparencyReport, 'id'>) => {
     const id = `rep-${Date.now()}`;

@@ -1269,6 +1269,318 @@ export const AdminPage: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Who We Are (About Preview) Section */}
+                <div className="space-y-4 pt-4 border-t border-slate-100">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Users className="w-4 h-4 text-[#006A4E]" />
+                      <h3 className="text-sm font-bold text-slate-900 font-display">
+                        {isBn ? '“আমাদের পরিচয় ও লক্ষ্য” (Who We Are) সেকশন' : 'Who We Are (About Preview) Section'}
+                      </h3>
+                    </div>
+                    <span className="text-[11px] text-slate-500 bg-[#FAF7F2] px-2.5 py-1 rounded-lg border border-[#EAE3D9]">
+                      {isBn ? 'হোমপেজ ৩য় সেকশন' : 'Homepage Section 3'}
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-slate-600">
+                    {isBn
+                      ? 'হোমপেজের এই সেকশনে আপনাদের কমিটি বা ভলান্টিয়ারদের গ্রুপ ছবি, স্লোগান, পরিচিতি এবং উক্তি (Quote) কাস্টমাইজ করুন।'
+                      : 'Customize the team / committee group photo, headlines, story description, floating quote badge, and CTA button.'}
+                  </p>
+
+                  {/* Section Eyebrow Badge */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Section Eyebrow Badge (English)</label>
+                      <input
+                        type="text"
+                        value={homepageConfig.aboutPreview?.eyebrow?.en || ''}
+                        onChange={(e) => updateHomepageConfig({
+                          aboutPreview: {
+                            ...(homepageConfig.aboutPreview || {}),
+                            eyebrow: { ...(homepageConfig.aboutPreview?.eyebrow || { en: '', bn: '' }), en: e.target.value }
+                          } as any
+                        })}
+                        placeholder="Who We Are"
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">সেকশন আইব্রো ব্যাজ (বাংলা)</label>
+                      <input
+                        type="text"
+                        value={homepageConfig.aboutPreview?.eyebrow?.bn || ''}
+                        onChange={(e) => updateHomepageConfig({
+                          aboutPreview: {
+                            ...(homepageConfig.aboutPreview || {}),
+                            eyebrow: { ...(homepageConfig.aboutPreview?.eyebrow || { en: '', bn: '' }), bn: e.target.value }
+                          } as any
+                        })}
+                        placeholder="আমাদের পরিচয় ও লক্ষ্য"
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Headlines */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-3">
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-slate-700">Main Title (English)</label>
+                        <input
+                          type="text"
+                          value={homepageConfig.aboutPreview?.titleMain?.en || ''}
+                          onChange={(e) => updateHomepageConfig({
+                            aboutPreview: {
+                              ...(homepageConfig.aboutPreview || {}),
+                              titleMain: { ...(homepageConfig.aboutPreview?.titleMain || { en: '', bn: '' }), en: e.target.value }
+                            } as any
+                          })}
+                          placeholder="People First. Humanity Always."
+                          className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-slate-700">Highlighted Text (English - Green)</label>
+                        <input
+                          type="text"
+                          value={homepageConfig.aboutPreview?.titleHighlight?.en || ''}
+                          onChange={(e) => updateHomepageConfig({
+                            aboutPreview: {
+                              ...(homepageConfig.aboutPreview || {}),
+                              titleHighlight: { ...(homepageConfig.aboutPreview?.titleHighlight || { en: '', bn: '' }), en: e.target.value }
+                            } as any
+                          })}
+                          placeholder="Serving with Empathy."
+                          className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-slate-700">মূল শিরোনাম (বাংলা)</label>
+                        <input
+                          type="text"
+                          value={homepageConfig.aboutPreview?.titleMain?.bn || ''}
+                          onChange={(e) => updateHomepageConfig({
+                            aboutPreview: {
+                              ...(homepageConfig.aboutPreview || {}),
+                              titleMain: { ...(homepageConfig.aboutPreview?.titleMain || { en: '', bn: '' }), bn: e.target.value }
+                            } as any
+                          })}
+                          placeholder="মানুষের পাশে দাঁড়ানোই আমাদের ব্রত —"
+                          className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-slate-700">হাইলাইটেড টেক্সট (বাংলা - সবুজ)</label>
+                        <input
+                          type="text"
+                          value={homepageConfig.aboutPreview?.titleHighlight?.bn || ''}
+                          onChange={(e) => updateHomepageConfig({
+                            aboutPreview: {
+                              ...(homepageConfig.aboutPreview || {}),
+                              titleHighlight: { ...(homepageConfig.aboutPreview?.titleHighlight || { en: '', bn: '' }), bn: e.target.value }
+                            } as any
+                          })}
+                          placeholder="মানুষ প্রথম, মানবতাই মূল।"
+                          className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Story Description */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Description / Story (English)</label>
+                      <textarea
+                        rows={3}
+                        value={homepageConfig.aboutPreview?.description?.en || ''}
+                        onChange={(e) => updateHomepageConfig({
+                          aboutPreview: {
+                            ...(homepageConfig.aboutPreview || {}),
+                            description: { ...(homepageConfig.aboutPreview?.description || { en: '', bn: '' }), en: e.target.value }
+                          } as any
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">বিবরণ / সংক্ষিপ্ত গল্প (বাংলা)</label>
+                      <textarea
+                        rows={3}
+                        value={homepageConfig.aboutPreview?.description?.bn || ''}
+                        onChange={(e) => updateHomepageConfig({
+                          aboutPreview: {
+                            ...(homepageConfig.aboutPreview || {}),
+                            description: { ...(homepageConfig.aboutPreview?.description || { en: '', bn: '' }), bn: e.target.value }
+                          } as any
+                        })}
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Photo & Media Picker */}
+                  <div className="space-y-3 p-4 bg-[#FAF7F2] rounded-2xl border border-[#EAE3D9]">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <ImageIcon className="w-4 h-4 text-[#006A4E]" />
+                        <label className="text-xs font-bold text-slate-800">
+                          {isBn ? 'কমিটি / ভলান্টিয়ার গ্রুপ ছবি (Team/Committee Photo)' : 'Team / Committee Group Photo'}
+                        </label>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => openMediaPicker((url) => {
+                          updateHomepageConfig({
+                            aboutPreview: {
+                              ...(homepageConfig.aboutPreview || {}),
+                              imageUrl: url
+                            } as any
+                          });
+                          showToast('Photo updated from Media Library');
+                        })}
+                        className="text-xs text-[#006A4E] font-bold hover:underline flex items-center gap-1 cursor-pointer"
+                      >
+                        <FolderOpen className="w-3.5 h-3.5" />
+                        <span>Pick from Media Library</span>
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
+                      <div className="sm:col-span-4 aspect-4/3 rounded-xl overflow-hidden border border-white shadow-warm-sm bg-slate-100">
+                        <img
+                          src={getAssetUrl(homepageConfig.aboutPreview?.imageUrl || '/images/events/winter-warmth.jpg')}
+                          alt="About Preview"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="sm:col-span-8 space-y-2">
+                        <div className="space-y-1">
+                          <label className="text-[11px] font-bold text-slate-700">Image URL / Path</label>
+                          <input
+                            type="text"
+                            value={homepageConfig.aboutPreview?.imageUrl || ''}
+                            onChange={(e) => updateHomepageConfig({
+                              aboutPreview: {
+                                ...(homepageConfig.aboutPreview || {}),
+                                imageUrl: e.target.value
+                              } as any
+                            })}
+                            placeholder="/images/events/winter-warmth.jpg"
+                            className="w-full px-3.5 py-2 bg-white border border-[#EAE3D9] rounded-xl text-xs font-mono"
+                          />
+                        </div>
+                        <p className="text-[11px] text-slate-500 leading-relaxed">
+                          💡 <strong>টিপস:</strong> এখানে আপনার কমিটি বা ভলান্টিয়ারদের সুন্দর একটি গ্রুপ ছবি দিলে হোমপেজে দলগত শক্তি ও বিশ্বাসযোগ্যতা দারুণভাবে ফুটে উঠবে।
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Floating Quote Card */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Floating Quote (English)</label>
+                      <input
+                        type="text"
+                        value={homepageConfig.aboutPreview?.quoteText?.en || ''}
+                        onChange={(e) => updateHomepageConfig({
+                          aboutPreview: {
+                            ...(homepageConfig.aboutPreview || {}),
+                            quoteText: { ...(homepageConfig.aboutPreview?.quoteText || { en: '', bn: '' }), en: e.target.value }
+                          } as any
+                        })}
+                        placeholder="“Youth with Purpose. Community with Empathy.”"
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">ফ্লোটিং উক্তি (বাংলা)</label>
+                      <input
+                        type="text"
+                        value={homepageConfig.aboutPreview?.quoteText?.bn || ''}
+                        onChange={(e) => updateHomepageConfig({
+                          aboutPreview: {
+                            ...(homepageConfig.aboutPreview || {}),
+                            quoteText: { ...(homepageConfig.aboutPreview?.quoteText || { en: '', bn: '' }), bn: e.target.value }
+                          } as any
+                        })}
+                        placeholder="“মানবতার জয়গান গাইতে তারুণ্যের এই নিঃস্বার্থ ঐক্য।”"
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Quote Author / Team Tag</label>
+                      <input
+                        type="text"
+                        value={homepageConfig.aboutPreview?.quoteAuthor || ''}
+                        onChange={(e) => updateHomepageConfig({
+                          aboutPreview: {
+                            ...(homepageConfig.aboutPreview || {}),
+                            quoteAuthor: e.target.value
+                          } as any
+                        })}
+                        placeholder="Team Infinity / Executive Committee"
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  {/* CTA Button */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Button Text (English)</label>
+                      <input
+                        type="text"
+                        value={homepageConfig.aboutPreview?.ctaText?.en || ''}
+                        onChange={(e) => updateHomepageConfig({
+                          aboutPreview: {
+                            ...(homepageConfig.aboutPreview || {}),
+                            ctaText: { ...(homepageConfig.aboutPreview?.ctaText || { en: '', bn: '' }), en: e.target.value }
+                          } as any
+                        })}
+                        placeholder="Explore Our Full Journey"
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">বাটনের লেখা (বাংলা)</label>
+                      <input
+                        type="text"
+                        value={homepageConfig.aboutPreview?.ctaText?.bn || ''}
+                        onChange={(e) => updateHomepageConfig({
+                          aboutPreview: {
+                            ...(homepageConfig.aboutPreview || {}),
+                            ctaText: { ...(homepageConfig.aboutPreview?.ctaText || { en: '', bn: '' }), bn: e.target.value }
+                          } as any
+                        })}
+                        placeholder="আমাদের সম্পূর্ণ গল্প জানুন"
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Button Target Route / URL</label>
+                      <input
+                        type="text"
+                        value={homepageConfig.aboutPreview?.ctaUrl || ''}
+                        onChange={(e) => updateHomepageConfig({
+                          aboutPreview: {
+                            ...(homepageConfig.aboutPreview || {}),
+                            ctaUrl: e.target.value
+                          } as any
+                        })}
+                        placeholder="about or about/executive-committee"
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-mono"
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 {/* Homepage Volunteer CTA Banner Section */}
                 <div className="space-y-4 pt-4 border-t border-slate-100">
                   <div className="flex items-center gap-2">

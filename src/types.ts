@@ -429,16 +429,18 @@ export interface VideoItem {
   id: string;
   title: BilingualText;
   videoUrl: string;
-  platform: 'youtube' | 'facebook' | 'direct';
-  duration: string;
+  platform: 'youtube' | 'facebook' | 'direct' | 'custom' | string;
+  duration?: string;
   thumbnailUrl: string;
   date: string;
   description: BilingualText;
   embedUrl?: string;
   category?: string;
-  status?: 'published' | 'draft';
+  status?: 'published' | 'draft' | string;
   isFeatured?: boolean;
-  sourceType?: 'youtube' | 'facebook' | 'url' | 'upload';
+  sourceType?: 'youtube' | 'facebook' | 'url' | 'upload' | string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface TransparencyReport {

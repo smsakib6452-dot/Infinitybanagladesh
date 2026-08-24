@@ -10,10 +10,10 @@
  */
 
 export const CLOUDINARY_CLOUD_NAME =
-  import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'evj6fhsf';
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_CLOUDINARY_CLOUD_NAME) || 'evj6fhsf';
 
 export const CLOUDINARY_UPLOAD_PRESET =
-  import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || 'Infinity';
+  (typeof import.meta !== 'undefined' && import.meta.env?.VITE_CLOUDINARY_UPLOAD_PRESET) || 'Infinity';
 
 export const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
 

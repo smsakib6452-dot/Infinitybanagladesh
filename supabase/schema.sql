@@ -425,6 +425,25 @@ CREATE TABLE IF NOT EXISTS public.gallery_photos (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- Video Documentation & Footage (Video Items)
+CREATE TABLE IF NOT EXISTS public.video_items (
+  id TEXT PRIMARY KEY,
+  title JSONB NOT NULL,
+  video_url TEXT NOT NULL,
+  embed_url TEXT DEFAULT '',
+  thumbnail_url TEXT NOT NULL DEFAULT '',
+  platform TEXT NOT NULL DEFAULT 'youtube',
+  duration TEXT DEFAULT '',
+  date TEXT NOT NULL DEFAULT '',
+  description JSONB NOT NULL DEFAULT '{"en": "", "bn": ""}'::jsonb,
+  category TEXT NOT NULL DEFAULT 'General',
+  status TEXT NOT NULL DEFAULT 'published',
+  is_featured BOOLEAN NOT NULL DEFAULT FALSE,
+  source_type TEXT DEFAULT 'url',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 -- Transparency Reports
 CREATE TABLE IF NOT EXISTS public.transparency_reports (
   id TEXT PRIMARY KEY,

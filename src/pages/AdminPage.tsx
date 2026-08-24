@@ -103,9 +103,10 @@ import { StoryModal } from '../components/StoryModal';
 import { FAQModal } from '../components/FAQModal';
 import { CommitteeMemberModal, CommitteeMemberFormData } from '../components/CommitteeMemberModal';
 import { ImageEditorModal } from '../components/ImageEditorModal';
+import { VideoModal } from '../components/VideoModal';
 import { AdminErrorBoundary } from '../components/AdminErrorBoundary';
 import { isSupabaseConfigured, signInWithEmail, signOutAdmin } from '../lib/supabase';
-import { detectAndNormalizeMedia } from '../lib/utils/mediaHelper';
+import { detectAndNormalizeMedia, DEFAULT_VIDEO_THUMBNAIL } from '../lib/utils/mediaHelper';
 import { uploadToCloudinary } from '../lib/cloudinary';
 
 type AdminTab =
@@ -220,6 +221,9 @@ export const AdminPage: React.FC = () => {
 
   const [editingAdmin, setEditingAdmin] = useState<AdminProfile | null>(null);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+
+  const [editingVideo, setEditingVideo] = useState<VideoItem | null>(null);
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
 
   // Unified Media Library States
   const [mediaLibraryFilter, setMediaLibraryFilter] = useState<'all' | 'image' | 'video' | 'youtube' | 'facebook' | 'featured'>('all');
@@ -3072,6 +3076,18 @@ export const AdminPage: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => {
+                          setEditingVideo(null);
+                          setIsVideoModalOpen(true);
+                        }}
+                        className="px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-warm-sm flex items-center gap-1.5 cursor-pointer transition-colors"
+                      >
+                        <Play className="w-4 h-4 fill-current" />
+                        <span>{isBn ? 'ভিডিও প্রকাশ করুন' : 'Publish Video'}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
                           setNewMediaUrl('');
                           setNewMediaTitle('');
                           setNewMediaAlt('');
@@ -4729,11 +4745,14 @@ export const AdminPage: React.FC = () => {
                           title: { en: newMediaTitle || 'Field Drive Video', bn: newMediaTitle || 'মাঠপর্যায়ের ভিডিও' },
                           description: { en: 'Team Infinity official field drive coverage.', bn: 'টিম ইনফিনিটি অফিশিয়াল মানবিক কার্যক্রম।' },
                           videoUrl: det.originalUrl,
-                          thumbnailUrl: det.thumbnailUrl || 'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80',
+                          embedUrl: det.embedUrl || '',
+                          thumbnailUrl: det.thumbnailUrl || DEFAULT_VIDEO_THUMBNAIL,
                           date: new Date().toISOString().split('T')[0],
                           duration: 'Video',
                           platform: (det.platform === 'youtube' ? 'youtube' : det.platform === 'facebook' ? 'facebook' : 'custom') as any,
-                          category: 'Field Drives'
+                          category: newMediaCategory === 'Campaigns' ? 'Relief Campaigns' : newMediaCategory === 'Volunteers' ? 'Volunteer Drives' : 'General',
+                          status: 'published',
+                          isFeatured: newMediaIsFeatured
                         });
                       }
 
@@ -4750,6 +4769,27 @@ export const AdminPage: React.FC = () => {
           </div>
         );
       })()}
+
+      {/* ======================================================== */}
+      {/* DEDICATED VIDEO PUBLISH & EDIT MODAL */}
+      {/* ======================================================== */}
+      <VideoModal
+        isOpen={isVideoModalOpen}
+        onClose={() => {
+          setIsVideoModalOpen(false);
+          setEditingVideo(null);
+        }}
+        videoToEdit={editingVideo}
+        onSave={(videoData) => {
+          if ('id' in videoData && videoData.id) {
+            updateVideo(videoData.id, videoData);
+            showToast(isBn ? 'ভিডিও সফলভাবে আপডেট হয়েছে' : 'Video details updated successfully');
+          } else {
+            addVideo(videoData);
+            showToast(isBn ? 'নতুন ভিডিও সফলভাবে প্রকাশিত হয়েছে' : 'Video published successfully to website');
+          }
+        }}
+      />
 
       {/* ======================================================== */}
       {/* DYNAMIC IMAGE CROPPER MODAL */}

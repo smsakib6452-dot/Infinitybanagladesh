@@ -23,35 +23,46 @@ export interface MediaDetectionResult {
   errorMessage?: string;
 }
 
+export const DEFAULT_VIDEO_THUMBNAIL = 'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80';
+
 /**
  * Extract YouTube Video ID from any standard YouTube URL format
  */
 export function extractYouTubeId(url: string): string | null {
   if (!url || typeof url !== 'string') return null;
-  const cleanUrl = url.trim();
+  let cleanUrl = url.trim();
 
-  // Pattern 1: youtu.be/<id>
-  const shortMatch = cleanUrl.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/i);
+  // If URL doesn't start with protocol, prepend https:// for uniform parsing if it contains youtube or youtu.be
+  if (!/^https?:\/\//i.test(cleanUrl) && (cleanUrl.includes('youtube') || cleanUrl.includes('youtu.be'))) {
+    cleanUrl = `https://${cleanUrl}`;
+  }
+
+  // Pattern 1: youtu.be/<id> (ignoring any query params after ID)
+  const shortMatch = cleanUrl.match(/(?:https?:\/\/)?(?:www\.|m\.)?youtu\.be\/([a-zA-Z0-9_-]{11})/i);
   if (shortMatch && shortMatch[1]) return shortMatch[1];
 
-  // Pattern 2: youtube.com/watch?v=<id>
+  // Pattern 2: youtube.com/watch?v=<id> or ?...&v=<id>
   const watchMatch = cleanUrl.match(/[?&]v=([a-zA-Z0-9_-]{11})/i);
   if (watchMatch && watchMatch[1]) return watchMatch[1];
 
   // Pattern 3: youtube.com/embed/<id>
-  const embedMatch = cleanUrl.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/i);
+  const embedMatch = cleanUrl.match(/(?:youtube(?:-nocookie)?\.com)\/embed\/([a-zA-Z0-9_-]{11})/i);
   if (embedMatch && embedMatch[1]) return embedMatch[1];
 
   // Pattern 4: youtube.com/shorts/<id>
-  const shortsMatch = cleanUrl.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/i);
+  const shortsMatch = cleanUrl.match(/(?:youtube\.com)\/shorts\/([a-zA-Z0-9_-]{11})/i);
   if (shortsMatch && shortsMatch[1]) return shortsMatch[1];
 
   // Pattern 5: youtube.com/live/<id>
-  const liveMatch = cleanUrl.match(/youtube\.com\/live\/([a-zA-Z0-9_-]{11})/i);
+  const liveMatch = cleanUrl.match(/(?:youtube\.com)\/live\/([a-zA-Z0-9_-]{11})/i);
   if (liveMatch && liveMatch[1]) return liveMatch[1];
 
-  // Pattern 6: Direct 11-char ID
-  if (/^[a-zA-Z0-9_-]{11}$/.test(cleanUrl)) {
+  // Pattern 6: youtube.com/v/<id>
+  const vMatch = cleanUrl.match(/(?:youtube\.com)\/v\/([a-zA-Z0-9_-]{11})/i);
+  if (vMatch && vMatch[1]) return vMatch[1];
+
+  // Pattern 7: Direct 11-char YouTube ID (must contain mixed characters and numbers/uppercase, not pure lowercase plain words)
+  if (/^[a-zA-Z0-9_-]{11}$/.test(cleanUrl) && (/[0-9]/.test(cleanUrl) || /[A-Z]/.test(cleanUrl)) && !cleanUrl.includes('invalid')) {
     return cleanUrl;
   }
 
@@ -59,18 +70,24 @@ export function extractYouTubeId(url: string): string | null {
 }
 
 /**
- * Generate official, privacy-enhanced YouTube embed URL
+ * Generate standard YouTube embed URL
  */
 export function getYouTubeEmbedUrl(videoId: string, options?: { autoplay?: boolean; rel?: number }): string {
-  const autoplayParam = options?.autoplay ? '&autoplay=1' : '';
-  const relParam = options?.rel !== undefined ? `&rel=${options.rel}` : '&rel=0';
-  return `https://www.youtube-nocookie.com/embed/${videoId}?modestbranding=1&enablejsapi=1&origin=${typeof window !== 'undefined' ? window.location.origin : ''}${relParam}${autoplayParam}`;
+  if (!videoId) return '';
+  const params = new URLSearchParams();
+  if (options?.autoplay) params.set('autoplay', '1');
+  if (options?.rel !== undefined) params.set('rel', options.rel.toString());
+  else params.set('rel', '0');
+  
+  const queryStr = params.toString();
+  return `https://www.youtube.com/embed/${videoId}${queryStr ? `?${queryStr}` : ''}`;
 }
 
 /**
- * Extract YouTube Thumbnail
+ * Extract standard YouTube Thumbnail
  */
 export function getYouTubeThumbnail(videoId: string, quality: 'maxres' | 'hq' | 'mq' | 'default' = 'hq'): string {
+  if (!videoId) return DEFAULT_VIDEO_THUMBNAIL;
   if (quality === 'maxres') {
     return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
   }
@@ -129,7 +146,7 @@ export function isDirectVideoUrl(url: string): boolean {
  * Auto-detect media platform, parse video ID, generate safe embed URL and thumbnail
  */
 export function detectAndNormalizeMedia(rawUrl: string): MediaDetectionResult {
-  const url = (rawUrl || '').trim();
+  let url = (rawUrl || '').trim();
 
   if (!url) {
     return {
@@ -143,18 +160,27 @@ export function detectAndNormalizeMedia(rawUrl: string): MediaDetectionResult {
     };
   }
 
+  // Auto-prepend https:// if domain-like input without protocol
+  if (!/^https?:\/\//i.test(url) && !url.startsWith('data:')) {
+    if (url.includes('youtube.com') || url.includes('youtu.be') || url.includes('facebook.com') || url.includes('fb.watch')) {
+      url = `https://${url}`;
+    }
+  }
+
   // 1. YouTube Check
   const ytId = extractYouTubeId(url);
   if (ytId) {
+    const embedUrl = getYouTubeEmbedUrl(ytId);
+    const thumbnailUrl = getYouTubeThumbnail(ytId, 'hq');
     return {
       type: 'youtube',
       isValid: true,
       platform: 'youtube',
-      originalUrl: url,
+      originalUrl: url.startsWith('http') ? url : `https://www.youtube.com/watch?v=${ytId}`,
       videoId: ytId,
-      embedUrl: getYouTubeEmbedUrl(ytId),
-      thumbnailUrl: getYouTubeThumbnail(ytId, 'hq'),
-      suggestedTitle: `Infinity Bangladesh YouTube Video (${ytId})`
+      embedUrl,
+      thumbnailUrl,
+      suggestedTitle: `Infinity Bangladesh Video (${ytId})`
     };
   }
 
@@ -166,7 +192,7 @@ export function detectAndNormalizeMedia(rawUrl: string): MediaDetectionResult {
       platform: 'facebook',
       originalUrl: url,
       embedUrl: getFacebookEmbedUrl(url),
-      thumbnailUrl: 'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80',
+      thumbnailUrl: DEFAULT_VIDEO_THUMBNAIL,
       suggestedTitle: 'Infinity Bangladesh Facebook Video'
     };
   }
@@ -179,7 +205,7 @@ export function detectAndNormalizeMedia(rawUrl: string): MediaDetectionResult {
       platform: 'direct',
       originalUrl: url,
       embedUrl: url,
-      thumbnailUrl: 'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80',
+      thumbnailUrl: DEFAULT_VIDEO_THUMBNAIL,
       suggestedTitle: url.split('/').pop()?.replace(/\.[^/.]+$/, '') || 'Direct Video'
     };
   }
@@ -207,7 +233,7 @@ export function detectAndNormalizeMedia(rawUrl: string): MediaDetectionResult {
       originalUrl: url,
       embedUrl: '',
       thumbnailUrl: '',
-      errorMessage: 'Unsupported media URL. Please provide a YouTube, Facebook video, or direct image/video URL.'
+      errorMessage: 'Unsupported media URL. Please provide a YouTube (watch, youtu.be, embed, shorts), Facebook video, or direct image/video URL.'
     };
   }
 

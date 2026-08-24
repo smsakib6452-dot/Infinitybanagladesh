@@ -511,3 +511,28 @@ model CommitteeMember {
   @@index([serialNumber])
 }
 
+model VideoItem {
+  id           String   @id @default(cuid())
+  titleEn      String
+  titleBn      String
+  videoUrl     String
+  embedUrl     String?
+  thumbnailUrl String
+  platform     String   @default("youtube")
+  duration     String?
+  date         String
+  descriptionEn String  @db.Text
+  descriptionBn String  @db.Text
+  category     String   @default("General")
+  status       String   @default("published")
+  isFeatured   Boolean  @default(false)
+  sourceType   String?  @default("url")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([platform])
+  @@index([category])
+  @@index([status])
+  @@index([createdAt])
+}
+

@@ -17,7 +17,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { VideoItem } from '../types';
-import { detectAndNormalizeMedia } from '../lib/utils/mediaHelper';
+import { detectAndNormalizeMedia, DEFAULT_VIDEO_THUMBNAIL, getYouTubeEmbedUrl } from '../lib/utils/mediaHelper';
 
 export const VideosPage: React.FC = () => {
   const { isBn, tText } = useLanguage();
@@ -33,9 +33,9 @@ export const VideosPage: React.FC = () => {
     { id: 'All', labelEn: 'All Footage', labelBn: 'সকল ভিডিও' },
     { id: 'youtube', labelEn: 'YouTube', labelBn: 'ইউটিউব' },
     { id: 'facebook', labelEn: 'Facebook', labelBn: 'ফেসবুক' },
-    { id: 'Campaigns', labelEn: 'Relief Campaigns', labelBn: 'ত্রাণ অভিযান' },
-    { id: 'Volunteers', labelEn: 'Volunteer Drives', labelBn: 'স্বেচ্ছাসেবী কার্যক্রম' },
-    { id: 'Community', labelEn: 'Community Impact', labelBn: 'সামাজিক প্রভাব' }
+    { id: 'Relief Campaigns', labelEn: 'Relief Campaigns', labelBn: 'ত্রাণ অভিযান' },
+    { id: 'Volunteer Drives', labelEn: 'Volunteer Drives', labelBn: 'স্বেচ্ছাসেবী কার্যক্রম' },
+    { id: 'Community Impact', labelEn: 'Community Impact', labelBn: 'সামাজিক প্রভাব' }
   ];
 
   // Prevent background scroll when video modal is active & handle Escape key
@@ -60,25 +60,35 @@ export const VideosPage: React.FC = () => {
   // Filter & Search videos
   const filteredVideos = useMemo(() => {
     return videos.filter(item => {
+      // Hide drafts if status is draft
+      if (item.status === 'draft') return false;
+
       // Platform / Category filter
       let matchesFilter = true;
+      const platformLower = (item.platform || '').toLowerCase();
+      const itemCat = (item.category || '').toLowerCase();
+
       if (activeFilter === 'youtube') {
-        matchesFilter = item.platform === 'youtube';
+        matchesFilter = platformLower === 'youtube';
       } else if (activeFilter === 'facebook') {
-        matchesFilter = item.platform === 'facebook';
+        matchesFilter = platformLower === 'facebook';
       } else if (activeFilter !== 'All') {
-        matchesFilter = item.category === activeFilter;
+        const filterLower = activeFilter.toLowerCase();
+        matchesFilter = itemCat.includes(filterLower) || filterLower.includes(itemCat);
       }
 
       // Search query filter
       let matchesSearch = true;
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
-        const titleEn = item.title.en?.toLowerCase() || '';
-        const titleBn = item.title.bn?.toLowerCase() || '';
-        const descEn = item.description.en?.toLowerCase() || '';
-        const descBn = item.description.bn?.toLowerCase() || '';
-        matchesSearch = titleEn.includes(q) || titleBn.includes(q) || descEn.includes(q) || descBn.includes(q);
+        const rawTitle = item.title as any;
+        const rawDesc = item.description as any;
+        const titleEn = typeof rawTitle === 'string' ? rawTitle.toLowerCase() : (rawTitle?.en ? String(rawTitle.en).toLowerCase() : '');
+        const titleBn = typeof rawTitle === 'string' ? rawTitle.toLowerCase() : (rawTitle?.bn ? String(rawTitle.bn).toLowerCase() : '');
+        const descEn = typeof rawDesc === 'string' ? rawDesc.toLowerCase() : (rawDesc?.en ? String(rawDesc.en).toLowerCase() : '');
+        const descBn = typeof rawDesc === 'string' ? rawDesc.toLowerCase() : (rawDesc?.bn ? String(rawDesc.bn).toLowerCase() : '');
+        const cat = (item.category || '').toLowerCase();
+        matchesSearch = titleEn.includes(q) || titleBn.includes(q) || descEn.includes(q) || descBn.includes(q) || cat.includes(q);
       }
 
       return matchesFilter && matchesSearch;
@@ -88,7 +98,14 @@ export const VideosPage: React.FC = () => {
   // Compute safe embed URL for active modal
   const activeEmbedInfo = useMemo(() => {
     if (!selectedVideo) return null;
-    return detectAndNormalizeMedia(selectedVideo.videoUrl);
+    const det = detectAndNormalizeMedia(selectedVideo.videoUrl || '');
+    if (det.type === 'youtube' && det.videoId) {
+      return {
+        ...det,
+        embedUrl: getYouTubeEmbedUrl(det.videoId, { autoplay: true, rel: 0 })
+      };
+    }
+    return det;
   }, [selectedVideo]);
 
   return (
@@ -197,8 +214,10 @@ export const VideosPage: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {filteredVideos.map((item) => {
-              const detection = detectAndNormalizeMedia(item.videoUrl);
-              const displayThumbnail = item.thumbnailUrl || detection.thumbnailUrl || 'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80';
+              const detection = detectAndNormalizeMedia(item.videoUrl || '');
+              const displayThumbnail = item.thumbnailUrl || detection.thumbnailUrl || DEFAULT_VIDEO_THUMBNAIL;
+              const videoTitle = tText(item.title) || 'Infinity Bangladesh Video';
+              const videoDesc = tText(item.description);
 
               return (
                 <div
@@ -210,9 +229,12 @@ export const VideosPage: React.FC = () => {
                   <div className="relative aspect-video bg-slate-950 overflow-hidden">
                     <img
                       src={displayThumbnail}
-                      alt={tText(item.title)}
+                      alt={videoTitle}
                       className="w-full h-full object-cover group-hover:scale-106 transition-transform duration-500 opacity-90 group-hover:opacity-100"
                       loading="lazy"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = DEFAULT_VIDEO_THUMBNAIL;
+                      }}
                     />
                     <div className="absolute inset-0 bg-slate-950/30 group-hover:bg-slate-950/10 transition-colors flex items-center justify-center">
                       <div className="w-14 h-14 rounded-full bg-[#006A4E]/90 text-white flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-[#006A4E] transition-all">
@@ -227,7 +249,7 @@ export const VideosPage: React.FC = () => {
                     )}
 
                     <span className="absolute top-3 left-3 bg-[#006A4E]/90 text-white text-[10px] px-2.5 py-0.5 rounded-full font-extrabold uppercase tracking-wide backdrop-blur-sm shadow-xs">
-                      {item.platform === 'youtube' ? 'YouTube' : item.platform === 'facebook' ? 'Facebook' : item.platform}
+                      {item.platform === 'youtube' ? 'YouTube' : item.platform === 'facebook' ? 'Facebook' : (item.platform || 'Video')}
                     </span>
                   </div>
 
@@ -235,17 +257,19 @@ export const VideosPage: React.FC = () => {
                   <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between space-y-4">
                     <div className="space-y-2">
                       <h3 className="font-bold text-base sm:text-lg text-slate-900 group-hover:text-[#006A4E] transition-colors line-clamp-2 font-display">
-                        {tText(item.title)}
+                        {videoTitle}
                       </h3>
-                      <p className="text-slate-600 text-xs line-clamp-2 leading-relaxed font-normal">
-                        {tText(item.description)}
-                      </p>
+                      {videoDesc && (
+                        <p className="text-slate-600 text-xs line-clamp-2 leading-relaxed font-normal">
+                          {videoDesc}
+                        </p>
+                      )}
                     </div>
 
                     <div className="flex items-center justify-between text-xs text-slate-500 pt-3 border-t border-slate-100">
                       <span className="flex items-center gap-1.5 font-medium">
                         <Calendar className="w-3.5 h-3.5 text-[#006A4E]" />
-                        <span>{item.date}</span>
+                        <span>{item.date || 'Recent'}</span>
                       </span>
                       <span className="text-[#006A4E] font-extrabold inline-flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
                         <span>{isBn ? 'ভিডিও দেখুন' : 'Watch Video'}</span>
@@ -274,7 +298,7 @@ export const VideosPage: React.FC = () => {
                 <div className="flex items-center gap-2.5 truncate max-w-[85%]">
                   <span className="w-2.5 h-2.5 rounded-full bg-[#006A4E]" />
                   <h3 className="font-extrabold text-slate-900 text-sm sm:text-base font-display truncate">
-                    {tText(selectedVideo.title)}
+                    {tText(selectedVideo.title) || 'Field Documentation Video'}
                   </h3>
                 </div>
                 <button
@@ -300,7 +324,7 @@ export const VideosPage: React.FC = () => {
                   ) : (
                     <iframe
                       src={activeEmbedInfo.embedUrl}
-                      title={tText(selectedVideo.title)}
+                      title={tText(selectedVideo.title) || 'Video Player'}
                       className="w-full h-full border-0"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                       allowFullScreen
@@ -338,7 +362,7 @@ export const VideosPage: React.FC = () => {
                   <div className="flex items-center gap-4 text-xs text-slate-500">
                     <span className="flex items-center gap-1.5 font-medium">
                       <Calendar className="w-3.5 h-3.5 text-[#006A4E]" />
-                      <span>{selectedVideo.date}</span>
+                      <span>{selectedVideo.date || 'Recent'}</span>
                     </span>
                     {selectedVideo.duration && (
                       <span className="flex items-center gap-1.5 font-mono">
@@ -347,7 +371,7 @@ export const VideosPage: React.FC = () => {
                       </span>
                     )}
                     <span className="px-2.5 py-0.5 rounded-full bg-[#FAF7F2] text-slate-700 font-bold border border-[#EAE3D9] uppercase text-[10px]">
-                      {selectedVideo.platform}
+                      {selectedVideo.platform || 'Video'}
                     </span>
                   </div>
 
@@ -370,3 +394,4 @@ export const VideosPage: React.FC = () => {
     </div>
   );
 };
+

@@ -71,6 +71,7 @@ import {
 } from '../data/initialData';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { getFreshImageUrl } from '../lib/cloudinary';
+import { detectAndNormalizeMedia, DEFAULT_VIDEO_THUMBNAIL } from '../lib/utils/mediaHelper';
 
 interface DataContextType {
   // Entities
@@ -352,6 +353,33 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     reports, partners, volunteers, donations, messages, faqs, auditLogs,
     committees, persons, positions, committeeMembers
   ]);
+
+  // Multi-tab cross-storage auto synchronization
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (!e.key || !e.newValue || !e.key.startsWith(STORAGE_PREFIX)) return;
+      try {
+        const entityKey = e.key.replace(STORAGE_PREFIX, '');
+        const parsed = JSON.parse(e.newValue);
+        if (entityKey === 'videos' && Array.isArray(parsed)) {
+          setVideos(parsed);
+        } else if (entityKey === 'campaigns' && Array.isArray(parsed)) {
+          setCampaigns(parsed);
+        } else if (entityKey === 'programs' && Array.isArray(parsed)) {
+          setPrograms(parsed);
+        } else if (entityKey === 'mediaLibrary' && Array.isArray(parsed)) {
+          setMediaLibrary(parsed);
+        } else if (entityKey === 'gallery' && Array.isArray(parsed)) {
+          setGallery(parsed);
+        }
+      } catch (err) {
+        console.warn('Storage sync error:', err);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   // Audit Logging helper
   const logAudit = useCallback((action: string, entity: string, entityId: string, details: string) => {
@@ -697,6 +725,31 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         })));
       }
 
+      // 17. Video Documentation & Footage
+      const { data: vidData } = await supabase.from('video_items').select('*').order('created_at', { ascending: false });
+      if (vidData && vidData.length > 0) {
+        setVideos(vidData.map(v => {
+          const det = detectAndNormalizeMedia(v.video_url || '');
+          return {
+            id: v.id,
+            title: v.title,
+            videoUrl: v.video_url,
+            embedUrl: v.embed_url || det.embedUrl || '',
+            thumbnailUrl: getFreshImageUrl(v.thumbnail_url || det.thumbnailUrl || DEFAULT_VIDEO_THUMBNAIL),
+            platform: v.platform || det.platform || 'youtube',
+            duration: v.duration || '',
+            date: v.date || '',
+            description: v.description || { en: '', bn: '' },
+            category: v.category || 'General',
+            status: v.status || 'published',
+            isFeatured: v.is_featured ?? false,
+            sourceType: v.source_type || 'url',
+            createdAt: v.created_at,
+            updatedAt: v.updated_at
+          };
+        }));
+      }
+
       setLastSyncedAt(new Date());
     } catch (err) {
       console.error('Supabase sync exception:', err);
@@ -933,6 +986,28 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
       }
 
+      // Videos Documentation & Footage
+      for (const vid of videos) {
+        const det = detectAndNormalizeMedia(vid.videoUrl || '');
+        await supabase.from('video_items').upsert({
+          id: vid.id,
+          title: vid.title,
+          video_url: vid.videoUrl,
+          embed_url: vid.embedUrl || det.embedUrl || '',
+          thumbnail_url: vid.thumbnailUrl || det.thumbnailUrl || DEFAULT_VIDEO_THUMBNAIL,
+          platform: vid.platform || det.platform || 'youtube',
+          duration: vid.duration || '',
+          date: vid.date || new Date().toISOString().split('T')[0],
+          description: vid.description,
+          category: vid.category || 'General',
+          status: vid.status || 'published',
+          is_featured: vid.isFeatured || false,
+          source_type: vid.sourceType || 'url',
+          created_at: vid.createdAt || new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        });
+      }
+
       setLastSyncedAt(new Date());
       logAudit('SYNC', 'Database', 'full_push', 'Pushed all local CMS entities to Supabase Cloud Database');
       return { success: true, message: 'Successfully synchronized all CMS data and cloud image URLs to Supabase!' };
@@ -944,7 +1019,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [
     settings, homepageConfig, aboutSettings, headerSettings, footerSettings,
-    programs, campaigns, persons, committees, committeeMembers, mediaLibrary, logAudit
+    programs, campaigns, persons, committees, committeeMembers, mediaLibrary, videos, logAudit
   ]);
 
   // MUTATIONS: Global Settings
@@ -1859,35 +1934,112 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const addVideo = useCallback((video: Omit<VideoItem, 'id'>) => {
     const id = `vid-${Date.now()}`;
+    const det = detectAndNormalizeMedia(video.videoUrl || '');
+    const cleanThumbnail = video.thumbnailUrl || det.thumbnailUrl || DEFAULT_VIDEO_THUMBNAIL;
+    const cleanEmbed = video.embedUrl || det.embedUrl || '';
+    const cleanTitle = typeof video.title === 'string'
+      ? { en: video.title, bn: video.title }
+      : (video.title || { en: 'Field Video', bn: 'মাঠপর্যায়ের ভিডিও' });
+    const cleanDescription = typeof video.description === 'string'
+      ? { en: video.description, bn: video.description }
+      : (video.description || { en: '', bn: '' });
+
     const newVid: VideoItem = {
       ...video,
       id,
-      thumbnailUrl: getFreshImageUrl(video.thumbnailUrl)
+      title: cleanTitle,
+      description: cleanDescription,
+      videoUrl: det.originalUrl || video.videoUrl,
+      embedUrl: cleanEmbed,
+      thumbnailUrl: getFreshImageUrl(cleanThumbnail),
+      platform: video.platform || det.platform || 'youtube',
+      category: video.category || 'General',
+      status: video.status || 'published',
+      isFeatured: video.isFeatured ?? false,
+      sourceType: video.sourceType || 'url',
+      date: video.date || new Date().toISOString().split('T')[0],
+      duration: video.duration || 'Video',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     };
+
     setVideos(prev => [newVid, ...prev]);
-    logAudit('CREATE', 'VideoItem', id, `Added video: ${video.title.en}`);
+    logAudit('CREATE', 'VideoItem', id, `Added video: ${cleanTitle.en || cleanTitle.bn}`);
+
+    safeDbUpsert('video_items', {
+      id: newVid.id,
+      title: newVid.title,
+      video_url: newVid.videoUrl,
+      embed_url: newVid.embedUrl || '',
+      thumbnail_url: newVid.thumbnailUrl,
+      platform: newVid.platform,
+      duration: newVid.duration || '',
+      date: newVid.date,
+      description: newVid.description,
+      category: newVid.category,
+      status: newVid.status,
+      is_featured: newVid.isFeatured,
+      source_type: newVid.sourceType,
+      created_at: newVid.createdAt,
+      updated_at: newVid.updatedAt
+    });
+
     return newVid;
-  }, [logAudit]);
+  }, [logAudit, safeDbUpsert]);
 
   const updateVideo = useCallback((id: string, video: Partial<VideoItem>) => {
     setVideos(prev => {
       const updated = prev.map(v => {
         if (v.id !== id) return v;
+        const nextVideoUrl = video.videoUrl !== undefined ? video.videoUrl : v.videoUrl;
+        const det = detectAndNormalizeMedia(nextVideoUrl);
+        const nextThumbnail = video.thumbnailUrl !== undefined
+          ? (video.thumbnailUrl || det.thumbnailUrl || DEFAULT_VIDEO_THUMBNAIL)
+          : (v.thumbnailUrl || det.thumbnailUrl || DEFAULT_VIDEO_THUMBNAIL);
+        const nextEmbed = video.embedUrl !== undefined
+          ? (video.embedUrl || det.embedUrl || '')
+          : (v.embedUrl || det.embedUrl || '');
+
         return {
           ...v,
           ...video,
-          thumbnailUrl: video.thumbnailUrl ? getFreshImageUrl(video.thumbnailUrl) : v.thumbnailUrl
+          videoUrl: det.originalUrl || nextVideoUrl,
+          embedUrl: nextEmbed,
+          thumbnailUrl: nextThumbnail ? getFreshImageUrl(nextThumbnail) : v.thumbnailUrl,
+          updatedAt: new Date().toISOString()
         };
       });
+
+      const match = updated.find(v => v.id === id);
+      if (match) {
+        safeDbUpsert('video_items', {
+          id: match.id,
+          title: match.title,
+          video_url: match.videoUrl,
+          embed_url: match.embedUrl || '',
+          thumbnail_url: match.thumbnailUrl,
+          platform: match.platform,
+          duration: match.duration || '',
+          date: match.date,
+          description: match.description,
+          category: match.category || 'General',
+          status: match.status || 'published',
+          is_featured: match.isFeatured || false,
+          source_type: match.sourceType || 'url',
+          created_at: match.createdAt || new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        });
+      }
       return updated;
     });
     logAudit('UPDATE', 'VideoItem', id, 'Updated video metadata');
-  }, [logAudit]);
+  }, [logAudit, safeDbUpsert]);
 
   const deleteVideo = useCallback((id: string) => {
     setVideos(prev => prev.filter(v => v.id !== id));
     logAudit('DELETE', 'VideoItem', id, 'Deleted video');
-  }, [logAudit]);
+    safeDbDelete('video_items', 'id', id);
+  }, [logAudit, safeDbDelete]);
 
   const addReport = useCallback((report: Omit<TransparencyReport, 'id'>) => {
     const id = `rep-${Date.now()}`;

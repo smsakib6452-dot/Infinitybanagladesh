@@ -6,7 +6,7 @@ interface LanguageContextType {
   setLanguage: (lang: Language) => void;
   toggleLanguage: () => void;
   t: (key: string) => string;
-  tText: (bilingualText?: BilingualText) => string;
+  tText: (bilingualText?: BilingualText | string | null) => string;
   isBn: boolean;
 }
 
@@ -102,8 +102,9 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return item[language] || item.en || key;
   };
 
-  const tText = (bilingualText?: BilingualText): string => {
+  const tText = (bilingualText?: BilingualText | string | null): string => {
     if (!bilingualText) return '';
+    if (typeof bilingualText === 'string') return bilingualText;
     return bilingualText[language] || bilingualText.en || bilingualText.bn || '';
   };
 

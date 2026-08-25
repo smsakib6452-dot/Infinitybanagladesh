@@ -237,6 +237,11 @@ export const INITIAL_HEADER_SETTINGS: HeaderSettings = {
     bn: 'ইনফিনিটি বাংলাদেশ-এর অফিসিয়াল প্ল্যাটফর্মে স্বাগতম — প্রতিষ্ঠিত ২০১৫, হাটহাজারী'
   },
   noticeBarLink: 'transparency',
+  noticeBarButtonText: {
+    en: 'Transparency',
+    bn: 'স্বচ্ছতা ও অডিট'
+  },
+  showNoticeBarButton: true,
   showSearch: true,
   showLanguageSwitcher: true,
   supportButtonText: {

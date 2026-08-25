@@ -3498,7 +3498,7 @@ export const AdminPage: React.FC = () => {
                         <div className="flex items-center gap-2">
                           <Tag className="w-4 h-4 text-emerald-700" />
                           <span className="text-xs font-bold text-slate-900">
-                            {isBn ? 'শীর্ষ নোটিশ বার (Top Announcement Bar)' : 'Top Notice Bar'}
+                            {isBn ? 'শীর্ষ নোটিশ বার (Top Notice Bar)' : 'Top Notice Bar'}
                           </span>
                         </div>
 
@@ -3536,6 +3536,55 @@ export const AdminPage: React.FC = () => {
                           ? 'ওয়েবসাইটের একেবারে উপরে নোটিশ বা স্বাগত বার্তা প্রদর্শনের বার।'
                           : 'Slim dark green bar at the very top for official announcements and welcome messages.'}
                       </p>
+                    </div>
+
+                    {/* Top Notice Bar Action / Transparency Button Widget */}
+                    <div className={`p-4 rounded-2xl border transition-all space-y-3 ${
+                      headerSettings.showNoticeBarButton !== false
+                        ? 'bg-[#FAF7F2] border-[#EAE3D9]'
+                        : 'bg-slate-50 border-slate-200 opacity-75'
+                    }`}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                          <span className="text-xs font-bold text-slate-900">
+                            {isBn ? 'নোটিশ বার স্বচ্ছতা বাটন (Notice Transparency Button)' : 'Notice Transparency CTA'}
+                          </span>
+                        </div>
+
+                        {/* Eye Button */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newShow = headerSettings.showNoticeBarButton === false ? true : false;
+                            updateHeaderSettings({ showNoticeBarButton: newShow });
+                            showToast(newShow ? 'Notice bar button is now visible' : 'Notice bar button is now hidden');
+                          }}
+                          className={`px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all ${
+                            headerSettings.showNoticeBarButton !== false
+                              ? 'bg-emerald-100 text-[#00523C] hover:bg-emerald-200'
+                              : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+                          }`}
+                          title={headerSettings.showNoticeBarButton !== false ? 'Click to Hide button' : 'Click to Show button'}
+                        >
+                          {headerSettings.showNoticeBarButton !== false ? (
+                            <>
+                              <Eye className="w-3.5 h-3.5 text-[#006A4E]" />
+                              <span>{isBn ? 'দৃশ্যমান' : 'Visible'}</span>
+                            </>
+                          ) : (
+                            <>
+                              <EyeOff className="w-3.5 h-3.5 text-slate-500" />
+                              <span>{isBn ? 'লুকানো' : 'Hidden'}</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+
+                      <div className="flex items-center justify-between text-[11px] text-slate-600">
+                        <span>Label: <strong>{tText(headerSettings.noticeBarButtonText) || (isBn ? 'স্বচ্ছতা ও অডিট' : 'Transparency')}</strong></span>
+                        <span className="font-mono text-emerald-700">/{headerSettings.noticeBarLink || 'transparency'}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -3768,24 +3817,67 @@ export const AdminPage: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="p-3.5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-2">
+                  {/* Top Notice Bar Action / Transparency Button Settings */}
+                  <div className="p-4 sm:p-5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-3.5">
                     <div className="flex items-center justify-between">
-                      <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                        <LinkIcon className="w-3.5 h-3.5 text-[#006A4E]" />
-                        <span>Notice Click Target Route / URL (ক্লিক করলে যে পেজে যাবে)</span>
+                      <h4 className="text-xs font-extrabold text-slate-900 flex items-center gap-2">
+                        <ShieldCheck className="w-4 h-4 text-[#006A4E]" />
+                        <span>{isBn ? 'নোটিশ বার অ্যাকশন বাটন (Notice Bar Action / Transparency CTA)' : 'Top Notice Bar Action / Transparency Button'}</span>
+                      </h4>
+                      <label className="inline-flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={headerSettings.showNoticeBarButton !== false}
+                          onChange={(e) => updateHeaderSettings({ showNoticeBarButton: e.target.checked })}
+                          className="rounded text-[#006A4E]"
+                        />
+                        <span>{isBn ? 'টপ বারে বাটন দেখান' : 'Show in Notice Bar'}</span>
                       </label>
-                      <span className="text-[11px] text-slate-400 font-mono">Current: /{headerSettings.noticeBarLink || 'transparency'}</span>
                     </div>
-                    <input
-                      type="text"
-                      value={headerSettings.noticeBarLink || 'transparency'}
-                      onChange={(e) => updateHeaderSettings({ noticeBarLink: e.target.value })}
-                      placeholder="e.g. transparency, campaigns, donate, https://..."
-                      className="w-full px-3 py-2 bg-white border border-[#EAE3D9] rounded-xl text-xs font-mono"
-                    />
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="text-[11px] font-medium text-slate-600 block mb-1">Button Label (English)</label>
+                        <input
+                          type="text"
+                          value={headerSettings.noticeBarButtonText?.en || ''}
+                          onChange={(e) => updateHeaderSettings({
+                            noticeBarButtonText: { ...(headerSettings.noticeBarButtonText || { en: '', bn: '' }), en: e.target.value }
+                          })}
+                          placeholder="Transparency"
+                          className="w-full px-3 py-2 bg-white border border-[#EAE3D9] rounded-xl text-xs"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] font-medium text-slate-600 block mb-1">বোতামের লেখা (বাংলা)</label>
+                        <input
+                          type="text"
+                          value={headerSettings.noticeBarButtonText?.bn || ''}
+                          onChange={(e) => updateHeaderSettings({
+                            noticeBarButtonText: { ...(headerSettings.noticeBarButtonText || { en: '', bn: '' }), bn: e.target.value }
+                          })}
+                          placeholder="স্বচ্ছতা ও অডিট"
+                          className="w-full px-3 py-2 bg-white border border-[#EAE3D9] rounded-xl text-xs font-bengali"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] font-medium text-slate-600 block mb-1">Target Route / URL (লিংক)</label>
+                        <input
+                          type="text"
+                          value={headerSettings.noticeBarLink || 'transparency'}
+                          onChange={(e) => updateHeaderSettings({ noticeBarLink: e.target.value })}
+                          placeholder="e.g. transparency, campaigns"
+                          className="w-full px-3 py-2 bg-white border border-[#EAE3D9] rounded-xl text-xs font-mono"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Quick Route Selectors */}
                     <div className="flex flex-wrap items-center gap-1.5 pt-1">
                       <span className="text-[10px] font-bold text-slate-400">Quick Route Selectors:</span>
-                      {['transparency', 'campaigns', 'donate', 'volunteer', 'contact', 'media-coverage'].map(r => (
+                      {['transparency', 'campaigns', 'donate', 'volunteer', 'contact', 'media-coverage', 'about'].map(r => (
                         <button
                           key={r}
                           type="button"

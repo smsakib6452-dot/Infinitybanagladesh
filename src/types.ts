@@ -170,6 +170,8 @@ export interface HeaderSettings {
   showNoticeBar: boolean;
   noticeBarText: BilingualText;
   noticeBarLink?: string;
+  noticeBarButtonText?: BilingualText;
+  showNoticeBarButton?: boolean;
   showSearch: boolean;
   showLanguageSwitcher: boolean;
   supportButtonText: BilingualText;

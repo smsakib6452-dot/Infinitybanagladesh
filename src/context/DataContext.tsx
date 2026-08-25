@@ -603,6 +603,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             showNoticeBar: headerData.show_notice_bar ?? prev.showNoticeBar,
             noticeBarText: syncedNotice,
             noticeBarLink: headerData.notice_bar_link || prev.noticeBarLink,
+            noticeBarButtonText: (headerData.notice_bar_button_text && headerData.notice_bar_button_text.bn) ? headerData.notice_bar_button_text : (prev.noticeBarButtonText || INITIAL_HEADER_SETTINGS.noticeBarButtonText),
+            showNoticeBarButton: headerData.show_notice_bar_button ?? prev.showNoticeBarButton ?? true,
             supportButtonText: (headerData.support_button_text && headerData.support_button_text.bn) ? headerData.support_button_text : prev.supportButtonText,
             supportButtonUrl: headerData.support_button_url || prev.supportButtonUrl,
             showSupportButton: headerData.show_support_button ?? prev.showSupportButton
@@ -1406,6 +1408,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         show_notice_bar: updated.showNoticeBar,
         notice_bar_text: updated.noticeBarText,
         notice_bar_link: updated.noticeBarLink || 'transparency',
+        notice_bar_button_text: updated.noticeBarButtonText,
+        show_notice_bar_button: updated.showNoticeBarButton,
         show_search: updated.showSearch,
         show_language_switcher: updated.showLanguageSwitcher,
         support_button_text: updated.supportButtonText,

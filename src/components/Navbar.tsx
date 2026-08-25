@@ -110,14 +110,16 @@ export const Navbar: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-3.5 shrink-0 text-emerald-200">
-              <button
-                type="button"
-                onClick={() => handleNavClick(headerSettings.noticeBarLink || 'transparency')}
-                className="hover:text-white hidden sm:inline-flex items-center gap-1.5 transition-colors text-xs font-semibold cursor-pointer"
-              >
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                <span>{isBn ? 'স্বচ্ছতা ও অডিট' : 'Transparency'}</span>
-              </button>
+              {headerSettings.showNoticeBarButton !== false && (
+                <button
+                  type="button"
+                  onClick={() => handleNavClick(headerSettings.noticeBarLink || 'transparency')}
+                  className="hover:text-white hidden sm:inline-flex items-center gap-1.5 transition-colors text-xs font-semibold cursor-pointer"
+                >
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>{tText(headerSettings.noticeBarButtonText) || (isBn ? 'স্বচ্ছতা ও অডিট' : 'Transparency')}</span>
+                </button>
+              )}
 
               {headerSettings.showLanguageSwitcher && (
                 <>

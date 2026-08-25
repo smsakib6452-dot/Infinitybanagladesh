@@ -311,7 +311,16 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [supportSettings, setSupportSettings] = useState<SupportSettings>(() => getStoredOrDefault('supportSettings', INITIAL_SUPPORT_SETTINGS));
   const [contactSettings, setContactSettings] = useState<ContactSettings>(() => getStoredOrDefault('contactSettings', INITIAL_CONTACT_SETTINGS));
   const [seoSettings, setSeoSettings] = useState<GlobalSEOSettings>(() => getStoredOrDefault('seoSettings', INITIAL_SEO_SETTINGS));
-  const [navigationItems, setNavigationItems] = useState<NavigationItem[]>(() => getStoredOrDefault('navigationItems', INITIAL_NAVIGATION_ITEMS));
+  const [navigationItems, setNavigationItems] = useState<NavigationItem[]>(() => {
+    const stored = getStoredOrDefault<NavigationItem[]>('navigationItems', INITIAL_NAVIGATION_ITEMS);
+    if (!stored.some(item => item.id === 'nav-5' || item.path === 'team')) {
+      const teamItem = INITIAL_NAVIGATION_ITEMS.find(i => i.id === 'nav-5');
+      if (teamItem) {
+        return [...stored, teamItem].sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+      }
+    }
+    return stored;
+  });
   const [banners, setBanners] = useState<BannerItem[]>(() => getStoredOrDefault('banners', INITIAL_BANNERS));
   const [mediaLibrary, setMediaLibrary] = useState<MediaItem[]>(() => {
     const stored = getStoredOrDefault<MediaItem[]>('mediaLibrary', INITIAL_MEDIA_LIBRARY);

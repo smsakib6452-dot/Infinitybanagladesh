@@ -313,10 +313,20 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [seoSettings, setSeoSettings] = useState<GlobalSEOSettings>(() => getStoredOrDefault('seoSettings', INITIAL_SEO_SETTINGS));
   const [navigationItems, setNavigationItems] = useState<NavigationItem[]>(() => {
     const stored = getStoredOrDefault<NavigationItem[]>('navigationItems', INITIAL_NAVIGATION_ITEMS);
-    if (!stored.some(item => item.id === 'nav-5' || item.path === 'team')) {
-      const teamItem = INITIAL_NAVIGATION_ITEMS.find(i => i.id === 'nav-5');
-      if (teamItem) {
-        return [...stored, teamItem].sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+    const teamItemInitial = INITIAL_NAVIGATION_ITEMS.find(i => i.id === 'nav-5' || i.path === 'team');
+    
+    if (teamItemInitial) {
+      const existingIdx = stored.findIndex(i => i.id === 'nav-5' || i.path === 'team');
+      if (existingIdx === -1) {
+        return [...stored, teamItemInitial].sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+      } else {
+        const existing = stored[existingIdx];
+        const hasPast = existing.children?.some(c => c.path === 'team/past-committees');
+        if (!hasPast || !existing.active) {
+          const newStored = [...stored];
+          newStored[existingIdx] = { ...teamItemInitial, displayOrder: existing.displayOrder || teamItemInitial.displayOrder, active: true };
+          return newStored;
+        }
       }
     }
     return stored;

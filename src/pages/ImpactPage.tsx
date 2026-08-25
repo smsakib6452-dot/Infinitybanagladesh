@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { useRouter } from '../context/RouterContext';
+import { useRouter, Link } from '../context/RouterContext';
 import { useData } from '../context/DataContext';
 import { SectionHeading } from '../components/SectionHeading';
 import { ImpactCounter } from '../components/ImpactCounter';
@@ -62,7 +62,7 @@ export const ImpactPage: React.FC = () => {
 
 export const StoryDetailPage: React.FC = () => {
   const { isBn, tText } = useLanguage();
-  const { currentSlug, navigate } = useRouter();
+  const { currentSlug } = useRouter();
   const { stories } = useData();
 
   const story = stories.find(s => s.slug === currentSlug) || stories[0];
@@ -73,13 +73,12 @@ export const StoryDetailPage: React.FC = () => {
         <h2 className="text-2xl font-bold text-slate-900 font-display">
           {isBn ? 'গল্পটি পাওয়া যায়নি' : 'Story Not Found'}
         </h2>
-        <button
-          type="button"
-          onClick={() => navigate('impact')}
-          className="px-5 py-2.5 bg-[#006A4E] text-white rounded-2xl text-sm font-bold cursor-pointer"
+        <Link
+          to="stories"
+          className="px-5 py-2.5 bg-[#006A4E] text-white rounded-2xl text-sm font-bold cursor-pointer inline-block"
         >
-          {isBn ? 'ইমপ্যাক্ট পাতায় ফিরে যান' : 'Back to Impact'}
-        </button>
+          {isBn ? 'গল্পের তালিকায় ফিরে যান' : 'Back to Stories'}
+        </Link>
       </div>
     );
   }
@@ -87,14 +86,13 @@ export const StoryDetailPage: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-10">
       {/* Back button */}
-      <button
-        type="button"
-        onClick={() => navigate('impact')}
+      <Link
+        to="stories"
         className="inline-flex items-center gap-2 text-sm font-bold text-[#006A4E] hover:text-[#00523C] transition-colors cursor-pointer"
       >
         <ArrowLeft className="w-4 h-4" />
         <span>{isBn ? 'সকল গল্পে ফিরে যান' : 'Back to Stories & Impact'}</span>
-      </button>
+      </Link>
 
       {/* Header */}
       <div className="space-y-4">

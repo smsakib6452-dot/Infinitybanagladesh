@@ -1,7 +1,7 @@
 import React from 'react';
 import { Campaign } from '../types';
 import { useLanguage } from '../context/LanguageContext';
-import { useRouter } from '../context/RouterContext';
+import { Link } from '../context/RouterContext';
 import { MapPin, Calendar, ArrowRight, Heart } from 'lucide-react';
 import { getAssetUrl } from '../lib/utils/assetHelper';
 
@@ -12,7 +12,6 @@ interface CampaignCardProps {
 
 export const CampaignCard: React.FC<CampaignCardProps> = ({ campaign, featured = false }) => {
   const { isBn, tText } = useLanguage();
-  const { navigate } = useRouter();
 
   const statusColors = {
     active: 'bg-[#E6F3EF] text-[#00523C] border-[#C2E2D7]',
@@ -32,8 +31,12 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({ campaign, featured =
         featured ? 'ring-2 ring-[#006A4E]/30' : ''
       }`}
     >
-      {/* Campaign Image */}
-      <div className="relative aspect-16/10 overflow-hidden bg-slate-100">
+      {/* Campaign Image Link */}
+      <Link
+        to="campaigns/detail"
+        slug={campaign.slug}
+        className="block relative aspect-16/10 overflow-hidden bg-slate-100"
+      >
         <img
           src={getAssetUrl(campaign.imageUrl)}
           alt={tText(campaign.title)}
@@ -67,14 +70,16 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({ campaign, featured =
             <span className="truncate">{tText(campaign.location)}</span>
           </span>
         </div>
-      </div>
+      </Link>
 
       {/* Card Content */}
       <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between space-y-4">
         <div className="space-y-2">
-          <h3 className="text-lg sm:text-xl font-bold text-slate-900 group-hover:text-[#006A4E] transition-colors line-clamp-2 font-display">
-            {tText(campaign.title)}
-          </h3>
+          <Link to="campaigns/detail" slug={campaign.slug} className="block group/title">
+            <h3 className="text-lg sm:text-xl font-bold text-slate-900 group-hover/title:text-[#006A4E] transition-colors line-clamp-2 font-display">
+              {tText(campaign.title)}
+            </h3>
+          </Link>
           <p className="text-xs sm:text-sm text-slate-600 line-clamp-3 leading-relaxed">
             {tText(campaign.description)}
           </p>
@@ -88,26 +93,26 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({ campaign, featured =
 
         {/* Card Footer Actions */}
         <div className="pt-2 flex items-center justify-between gap-3">
-          <button
-            type="button"
-            onClick={() => navigate('campaigns/detail', campaign.slug)}
+          <Link
+            to="campaigns/detail"
+            slug={campaign.slug}
             className="text-xs sm:text-sm font-bold text-[#006A4E] hover:text-[#00523C] inline-flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             <span>{isBn ? 'বিস্তারিত দেখুন' : 'View Campaign'}</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </button>
+          </Link>
 
-          <button
-            type="button"
-            onClick={() => navigate('donate')}
+          <Link
+            to="donate"
             className="px-3 py-1.5 rounded-xl bg-[#E6F3EF] hover:bg-[#006A4E] text-[#006A4E] hover:text-white transition-all inline-flex items-center gap-1.5 text-xs font-bold cursor-pointer"
             title="Support this campaign"
           >
             <Heart className="w-3.5 h-3.5 fill-current" />
             <span>{isBn ? 'সহায়তা' : 'Support'}</span>
-          </button>
+          </Link>
         </div>
       </div>
     </div>
   );
 };
+

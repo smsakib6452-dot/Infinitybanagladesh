@@ -19,23 +19,63 @@ export const RouterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   // Sync with URL hash or pathname for reload/back button
   useEffect(() => {
     const handleHashChange = () => {
-      const hash = window.location.hash.replace('#/', '').replace('#', '');
-      if (!hash) {
+      const rawHash = window.location.hash.replace('#/', '').replace('#', '');
+      if (!rawHash) {
         setCurrentPage('home');
         setCurrentSlug(null);
         return;
       }
 
-      const parts = hash.split('/');
+      // Handle query params in hash (e.g. team/past-committees?id=comm-exec-2025 or ?year=2025)
+      const [hashPath, queryString] = rawHash.split('?');
+      let queryParamSlug: string | null = null;
+      if (queryString) {
+        const searchParams = new URLSearchParams(queryString);
+        queryParamSlug = searchParams.get('id') || searchParams.get('year') || searchParams.get('comm');
+      }
+
+      const parts = hashPath.split('/');
       if (parts.length === 1) {
-        setCurrentPage(parts[0] as PageRoute);
-        setCurrentSlug(null);
+        if (parts[0] === 'team') {
+          setCurrentPage('team');
+          setCurrentSlug(queryParamSlug);
+        } else {
+          setCurrentPage(parts[0] as PageRoute);
+          setCurrentSlug(queryParamSlug);
+        }
       } else if (parts.length >= 2) {
         const root = parts[0];
         const sub = parts[1];
+        const extra = parts[2] || queryParamSlug;
+
         if (root === 'about') {
-          setCurrentPage(`about/${sub}` as PageRoute);
-          setCurrentSlug(null);
+          if (sub === 'standing-committees' || sub === 'standing-committee') {
+            setCurrentPage('about/standing-committees');
+            setCurrentSlug(extra || null);
+          } else if (sub === 'executive-committee') {
+            setCurrentPage('about/executive-committee');
+            setCurrentSlug(extra || null);
+          } else if (sub === 'past-committees') {
+            setCurrentPage('about/past-committees');
+            setCurrentSlug(extra || null);
+          } else {
+            setCurrentPage(`about/${sub}` as PageRoute);
+            setCurrentSlug(extra || null);
+          }
+        } else if (root === 'team') {
+          if (sub === 'executive-committee') {
+            setCurrentPage('about/executive-committee');
+            setCurrentSlug(extra || null);
+          } else if (sub === 'standing-committee' || sub === 'standing-committees') {
+            setCurrentPage('about/standing-committees');
+            setCurrentSlug(extra || null);
+          } else if (sub === 'past-committees') {
+            setCurrentPage('about/past-committees');
+            setCurrentSlug(extra || null);
+          } else {
+            setCurrentPage('team');
+            setCurrentSlug(extra || null);
+          }
         } else if (root === 'campaigns') {
           setCurrentPage('campaigns/detail');
           setCurrentSlug(sub);
@@ -52,8 +92,8 @@ export const RouterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           setCurrentPage('events/detail');
           setCurrentSlug(sub);
         } else {
-          setCurrentPage(hash as PageRoute);
-          setCurrentSlug(null);
+          setCurrentPage(hashPath as PageRoute);
+          setCurrentSlug(extra || null);
         }
       }
     };
@@ -74,6 +114,8 @@ export const RouterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     if (page === 'stories/detail' && slug) hash = `stories/${slug}` as PageRoute;
     if (page === 'news/detail' && slug) hash = `news/${slug}` as PageRoute;
     if (page === 'events/detail' && slug) hash = `events/${slug}` as PageRoute;
+    if (page === 'about/past-committees' && slug) hash = `team/past-committees?id=${slug}` as PageRoute;
+    if (page === 'team/past-committees' && slug) hash = `team/past-committees?id=${slug}` as PageRoute;
 
     window.location.hash = `/${hash === 'home' ? '' : hash}`;
   };
@@ -112,3 +154,7 @@ export const useRouter = () => {
   }
   return context;
 };
+
+export { Link, getHref } from '../components/Link';
+export type { LinkProps } from '../components/Link';
+

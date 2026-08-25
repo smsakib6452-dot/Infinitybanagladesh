@@ -1,7 +1,7 @@
 import React from 'react';
 import { NewsArticle } from '../types';
 import { useLanguage } from '../context/LanguageContext';
-import { useRouter } from '../context/RouterContext';
+import { Link } from '../context/RouterContext';
 import { Calendar, User, ArrowRight, Tag } from 'lucide-react';
 import { getAssetUrl } from '../lib/utils/assetHelper';
 
@@ -11,11 +11,10 @@ interface NewsCardProps {
 
 export const NewsCard: React.FC<NewsCardProps> = ({ article }) => {
   const { isBn, tText } = useLanguage();
-  const { navigate } = useRouter();
 
   return (
     <article className="group bg-white rounded-3xl border border-[#EAE3D9] overflow-hidden shadow-warm-sm hover:shadow-warm-lg transition-all duration-300 flex flex-col hover:-translate-y-1">
-      <div className="relative aspect-16/9 overflow-hidden bg-slate-100">
+      <Link to="news/detail" slug={article.slug} className="block relative aspect-16/9 overflow-hidden bg-slate-100">
         <img
           src={getAssetUrl(article.imageUrl)}
           alt={tText(article.title)}
@@ -25,7 +24,7 @@ export const NewsCard: React.FC<NewsCardProps> = ({ article }) => {
         <span className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold bg-[#006A4E] text-white backdrop-blur-xs shadow-xs">
           {article.category}
         </span>
-      </div>
+      </Link>
 
       <div className="p-6 sm:p-7 flex-1 flex flex-col justify-between space-y-4">
         <div className="space-y-2.5">
@@ -41,9 +40,11 @@ export const NewsCard: React.FC<NewsCardProps> = ({ article }) => {
             </span>
           </div>
 
-          <h3 className="text-lg font-bold text-slate-900 group-hover:text-[#006A4E] transition-colors line-clamp-2 font-display">
-            {tText(article.title)}
-          </h3>
+          <Link to="news/detail" slug={article.slug} className="block group/title">
+            <h3 className="text-lg font-bold text-slate-900 group-hover/title:text-[#006A4E] transition-colors line-clamp-2 font-display">
+              {tText(article.title)}
+            </h3>
+          </Link>
 
           <p className="text-xs sm:text-sm text-slate-600 line-clamp-3 leading-relaxed">
             {tText(article.excerpt)}
@@ -57,16 +58,17 @@ export const NewsCard: React.FC<NewsCardProps> = ({ article }) => {
             <span className="truncate">{article.tags.join(', ')}</span>
           </div>
 
-          <button
-            type="button"
-            onClick={() => navigate('news/detail', article.slug)}
+          <Link
+            to="news/detail"
+            slug={article.slug}
             className="text-xs sm:text-sm font-bold text-[#006A4E] hover:text-[#00523C] inline-flex items-center gap-1 cursor-pointer"
           >
             <span>{isBn ? 'পড়ুন' : 'Read Full Story'}</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </button>
+          </Link>
         </div>
       </div>
     </article>
   );
 };
+

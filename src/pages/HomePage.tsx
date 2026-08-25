@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { useRouter } from '../context/RouterContext';
+import { useRouter, Link } from '../context/RouterContext';
 import { useData } from '../context/DataContext';
 import { SectionHeading } from '../components/SectionHeading';
 import { CampaignCard } from '../components/CampaignCard';
@@ -39,7 +39,6 @@ import { PageRoute } from '../types';
 
 export const HomePage: React.FC = () => {
   const { isBn, tText } = useLanguage();
-  const { navigate } = useRouter();
   const {
     campaigns,
     programs,
@@ -54,7 +53,6 @@ export const HomePage: React.FC = () => {
   } = useData();
 
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-  const [videoModalOpen, setVideoModalOpen] = useState(false);
 
   const hero = homepageConfig.hero;
   const aboutPreview = homepageConfig.aboutPreview;
@@ -80,14 +78,6 @@ export const HomePage: React.FC = () => {
       case 'ShieldCheck':
       default:
         return <ShieldCheck className="w-3.5 h-3.5 text-[#006A4E]" />;
-    }
-  };
-
-  const handleCtaClick = (url: string, isExternal?: boolean) => {
-    if (isExternal || url.startsWith('http://') || url.startsWith('https://')) {
-      window.open(url, '_blank', 'noopener,noreferrer');
-    } else {
-      navigate(url as PageRoute);
     }
   };
 
@@ -139,38 +129,37 @@ export const HomePage: React.FC = () => {
                   {/* CTA Action Cluster */}
                   <div className="pt-2 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 sm:gap-4">
                     {hero.primaryCta.active && (
-                      <button
-                        type="button"
-                        onClick={() => handleCtaClick(hero.primaryCta.url, hero.primaryCta.openInNewTab)}
+                      <Link
+                        to={hero.primaryCta.url}
+                        isExternal={hero.primaryCta.openInNewTab}
                         className="px-6 sm:px-7 py-3.5 rounded-2xl bg-[#006A4E] hover:bg-[#00523C] active:bg-[#00402E] text-white text-sm sm:text-base font-extrabold shadow-warm-md hover:shadow-warm-lg transition-all duration-200 flex items-center justify-center gap-2.5 cursor-pointer transform hover:-translate-y-0.5 touch-min-btn"
                       >
                         <Heart className="w-5 h-5 fill-white text-white" />
                         <span>{tText(hero.primaryCta.text)}</span>
-                      </button>
+                      </Link>
                     )}
 
                     {hero.secondaryCta.active && (
-                      <button
-                        type="button"
-                        onClick={() => handleCtaClick(hero.secondaryCta.url, hero.secondaryCta.openInNewTab)}
+                      <Link
+                        to={hero.secondaryCta.url}
+                        isExternal={hero.secondaryCta.openInNewTab}
                         className="px-6 sm:px-7 py-3.5 rounded-2xl bg-white hover:bg-[#FAF7F2] active:bg-[#F2ECE1] text-slate-800 text-sm sm:text-base font-bold border-2 border-[#D8CFC4] hover:border-[#006A4E] hover:text-[#006A4E] shadow-warm-sm transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer transform hover:-translate-y-0.5 touch-min-btn"
                       >
                         <Users className="w-5 h-5 text-[#006A4E]" />
                         <span>{tText(hero.secondaryCta.text)}</span>
-                      </button>
+                      </Link>
                     )}
 
                     {hero.storyCta.active && (
-                      <button
-                        type="button"
-                        onClick={() => handleCtaClick(hero.storyCta.url)}
+                      <Link
+                        to={hero.storyCta.url}
                         className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-700 hover:text-[#006A4E] px-3 py-2 rounded-xl hover:bg-white/60 transition-colors cursor-pointer"
                       >
                         <div className="w-8 h-8 rounded-full bg-[#E6F3EF] flex items-center justify-center text-[#006A4E]">
                           <Play className="w-3.5 h-3.5 fill-current ml-0.5" />
                         </div>
                         <span>{tText(hero.storyCta.text)}</span>
-                      </button>
+                      </Link>
                     )}
                   </div>
 
@@ -319,14 +308,13 @@ export const HomePage: React.FC = () => {
                   </div>
 
                   <div className="pt-2">
-                    <button
-                      type="button"
-                      onClick={() => handleCtaClick(aboutPreview.ctaUrl || 'about')}
+                    <Link
+                      to={aboutPreview.ctaUrl || 'about'}
                       className="px-6 py-3 rounded-xl bg-[#006A4E] hover:bg-[#00523C] text-white font-bold text-xs sm:text-sm shadow-warm-sm transition-all inline-flex items-center gap-2 cursor-pointer"
                     >
                       <span>{tText(aboutPreview.ctaText)}</span>
                       <ArrowRight className="w-4 h-4" />
-                    </button>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -390,23 +378,22 @@ export const HomePage: React.FC = () => {
                     </p>
 
                     <div className="pt-2 flex flex-wrap items-center gap-3">
-                      <button
-                        type="button"
-                        onClick={() => navigate('campaigns/detail', featuredCampaign.slug)}
+                      <Link
+                        to="campaigns/detail"
+                        slug={featuredCampaign.slug}
                         className="px-6 py-3 rounded-2xl bg-[#006A4E] hover:bg-[#00523C] text-white text-xs sm:text-sm font-bold shadow-warm-sm transition-all flex items-center gap-2 cursor-pointer"
                       >
                         <span>{isBn ? 'ক্যাম্পেইন বিবরণ দেখুন' : 'View Campaign Details'}</span>
                         <ArrowRight className="w-4 h-4" />
-                      </button>
+                      </Link>
 
-                      <button
-                        type="button"
-                        onClick={() => navigate('donate')}
+                      <Link
+                        to="donate"
                         className="px-6 py-3 rounded-2xl bg-[#FAF7F2] hover:bg-[#F2ECE1] text-slate-800 text-xs sm:text-sm font-bold border border-[#EAE3D9] transition-all flex items-center gap-2 cursor-pointer"
                       >
                         <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />
                         <span>{isBn ? 'সহায়তা করুন' : 'Support Campaign'}</span>
-                      </button>
+                      </Link>
                     </div>
                   </div>
 
@@ -451,14 +438,13 @@ export const HomePage: React.FC = () => {
             </div>
 
             <div className="text-center pt-8">
-              <button
-                type="button"
-                onClick={() => navigate('stories')}
+              <Link
+                to="stories"
                 className="px-6 py-3 rounded-2xl bg-white hover:bg-[#FAF7F2] text-slate-800 text-xs sm:text-sm font-bold border border-[#EAE3D9] shadow-warm-xs transition-all inline-flex items-center gap-2 cursor-pointer"
               >
                 <span>{isBn ? 'সকল গল্প পড়ুন' : 'Read All Human Stories'}</span>
                 <ArrowRight className="w-4 h-4 text-[#006A4E]" />
-              </button>
+              </Link>
             </div>
           </section>
         );
@@ -535,23 +521,21 @@ export const HomePage: React.FC = () => {
                 </div>
 
                 <div className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-3 justify-center">
-                  <button
-                    type="button"
-                    onClick={() => handleCtaClick(volBanner?.primaryButtonUrl || volBanner?.primaryCtaUrl || 'volunteer')}
+                  <Link
+                    to={volBanner?.primaryButtonUrl || volBanner?.primaryCtaUrl || 'volunteer'}
                     className="w-full py-3.5 px-6 rounded-2xl bg-[#006A4E] hover:bg-[#008562] active:bg-[#004D38] text-white font-extrabold text-xs sm:text-sm shadow-warm-md transition-all flex items-center justify-center gap-2 cursor-pointer transform hover:-translate-y-0.5"
                   >
                     <span>{tText(volBanner?.primaryButtonText || volBanner?.primaryCtaText) || (isBn ? 'স্বেচ্ছাসেবী হিসেবে যোগ দিন' : 'Become a Volunteer')}</span>
                     <ArrowRight className="w-4 h-4" />
-                  </button>
+                  </Link>
 
-                  <button
-                    type="button"
-                    onClick={() => handleCtaClick(volBanner?.secondaryButtonUrl || volBanner?.secondaryCtaUrl || 'about/executive-committee')}
+                  <Link
+                    to={volBanner?.secondaryButtonUrl || volBanner?.secondaryCtaUrl || 'about/executive-committee'}
                     className="w-full py-3.5 px-6 rounded-2xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs sm:text-sm border border-emerald-500/30 transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <Users className="w-4 h-4 text-emerald-300" />
                     <span>{tText(volBanner?.secondaryButtonText || volBanner?.secondaryCtaText) || (isBn ? 'আমাদের নেতৃত্ব দেখুন' : 'Meet Our Team')}</span>
-                  </button>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -571,14 +555,13 @@ export const HomePage: React.FC = () => {
                 subtitle={isBn ? 'ইনফিনিটি বাংলাদেশের মানবিক ত্রাণ বিতরণ ও কার্যক্রম নিয়ে প্রকাশিত খবরের একাংশ।' : 'Independent news articles and TV features covering Team Infinity humanitarian drives.'}
               />
 
-              <button
-                type="button"
-                onClick={() => navigate('media-coverage')}
+              <Link
+                to="media-coverage"
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white border border-[#EAE3D9] hover:border-[#006A4E] text-[#006A4E] text-xs font-bold shadow-warm-xs hover:shadow-warm-sm transition-all cursor-pointer group shrink-0"
               >
                 <span>{isBn ? 'সকল সংবাদ দেখুন' : 'View All Press Coverage'}</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </button>
+              </Link>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -648,23 +631,21 @@ export const HomePage: React.FC = () => {
               </div>
 
               <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
-                <button
-                  type="button"
-                  onClick={() => handleCtaClick(supBanner?.primaryButtonUrl || supBanner?.primaryCtaUrl || 'donate')}
+                <Link
+                  to={supBanner?.primaryButtonUrl || supBanner?.primaryCtaUrl || 'donate'}
                   className="px-8 py-3.5 rounded-2xl bg-[#006A4E] hover:bg-[#00523C] text-white font-extrabold text-xs sm:text-sm shadow-warm-md transition-all flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5"
                 >
                   <Heart className="w-4 h-4 fill-white" />
                   <span>{tText(supBanner?.primaryButtonText || supBanner?.primaryCtaText) || (isBn ? 'অনলাইন অনুদান প্রদান' : 'Donate to Infinity Bangladesh')}</span>
-                </button>
+                </Link>
 
-                <button
-                  type="button"
-                  onClick={() => handleCtaClick(supBanner?.secondaryButtonUrl || supBanner?.secondaryCtaUrl || 'transparency')}
+                <Link
+                  to={supBanner?.secondaryButtonUrl || supBanner?.secondaryCtaUrl || 'transparency'}
                   className="px-6 py-3.5 rounded-2xl bg-white hover:bg-[#FAF7F2] text-slate-800 font-bold text-xs sm:text-sm border border-[#EAE3D9] transition-all flex items-center gap-2 cursor-pointer"
                 >
                   <ShieldCheck className="w-4 h-4 text-[#006A4E]" />
                   <span>{tText(supBanner?.secondaryButtonText || supBanner?.secondaryCtaText) || (isBn ? 'স্বচ্ছতা ও অডিট রিপোর্ট' : 'Audit & Expense Logs')}</span>
-                </button>
+                </Link>
               </div>
             </div>
           </section>
@@ -675,6 +656,7 @@ export const HomePage: React.FC = () => {
         return null;
     }
   };
+
 
   const orderedSections = homepageConfig.sectionOrder || [
     'hero',

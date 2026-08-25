@@ -81,6 +81,7 @@ export const CommitteeMemberModal: React.FC<CommitteeMemberModalProps> = ({
 
   // Image Editor sub-modal state
   const [isImageEditorOpen, setIsImageEditorOpen] = useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (member) {
@@ -366,7 +367,38 @@ export const CommitteeMemberModal: React.FC<CommitteeMemberModalProps> = ({
 
                 {/* Photo Action Controls */}
                 <div className="space-y-2.5 flex-1 w-full">
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (uploadEv) => {
+                          if (uploadEv.target?.result) {
+                            setFormData(prev => ({ ...prev, photoUrl: uploadEv.target!.result as string }));
+                            setIsImageEditorOpen(true);
+                          }
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                      e.target.value = '';
+                    }}
+                  />
+
                   <div className="flex flex-wrap gap-2">
+                    {/* Upload from PC */}
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="px-3.5 py-2 rounded-xl bg-white border border-[#EAE3D9] hover:border-[#006A4E] text-slate-700 text-xs font-bold flex items-center gap-1.5 shadow-warm-xs cursor-pointer transition-all"
+                    >
+                      <Upload className="w-3.5 h-3.5 text-[#006A4E]" />
+                      <span>{isBn ? 'ডিভাইস থেকে আপলোড' : 'Upload from PC'}</span>
+                    </button>
+
                     {/* Open Image Editor (Crop, Zoom, Pan) */}
                     {formData.photoUrl && (
                       <button
@@ -375,7 +407,7 @@ export const CommitteeMemberModal: React.FC<CommitteeMemberModalProps> = ({
                         className="px-3.5 py-2 rounded-xl bg-[#006A4E] text-white text-xs font-bold flex items-center gap-1.5 shadow-warm-xs hover:bg-[#00523C] cursor-pointer transition-all"
                       >
                         <Crop className="w-3.5 h-3.5" />
-                        <span>{isBn ? 'ছবি ক্রপ ও জুম করুন (1:1)' : 'Crop & Zoom Photo (1:1)'}</span>
+                        <span>{isBn ? 'ছবি ক্রপ ও জুম করুন' : 'Crop & Zoom Photo'}</span>
                       </button>
                     )}
 
@@ -389,7 +421,7 @@ export const CommitteeMemberModal: React.FC<CommitteeMemberModalProps> = ({
                         className="px-3.5 py-2 rounded-xl bg-white border border-[#EAE3D9] hover:border-[#006A4E] text-slate-700 text-xs font-bold flex items-center gap-1.5 shadow-warm-xs cursor-pointer transition-all"
                       >
                         <ImageIcon className="w-3.5 h-3.5 text-[#006A4E]" />
-                        <span>{isBn ? 'মিডিয়া গ্যালারি থেকে পছন্দ করুন' : 'Select from Media Library'}</span>
+                        <span>{isBn ? 'মিডিয়া গ্যালারি' : 'Media Library'}</span>
                       </button>
                     )}
                   </div>
@@ -509,8 +541,8 @@ export const CommitteeMemberModal: React.FC<CommitteeMemberModalProps> = ({
           onClose={() => setIsImageEditorOpen(false)}
           imageUrl={formData.photoUrl}
           defaultAspectRatio="1:1"
-          allowedAspectRatios={['1:1', '4:5', '3:4', 'free']}
-          title={isBn ? 'সদস্যের প্রোফাইল ছবি ক্রপ ও পজিশন' : 'Crop & Position Member Profile Photo (1:1)'}
+          allowedAspectRatios={['1:1', '4:5', '3:4', '4:3', '16:9', '21:9', 'free']}
+          title={isBn ? 'সদস্যের ছবি ক্রপ, জুম ও পজিশনিং' : 'Crop & Position Member Photo (All Aspect Ratios)'}
           onSave={(croppedDataUrl) => {
             setFormData(prev => ({ ...prev, photoUrl: croppedDataUrl }));
             setIsImageEditorOpen(false);

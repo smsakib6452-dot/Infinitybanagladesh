@@ -130,9 +130,10 @@ export const ImageEditorModal: React.FC<ImageEditorModalProps> = ({
     }
   }, [isOpen, imageUrl, defaultAspectRatio, initialAltText, initialCaption]);
 
-  // Load Image Object
+  // Load Image Object with automatic CORS fallback
   useEffect(() => {
     if (!currentSrc) return;
+    let didFallback = false;
     const img = new Image();
     img.crossOrigin = 'anonymous';
     img.onload = () => {
@@ -141,7 +142,20 @@ export const ImageEditorModal: React.FC<ImageEditorModalProps> = ({
       drawPreview();
     };
     img.onerror = () => {
-      console.warn('Failed to load image for editing:', currentSrc);
+      if (!didFallback) {
+        didFallback = true;
+        // Fallback without crossOrigin in case CORS header is omitted
+        const fallbackImg = new Image();
+        fallbackImg.onload = () => {
+          imageObjRef.current = fallbackImg;
+          drawCanvas();
+          drawPreview();
+        };
+        fallbackImg.onerror = () => {
+          console.warn('Failed to load image for editing even without CORS:', currentSrc);
+        };
+        fallbackImg.src = getAssetUrl(currentSrc);
+      }
     };
     img.src = getAssetUrl(currentSrc);
   }, [currentSrc]);
@@ -395,19 +409,26 @@ export const ImageEditorModal: React.FC<ImageEditorModalProps> = ({
         expCtx.restore();
       }
 
-      const dataUrl = exportCanvas.toDataURL('image/jpeg', 0.94);
+      let dataUrl = currentSrc;
+      try {
+        dataUrl = exportCanvas.toDataURL('image/jpeg', 0.94);
+      } catch (canvasErr) {
+        console.warn('Canvas toDataURL failed (possible CORS taint), using currentSrc fallback:', canvasErr);
+      }
 
       let finalUrl = dataUrl;
-      try {
-        // Upload cropped high-res image directly to Cloudinary
-        const uploadRes = await uploadToCloudinary(dataUrl, {
-          tags: ['infinity_crop', 'verified_media']
-        });
-        if (uploadRes && uploadRes.secure_url) {
-          finalUrl = uploadRes.secure_url;
+      if (dataUrl.startsWith('data:')) {
+        try {
+          // Upload cropped high-res image directly to Cloudinary
+          const uploadRes = await uploadToCloudinary(dataUrl, {
+            tags: ['infinity_crop', 'verified_media']
+          });
+          if (uploadRes && uploadRes.secure_url) {
+            finalUrl = uploadRes.secure_url;
+          }
+        } catch (cloudErr) {
+          console.warn('Cloudinary direct upload for crop failed, falling back to data URL:', cloudErr);
         }
-      } catch (cloudErr) {
-        console.warn('Cloudinary direct upload for crop failed, falling back to data URL:', cloudErr);
       }
 
       onSave(finalUrl, {

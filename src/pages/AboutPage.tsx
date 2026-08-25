@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { useRouter } from '../context/RouterContext';
+import { useRouter, Link } from '../context/RouterContext';
 import { useData } from '../context/DataContext';
 import { SectionHeading } from '../components/SectionHeading';
 import { OfficialInfoBadge, VerifiedOrganizationPledge } from '../components/OfficialInfoBadge';
@@ -38,7 +38,6 @@ export const AboutPage: React.FC<AboutPageProps> = ({ initialTab = 'overview' })
 
   const [activeTab, setActiveTab] = useState<'overview' | 'mission-vision' | 'team'>(() => {
     if (currentPage === 'about/mission-vision') return 'mission-vision';
-    if (currentPage === 'about/team') return 'team';
     return initialTab;
   });
 
@@ -82,32 +81,6 @@ export const AboutPage: React.FC<AboutPageProps> = ({ initialTab = 'overview' })
             }`}
           >
             {isBn ? 'লক্ষ্য ও মূল্যবোধ' : 'Mission & Values'}
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('team')}
-            className={`px-4 sm:px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
-              activeTab === 'team'
-                ? 'bg-[#006A4E] text-white shadow-warm-sm'
-                : 'bg-white hover:bg-[#FAF7F2] text-slate-700 border border-[#EAE3D9]'
-            }`}
-          >
-            {isBn ? 'টিম ইনফিনিটি পরিবার' : 'Team Infinity Network'}
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate('about/executive-committee')}
-            className="px-4 sm:px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold bg-[#E6F3EF] hover:bg-[#006A4E] text-[#00523C] hover:text-white border border-[#C2E2D7] transition-all cursor-pointer flex items-center gap-1.5"
-          >
-            <span>{isBn ? 'কার্যনির্বাহী পরিষদ (২০২৬)' : 'Executive Committee 2026'}</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate('about/standing-committees')}
-            className="px-4 sm:px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold bg-white hover:bg-[#FAF7F2] text-slate-700 border border-[#EAE3D9] transition-all cursor-pointer"
-          >
-            {isBn ? 'স্থায়ী কমিটিসমূহ' : 'Standing Committees'}
           </button>
         </div>
       </div>
@@ -276,84 +249,6 @@ export const AboutPage: React.FC<AboutPageProps> = ({ initialTab = 'overview' })
                 <h4 className="text-lg font-bold text-slate-900 font-display">{isBn ? 'একতা ও ভ্রাতৃত্ব' : 'Unity'}</h4>
                 <p className="text-xs text-slate-600">{isBn ? 'টিম ইনফিনিটি একতাবদ্ধ পরিবারের মতো কাজ করে।' : 'Standing as one dedicated family for humanity.'}</p>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 3: TEAM & VOLUNTEERS */}
-      {activeTab === 'team' && (
-        <div className="space-y-10 animate-in fade-in">
-          <div className="p-6 sm:p-8 bg-white rounded-3xl border border-[#EAE3D9] flex flex-col sm:flex-row items-center justify-between gap-4 shadow-warm-sm">
-            <div className="space-y-1 text-center sm:text-left">
-              <h3 className="text-lg sm:text-xl font-bold text-slate-900 font-display">
-                {isBn ? 'টিম ইনফিনিটি নেতৃত্ব ও পরিচালনা কাঠামো' : 'Team Infinity Leadership Structure'}
-              </h3>
-              <p className="text-xs text-slate-600">
-                {isBn
-                  ? '২০২৬ কার্যনির্বাহী পরিষদ এবং স্থায়ী কমিটির মাধ্যমে সংগঠনের কার্যক্রম সুশৃঙ্খলভাবে পরিচালিত হয়।'
-                  : 'Operations are systematically guided through the 2026 Executive Committee and Standing Committees.'}
-              </p>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => navigate('about/executive-committee')}
-                className="px-4 py-2.5 bg-[#006A4E] hover:bg-[#00523C] text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
-              >
-                {isBn ? 'কার্যনির্বাহী পরিষদ ২০২৬' : 'Executive Committee 2026'}
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate('volunteer')}
-                className="px-4 py-2.5 bg-[#FAF7F2] hover:bg-[#F2ECE1] text-slate-800 rounded-xl text-xs font-bold border border-[#EAE3D9] transition-colors cursor-pointer"
-              >
-                {isBn ? 'স্বেচ্ছাসেবী হিসেবে যোগ দিন' : 'Join as Volunteer'}
-              </button>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="p-6 sm:p-7 bg-white rounded-3xl border border-[#EAE3D9] space-y-3 shadow-warm-sm">
-              <div className="w-12 h-12 rounded-2xl bg-[#E6F3EF] text-[#006A4E] flex items-center justify-center font-bold">
-                <Users className="w-6 h-6" />
-              </div>
-              <div className="space-y-1">
-                <h4 className="font-bold text-slate-900 font-display">{isBn ? 'কেন্দ্রীয় কার্যনির্বাহী পরিষদ' : 'Executive Committee'}</h4>
-                <span className="text-[11px] font-bold text-[#006A4E]">2026 Governing Board</span>
-              </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                {isBn ? 'নীতি নির্ধারণ, কৌশলগত পরিকল্পনা এবং সার্বিক তত্ত্বাবধান।' : 'Strategic planning, ethical oversight, and organizational operations.'}
-              </p>
-            </div>
-
-            <div className="p-6 sm:p-7 bg-white rounded-3xl border border-[#EAE3D9] space-y-3 shadow-warm-sm">
-              <div className="w-12 h-12 rounded-2xl bg-[#E6F3EF] text-[#006A4E] flex items-center justify-center font-bold">
-                <ShieldCheck className="w-6 h-6" />
-              </div>
-              <div className="space-y-1">
-                <h4 className="font-bold text-slate-900 font-display">{isBn ? 'স্থায়ী কমিটিসমূহ' : 'Standing Committees'}</h4>
-                <span className="text-[11px] font-bold text-[#006A4E]">Advisory & Wing Panels</span>
-              </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                {isBn ? 'স্থায়ী কমিটির মাধ্যমে বিভিন্ন বিভাগীয় ও প্রশাসনিক পরামর্শ প্রদান।' : 'Advisory guidance, oversight, and institutional counsel.'}
-              </p>
-            </div>
-
-            <div className="p-6 sm:p-7 bg-white rounded-3xl border border-[#EAE3D9] space-y-3 shadow-warm-sm">
-              <div className="w-12 h-12 rounded-2xl bg-[#E6F3EF] text-[#006A4E] flex items-center justify-center font-bold">
-                <Sparkles className="w-6 h-6" />
-              </div>
-              <div className="space-y-1">
-                <h4 className="font-bold text-slate-900 font-display">{isBn ? 'মাঠপর্যায়ের স্বেচ্ছাসেবক পরিবার' : 'Volunteer Network'}</h4>
-                <span className="text-xs font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
-                  {isBn ? 'দেশব্যাপী সক্রিয়' : 'Nationwide Active'}
-                </span>
-              </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                {isBn ? 'সরাসরি হাটহাজারী ও দূরবর্তী অঞ্চলে গিয়ে নিষ্ঠার সাথে ত্রাণ ও সেবা বিতরণ।' : 'Frontline youth delivering humanitarian goods directly to beneficiaries.'}
-              </p>
             </div>
           </div>
         </div>

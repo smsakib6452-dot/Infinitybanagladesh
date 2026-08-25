@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
-import { useRouter } from '../context/RouterContext';
+import { useRouter, Link } from '../context/RouterContext';
 import { VideoItem } from '../types';
 import {
   Play,
@@ -165,34 +165,31 @@ export const VideosPage: React.FC = () => {
 
           {/* Media & Gallery In-Page Sub Navigation Switcher */}
           <div className="pt-3 flex flex-wrap justify-center gap-2 sm:gap-3">
-            <button
-              type="button"
-              onClick={() => navigate('gallery')}
+            <Link
+              to="gallery"
               className="px-4 sm:px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold bg-white hover:bg-[#FAF7F2] text-slate-700 border border-[#EAE3D9] hover:border-[#006A4E]/40 transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <span>{isBn ? 'আলোকচিত্র গ্যালারি' : 'Photo Gallery'}</span>
-            </button>
-            <button
-              type="button"
+            </Link>
+            <Link
+              to="videos"
               className="px-4 sm:px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold bg-[#006A4E] text-white shadow-warm-sm flex items-center gap-1.5 cursor-pointer"
             >
               <Video className="w-4 h-4" />
               <span>{isBn ? 'ভিডিও তথ্যচিত্র' : 'Video Documentation'}</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate('news')}
+            </Link>
+            <Link
+              to="news"
               className="px-4 sm:px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold bg-white hover:bg-[#FAF7F2] text-slate-700 border border-[#EAE3D9] hover:border-[#006A4E]/40 transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <span>{isBn ? 'সংবাদ ও বিজ্ঞপ্তি' : 'News & Announcements'}</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate('events')}
+            </Link>
+            <Link
+              to="events"
               className="px-4 sm:px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold bg-white hover:bg-[#FAF7F2] text-slate-700 border border-[#EAE3D9] hover:border-[#006A4E]/40 transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <span>{isBn ? 'ইভেন্ট ও কর্মসূচি' : 'Events & Schedules'}</span>
-            </button>
+            </Link>
           </div>
         </div>
 

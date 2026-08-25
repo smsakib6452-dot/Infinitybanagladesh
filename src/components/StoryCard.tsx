@@ -1,7 +1,7 @@
 import React from 'react';
 import { ImpactStory } from '../types';
 import { useLanguage } from '../context/LanguageContext';
-import { useRouter } from '../context/RouterContext';
+import { Link } from '../context/RouterContext';
 import { Heart, MapPin, ArrowRight, ShieldCheck } from 'lucide-react';
 import { getAssetUrl } from '../lib/utils/assetHelper';
 
@@ -11,11 +11,14 @@ interface StoryCardProps {
 
 export const StoryCard: React.FC<StoryCardProps> = ({ story }) => {
   const { isBn, tText } = useLanguage();
-  const { navigate } = useRouter();
 
   return (
     <div className="group bg-white rounded-3xl border border-[#EAE3D9] overflow-hidden shadow-warm-sm hover:shadow-warm-lg transition-all duration-300 flex flex-col hover:-translate-y-1">
-      <div className="relative aspect-16/10 overflow-hidden bg-slate-100">
+      <Link
+        to="stories/detail"
+        slug={story.slug}
+        className="block relative aspect-16/10 overflow-hidden bg-slate-100"
+      >
         <img
           src={getAssetUrl(story.imageUrl)}
           alt={tText(story.title)}
@@ -33,13 +36,15 @@ export const StoryCard: React.FC<StoryCardProps> = ({ story }) => {
           <MapPin className="w-3 h-3 text-amber-300" />
           <span>{tText(story.location)}</span>
         </div>
-      </div>
+      </Link>
 
       <div className="p-6 sm:p-7 flex-1 flex flex-col justify-between space-y-4">
         <div className="space-y-2">
-          <h3 className="text-lg sm:text-xl font-bold text-slate-900 group-hover:text-[#006A4E] transition-colors line-clamp-2 font-display">
-            {tText(story.title)}
-          </h3>
+          <Link to="stories/detail" slug={story.slug} className="block group/title">
+            <h3 className="text-lg sm:text-xl font-bold text-slate-900 group-hover/title:text-[#006A4E] transition-colors line-clamp-2 font-display">
+              {tText(story.title)}
+            </h3>
+          </Link>
           <p className="text-xs sm:text-sm text-slate-600 line-clamp-3 leading-relaxed">
             {tText(story.story)}
           </p>
@@ -51,14 +56,14 @@ export const StoryCard: React.FC<StoryCardProps> = ({ story }) => {
         </div>
 
         <div className="pt-2 flex items-center justify-between">
-          <button
-            type="button"
-            onClick={() => navigate('stories/detail', story.slug)}
+          <Link
+            to="stories/detail"
+            slug={story.slug}
             className="text-xs sm:text-sm font-bold text-[#006A4E] hover:text-[#00523C] inline-flex items-center gap-1.5 cursor-pointer"
           >
             <span>{isBn ? 'সম্পূর্ণ গল্প পড়ুন' : 'Read Full Story'}</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </button>
+          </Link>
 
           <span className="text-[11px] text-slate-400 flex items-center gap-1 font-medium">
             <ShieldCheck className="w-3.5 h-3.5 text-[#006A4E]" />
@@ -69,3 +74,4 @@ export const StoryCard: React.FC<StoryCardProps> = ({ story }) => {
     </div>
   );
 };
+

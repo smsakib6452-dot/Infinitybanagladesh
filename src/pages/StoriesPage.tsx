@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
-import { useRouter } from '../context/RouterContext';
+import { useRouter, Link } from '../context/RouterContext';
 import { SectionHeading } from '../components/SectionHeading';
 import { SocialShareModal } from '../components/SocialShareModal';
 import { Heart, Sparkles, ShieldCheck, Share2, MapPin, Calendar, ArrowRight } from 'lucide-react';
@@ -9,7 +9,6 @@ import { Heart, Sparkles, ShieldCheck, Share2, MapPin, Calendar, ArrowRight } fr
 export const StoriesPage: React.FC = () => {
   const { isBn, tText } = useLanguage();
   const { stories } = useData();
-  const { navigate } = useRouter();
 
   const [shareStory, setShareStory] = useState<{ title: string; slug: string } | null>(null);
 
@@ -41,7 +40,11 @@ export const StoriesPage: React.FC = () => {
             >
               <div>
                 {/* Photo with Consent Badge */}
-                <div className="relative aspect-16/9 bg-slate-900 overflow-hidden">
+                <Link
+                  to="stories/detail"
+                  slug={story.slug}
+                  className="block relative aspect-16/9 bg-slate-900 overflow-hidden"
+                >
                   <img
                     src={story.imageUrl}
                     alt={tText(story.title)}
@@ -58,7 +61,7 @@ export const StoriesPage: React.FC = () => {
                       <span>{isBn ? 'সম্মতি নিশ্চিতকৃত' : 'Consent Verified'}</span>
                     </div>
                   )}
-                </div>
+                </Link>
 
                 <div className="p-6 sm:p-8 space-y-4">
                   <div className="flex items-center justify-between text-xs text-slate-500">
@@ -71,9 +74,11 @@ export const StoriesPage: React.FC = () => {
                     </span>
                   </div>
 
-                  <h2 className="text-xl sm:text-2xl font-bold text-slate-900 group-hover:text-[#006A4E] transition-colors leading-snug font-display">
-                    {tText(story.title)}
-                  </h2>
+                  <Link to="stories/detail" slug={story.slug} className="block group/title">
+                    <h2 className="text-xl sm:text-2xl font-bold text-slate-900 group-hover/title:text-[#006A4E] transition-colors leading-snug font-display">
+                      {tText(story.title)}
+                    </h2>
+                  </Link>
 
                   <p className="text-slate-600 text-xs sm:text-sm leading-relaxed line-clamp-3">
                     {tText(story.story)}
@@ -93,14 +98,14 @@ export const StoriesPage: React.FC = () => {
 
               {/* Bottom Actions */}
               <div className="p-6 sm:p-8 pt-0 flex items-center justify-between border-t border-slate-100 mt-4">
-                <button
-                  type="button"
-                  onClick={() => navigate('stories/detail', story.slug)}
+                <Link
+                  to="stories/detail"
+                  slug={story.slug}
                   className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-[#006A4E] hover:text-[#00523C] transition-colors cursor-pointer"
                 >
                   <span>{isBn ? 'সম্পূর্ণ গল্প পড়ুন' : 'Read Full Story'}</span>
                   <ArrowRight className="w-4 h-4" />
-                </button>
+                </Link>
 
                 <button
                   type="button"

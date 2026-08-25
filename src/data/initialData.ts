@@ -504,9 +504,7 @@ export const INITIAL_NAVIGATION_ITEMS: NavigationItem[] = [
     children: [
       { id: 'sub-1', label: { en: 'Story & History', bn: 'আমাদের গল্প ও ইতিহাস' }, path: 'about/story', active: true },
       { id: 'sub-2', label: { en: 'Mission & Vision', bn: 'লক্ষ্য ও দর্শন' }, path: 'about/mission-vision', active: true },
-      { id: 'sub-3', label: { en: 'Executive Committee 2026', bn: 'কার্যনির্বাহী কমিটি ২০২৬' }, path: 'about/executive-committee', active: true },
-      { id: 'sub-4', label: { en: 'Standing Committee', bn: 'স্থায়ী কমিটি' }, path: 'about/standing-committees', active: true },
-      { id: 'sub-5', label: { en: 'Past Committees', bn: 'প্রাক্তন কমিটিসমূহ' }, path: 'about/past-committees', active: true }
+      { id: 'sub-team-net', label: { en: 'Team Infinity Network', bn: 'টিম ইনফিনিটি নেটওয়ার্ক' }, path: 'about/team', active: true }
     ],
     displayOrder: 2,
     active: true
@@ -520,27 +518,6 @@ export const INITIAL_NAVIGATION_ITEMS: NavigationItem[] = [
   },
   {
     id: 'nav-4',
-    label: { en: 'Campaigns', bn: 'ক্যাম্পেইন' },
-    path: 'campaigns',
-    displayOrder: 4,
-    active: true
-  },
-  {
-    id: 'nav-5',
-    label: { en: 'Impact', bn: 'প্রভাব' },
-    path: 'impact',
-    displayOrder: 5,
-    active: true
-  },
-  {
-    id: 'nav-6',
-    label: { en: 'Stories', bn: 'বাস্তব গল্প' },
-    path: 'stories',
-    displayOrder: 6,
-    active: true
-  },
-  {
-    id: 'nav-7',
     label: { en: 'Media & Gallery', bn: 'মিডিয়া ও গ্যালারি' },
     path: 'gallery',
     isDropdown: true,
@@ -551,28 +528,27 @@ export const INITIAL_NAVIGATION_ITEMS: NavigationItem[] = [
       { id: 'sub-8', label: { en: 'News & Announcements', bn: 'সংবাদ ও নোটিশ' }, path: 'news', active: true },
       { id: 'sub-9', label: { en: 'Events & Schedules', bn: 'ইভেন্ট ও সময়সূচি' }, path: 'events', active: true }
     ],
-    displayOrder: 7,
+    displayOrder: 4,
     active: true
   },
   {
-    id: 'nav-8',
-    label: { en: 'Volunteer', bn: 'স্বেচ্ছাসেবী' },
-    path: 'volunteer',
-    displayOrder: 8,
+    id: 'nav-5',
+    label: { en: 'Meet Our Team', bn: 'আমাদের টিম ও নেতৃত্ব' },
+    path: 'team',
+    isDropdown: true,
+    children: [
+      { id: 'sub-exec', label: { en: 'Executive Committee 2026', bn: 'কার্যনির্বাহী পরিষদ ২০২৬' }, path: 'team/executive-committee', active: true },
+      { id: 'sub-stand', label: { en: 'Standing Committee', bn: 'স্থায়ী কমিটি' }, path: 'team/standing-committee', active: true },
+      { id: 'sub-past', label: { en: 'Past Committees', bn: 'প্রাক্তন কমিটিসমূহ' }, path: 'team/past-committees', isNestedDropdown: true, active: true }
+    ],
+    displayOrder: 5,
     active: true
   },
   {
-    id: 'nav-9',
-    label: { en: 'Transparency', bn: 'স্বচ্ছতা ও অডিট' },
-    path: 'transparency',
-    displayOrder: 9,
-    active: true
-  },
-  {
-    id: 'nav-10',
+    id: 'nav-6',
     label: { en: 'Contact', bn: 'যোগাযোগ' },
     path: 'contact',
-    displayOrder: 10,
+    displayOrder: 6,
     active: true
   }
 ];
@@ -1536,53 +1512,8 @@ export const INITIAL_COMMITTEES: Committee[] = [
       bn: 'ইনফিনিটি বাংলাদেশ-এর নীতি নির্ধারণ, দীর্ঘমেয়াদী দিকনির্দেশনা ও প্রাতিষ্ঠানিক তত্ত্বাবধানকারী কেন্দ্রীয় স্থায়ী কমিটি।'
     },
     status: 'ACTIVE',
-    sortOrder: 1,
-    isFeatured: true,
-    createdAt: '2026-01-01'
-  },
-  {
-    id: 'comm-stand-youth',
-    slug: 'standing-youth-education',
-    name: { en: 'Standing Committee on Youth & Education', bn: 'যুব উন্নয়ন ও শিক্ষা বিষয়ক স্থায়ী কমিটি' },
-    type: 'STANDING',
-    year: '2026',
-    description: {
-      en: 'Permanent oversight body dedicated to youth skill development, scholarship distribution, and school support for underprivileged children.',
-      bn: 'সুবিধাবঞ্চিত শিশুদের প্রাথমিক শিক্ষা ও তরুণদের সামাজিক নেতৃত্ব বিকাশে নিবেদিত স্থায়ী কমিটি।'
-    },
-    status: 'ACTIVE',
     sortOrder: 2,
-    isFeatured: false,
-    createdAt: '2026-01-01'
-  },
-  {
-    id: 'comm-stand-relief',
-    slug: 'standing-relief-disaster',
-    name: { en: 'Standing Committee on Relief & Disaster Response', bn: 'ত্রাণ ও দুর্যোগ ব্যবস্থাপনা স্থায়ী কমিটি' },
-    type: 'STANDING',
-    year: '2026',
-    description: {
-      en: 'Standing emergency response body managing rapid flood relief, winter blanket distribution, and urgent food assistance logistics.',
-      bn: 'বন্যা, দুর্যোগ ও শীতবস্ত্র বিতরণের দ্রুত মানবিক সহায়তা পরিচালনায় নিবেদিত স্থায়ী কমিটি।'
-    },
-    status: 'ACTIVE',
-    sortOrder: 3,
-    isFeatured: false,
-    createdAt: '2026-01-01'
-  },
-  {
-    id: 'comm-stand-child',
-    slug: 'standing-child-welfare',
-    name: { en: 'Standing Committee on Child Welfare & Dignity', bn: 'শিশু অধিকার ও সামাজিক মর্যাদা স্থায়ী কমিটি' },
-    type: 'STANDING',
-    year: '2026',
-    description: {
-      en: 'Permanent committee focused on orphan care, street children protection, and dignity-first social inclusion drives.',
-      bn: 'সুবিধাবঞ্চিত ও ছিন্নমূল শিশুদের সুরক্ষা এবং মর্যাদা রক্ষায় নিয়োজিত স্থায়ী কমিটি।'
-    },
-    status: 'ACTIVE',
-    sortOrder: 4,
-    isFeatured: false,
+    isFeatured: true,
     createdAt: '2026-01-01'
   },
   {
@@ -1596,9 +1527,39 @@ export const INITIAL_COMMITTEES: Committee[] = [
       bn: '২০২৫ সালের জন্য ইনফিনিটি বাংলাদেশের দায়িত্ব পালনকারী প্রাক্তন কার্যনির্বাহী পরিষদ।'
     },
     status: 'ARCHIVED',
-    sortOrder: 5,
+    sortOrder: 3,
     isFeatured: false,
     createdAt: '2025-01-01'
+  },
+  {
+    id: 'comm-exec-2024',
+    slug: 'executive-committee-2024',
+    name: { en: 'Infinity Bangladesh Executive Committee — 2024', bn: 'ইনফিনিটি বাংলাদেশ কার্যনির্বাহী কমিটি — ২০২৪' },
+    type: 'PAST',
+    year: '2024',
+    description: {
+      en: 'Archived executive leadership of Infinity Bangladesh for the service year 2024.',
+      bn: '২০২৪ সালের জন্য ইনফিনিটি বাংলাদেশের দায়িত্ব পালনকারী প্রাক্তন কার্যনির্বাহী পরিষদ।'
+    },
+    status: 'ARCHIVED',
+    sortOrder: 4,
+    isFeatured: false,
+    createdAt: '2024-01-01'
+  },
+  {
+    id: 'comm-exec-2023',
+    slug: 'executive-committee-2023',
+    name: { en: 'Infinity Bangladesh Executive Committee — 2023', bn: 'ইনফিনিটি বাংলাদেশ কার্যনির্বাহী কমিটি — ২০২৩' },
+    type: 'PAST',
+    year: '2023',
+    description: {
+      en: 'Archived executive leadership of Infinity Bangladesh for the service year 2023.',
+      bn: '২০২৩ সালের জন্য ইনফিনিটি বাংলাদেশের দায়িত্ব পালনকারী প্রাক্তন কার্যনির্বাহী পরিষদ।'
+    },
+    status: 'ARCHIVED',
+    sortOrder: 5,
+    isFeatured: false,
+    createdAt: '2023-01-01'
   }
 ];
 
@@ -2022,5 +1983,18 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
   // Past Committee 2025 Archive
   { id: 'cm-past-25-1', committeeId: 'comm-exec-2025', personId: 'person-1', positionId: 'pos-1', serialNumber: 1, sortOrder: 1, isFeaturedLeader: true, status: 'ARCHIVED' },
   { id: 'cm-past-25-2', committeeId: 'comm-exec-2025', personId: 'person-6', positionId: 'pos-5', serialNumber: 2, sortOrder: 2, isFeaturedLeader: true, status: 'ARCHIVED' },
-  { id: 'cm-past-25-3', committeeId: 'comm-exec-2025', personId: 'person-2', positionId: 'pos-2', serialNumber: 3, sortOrder: 3, isFeaturedLeader: false, status: 'ARCHIVED' }
+  { id: 'cm-past-25-3', committeeId: 'comm-exec-2025', personId: 'person-2', positionId: 'pos-2', serialNumber: 3, sortOrder: 3, isFeaturedLeader: false, status: 'ARCHIVED' },
+  { id: 'cm-past-25-4', committeeId: 'comm-exec-2025', personId: 'person-5', positionId: 'pos-4', serialNumber: 4, sortOrder: 4, isFeaturedLeader: false, status: 'ARCHIVED' },
+
+  // Past Committee 2024 Archive
+  { id: 'cm-past-24-1', committeeId: 'comm-exec-2024', personId: 'person-1', positionId: 'pos-1', serialNumber: 1, sortOrder: 1, isFeaturedLeader: true, status: 'ARCHIVED' },
+  { id: 'cm-past-24-2', committeeId: 'comm-exec-2024', personId: 'person-3', positionId: 'pos-3', serialNumber: 2, sortOrder: 2, isFeaturedLeader: true, status: 'ARCHIVED' },
+  { id: 'cm-past-24-3', committeeId: 'comm-exec-2024', personId: 'person-5', positionId: 'pos-4', serialNumber: 3, sortOrder: 3, isFeaturedLeader: true, status: 'ARCHIVED' },
+  { id: 'cm-past-24-4', committeeId: 'comm-exec-2024', personId: 'person-8', positionId: 'pos-8', serialNumber: 4, sortOrder: 4, isFeaturedLeader: false, status: 'ARCHIVED' },
+
+  // Past Committee 2023 Archive
+  { id: 'cm-past-23-1', committeeId: 'comm-exec-2023', personId: 'person-2', positionId: 'pos-1', serialNumber: 1, sortOrder: 1, isFeaturedLeader: true, status: 'ARCHIVED' },
+  { id: 'cm-past-23-2', committeeId: 'comm-exec-2023', personId: 'person-4', positionId: 'pos-2', serialNumber: 2, sortOrder: 2, isFeaturedLeader: true, status: 'ARCHIVED' },
+  { id: 'cm-past-23-3', committeeId: 'comm-exec-2023', personId: 'person-7', positionId: 'pos-4', serialNumber: 3, sortOrder: 3, isFeaturedLeader: true, status: 'ARCHIVED' },
+  { id: 'cm-past-23-4', committeeId: 'comm-exec-2023', personId: 'person-12', positionId: 'pos-7', serialNumber: 4, sortOrder: 4, isFeaturedLeader: false, status: 'ARCHIVED' }
 ];

@@ -10,6 +10,7 @@ import { AdminErrorBoundary } from './components/AdminErrorBoundary';
 // Pages
 import { HomePage } from './pages/HomePage';
 import { AboutPage } from './pages/AboutPage';
+import { TeamOverviewPage } from './pages/TeamOverviewPage';
 import { ExecutiveCommitteePage } from './pages/ExecutiveCommitteePage';
 import { StandingCommitteesPage } from './pages/StandingCommitteesPage';
 import { PastCommitteesPage } from './pages/PastCommitteesPage';
@@ -54,10 +55,15 @@ const AppContent: React.FC = () => {
         return <AboutPage initialTab="mission-vision" />;
       case 'about/team':
         return <AboutPage initialTab="team" />;
+      case 'team':
+        return <TeamOverviewPage />;
+      case 'team/executive-committee':
       case 'about/executive-committee':
         return <ExecutiveCommitteePage />;
+      case 'team/standing-committee':
       case 'about/standing-committees':
         return <StandingCommitteesPage />;
+      case 'team/past-committees':
       case 'about/past-committees':
         return <PastCommitteesPage />;
       case 'programs':

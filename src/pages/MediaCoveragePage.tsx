@@ -139,7 +139,12 @@ export const MediaCoveragePage: React.FC = () => {
                 className="group bg-white rounded-3xl border border-[#EAE3D9] overflow-hidden shadow-warm-sm hover:shadow-warm-xl transition-all duration-300 flex flex-col hover:-translate-y-1"
               >
                 {/* Feature Image Header */}
-                <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
+                <a
+                  href={item.articleUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block relative aspect-[16/10] overflow-hidden bg-slate-100"
+                >
                   <img
                     src={getAssetUrl(item.imageUrl || '/images/infinity-cover-hero.jpg')}
                     alt={isBn ? item.title.bn : item.title.en}
@@ -161,7 +166,7 @@ export const MediaCoveragePage: React.FC = () => {
                       <span>Featured</span>
                     </div>
                   )}
-                </div>
+                </a>
 
                 {/* Card Content Body */}
                 <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
@@ -178,9 +183,16 @@ export const MediaCoveragePage: React.FC = () => {
                     </div>
 
                     {/* Headline */}
-                    <h3 className="font-extrabold text-base sm:text-lg text-slate-900 font-display leading-snug group-hover:text-[#006A4E] transition-colors">
-                      {isBn ? item.title.bn : item.title.en}
-                    </h3>
+                    <a
+                      href={item.articleUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block group/title"
+                    >
+                      <h3 className="font-extrabold text-base sm:text-lg text-slate-900 font-display leading-snug group-hover/title:text-[#006A4E] transition-colors">
+                        {isBn ? item.title.bn : item.title.en}
+                      </h3>
+                    </a>
 
                     {/* Excerpt */}
                     <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed">

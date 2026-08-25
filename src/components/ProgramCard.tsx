@@ -1,7 +1,7 @@
 import React from 'react';
 import { Program } from '../types';
 import { useLanguage } from '../context/LanguageContext';
-import { useRouter } from '../context/RouterContext';
+import { Link } from '../context/RouterContext';
 import {
   Gift,
   Utensils,
@@ -28,7 +28,6 @@ interface ProgramCardProps {
 
 export const ProgramCard: React.FC<ProgramCardProps> = ({ program }) => {
   const { isBn, tText } = useLanguage();
-  const { navigate } = useRouter();
 
   const icon = ICON_MAP[program.iconName] || <Sparkles className="w-6 h-6" />;
 
@@ -37,18 +36,24 @@ export const ProgramCard: React.FC<ProgramCardProps> = ({ program }) => {
       <div className="space-y-4">
         {/* Icon & Category */}
         <div className="flex items-center justify-between">
-          <div className="w-13 h-13 rounded-2xl bg-[#E6F3EF] text-[#006A4E] flex items-center justify-center group-hover:bg-[#006A4E] group-hover:text-white transition-all duration-300 shadow-xs">
+          <Link
+            to="programs/detail"
+            slug={program.slug}
+            className="w-13 h-13 rounded-2xl bg-[#E6F3EF] text-[#006A4E] flex items-center justify-center group-hover:bg-[#006A4E] group-hover:text-white transition-all duration-300 shadow-xs"
+          >
             {icon}
-          </div>
+          </Link>
           <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#FAF7F2] text-slate-700 border border-[#EAE3D9]">
             {program.category}
           </span>
         </div>
 
         {/* Title */}
-        <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 group-hover:text-[#006A4E] transition-colors font-display">
-          {tText(program.title)}
-        </h3>
+        <Link to="programs/detail" slug={program.slug} className="block group/title">
+          <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 group-hover/title:text-[#006A4E] transition-colors font-display">
+            {tText(program.title)}
+          </h3>
+        </Link>
 
         {/* Short Description */}
         <p className="text-xs sm:text-sm text-slate-600 leading-relaxed line-clamp-3">
@@ -68,15 +73,16 @@ export const ProgramCard: React.FC<ProgramCardProps> = ({ program }) => {
 
       {/* Footer Action */}
       <div className="pt-6">
-        <button
-          type="button"
-          onClick={() => navigate('programs/detail', program.slug)}
+        <Link
+          to="programs/detail"
+          slug={program.slug}
           className="text-xs sm:text-sm font-bold text-[#006A4E] hover:text-[#00523C] inline-flex items-center gap-1.5 transition-colors cursor-pointer group-hover:translate-x-1 duration-200"
         >
           <span>{isBn ? 'কর্মসূচির সম্পূর্ণ বিবরণ' : 'Explore Program Details'}</span>
           <ArrowRight className="w-4 h-4" />
-        </button>
+        </Link>
       </div>
     </div>
   );
 };
+

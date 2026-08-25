@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { useRouter } from '../context/RouterContext';
+import { useRouter, Link } from '../context/RouterContext';
 import { useData } from '../context/DataContext';
 import { SectionHeading } from '../components/SectionHeading';
 import { EventCard } from '../components/EventCard';
@@ -42,7 +42,7 @@ export const EventsPage: React.FC = () => {
 
 export const EventDetailPage: React.FC = () => {
   const { isBn, tText } = useLanguage();
-  const { currentSlug, navigate } = useRouter();
+  const { currentSlug } = useRouter();
   const { events } = useData();
 
   const event = events.find(e => e.slug === currentSlug) || events[0];
@@ -59,13 +59,12 @@ export const EventDetailPage: React.FC = () => {
         <h2 className="text-2xl font-bold text-slate-900 font-display">
           {isBn ? 'ইভেন্ট পাওয়া যায়নি' : 'Event Not Found'}
         </h2>
-        <button
-          type="button"
-          onClick={() => navigate('events')}
-          className="px-5 py-2.5 bg-[#006A4E] text-white rounded-2xl text-sm font-bold cursor-pointer"
+        <Link
+          to="events"
+          className="px-5 py-2.5 bg-[#006A4E] text-white rounded-2xl text-sm font-bold cursor-pointer inline-block"
         >
           {isBn ? 'সকল ইভেন্টে ফিরে যান' : 'Back to Events'}
-        </button>
+        </Link>
       </div>
     );
   }
@@ -78,14 +77,13 @@ export const EventDetailPage: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-10">
       {/* Back button */}
-      <button
-        type="button"
-        onClick={() => navigate('events')}
+      <Link
+        to="events"
         className="inline-flex items-center gap-2 text-sm font-bold text-[#006A4E] hover:text-[#00523C] transition-colors cursor-pointer"
       >
         <ArrowLeft className="w-4 h-4" />
         <span>{isBn ? 'সকল ইভেন্টে ফিরে যান' : 'Back to All Events'}</span>
-      </button>
+      </Link>
 
       {/* Hero Header */}
       <div className="space-y-4">

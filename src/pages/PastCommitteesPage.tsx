@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
 import { useRouter } from '../context/RouterContext';
+import { Link } from '../components/Link';
 import { SectionHeading } from '../components/SectionHeading';
 import {
   History,
@@ -10,17 +11,37 @@ import {
   Award,
   ChevronDown,
   ChevronUp,
-  ArrowRight
+  ArrowRight,
+  LayoutGrid
 } from 'lucide-react';
 import { getAssetUrl } from '../lib/utils/assetHelper';
 
 export const PastCommitteesPage: React.FC = () => {
   const { isBn, tText } = useLanguage();
-  const { navigate } = useRouter();
+  const { currentSlug } = useRouter();
   const { committees, getMembersWithDetails } = useData();
 
-  const pastCommittees = committees.filter(c => c.type === 'PAST' || c.status === 'ARCHIVED');
+  const pastCommittees = committees
+    .filter(c => c.type === 'PAST' || c.status === 'ARCHIVED')
+    .sort((a, b) => {
+      const yearA = parseInt(a.year || '0', 10);
+      const yearB = parseInt(b.year || '0', 10);
+      return yearB - yearA;
+    });
+
   const [expandedId, setExpandedId] = useState<string | null>(pastCommittees[0]?.id || null);
+
+  // Auto-expand committee when matching currentSlug (by id, slug, or year)
+  useEffect(() => {
+    if (currentSlug && pastCommittees.length > 0) {
+      const matched = pastCommittees.find(
+        c => c.id === currentSlug || c.slug === currentSlug || c.year === currentSlug
+      );
+      if (matched) {
+        setExpandedId(matched.id);
+      }
+    }
+  }, [currentSlug, pastCommittees]);
 
   const toggleExpand = (id: string) => {
     setExpandedId(prev => (prev === id ? null : id));
@@ -47,28 +68,34 @@ export const PastCommitteesPage: React.FC = () => {
 
         {/* Sub-navigation */}
         <div className="pt-3 flex flex-wrap justify-center items-center gap-2.5 sm:gap-3">
-          <button
-            type="button"
-            onClick={() => navigate('about/executive-committee')}
-            className="px-5 py-2.5 rounded-2xl bg-white hover:bg-[#FAF7F2] text-slate-700 text-xs sm:text-sm font-bold border border-[#EAE3D9] transition-all cursor-pointer"
+          <Link
+            to="team"
+            className="px-4 py-2 rounded-2xl bg-white hover:bg-[#FAF7F2] text-slate-700 text-xs sm:text-sm font-bold border border-[#EAE3D9] transition-all cursor-pointer flex items-center gap-1.5"
           >
-            {isBn ? 'বর্তমান কার্যনির্বাহী পরিষদ (২০২৬)' : 'Current Executive Committee (2026)'}
-          </button>
+            <LayoutGrid className="w-4 h-4 text-[#006A4E]" />
+            <span>{isBn ? 'টিম ওভারভিউ' : 'Team Overview'}</span>
+          </Link>
 
-          <button
-            type="button"
-            onClick={() => navigate('about/standing-committees')}
-            className="px-5 py-2.5 rounded-2xl bg-white hover:bg-[#FAF7F2] text-slate-700 text-xs sm:text-sm font-bold border border-[#EAE3D9] transition-all cursor-pointer"
+          <Link
+            to="team/executive-committee"
+            className="px-4 py-2 rounded-2xl bg-white hover:bg-[#FAF7F2] text-slate-700 text-xs sm:text-sm font-bold border border-[#EAE3D9] transition-all cursor-pointer"
           >
-            {isBn ? 'স্থায়ী কমিটিসমূহ' : 'Standing Committees'}
-          </button>
+            {isBn ? 'কার্যনির্বাহী পরিষদ (২০২৬)' : 'Executive Committee (2026)'}
+          </Link>
 
-          <button
-            type="button"
-            className="px-5 py-2.5 rounded-2xl bg-[#006A4E] text-white text-xs sm:text-sm font-extrabold shadow-warm-sm cursor-default"
+          <Link
+            to="team/standing-committee"
+            className="px-4 py-2 rounded-2xl bg-white hover:bg-[#FAF7F2] text-slate-700 text-xs sm:text-sm font-bold border border-[#EAE3D9] transition-all cursor-pointer"
+          >
+            {isBn ? 'স্থায়ী কমিটি' : 'Standing Committee'}
+          </Link>
+
+          <Link
+            to="team/past-committees"
+            className="px-4 py-2 rounded-2xl bg-[#006A4E] text-white text-xs sm:text-sm font-extrabold shadow-warm-sm cursor-pointer"
           >
             {isBn ? 'প্রাক্তন কমিটি আর্কাইভ' : 'Past Committees Archive'}
-          </button>
+          </Link>
         </div>
       </div>
 

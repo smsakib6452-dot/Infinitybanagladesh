@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { useRouter } from '../context/RouterContext';
+import { useRouter, Link } from '../context/RouterContext';
 import { useData } from '../context/DataContext';
 import { GalleryLightbox } from '../components/GalleryLightbox';
 import { CampaignCard } from '../components/CampaignCard';
@@ -19,7 +19,7 @@ import {
 
 export const CampaignDetailPage: React.FC = () => {
   const { isBn, tText } = useLanguage();
-  const { currentSlug, navigate } = useRouter();
+  const { currentSlug } = useRouter();
   const { campaigns } = useData();
 
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
@@ -32,13 +32,12 @@ export const CampaignDetailPage: React.FC = () => {
         <h2 className="text-2xl font-bold text-slate-900">
           {isBn ? 'ক্যাম্পেইন পাওয়া যায়নি' : 'Campaign Not Found'}
         </h2>
-        <button
-          type="button"
-          onClick={() => navigate('campaigns')}
-          className="px-5 py-2.5 bg-[#006A4E] text-white rounded-2xl text-sm font-bold shadow-warm-sm cursor-pointer"
+        <Link
+          to="campaigns"
+          className="px-5 py-2.5 bg-[#006A4E] text-white rounded-2xl text-sm font-bold shadow-warm-sm cursor-pointer inline-block"
         >
           {isBn ? 'সকল ক্যাম্পেইনে ফিরে যান' : 'Back to Campaigns'}
-        </button>
+        </Link>
       </div>
     );
   }
@@ -72,14 +71,13 @@ export const CampaignDetailPage: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-12">
       {/* Back button and Share */}
       <div className="flex items-center justify-between">
-        <button
-          type="button"
-          onClick={() => navigate('campaigns')}
+        <Link
+          to="campaigns"
           className="inline-flex items-center gap-2 text-sm font-bold text-[#006A4E] hover:text-[#00523C] transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>{isBn ? 'সকল ক্যাম্পেইনে ফিরে যান' : 'Back to All Campaigns'}</span>
-        </button>
+        </Link>
 
         <button
           type="button"
@@ -197,23 +195,21 @@ export const CampaignDetailPage: React.FC = () => {
             </div>
 
             <div className="space-y-3 pt-2">
-              <button
-                type="button"
-                onClick={() => navigate('donate')}
+              <Link
+                to="donate"
                 className="w-full py-3.5 rounded-2xl bg-[#006A4E] hover:bg-[#00523C] text-white font-extrabold text-sm shadow-warm-sm transition-all flex items-center justify-center gap-2 cursor-pointer transform hover:-translate-y-0.5"
               >
                 <Heart className="w-4 h-4 fill-white" />
                 <span>{isBn ? 'অনলাইন অনুদান প্রদান' : 'Donate to Campaign'}</span>
-              </button>
+              </Link>
 
-              <button
-                type="button"
-                onClick={() => navigate('volunteer')}
+              <Link
+                to="volunteer"
                 className="w-full py-3.5 rounded-2xl bg-[#FAF7F2] hover:bg-[#F2ECE1] text-slate-800 font-bold text-sm border border-[#EAE3D9] transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Users className="w-4 h-4 text-[#006A4E]" />
                 <span>{isBn ? 'স্বেচ্ছাসেবী হিসেবে যোগ দিন' : 'Volunteer for this Drive'}</span>
-              </button>
+              </Link>
             </div>
 
             <div className="p-4 bg-[#FAF7F2] rounded-2xl border border-[#EAE3D9] space-y-2 text-xs text-slate-600">

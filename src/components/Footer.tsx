@@ -1,11 +1,10 @@
 import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { useRouter } from '../context/RouterContext';
+import { Link } from '../context/RouterContext';
 import { useData } from '../context/DataContext';
 import { BrandLogo } from './BrandLogo';
 import {
   Heart,
-  ShieldCheck,
   Facebook,
   Youtube,
   Instagram,
@@ -15,24 +14,14 @@ import {
   Mail,
   ArrowRight,
   Sparkles,
-  Lock,
   ExternalLink,
   MessageSquare
 } from 'lucide-react';
-import { PageRoute, SocialPlatform } from '../types';
+import { SocialPlatform } from '../types';
 
 export const Footer: React.FC = () => {
   const { isBn, tText } = useLanguage();
-  const { navigate } = useRouter();
   const { footerSettings, socialLinks, settings, programs } = useData();
-
-  const handleNav = (page: string, slug?: string) => {
-    if (page.startsWith('http://') || page.startsWith('https://')) {
-      window.open(page, '_blank', 'noopener,noreferrer');
-    } else {
-      navigate(page as PageRoute, slug);
-    }
-  };
 
   const renderSocialIcon = (platform: SocialPlatform) => {
     switch (platform) {
@@ -84,22 +73,20 @@ export const Footer: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-3 shrink-0">
-            <button
-              type="button"
-              onClick={() => handleNav(footerSettings.volunteerCtaUrl || 'volunteer')}
+            <Link
+              to={footerSettings.volunteerCtaUrl || 'volunteer'}
               className="px-6 py-3 rounded-xl bg-[#006A4E] hover:bg-[#008562] active:bg-[#004D38] text-white font-bold text-xs sm:text-sm shadow-warm-md transition-all duration-200 inline-flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5"
             >
               <span>{tText(footerSettings.volunteerCtaText) || (isBn ? 'স্বেচ্ছাসেবী হিসেবে যোগ দিন' : 'Become a Volunteer')}</span>
               <ArrowRight className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => handleNav(footerSettings.supportCtaUrl || 'donate')}
+            </Link>
+            <Link
+              to={footerSettings.supportCtaUrl || 'donate'}
               className="px-6 py-3 rounded-xl bg-white hover:bg-emerald-50 active:bg-emerald-100 text-[#006A4E] font-bold text-xs sm:text-sm shadow-warm-sm border border-emerald-200 transition-all duration-200 inline-flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5"
             >
               <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />
               <span>{tText(footerSettings.supportCtaText) || (isBn ? 'সহায়তা করুন' : 'Support Our Work')}</span>
-            </button>
+            </Link>
           </div>
         </div>
       </div>
@@ -109,7 +96,9 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
           {/* Col 1: Brand & Identity */}
           <div className="lg:col-span-2 space-y-4">
-            <BrandLogo variant="light" size="lg" />
+            <Link to="home" className="inline-block focus:outline-none group">
+              <BrandLogo variant="light" size="lg" />
+            </Link>
             <p className="text-xs sm:text-sm text-emerald-200/80 leading-relaxed pr-4">
               {tText(footerSettings.description)}
             </p>
@@ -147,34 +136,34 @@ export const Footer: React.FC = () => {
             </span>
             <ul className="space-y-2 text-xs text-emerald-200/80">
               <li>
-                <button type="button" onClick={() => handleNav('about/story')} className="hover:text-white transition-colors cursor-pointer">
+                <Link to="about/story" className="hover:text-white transition-colors cursor-pointer block">
                   {isBn ? 'আমাদের গল্প ও যাত্রা' : 'Our Story & Journey'}
-                </button>
+                </Link>
               </li>
               <li>
-                <button type="button" onClick={() => handleNav('about/mission-vision')} className="hover:text-white transition-colors cursor-pointer">
+                <Link to="about/mission-vision" className="hover:text-white transition-colors cursor-pointer block">
                   {isBn ? 'লক্ষ্য ও দর্শন' : 'Mission & Vision'}
-                </button>
+                </Link>
               </li>
               <li>
-                <button type="button" onClick={() => handleNav('about/executive-committee')} className="hover:text-white transition-colors cursor-pointer">
+                <Link to="about/executive-committee" className="hover:text-white transition-colors cursor-pointer block">
                   {isBn ? 'কার্যনির্বাহী কমিটি ২০২৬' : 'Executive Committee 2026'}
-                </button>
+                </Link>
               </li>
               <li>
-                <button type="button" onClick={() => handleNav('about/standing-committees')} className="hover:text-white transition-colors cursor-pointer">
+                <Link to="about/standing-committees" className="hover:text-white transition-colors cursor-pointer block">
                   {isBn ? 'স্থায়ী কমিটি' : 'Standing Committees'}
-                </button>
+                </Link>
               </li>
               <li>
-                <button type="button" onClick={() => handleNav('about/past-committees')} className="hover:text-white transition-colors cursor-pointer">
+                <Link to="about/past-committees" className="hover:text-white transition-colors cursor-pointer block">
                   {isBn ? 'প্রাক্তন কমিটিসমূহ' : 'Past Committees Archive'}
-                </button>
+                </Link>
               </li>
               <li>
-                <button type="button" onClick={() => handleNav('transparency')} className="hover:text-white transition-colors cursor-pointer">
+                <Link to="transparency" className="hover:text-white transition-colors cursor-pointer block">
                   {isBn ? 'স্বচ্ছতা ও জবাবদিহিতা' : 'Transparency & Governance'}
-                </button>
+                </Link>
               </li>
             </ul>
           </div>
@@ -187,25 +176,25 @@ export const Footer: React.FC = () => {
             <ul className="space-y-2 text-xs text-emerald-200/80">
               {programs.slice(0, 4).map(p => (
                 <li key={p.id}>
-                  <button type="button" onClick={() => handleNav('programs/detail', p.slug)} className="hover:text-white transition-colors cursor-pointer text-left">
+                  <Link to="programs/detail" slug={p.slug} className="hover:text-white transition-colors cursor-pointer text-left block">
                     {tText(p.title)}
-                  </button>
+                  </Link>
                 </li>
               ))}
               <li>
-                <button type="button" onClick={() => handleNav('campaigns')} className="hover:text-white transition-colors cursor-pointer">
+                <Link to="campaigns" className="hover:text-white transition-colors cursor-pointer block">
                   {isBn ? 'সকল মানবিক ক্যাম্পেইন' : 'All Humanitarian Campaigns'}
-                </button>
+                </Link>
               </li>
               <li>
-                <button type="button" onClick={() => handleNav('media-coverage')} className="hover:text-white transition-colors cursor-pointer">
+                <Link to="media-coverage" className="hover:text-white transition-colors cursor-pointer block">
                   {isBn ? 'গণমাধ্যমে ইনফিনিটি (প্রেস)' : 'In The News & Press'}
-                </button>
+                </Link>
               </li>
               <li>
-                <button type="button" onClick={() => handleNav('stories')} className="hover:text-white transition-colors cursor-pointer">
+                <Link to="stories" className="hover:text-white transition-colors cursor-pointer block">
                   {isBn ? 'বাস্তব জীবনের গল্প' : 'Impact Stories'}
-                </button>
+                </Link>
               </li>
             </ul>
           </div>
@@ -245,20 +234,21 @@ export const Footer: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-4 text-[11px]">
-            <button type="button" onClick={() => handleNav('privacy')} className="hover:text-white transition-colors cursor-pointer">
+            <Link to="privacy" className="hover:text-white transition-colors cursor-pointer">
               {isBn ? 'প্রাইভেসি পলিসি' : 'Privacy Policy'}
-            </button>
+            </Link>
             <span>&bull;</span>
-            <button type="button" onClick={() => handleNav('terms')} className="hover:text-white transition-colors cursor-pointer">
+            <Link to="terms" className="hover:text-white transition-colors cursor-pointer">
               {isBn ? 'টার্মস অ্যান্ড কন্ডিশন' : 'Terms & Verification'}
-            </button>
+            </Link>
             <span>&bull;</span>
-            <button type="button" onClick={() => handleNav('contact')} className="hover:text-white transition-colors cursor-pointer">
+            <Link to="contact" className="hover:text-white transition-colors cursor-pointer">
               {isBn ? 'হেল্পডেস্ক' : 'Official Helpdesk'}
-            </button>
+            </Link>
           </div>
         </div>
       </div>
     </footer>
   );
 };
+

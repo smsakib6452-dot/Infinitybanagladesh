@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { useRouter } from '../context/RouterContext';
+import { useRouter, Link } from '../context/RouterContext';
 import { useData } from '../context/DataContext';
 import { SectionHeading } from '../components/SectionHeading';
 import { NewsCard } from '../components/NewsCard';
@@ -68,7 +68,7 @@ export const NewsPage: React.FC = () => {
 
 export const NewsDetailPage: React.FC = () => {
   const { isBn, tText } = useLanguage();
-  const { currentSlug, navigate } = useRouter();
+  const { currentSlug } = useRouter();
   const { news } = useData();
 
   const article = news.find(n => n.slug === currentSlug) || news[0];
@@ -79,13 +79,12 @@ export const NewsDetailPage: React.FC = () => {
         <h2 className="text-2xl font-bold text-slate-900 font-display">
           {isBn ? 'সংবাদ পাওয়া যায়নি' : 'Article Not Found'}
         </h2>
-        <button
-          type="button"
-          onClick={() => navigate('news')}
-          className="px-5 py-2.5 bg-[#006A4E] text-white rounded-2xl text-sm font-bold cursor-pointer"
+        <Link
+          to="news"
+          className="px-5 py-2.5 bg-[#006A4E] text-white rounded-2xl text-sm font-bold cursor-pointer inline-block"
         >
           {isBn ? 'সকল সংবাদে ফিরে যান' : 'Back to News'}
-        </button>
+        </Link>
       </div>
     );
   }
@@ -107,14 +106,13 @@ export const NewsDetailPage: React.FC = () => {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-10">
       {/* Back button and share */}
       <div className="flex items-center justify-between">
-        <button
-          type="button"
-          onClick={() => navigate('news')}
+        <Link
+          to="news"
           className="inline-flex items-center gap-2 text-sm font-bold text-[#006A4E] hover:text-[#00523C] transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>{isBn ? 'সকল সংবাদে ফিরে যান' : 'Back to News'}</span>
-        </button>
+        </Link>
 
         <button
           type="button"

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useRouter } from '../context/RouterContext';
+import { useRouter, Link } from '../context/RouterContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
 import {
@@ -15,7 +15,7 @@ import {
 import { PageRoute } from '../types';
 
 export const GlobalSearchModal: React.FC = () => {
-  const { isSearchOpen, setIsSearchOpen, navigate } = useRouter();
+  const { isSearchOpen, setIsSearchOpen } = useRouter();
   const { isBn, tText } = useLanguage();
   const { campaigns, programs, news, stories, events, reports } = useData();
 
@@ -104,11 +104,6 @@ export const GlobalSearchModal: React.FC = () => {
     matchingEvents.length +
     matchingReports.length;
 
-  const handleSelect = (page: PageRoute, slug?: string) => {
-    setIsSearchOpen(false);
-    navigate(page, slug);
-  };
-
   return (
     <div
       className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 px-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in"
@@ -137,7 +132,7 @@ export const GlobalSearchModal: React.FC = () => {
             <button
               type="button"
               onClick={() => setQuery('')}
-              className="p-1 rounded-full text-slate-400 hover:text-slate-600"
+              className="p-1 rounded-full text-slate-400 hover:text-slate-600 cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -145,7 +140,7 @@ export const GlobalSearchModal: React.FC = () => {
           <button
             type="button"
             onClick={() => setIsSearchOpen(false)}
-            className="px-2.5 py-1 text-xs bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl font-bold"
+            className="px-2.5 py-1 text-xs bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl font-bold cursor-pointer"
           >
             ESC
           </button>
@@ -186,10 +181,11 @@ export const GlobalSearchModal: React.FC = () => {
               </span>
               <div className="space-y-1.5">
                 {matchingCampaigns.map(c => (
-                  <button
+                  <Link
                     key={c.id}
-                    type="button"
-                    onClick={() => handleSelect('campaigns/detail', c.slug)}
+                    to="campaigns/detail"
+                    slug={c.slug}
+                    onClick={() => setIsSearchOpen(false)}
                     className="w-full text-left p-2.5 rounded-2xl hover:bg-[#E6F3EF] transition-colors flex items-center justify-between group cursor-pointer"
                   >
                     <div>
@@ -199,7 +195,7 @@ export const GlobalSearchModal: React.FC = () => {
                       <div className="text-xs text-slate-500 line-clamp-1">{tText(c.description)}</div>
                     </div>
                     <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#006A4E] opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </button>
+                  </Link>
                 ))}
               </div>
             </div>
@@ -214,10 +210,11 @@ export const GlobalSearchModal: React.FC = () => {
               </span>
               <div className="space-y-1.5">
                 {matchingPrograms.map(p => (
-                  <button
+                  <Link
                     key={p.id}
-                    type="button"
-                    onClick={() => handleSelect('programs/detail', p.slug)}
+                    to="programs/detail"
+                    slug={p.slug}
+                    onClick={() => setIsSearchOpen(false)}
                     className="w-full text-left p-2.5 rounded-2xl hover:bg-[#E6F3EF] transition-colors flex items-center justify-between group cursor-pointer"
                   >
                     <div>
@@ -227,7 +224,7 @@ export const GlobalSearchModal: React.FC = () => {
                       <div className="text-xs text-slate-500 line-clamp-1">{tText(p.shortDescription)}</div>
                     </div>
                     <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#006A4E] opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </button>
+                  </Link>
                 ))}
               </div>
             </div>
@@ -242,10 +239,11 @@ export const GlobalSearchModal: React.FC = () => {
               </span>
               <div className="space-y-1.5">
                 {matchingStories.map(s => (
-                  <button
+                  <Link
                     key={s.id}
-                    type="button"
-                    onClick={() => handleSelect('stories/detail', s.slug)}
+                    to="stories/detail"
+                    slug={s.slug}
+                    onClick={() => setIsSearchOpen(false)}
                     className="w-full text-left p-2.5 rounded-2xl hover:bg-[#E6F3EF] transition-colors flex items-center justify-between group cursor-pointer"
                   >
                     <div>
@@ -255,7 +253,7 @@ export const GlobalSearchModal: React.FC = () => {
                       <div className="text-xs text-slate-500 line-clamp-1">{tText(s.story)}</div>
                     </div>
                     <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#006A4E] opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </button>
+                  </Link>
                 ))}
               </div>
             </div>
@@ -270,10 +268,11 @@ export const GlobalSearchModal: React.FC = () => {
               </span>
               <div className="space-y-1.5">
                 {matchingNews.map(n => (
-                  <button
+                  <Link
                     key={n.id}
-                    type="button"
-                    onClick={() => handleSelect('news/detail', n.slug)}
+                    to="news/detail"
+                    slug={n.slug}
+                    onClick={() => setIsSearchOpen(false)}
                     className="w-full text-left p-2.5 rounded-2xl hover:bg-[#E6F3EF] transition-colors flex items-center justify-between group cursor-pointer"
                   >
                     <div>
@@ -283,7 +282,7 @@ export const GlobalSearchModal: React.FC = () => {
                       <div className="text-xs text-slate-500 line-clamp-1">{tText(n.excerpt)}</div>
                     </div>
                     <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#006A4E] opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </button>
+                  </Link>
                 ))}
               </div>
             </div>
@@ -298,10 +297,11 @@ export const GlobalSearchModal: React.FC = () => {
               </span>
               <div className="space-y-1.5">
                 {matchingEvents.map(e => (
-                  <button
+                  <Link
                     key={e.id}
-                    type="button"
-                    onClick={() => handleSelect('events/detail', e.slug)}
+                    to="events/detail"
+                    slug={e.slug}
+                    onClick={() => setIsSearchOpen(false)}
                     className="w-full text-left p-2.5 rounded-2xl hover:bg-[#E6F3EF] transition-colors flex items-center justify-between group cursor-pointer"
                   >
                     <div>
@@ -311,7 +311,7 @@ export const GlobalSearchModal: React.FC = () => {
                       <div className="text-xs text-slate-500 line-clamp-1">{tText(e.description)}</div>
                     </div>
                     <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#006A4E] opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </button>
+                  </Link>
                 ))}
               </div>
             </div>
@@ -321,3 +321,4 @@ export const GlobalSearchModal: React.FC = () => {
     </div>
   );
 };
+

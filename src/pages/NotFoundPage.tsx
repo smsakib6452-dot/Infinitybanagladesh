@@ -1,11 +1,11 @@
 import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { useRouter } from '../context/RouterContext';
+import { useRouter, Link } from '../context/RouterContext';
 import { Home, Search, Heart } from 'lucide-react';
 
 export const NotFoundPage: React.FC = () => {
   const { isBn } = useLanguage();
-  const { navigate, setIsSearchOpen } = useRouter();
+  const { setIsSearchOpen } = useRouter();
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-16">
@@ -33,14 +33,13 @@ export const NotFoundPage: React.FC = () => {
         </div>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-          <button
-            type="button"
-            onClick={() => navigate('home')}
+          <Link
+            to="home"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#006A4E] hover:bg-[#00523C] text-white text-xs sm:text-sm font-bold rounded-2xl transition-all shadow-warm-sm cursor-pointer"
           >
             <Home className="w-4 h-4" />
             <span>{isBn ? 'মূল পাতায় ফিরে যান' : 'Back to Home'}</span>
-          </button>
+          </Link>
 
           <button
             type="button"
@@ -53,23 +52,24 @@ export const NotFoundPage: React.FC = () => {
         </div>
 
         <div className="pt-6 border-t border-slate-200 flex flex-wrap items-center justify-center gap-4 text-xs font-bold text-slate-500">
-          <button type="button" onClick={() => navigate('campaigns')} className="hover:text-[#006A4E] transition-colors cursor-pointer">
+          <Link to="campaigns" className="hover:text-[#006A4E] transition-colors cursor-pointer">
             {isBn ? 'ক্যাম্পেইন' : 'Campaigns'}
-          </button>
+          </Link>
           <span>&bull;</span>
-          <button type="button" onClick={() => navigate('volunteer')} className="hover:text-[#006A4E] transition-colors cursor-pointer">
+          <Link to="volunteer" className="hover:text-[#006A4E] transition-colors cursor-pointer">
             {isBn ? 'স্বেচ্ছাসেবক' : 'Volunteer'}
-          </button>
+          </Link>
           <span>&bull;</span>
-          <button type="button" onClick={() => navigate('donate')} className="hover:text-[#006A4E] transition-colors cursor-pointer">
+          <Link to="donate" className="hover:text-[#006A4E] transition-colors cursor-pointer">
             {isBn ? 'অনুদান' : 'Donate'}
-          </button>
+          </Link>
           <span>&bull;</span>
-          <button type="button" onClick={() => navigate('transparency')} className="hover:text-[#006A4E] transition-colors cursor-pointer">
+          <Link to="transparency" className="hover:text-[#006A4E] transition-colors cursor-pointer">
             {isBn ? 'স্বচ্ছতা' : 'Transparency'}
-          </button>
+          </Link>
         </div>
       </div>
     </div>
   );
 };
+

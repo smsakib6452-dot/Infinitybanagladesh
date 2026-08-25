@@ -1,7 +1,7 @@
 import React from 'react';
 import { EventItem } from '../types';
 import { useLanguage } from '../context/LanguageContext';
-import { useRouter } from '../context/RouterContext';
+import { Link } from '../context/RouterContext';
 import { Calendar, Clock, MapPin, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { getAssetUrl } from '../lib/utils/assetHelper';
 
@@ -11,12 +11,15 @@ interface EventCardProps {
 
 export const EventCard: React.FC<EventCardProps> = ({ event }) => {
   const { isBn, tText } = useLanguage();
-  const { navigate } = useRouter();
 
   return (
     <div className="bg-white rounded-3xl border border-[#EAE3D9] overflow-hidden shadow-warm-sm hover:shadow-warm-lg transition-all duration-300 flex flex-col md:flex-row group hover:-translate-y-0.5">
       {/* Event Image */}
-      <div className="relative md:w-5/12 aspect-16/9 md:aspect-auto overflow-hidden bg-slate-100 shrink-0">
+      <Link
+        to="events/detail"
+        slug={event.slug}
+        className="relative md:w-5/12 aspect-16/9 md:aspect-auto overflow-hidden bg-slate-100 shrink-0 block"
+      >
         <img
           src={getAssetUrl(event.imageUrl)}
           alt={tText(event.title)}
@@ -26,7 +29,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
         <div className="absolute top-3 left-3 bg-[#006A4E] text-white text-xs font-bold px-3 py-1 rounded-full shadow-xs">
           {event.status === 'upcoming' ? (isBn ? 'আসন্ন ইভেন্ট' : 'Upcoming Event') : event.status}
         </div>
-      </div>
+      </Link>
 
       {/* Content */}
       <div className="p-6 sm:p-7 md:w-7/12 flex flex-col justify-between space-y-4">
@@ -42,9 +45,11 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
             </span>
           </div>
 
-          <h3 className="text-lg sm:text-xl font-bold text-slate-900 group-hover:text-[#006A4E] transition-colors font-display">
-            {tText(event.title)}
-          </h3>
+          <Link to="events/detail" slug={event.slug} className="block group/title">
+            <h3 className="text-lg sm:text-xl font-bold text-slate-900 group-hover/title:text-[#006A4E] transition-colors font-display">
+              {tText(event.title)}
+            </h3>
+          </Link>
 
           <div className="flex items-start gap-1.5 text-xs text-slate-600">
             <MapPin className="w-3.5 h-3.5 text-[#D4182E] shrink-0 mt-0.5" />
@@ -58,14 +63,14 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
 
         {/* Action Button */}
         <div className="pt-2 flex items-center justify-between">
-          <button
-            type="button"
-            onClick={() => navigate('events/detail', event.slug)}
+          <Link
+            to="events/detail"
+            slug={event.slug}
             className="text-xs sm:text-sm font-bold text-[#006A4E] hover:text-[#00523C] inline-flex items-center gap-1.5 cursor-pointer"
           >
             <span>{isBn ? 'বিস্তারিত ও অংশগ্রহণ' : 'Event Details & RSVP'}</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </button>
+          </Link>
 
           {event.registrationOpen && (
             <span className="text-xs text-[#006A4E] font-bold flex items-center gap-1">
@@ -78,3 +83,4 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
     </div>
   );
 };
+

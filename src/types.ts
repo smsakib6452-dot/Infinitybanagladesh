@@ -9,6 +9,10 @@ export type PageRoute =
   | 'about/executive-committee'
   | 'about/standing-committees'
   | 'about/past-committees'
+  | 'team'
+  | 'team/executive-committee'
+  | 'team/standing-committee'
+  | 'team/past-committees'
   | 'programs'
   | 'programs/detail'
   | 'campaigns'
@@ -226,6 +230,8 @@ export interface NavigationSubItem {
   path: PageRoute | string;
   isExternal?: boolean;
   active?: boolean;
+  isNestedDropdown?: boolean;
+  children?: NavigationSubItem[];
 }
 
 export interface NavigationItem {

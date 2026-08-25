@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { useRouter } from '../context/RouterContext';
+import { useRouter, Link } from '../context/RouterContext';
 import { useData } from '../context/DataContext';
 import { CampaignCard } from '../components/CampaignCard';
 import { getAssetUrl } from '../lib/utils/assetHelper';
@@ -16,7 +16,7 @@ import {
 
 export const ProgramDetailPage: React.FC = () => {
   const { isBn, tText } = useLanguage();
-  const { currentSlug, navigate } = useRouter();
+  const { currentSlug } = useRouter();
   const { programs, campaigns } = useData();
 
   const program = programs.find(p => p.slug === currentSlug) || programs[0];
@@ -27,13 +27,12 @@ export const ProgramDetailPage: React.FC = () => {
         <h2 className="text-2xl font-bold text-slate-900">
           {isBn ? 'কর্মসূচি পাওয়া যায়নি' : 'Program Not Found'}
         </h2>
-        <button
-          type="button"
-          onClick={() => navigate('programs')}
-          className="px-5 py-2.5 bg-[#006A4E] text-white rounded-2xl text-sm font-bold shadow-warm-sm cursor-pointer"
+        <Link
+          to="programs"
+          className="px-5 py-2.5 bg-[#006A4E] text-white rounded-2xl text-sm font-bold shadow-warm-sm cursor-pointer inline-block"
         >
           {isBn ? 'সকল কর্মসূচিতে ফিরে যান' : 'Back to Programs'}
-        </button>
+        </Link>
       </div>
     );
   }
@@ -44,14 +43,13 @@ export const ProgramDetailPage: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-12">
       {/* Back Button */}
-      <button
-        type="button"
-        onClick={() => navigate('programs')}
+      <Link
+        to="programs"
         className="inline-flex items-center gap-2 text-sm font-bold text-[#006A4E] hover:text-[#00523C] transition-colors cursor-pointer"
       >
         <ArrowLeft className="w-4 h-4" />
         <span>{isBn ? 'সকল কার্যক্রমে ফিরে যান' : 'Back to All Programs'}</span>
-      </button>
+      </Link>
 
       {/* Program Hero */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
@@ -67,23 +65,21 @@ export const ProgramDetailPage: React.FC = () => {
           </p>
 
           <div className="flex flex-wrap gap-4 pt-2">
-            <button
-              type="button"
-              onClick={() => navigate('donate')}
+            <Link
+              to="donate"
               className="px-6 py-3.5 rounded-2xl bg-[#006A4E] hover:bg-[#00523C] text-white font-extrabold text-sm inline-flex items-center gap-2 shadow-warm-sm transition-all cursor-pointer transform hover:-translate-y-0.5"
             >
               <Heart className="w-4 h-4 fill-white" />
               <span>{isBn ? 'এই উদ্যোগে সহায়তা দিন' : 'Support This Program'}</span>
-            </button>
+            </Link>
 
-            <button
-              type="button"
-              onClick={() => navigate('volunteer')}
+            <Link
+              to="volunteer"
               className="px-6 py-3.5 rounded-2xl bg-[#FAF7F2] hover:bg-[#F2ECE1] text-slate-800 font-bold text-sm border border-[#EAE3D9] inline-flex items-center gap-2 transition-all cursor-pointer"
             >
               <Users className="w-4 h-4 text-[#006A4E]" />
               <span>{isBn ? 'স্বেচ্ছাসেবী হিসেবে যোগ দিন' : 'Volunteer With Us'}</span>
-            </button>
+            </Link>
           </div>
         </div>
 

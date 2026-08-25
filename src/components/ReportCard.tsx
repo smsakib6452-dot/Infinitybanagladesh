@@ -10,16 +10,14 @@ interface ReportCardProps {
 export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
   const { isBn, tText } = useLanguage();
 
-  const handleDownload = () => {
-    if (report.status === 'official' && report.fileUrl !== '#') {
-      window.open(report.fileUrl, '_blank');
-    } else {
-      alert(
-        isBn
-          ? 'এই রিপোর্টটির অফিসিয়াল পিডিএফ ফাইলটি অডিট কমিটি কর্তৃক যাচাইয়ের প্রক্রিয়াধীন রয়েছে।'
-          : 'The official certified PDF for this transparency report is undergoing final trustee verification.'
-      );
-    }
+  const isDownloadable = report.status === 'official' && report.fileUrl && report.fileUrl !== '#';
+
+  const handlePendingClick = () => {
+    alert(
+      isBn
+        ? 'এই রিপোর্টটির অফিসিয়াল পিডিএফ ফাইলটি অডিট কমিটি কর্তৃক যাচাইয়ের প্রক্রিয়াধীন রয়েছে।'
+        : 'The official certified PDF for this transparency report is undergoing final trustee verification.'
+    );
   };
 
   return (
@@ -69,15 +67,29 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
           )}
         </div>
 
-        <button
-          type="button"
-          onClick={handleDownload}
-          className="px-3.5 py-1.5 rounded-xl bg-[#006A4E] hover:bg-[#00523C] text-white text-xs font-bold inline-flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
-        >
-          <Download className="w-3.5 h-3.5" />
-          <span>{isBn ? 'ডাউনলোড' : 'Download'}</span>
-        </button>
+        {isDownloadable ? (
+          <a
+            href={report.fileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            download
+            className="px-3.5 py-1.5 rounded-xl bg-[#006A4E] hover:bg-[#00523C] text-white text-xs font-bold inline-flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span>{isBn ? 'ডাউনলোড' : 'Download'}</span>
+          </a>
+        ) : (
+          <button
+            type="button"
+            onClick={handlePendingClick}
+            className="px-3.5 py-1.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold inline-flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span>{isBn ? 'যাচাইধীন' : 'Pending'}</span>
+          </button>
+        )}
       </div>
     </div>
   );
 };
+

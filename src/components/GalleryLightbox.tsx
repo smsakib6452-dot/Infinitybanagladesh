@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { GalleryPhoto } from '../types';
 import { useLanguage } from '../context/LanguageContext';
-import { useRouter } from '../context/RouterContext';
+import { Link } from '../context/RouterContext';
 import { X, ChevronLeft, ChevronRight, Calendar, Flag } from 'lucide-react';
 import { getAssetUrl } from '../lib/utils/assetHelper';
 
@@ -17,7 +17,6 @@ export const GalleryLightbox: React.FC<GalleryLightboxProps> = ({
   onClose
 }) => {
   const { isBn, tText } = useLanguage();
-  const { navigate } = useRouter();
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
   if (!photos || photos.length === 0) return null;
@@ -43,7 +42,7 @@ export const GalleryLightbox: React.FC<GalleryLightboxProps> = ({
       <button
         type="button"
         onClick={onClose}
-        className="absolute top-4 right-4 z-50 p-2 text-white/80 hover:text-white bg-slate-800/80 hover:bg-slate-700 rounded-full transition-colors"
+        className="absolute top-4 right-4 z-50 p-2 text-white/80 hover:text-white bg-slate-800/80 hover:bg-slate-700 rounded-full transition-colors cursor-pointer"
         aria-label="Close Lightbox"
       >
         <X className="w-6 h-6" />
@@ -53,7 +52,7 @@ export const GalleryLightbox: React.FC<GalleryLightboxProps> = ({
       <button
         type="button"
         onClick={handlePrev}
-        className="absolute left-4 top-1/2 -translate-y-1/2 z-50 p-3 text-white bg-slate-800/80 hover:bg-slate-700 rounded-full transition-colors"
+        className="absolute left-4 top-1/2 -translate-y-1/2 z-50 p-3 text-white bg-slate-800/80 hover:bg-slate-700 rounded-full transition-colors cursor-pointer"
         aria-label="Previous image"
       >
         <ChevronLeft className="w-6 h-6" />
@@ -63,7 +62,7 @@ export const GalleryLightbox: React.FC<GalleryLightboxProps> = ({
       <button
         type="button"
         onClick={handleNext}
-        className="absolute right-4 top-1/2 -translate-y-1/2 z-50 p-3 text-white bg-slate-800/80 hover:bg-slate-700 rounded-full transition-colors"
+        className="absolute right-4 top-1/2 -translate-y-1/2 z-50 p-3 text-white bg-slate-800/80 hover:bg-slate-700 rounded-full transition-colors cursor-pointer"
         aria-label="Next image"
       >
         <ChevronRight className="w-6 h-6" />
@@ -106,17 +105,15 @@ export const GalleryLightbox: React.FC<GalleryLightboxProps> = ({
             </span>
 
             {currentPhoto.campaignSlug && (
-              <button
-                type="button"
-                onClick={() => {
-                  onClose();
-                  navigate('campaigns/detail', currentPhoto.campaignSlug);
-                }}
-                className="px-2.5 py-1 rounded bg-teal-900/80 hover:bg-teal-800 text-teal-200 font-semibold flex items-center gap-1 transition-colors"
+              <Link
+                to="campaigns/detail"
+                slug={currentPhoto.campaignSlug}
+                onClick={onClose}
+                className="px-2.5 py-1 rounded bg-teal-900/80 hover:bg-teal-800 text-teal-200 font-semibold flex items-center gap-1 transition-colors cursor-pointer"
               >
                 <Flag className="w-3 h-3" />
                 <span>{isBn ? 'ক্যাম্পেইন দেখুন' : 'Related Campaign'}</span>
-              </button>
+              </Link>
             )}
 
             <span className="text-slate-500">
@@ -128,3 +125,4 @@ export const GalleryLightbox: React.FC<GalleryLightboxProps> = ({
     </div>
   );
 };
+

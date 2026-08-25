@@ -14,7 +14,8 @@ import {
   ChevronRight,
   Heart,
   UserCheck,
-  Clock
+  Clock,
+  LayoutGrid
 } from 'lucide-react';
 
 export const TeamOverviewPage: React.FC = () => {
@@ -78,31 +79,36 @@ export const TeamOverviewPage: React.FC = () => {
               : 'Infinity Bangladesh is led by an elected Executive Committee, guided by our permanent Standing Committee, and driven by dedicated youth volunteers nationwide.'}
           </p>
 
-          {/* Quick Jump Pills */}
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-4">
-            <a
-              href="#executive-committee"
-              className="px-4 py-2 rounded-xl bg-white hover:bg-slate-50 border border-[#EAE3D9] text-xs font-bold text-slate-800 shadow-warm-xs flex items-center gap-1.5 transition-all"
+          {/* Committee Sub-Navigation */}
+          <div className="pt-4 flex flex-wrap justify-center items-center gap-2.5 sm:gap-3">
+            <Link
+              to="team"
+              className="px-4 py-2 rounded-2xl bg-[#006A4E] text-white text-xs sm:text-sm font-extrabold shadow-warm-sm cursor-pointer flex items-center gap-1.5"
             >
-              <Users className="w-4 h-4 text-[#006A4E]" />
-              <span>{isBn ? 'কার্যনির্বাহী পরিষদ ২০২৬' : 'Executive Committee 2026'}</span>
-            </a>
+              <LayoutGrid className="w-4 h-4 text-white" />
+              <span>{isBn ? 'টিম ওভারভিউ' : 'Team Overview'}</span>
+            </Link>
 
-            <a
-              href="#standing-committee"
-              className="px-4 py-2 rounded-xl bg-white hover:bg-slate-50 border border-[#EAE3D9] text-xs font-bold text-slate-800 shadow-warm-xs flex items-center gap-1.5 transition-all"
+            <Link
+              to="team/executive-committee"
+              className="px-4 py-2 rounded-2xl bg-white hover:bg-[#FAF7F2] text-slate-700 text-xs sm:text-sm font-bold border border-[#EAE3D9] transition-all cursor-pointer"
             >
-              <ShieldCheck className="w-4 h-4 text-[#006A4E]" />
-              <span>{isBn ? 'স্থায়ী কমিটি' : 'Standing Committee'}</span>
-            </a>
+              {isBn ? 'কার্যনির্বাহী পরিষদ (২০২৬)' : 'Executive Committee 2026'}
+            </Link>
 
-            <a
-              href="#past-committees"
-              className="px-4 py-2 rounded-xl bg-white hover:bg-slate-50 border border-[#EAE3D9] text-xs font-bold text-slate-800 shadow-warm-xs flex items-center gap-1.5 transition-all"
+            <Link
+              to="team/standing-committee"
+              className="px-4 py-2 rounded-2xl bg-white hover:bg-[#FAF7F2] text-slate-700 text-xs sm:text-sm font-bold border border-[#EAE3D9] transition-all cursor-pointer"
             >
-              <History className="w-4 h-4 text-amber-700" />
-              <span>{isBn ? 'প্রাক্তন কমিটিসমূহ' : 'Past Committees'}</span>
-            </a>
+              {isBn ? 'স্থায়ী কমিটি' : 'Standing Committee'}
+            </Link>
+
+            <Link
+              to="team/past-committees"
+              className="px-4 py-2 rounded-2xl bg-white hover:bg-[#FAF7F2] text-slate-700 text-xs sm:text-sm font-bold border border-[#EAE3D9] transition-all cursor-pointer"
+            >
+              {isBn ? 'প্রাক্তন কমিটি আর্কাইভ' : 'Past Committees Archive'}
+            </Link>
           </div>
         </div>
       </section>

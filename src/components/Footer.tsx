@@ -26,8 +26,12 @@ export const Footer: React.FC = () => {
   const { navigate } = useRouter();
   const { footerSettings, socialLinks, settings, programs } = useData();
 
-  const handleNav = (page: PageRoute, slug?: string) => {
-    navigate(page, slug);
+  const handleNav = (page: string, slug?: string) => {
+    if (page.startsWith('http://') || page.startsWith('https://')) {
+      window.open(page, '_blank', 'noopener,noreferrer');
+    } else {
+      navigate(page as PageRoute, slug);
+    }
   };
 
   const renderSocialIcon = (platform: SocialPlatform) => {
@@ -82,7 +86,7 @@ export const Footer: React.FC = () => {
           <div className="flex flex-wrap items-center justify-center gap-3 shrink-0">
             <button
               type="button"
-              onClick={() => handleNav('volunteer')}
+              onClick={() => handleNav(footerSettings.volunteerCtaUrl || 'volunteer')}
               className="px-6 py-3 rounded-xl bg-[#006A4E] hover:bg-[#008562] active:bg-[#004D38] text-white font-bold text-xs sm:text-sm shadow-warm-md transition-all duration-200 inline-flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5"
             >
               <span>{tText(footerSettings.volunteerCtaText) || (isBn ? 'স্বেচ্ছাসেবী হিসেবে যোগ দিন' : 'Become a Volunteer')}</span>
@@ -90,7 +94,7 @@ export const Footer: React.FC = () => {
             </button>
             <button
               type="button"
-              onClick={() => handleNav('donate')}
+              onClick={() => handleNav(footerSettings.supportCtaUrl || 'donate')}
               className="px-6 py-3 rounded-xl bg-white hover:bg-emerald-50 active:bg-emerald-100 text-[#006A4E] font-bold text-xs sm:text-sm shadow-warm-sm border border-emerald-200 transition-all duration-200 inline-flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5"
             >
               <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />

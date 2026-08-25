@@ -202,7 +202,9 @@ export interface FooterSettings {
   calloutTitle?: BilingualText;
   calloutSubtitle?: BilingualText;
   volunteerCtaText?: BilingualText;
+  volunteerCtaUrl?: string;
   supportCtaText?: BilingualText;
+  supportCtaUrl?: string;
 }
 
 export type SocialPlatform = 'facebook' | 'youtube' | 'instagram' | 'linkedin' | 'x' | 'whatsapp' | 'other';
@@ -246,6 +248,7 @@ export interface BannerItem {
   mobileImageUrl?: string;
   ctaText?: BilingualText;
   ctaUrl?: string;
+  openInNewTab?: boolean;
   startDate?: string;
   endDate?: string;
   placement: 'homepage_hero' | 'announcement_top' | 'campaign_feature' | 'popup';

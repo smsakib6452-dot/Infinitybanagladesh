@@ -29,6 +29,7 @@ export const BannerModal: React.FC<BannerModalProps> = ({
   const [ctaTextEn, setCtaTextEn] = useState('Support Us');
   const [ctaTextBn, setCtaTextBn] = useState('সহায়তা করুন');
   const [ctaUrl, setCtaUrl] = useState('donate');
+  const [openInNewTab, setOpenInNewTab] = useState(false);
   const [placement, setPlacement] = useState<BannerItem['placement']>('homepage_hero');
   const [displayOrder, setDisplayOrder] = useState(1);
   const [active, setActive] = useState(true);
@@ -46,6 +47,7 @@ export const BannerModal: React.FC<BannerModalProps> = ({
       setCtaTextEn(banner.ctaText?.en || 'Support Us');
       setCtaTextBn(banner.ctaText?.bn || 'সহায়তা করুন');
       setCtaUrl(banner.ctaUrl || 'donate');
+      setOpenInNewTab(banner.openInNewTab || false);
       setPlacement(banner.placement || 'homepage_hero');
       setDisplayOrder(banner.displayOrder || 1);
       setActive(banner.active ?? true);
@@ -59,6 +61,7 @@ export const BannerModal: React.FC<BannerModalProps> = ({
       setCtaTextEn('Support Us');
       setCtaTextBn('সহায়তা করুন');
       setCtaUrl('donate');
+      setOpenInNewTab(false);
       setPlacement('homepage_hero');
       setDisplayOrder(1);
       setActive(true);
@@ -105,6 +108,7 @@ export const BannerModal: React.FC<BannerModalProps> = ({
       subtitle: (subtitleEn.trim() || subtitleBn.trim()) ? { en: subtitleEn.trim(), bn: subtitleBn.trim() || subtitleEn.trim() } : undefined,
       ctaText: (ctaTextEn.trim() || ctaTextBn.trim()) ? { en: ctaTextEn.trim(), bn: ctaTextBn.trim() || ctaTextEn.trim() } : undefined,
       ctaUrl: ctaUrl.trim() || 'donate',
+      openInNewTab,
       placement,
       displayOrder: Number(displayOrder) || 1,
       active,
@@ -289,10 +293,21 @@ export const BannerModal: React.FC<BannerModalProps> = ({
           </div>
 
           {/* Call to Action Controls */}
-          <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-3">
-            <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
-              <LinkIcon className="w-4 h-4 text-[#006A4E]" />
-              <span>Action Button (CTA) Configuration</span>
+          <div className="p-4 sm:p-5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
+                <LinkIcon className="w-4 h-4 text-[#006A4E]" />
+                <span>{isBn ? 'অ্যাকশন বোতাম (CTA) ও লিংক কনফিগারেশন' : 'Action Button (CTA) & Link Configuration'}</span>
+              </div>
+              <label className="inline-flex items-center gap-2 text-xs text-slate-600 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={openInNewTab}
+                  onChange={(e) => setOpenInNewTab(e.target.checked)}
+                  className="rounded text-[#006A4E] focus:ring-[#006A4E]"
+                />
+                <span>{isBn ? 'নতুন ট্যাবে খুলুন (External Link)' : 'Open in New Tab'}</span>
+              </label>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -331,8 +346,43 @@ export const BannerModal: React.FC<BannerModalProps> = ({
                   value={ctaUrl}
                   onChange={(e) => setCtaUrl(e.target.value)}
                   placeholder="e.g. donate, volunteer, campaigns"
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:border-[#006A4E] outline-none"
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:border-[#006A4E] outline-none font-mono"
                 />
+              </div>
+            </div>
+
+            {/* Quick Route Selector Chips */}
+            <div className="space-y-1.5 pt-1">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                {isBn ? 'দ্রুত লিংক সিলেক্ট করুন (Quick Route Selector):' : 'Quick Route Selectors:'}
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  { route: 'donate', label: isBn ? '💸 অনুদান' : 'Donate' },
+                  { route: 'volunteer', label: isBn ? '🤝 স্বেচ্ছাসেবী' : 'Volunteer' },
+                  { route: 'campaigns', label: isBn ? '🚩 ক্যাম্পেইন' : 'Campaigns' },
+                  { route: 'programs', label: isBn ? '🤲 কর্মসূচি' : 'Programs' },
+                  { route: 'about', label: isBn ? '📖 পরিচিতি' : 'About' },
+                  { route: 'about/executive-committee', label: isBn ? '👥 কমিটি' : 'Committee' },
+                  { route: 'transparency', label: isBn ? '🛡️ স্বচ্ছতা' : 'Transparency' },
+                  { route: 'gallery', label: isBn ? '🖼️ গ্যালারি' : 'Gallery' },
+                  { route: 'videos', label: isBn ? '🎬 ভিডিও' : 'Videos' },
+                  { route: 'media-coverage', label: isBn ? '📰 প্রেস' : 'Press' },
+                  { route: 'contact', label: isBn ? '📞 যোগাযোগ' : 'Contact' }
+                ].map((item) => (
+                  <button
+                    key={item.route}
+                    type="button"
+                    onClick={() => setCtaUrl(item.route)}
+                    className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                      ctaUrl === item.route
+                        ? 'bg-[#006A4E] text-white shadow-2xs'
+                        : 'bg-white text-slate-600 border border-slate-200 hover:border-[#006A4E] hover:text-[#006A4E]'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
               </div>
             </div>
           </div>

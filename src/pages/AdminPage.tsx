@@ -65,7 +65,8 @@ import {
   Maximize2,
   Smartphone,
   Newspaper,
-  Edit3
+  Edit3,
+  Link as LinkIcon
 } from 'lucide-react';
 import {
   Campaign,
@@ -1134,7 +1135,6 @@ export const AdminPage: React.FC = () => {
                         className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
                       />
                     </div>
-
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-slate-700">Headline Main (বাংলা)</label>
                       <input
@@ -1143,7 +1143,7 @@ export const AdminPage: React.FC = () => {
                         onChange={(e) => updateHomepageConfig({
                           hero: { ...homepageConfig.hero, headlineMain: { ...homepageConfig.hero.headlineMain, bn: e.target.value } }
                         })}
-                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
                       />
                     </div>
                     <div className="space-y-1">
@@ -1154,7 +1154,7 @@ export const AdminPage: React.FC = () => {
                         onChange={(e) => updateHomepageConfig({
                           hero: { ...homepageConfig.hero, headlineHighlight: { ...homepageConfig.hero.headlineHighlight, bn: e.target.value } }
                         })}
-                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
                       />
                     </div>
                   </div>
@@ -1183,8 +1183,374 @@ export const AdminPage: React.FC = () => {
                         onChange={(e) => updateHomepageConfig({
                           hero: { ...homepageConfig.hero, description: { ...homepageConfig.hero.description, bn: e.target.value } }
                         })}
-                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
                       />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Hero Call-to-Action (CTA) Buttons Configuration */}
+                <div className="space-y-4 pt-4 border-t border-slate-100">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-bold text-slate-900 font-display flex items-center gap-2">
+                      <LinkIcon className="w-4 h-4 text-[#006A4E]" />
+                      <span>Hero Action Buttons (হিরো সেকশনের CTA বাটন ও লিংকসমূহ)</span>
+                    </h3>
+                  </div>
+
+                  {/* 1. Primary CTA Button */}
+                  <div className="p-4 sm:p-5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#006A4E]" />
+                        <span className="text-xs font-extrabold text-slate-900">
+                          {isBn ? '১. প্রধান অ্যাকশন বাটন (Primary CTA Button)' : '1. Primary Action Button'}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <label className="inline-flex items-center gap-1.5 text-xs text-slate-600 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={homepageConfig.hero.primaryCta.openInNewTab || false}
+                            onChange={(e) => updateHomepageConfig({
+                              hero: {
+                                ...homepageConfig.hero,
+                                primaryCta: { ...homepageConfig.hero.primaryCta, openInNewTab: e.target.checked }
+                              }
+                            })}
+                            className="rounded text-[#006A4E]"
+                          />
+                          <span>{isBn ? 'নতুন ট্যাবে খুলুন' : 'New Tab'}</span>
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => updateHomepageConfig({
+                            hero: {
+                              ...homepageConfig.hero,
+                              primaryCta: { ...homepageConfig.hero.primaryCta, active: !homepageConfig.hero.primaryCta.active }
+                            }
+                          })}
+                          className={`px-2.5 py-1 rounded-lg text-[11px] font-bold cursor-pointer transition-colors ${
+                            homepageConfig.hero.primaryCta.active
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : 'bg-slate-200 text-slate-600'
+                          }`}
+                        >
+                          {homepageConfig.hero.primaryCta.active ? 'Active' : 'Hidden'}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="text-[11px] font-medium text-slate-600 block mb-1">Button Text (English)</label>
+                        <input
+                          type="text"
+                          value={homepageConfig.hero.primaryCta.text.en}
+                          onChange={(e) => updateHomepageConfig({
+                            hero: {
+                              ...homepageConfig.hero,
+                              primaryCta: {
+                                ...homepageConfig.hero.primaryCta,
+                                text: { ...homepageConfig.hero.primaryCta.text, en: e.target.value }
+                              }
+                            }
+                          })}
+                          className="w-full px-3 py-2 bg-white border border-[#EAE3D9] rounded-xl text-xs"
+                          placeholder="e.g. Support Our Work"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] font-medium text-slate-600 block mb-1">বোতামের লেখা (বাংলা)</label>
+                        <input
+                          type="text"
+                          value={homepageConfig.hero.primaryCta.text.bn}
+                          onChange={(e) => updateHomepageConfig({
+                            hero: {
+                              ...homepageConfig.hero,
+                              primaryCta: {
+                                ...homepageConfig.hero.primaryCta,
+                                text: { ...homepageConfig.hero.primaryCta.text, bn: e.target.value }
+                              }
+                            }
+                          })}
+                          className="w-full px-3 py-2 bg-white border border-[#EAE3D9] rounded-xl text-xs font-bengali"
+                          placeholder="যেমন: সহায়তা করুন"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] font-medium text-slate-600 block mb-1">Target Route / URL (লিংক)</label>
+                        <input
+                          type="text"
+                          value={homepageConfig.hero.primaryCta.url}
+                          onChange={(e) => updateHomepageConfig({
+                            hero: {
+                              ...homepageConfig.hero,
+                              primaryCta: { ...homepageConfig.hero.primaryCta, url: e.target.value }
+                            }
+                          })}
+                          className="w-full px-3 py-2 bg-white border border-[#EAE3D9] rounded-xl text-xs font-mono"
+                          placeholder="e.g. donate, volunteer, https://..."
+                        />
+                      </div>
+                    </div>
+
+                    {/* Quick Route Chips */}
+                    <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                      <span className="text-[10px] font-bold text-slate-400">Quick Links:</span>
+                      {['donate', 'volunteer', 'campaigns', 'about', 'transparency', 'contact'].map(r => (
+                        <button
+                          key={r}
+                          type="button"
+                          onClick={() => updateHomepageConfig({
+                            hero: {
+                              ...homepageConfig.hero,
+                              primaryCta: { ...homepageConfig.hero.primaryCta, url: r }
+                            }
+                          })}
+                          className={`px-2 py-0.5 rounded-md text-[10px] font-bold cursor-pointer transition-colors ${
+                            homepageConfig.hero.primaryCta.url === r
+                              ? 'bg-[#006A4E] text-white'
+                              : 'bg-white text-slate-600 border border-slate-200 hover:border-[#006A4E]'
+                          }`}
+                        >
+                          {r}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 2. Secondary CTA Button */}
+                  <div className="p-4 sm:p-5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-amber-600" />
+                        <span className="text-xs font-extrabold text-slate-900">
+                          {isBn ? '২. দ্বিতীয় অ্যাকশন বাটন (Secondary CTA Button)' : '2. Secondary Action Button'}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <label className="inline-flex items-center gap-1.5 text-xs text-slate-600 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={homepageConfig.hero.secondaryCta.openInNewTab || false}
+                            onChange={(e) => updateHomepageConfig({
+                              hero: {
+                                ...homepageConfig.hero,
+                                secondaryCta: { ...homepageConfig.hero.secondaryCta, openInNewTab: e.target.checked }
+                              }
+                            })}
+                            className="rounded text-[#006A4E]"
+                          />
+                          <span>{isBn ? 'নতুন ট্যাবে খুলুন' : 'New Tab'}</span>
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => updateHomepageConfig({
+                            hero: {
+                              ...homepageConfig.hero,
+                              secondaryCta: { ...homepageConfig.hero.secondaryCta, active: !homepageConfig.hero.secondaryCta.active }
+                            }
+                          })}
+                          className={`px-2.5 py-1 rounded-lg text-[11px] font-bold cursor-pointer transition-colors ${
+                            homepageConfig.hero.secondaryCta.active
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : 'bg-slate-200 text-slate-600'
+                          }`}
+                        >
+                          {homepageConfig.hero.secondaryCta.active ? 'Active' : 'Hidden'}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="text-[11px] font-medium text-slate-600 block mb-1">Button Text (English)</label>
+                        <input
+                          type="text"
+                          value={homepageConfig.hero.secondaryCta.text.en}
+                          onChange={(e) => updateHomepageConfig({
+                            hero: {
+                              ...homepageConfig.hero,
+                              secondaryCta: {
+                                ...homepageConfig.hero.secondaryCta,
+                                text: { ...homepageConfig.hero.secondaryCta.text, en: e.target.value }
+                              }
+                            }
+                          })}
+                          className="w-full px-3 py-2 bg-white border border-[#EAE3D9] rounded-xl text-xs"
+                          placeholder="e.g. Become a Volunteer"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] font-medium text-slate-600 block mb-1">বোতামের লেখা (বাংলা)</label>
+                        <input
+                          type="text"
+                          value={homepageConfig.hero.secondaryCta.text.bn}
+                          onChange={(e) => updateHomepageConfig({
+                            hero: {
+                              ...homepageConfig.hero,
+                              secondaryCta: {
+                                ...homepageConfig.hero.secondaryCta,
+                                text: { ...homepageConfig.hero.secondaryCta.text, bn: e.target.value }
+                              }
+                            }
+                          })}
+                          className="w-full px-3 py-2 bg-white border border-[#EAE3D9] rounded-xl text-xs font-bengali"
+                          placeholder="যেমন: স্বেচ্ছাসেবী হিসেবে যোগ দিন"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] font-medium text-slate-600 block mb-1">Target Route / URL (লিংক)</label>
+                        <input
+                          type="text"
+                          value={homepageConfig.hero.secondaryCta.url}
+                          onChange={(e) => updateHomepageConfig({
+                            hero: {
+                              ...homepageConfig.hero,
+                              secondaryCta: { ...homepageConfig.hero.secondaryCta, url: e.target.value }
+                            }
+                          })}
+                          className="w-full px-3 py-2 bg-white border border-[#EAE3D9] rounded-xl text-xs font-mono"
+                          placeholder="e.g. volunteer, campaigns, https://..."
+                        />
+                      </div>
+                    </div>
+
+                    {/* Quick Route Chips */}
+                    <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                      <span className="text-[10px] font-bold text-slate-400">Quick Links:</span>
+                      {['volunteer', 'donate', 'campaigns', 'about/executive-committee', 'transparency', 'gallery'].map(r => (
+                        <button
+                          key={r}
+                          type="button"
+                          onClick={() => updateHomepageConfig({
+                            hero: {
+                              ...homepageConfig.hero,
+                              secondaryCta: { ...homepageConfig.hero.secondaryCta, url: r }
+                            }
+                          })}
+                          className={`px-2 py-0.5 rounded-md text-[10px] font-bold cursor-pointer transition-colors ${
+                            homepageConfig.hero.secondaryCta.url === r
+                              ? 'bg-[#006A4E] text-white'
+                              : 'bg-white text-slate-600 border border-slate-200 hover:border-[#006A4E]'
+                          }`}
+                        >
+                          {r}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 3. Story / Video CTA Button */}
+                  <div className="p-4 sm:p-5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-blue-600" />
+                        <span className="text-xs font-extrabold text-slate-900">
+                          {isBn ? '৩. গল্প / ভিডিও অ্যাকশন বোতাম (Story CTA Button)' : '3. Story / Video Action Button'}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => updateHomepageConfig({
+                          hero: {
+                            ...homepageConfig.hero,
+                            storyCta: { ...homepageConfig.hero.storyCta, active: !homepageConfig.hero.storyCta.active }
+                          }
+                        })}
+                        className={`px-2.5 py-1 rounded-lg text-[11px] font-bold cursor-pointer transition-colors ${
+                          homepageConfig.hero.storyCta.active
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : 'bg-slate-200 text-slate-600'
+                        }`}
+                      >
+                        {homepageConfig.hero.storyCta.active ? 'Active' : 'Hidden'}
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="text-[11px] font-medium text-slate-600 block mb-1">Button Text (English)</label>
+                        <input
+                          type="text"
+                          value={homepageConfig.hero.storyCta.text.en}
+                          onChange={(e) => updateHomepageConfig({
+                            hero: {
+                              ...homepageConfig.hero,
+                              storyCta: {
+                                ...homepageConfig.hero,
+                                text: { ...homepageConfig.hero.storyCta.text, en: e.target.value }
+                              }
+                            }
+                          })}
+                          className="w-full px-3 py-2 bg-white border border-[#EAE3D9] rounded-xl text-xs"
+                          placeholder="e.g. Our Story"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] font-medium text-slate-600 block mb-1">বোতামের লেখা (বাংলা)</label>
+                        <input
+                          type="text"
+                          value={homepageConfig.hero.storyCta.text.bn}
+                          onChange={(e) => updateHomepageConfig({
+                            hero: {
+                              ...homepageConfig.hero,
+                              storyCta: {
+                                ...homepageConfig.hero,
+                                text: { ...homepageConfig.hero.storyCta.text, bn: e.target.value }
+                              }
+                            }
+                          })}
+                          className="w-full px-3 py-2 bg-white border border-[#EAE3D9] rounded-xl text-xs font-bengali"
+                          placeholder="যেমন: আমাদের গল্প জানুন"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] font-medium text-slate-600 block mb-1">Target Route / URL (লিংক)</label>
+                        <input
+                          type="text"
+                          value={homepageConfig.hero.storyCta.url}
+                          onChange={(e) => updateHomepageConfig({
+                            hero: {
+                              ...homepageConfig.hero,
+                              storyCta: { ...homepageConfig.hero.storyCta, url: e.target.value }
+                            }
+                          })}
+                          className="w-full px-3 py-2 bg-white border border-[#EAE3D9] rounded-xl text-xs font-mono"
+                          placeholder="e.g. about, videos, https://..."
+                        />
+                      </div>
+                    </div>
+
+                    {/* Quick Route Chips */}
+                    <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                      <span className="text-[10px] font-bold text-slate-400">Quick Links:</span>
+                      {['about', 'videos', 'stories', 'media-coverage', 'transparency'].map(r => (
+                        <button
+                          key={r}
+                          type="button"
+                          onClick={() => updateHomepageConfig({
+                            hero: {
+                              ...homepageConfig.hero,
+                              storyCta: { ...homepageConfig.hero.storyCta, url: r }
+                            }
+                          })}
+                          className={`px-2 py-0.5 rounded-md text-[10px] font-bold cursor-pointer transition-colors ${
+                            homepageConfig.hero.storyCta.url === r
+                              ? 'bg-[#006A4E] text-white'
+                              : 'bg-white text-slate-600 border border-slate-200 hover:border-[#006A4E]'
+                          }`}
+                        >
+                          {r}
+                        </button>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -1269,6 +1635,123 @@ export const AdminPage: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Homepage About Preview Section & CTA */}
+                <div className="space-y-4 pt-4 border-t border-slate-100">
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="w-4 h-4 text-[#006A4E]" />
+                    <h3 className="text-sm font-bold text-slate-900 font-display">
+                      {isBn ? 'হোমপেজ পরিচিতি প্রিভিউ ও CTA বাটন' : 'Homepage About Preview & CTA'}
+                    </h3>
+                  </div>
+
+                  <div className="p-4 sm:p-5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-slate-700">Eyebrow (English)</label>
+                        <input
+                          type="text"
+                          value={homepageConfig.aboutPreview?.eyebrow?.en || ''}
+                          onChange={(e) => updateHomepageConfig({
+                            aboutPreview: {
+                              ...homepageConfig.aboutPreview,
+                              eyebrow: { ...(homepageConfig.aboutPreview?.eyebrow || { en: '', bn: '' }), en: e.target.value }
+                            }
+                          })}
+                          className="w-full px-3.5 py-2 bg-white border border-[#EAE3D9] rounded-xl text-xs"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-slate-700">আইব্রো ব্যাজ (বাংলা)</label>
+                        <input
+                          type="text"
+                          value={homepageConfig.aboutPreview?.eyebrow?.bn || ''}
+                          onChange={(e) => updateHomepageConfig({
+                            aboutPreview: {
+                              ...homepageConfig.aboutPreview,
+                              eyebrow: { ...(homepageConfig.aboutPreview?.eyebrow || { en: '', bn: '' }), bn: e.target.value }
+                            }
+                          })}
+                          className="w-full px-3.5 py-2 bg-white border border-[#EAE3D9] rounded-xl text-xs font-bengali"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-slate-200/60">
+                      <div>
+                        <label className="text-[11px] font-bold text-slate-700 block mb-1">About CTA Button (English)</label>
+                        <input
+                          type="text"
+                          value={homepageConfig.aboutPreview?.ctaText?.en || ''}
+                          onChange={(e) => updateHomepageConfig({
+                            aboutPreview: {
+                              ...homepageConfig.aboutPreview,
+                              ctaText: { ...(homepageConfig.aboutPreview?.ctaText || { en: '', bn: '' }), en: e.target.value }
+                            }
+                          })}
+                          className="w-full px-3 py-2 bg-white border border-[#EAE3D9] rounded-xl text-xs"
+                          placeholder="e.g. Explore Our Full Journey"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] font-bold text-slate-700 block mb-1">পরিচিতি বাটন টেক্সট (বাংলা)</label>
+                        <input
+                          type="text"
+                          value={homepageConfig.aboutPreview?.ctaText?.bn || ''}
+                          onChange={(e) => updateHomepageConfig({
+                            aboutPreview: {
+                              ...homepageConfig.aboutPreview,
+                              ctaText: { ...(homepageConfig.aboutPreview?.ctaText || { en: '', bn: '' }), bn: e.target.value }
+                            }
+                          })}
+                          className="w-full px-3 py-2 bg-white border border-[#EAE3D9] rounded-xl text-xs font-bengali"
+                          placeholder="যেমন: আমাদের সম্পূর্ণ গল্প জানুন"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] font-bold text-slate-700 block mb-1">CTA Target Route / URL (লিংক)</label>
+                        <input
+                          type="text"
+                          value={homepageConfig.aboutPreview?.ctaUrl || 'about'}
+                          onChange={(e) => updateHomepageConfig({
+                            aboutPreview: {
+                              ...homepageConfig.aboutPreview,
+                              ctaUrl: e.target.value
+                            }
+                          })}
+                          className="w-full px-3 py-2 bg-white border border-[#EAE3D9] rounded-xl text-xs font-mono"
+                          placeholder="e.g. about, campaigns, volunteer"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Quick Route Chips */}
+                    <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                      <span className="text-[10px] font-bold text-slate-400">Quick Links:</span>
+                      {['about', 'about/executive-committee', 'transparency', 'stories', 'volunteer', 'donate'].map(r => (
+                        <button
+                          key={r}
+                          type="button"
+                          onClick={() => updateHomepageConfig({
+                            aboutPreview: {
+                              ...homepageConfig.aboutPreview,
+                              ctaUrl: r
+                            }
+                          })}
+                          className={`px-2 py-0.5 rounded-md text-[10px] font-bold cursor-pointer transition-colors ${
+                            (homepageConfig.aboutPreview?.ctaUrl || 'about') === r
+                              ? 'bg-[#006A4E] text-white'
+                              : 'bg-white text-slate-600 border border-slate-200 hover:border-[#006A4E]'
+                          }`}
+                        >
+                          {r}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
                 {/* Homepage Volunteer CTA Banner Section */}
                 <div className="space-y-4 pt-4 border-t border-slate-100">
                   <div className="flex items-center gap-2">
@@ -1291,7 +1774,7 @@ export const AdminPage: React.FC = () => {
                               primaryButtonText: { en: '', bn: '' },
                               primaryButtonUrl: 'volunteer',
                               secondaryButtonText: { en: '', bn: '' },
-                              secondaryButtonUrl: 'about'
+                              secondaryButtonUrl: 'about/executive-committee'
                             }),
                             title: { ...(homepageConfig.volunteerBanner?.title || { en: '', bn: '' }), en: e.target.value }
                           }
@@ -1313,12 +1796,12 @@ export const AdminPage: React.FC = () => {
                               primaryButtonText: { en: '', bn: '' },
                               primaryButtonUrl: 'volunteer',
                               secondaryButtonText: { en: '', bn: '' },
-                              secondaryButtonUrl: 'about'
+                              secondaryButtonUrl: 'about/executive-committee'
                             }),
                             title: { ...(homepageConfig.volunteerBanner?.title || { en: '', bn: '' }), bn: e.target.value }
                           }
                         })}
-                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
                       />
                     </div>
                   </div>
@@ -1338,7 +1821,7 @@ export const AdminPage: React.FC = () => {
                               primaryButtonText: { en: '', bn: '' },
                               primaryButtonUrl: 'volunteer',
                               secondaryButtonText: { en: '', bn: '' },
-                              secondaryButtonUrl: 'about'
+                              secondaryButtonUrl: 'about/executive-committee'
                             }),
                             subtitle: { ...(homepageConfig.volunteerBanner?.subtitle || { en: '', bn: '' }), en: e.target.value }
                           }
@@ -1360,13 +1843,130 @@ export const AdminPage: React.FC = () => {
                               primaryButtonText: { en: '', bn: '' },
                               primaryButtonUrl: 'volunteer',
                               secondaryButtonText: { en: '', bn: '' },
-                              secondaryButtonUrl: 'about'
+                              secondaryButtonUrl: 'about/executive-committee'
                             }),
                             subtitle: { ...(homepageConfig.volunteerBanner?.subtitle || { en: '', bn: '' }), bn: e.target.value }
                           }
                         })}
-                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
                       />
+                    </div>
+                  </div>
+
+                  {/* Volunteer Banner CTA Action Buttons */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                    {/* Primary Button */}
+                    <div className="p-4 rounded-2xl bg-white border border-[#EAE3D9] space-y-2.5">
+                      <span className="text-xs font-extrabold text-slate-800 block">
+                        {isBn ? 'প্রধান ভলান্টিয়ার বাটন (Primary CTA)' : 'Primary Volunteer Button'}
+                      </span>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="text-[10px] font-medium text-slate-500">Text (EN)</label>
+                          <input
+                            type="text"
+                            value={homepageConfig.volunteerBanner?.primaryButtonText?.en || homepageConfig.volunteerBanner?.primaryCtaText?.en || ''}
+                            onChange={(e) => updateHomepageConfig({
+                              volunteerBanner: {
+                                ...(homepageConfig.volunteerBanner || {} as any),
+                                primaryButtonText: { ...(homepageConfig.volunteerBanner?.primaryButtonText || { en: '', bn: '' }), en: e.target.value },
+                                primaryCtaText: { ...(homepageConfig.volunteerBanner?.primaryCtaText || { en: '', bn: '' }), en: e.target.value }
+                              }
+                            })}
+                            className="w-full px-2.5 py-1.5 bg-[#FAF7F2] border border-slate-200 rounded-lg text-xs"
+                            placeholder="Become a Volunteer"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-medium text-slate-500">লেখা (বাং)</label>
+                          <input
+                            type="text"
+                            value={homepageConfig.volunteerBanner?.primaryButtonText?.bn || homepageConfig.volunteerBanner?.primaryCtaText?.bn || ''}
+                            onChange={(e) => updateHomepageConfig({
+                              volunteerBanner: {
+                                ...(homepageConfig.volunteerBanner || {} as any),
+                                primaryButtonText: { ...(homepageConfig.volunteerBanner?.primaryButtonText || { en: '', bn: '' }), bn: e.target.value },
+                                primaryCtaText: { ...(homepageConfig.volunteerBanner?.primaryCtaText || { en: '', bn: '' }), bn: e.target.value }
+                              }
+                            })}
+                            className="w-full px-2.5 py-1.5 bg-[#FAF7F2] border border-slate-200 rounded-lg text-xs font-bengali"
+                            placeholder="স্বেচ্ছাসেবী হিসেবে যোগ দিন"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-medium text-slate-500">Target Route / URL (লিংক)</label>
+                        <input
+                          type="text"
+                          value={homepageConfig.volunteerBanner?.primaryButtonUrl || homepageConfig.volunteerBanner?.primaryCtaUrl || 'volunteer'}
+                          onChange={(e) => updateHomepageConfig({
+                            volunteerBanner: {
+                              ...(homepageConfig.volunteerBanner || {} as any),
+                              primaryButtonUrl: e.target.value,
+                              primaryCtaUrl: e.target.value
+                            }
+                          })}
+                          className="w-full px-2.5 py-1.5 bg-[#FAF7F2] border border-slate-200 rounded-lg text-xs font-mono"
+                          placeholder="volunteer"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Secondary Button */}
+                    <div className="p-4 rounded-2xl bg-white border border-[#EAE3D9] space-y-2.5">
+                      <span className="text-xs font-extrabold text-slate-800 block">
+                        {isBn ? 'দ্বিতীয় বাটন (Secondary CTA)' : 'Secondary Button'}
+                      </span>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="text-[10px] font-medium text-slate-500">Text (EN)</label>
+                          <input
+                            type="text"
+                            value={homepageConfig.volunteerBanner?.secondaryButtonText?.en || homepageConfig.volunteerBanner?.secondaryCtaText?.en || ''}
+                            onChange={(e) => updateHomepageConfig({
+                              volunteerBanner: {
+                                ...(homepageConfig.volunteerBanner || {} as any),
+                                secondaryButtonText: { ...(homepageConfig.volunteerBanner?.secondaryButtonText || { en: '', bn: '' }), en: e.target.value },
+                                secondaryCtaText: { ...(homepageConfig.volunteerBanner?.secondaryCtaText || { en: '', bn: '' }), en: e.target.value }
+                              }
+                            })}
+                            className="w-full px-2.5 py-1.5 bg-[#FAF7F2] border border-slate-200 rounded-lg text-xs"
+                            placeholder="Meet Our Team"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-medium text-slate-500">লেখা (বাং)</label>
+                          <input
+                            type="text"
+                            value={homepageConfig.volunteerBanner?.secondaryButtonText?.bn || homepageConfig.volunteerBanner?.secondaryCtaText?.bn || ''}
+                            onChange={(e) => updateHomepageConfig({
+                              volunteerBanner: {
+                                ...(homepageConfig.volunteerBanner || {} as any),
+                                secondaryButtonText: { ...(homepageConfig.volunteerBanner?.secondaryButtonText || { en: '', bn: '' }), bn: e.target.value },
+                                secondaryCtaText: { ...(homepageConfig.volunteerBanner?.secondaryCtaText || { en: '', bn: '' }), bn: e.target.value }
+                              }
+                            })}
+                            className="w-full px-2.5 py-1.5 bg-[#FAF7F2] border border-slate-200 rounded-lg text-xs font-bengali"
+                            placeholder="আমাদের নেতৃত্ব দেখুন"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-medium text-slate-500">Target Route / URL (লিংক)</label>
+                        <input
+                          type="text"
+                          value={homepageConfig.volunteerBanner?.secondaryButtonUrl || homepageConfig.volunteerBanner?.secondaryCtaUrl || 'about/executive-committee'}
+                          onChange={(e) => updateHomepageConfig({
+                            volunteerBanner: {
+                              ...(homepageConfig.volunteerBanner || {} as any),
+                              secondaryButtonUrl: e.target.value,
+                              secondaryCtaUrl: e.target.value
+                            }
+                          })}
+                          className="w-full px-2.5 py-1.5 bg-[#FAF7F2] border border-slate-200 rounded-lg text-xs font-mono"
+                          placeholder="about/executive-committee"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1418,7 +2018,7 @@ export const AdminPage: React.FC = () => {
                             title: { ...(homepageConfig.supportBanner?.title || { en: '', bn: '' }), bn: e.target.value }
                           }
                         })}
-                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
                       />
                     </div>
                   </div>
@@ -1465,6 +2065,123 @@ export const AdminPage: React.FC = () => {
                         })}
                         className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
                       />
+                    </div>
+                  </div>
+
+                  {/* Support Banner CTA Action Buttons */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                    {/* Primary Button */}
+                    <div className="p-4 rounded-2xl bg-white border border-[#EAE3D9] space-y-2.5">
+                      <span className="text-xs font-extrabold text-slate-800 block">
+                        {isBn ? 'প্রধান অনুদান বাটন (Primary Donation CTA)' : 'Primary Donation Button'}
+                      </span>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="text-[10px] font-medium text-slate-500">Text (EN)</label>
+                          <input
+                            type="text"
+                            value={homepageConfig.supportBanner?.primaryButtonText?.en || homepageConfig.supportBanner?.primaryCtaText?.en || ''}
+                            onChange={(e) => updateHomepageConfig({
+                              supportBanner: {
+                                ...(homepageConfig.supportBanner || {} as any),
+                                primaryButtonText: { ...(homepageConfig.supportBanner?.primaryButtonText || { en: '', bn: '' }), en: e.target.value },
+                                primaryCtaText: { ...(homepageConfig.supportBanner?.primaryCtaText || { en: '', bn: '' }), en: e.target.value }
+                              }
+                            })}
+                            className="w-full px-2.5 py-1.5 bg-[#FAF7F2] border border-slate-200 rounded-lg text-xs"
+                            placeholder="Donate Now"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-medium text-slate-500">লেখা (বাং)</label>
+                          <input
+                            type="text"
+                            value={homepageConfig.supportBanner?.primaryButtonText?.bn || homepageConfig.supportBanner?.primaryCtaText?.bn || ''}
+                            onChange={(e) => updateHomepageConfig({
+                              supportBanner: {
+                                ...(homepageConfig.supportBanner || {} as any),
+                                primaryButtonText: { ...(homepageConfig.supportBanner?.primaryButtonText || { en: '', bn: '' }), bn: e.target.value },
+                                primaryCtaText: { ...(homepageConfig.supportBanner?.primaryCtaText || { en: '', bn: '' }), bn: e.target.value }
+                              }
+                            })}
+                            className="w-full px-2.5 py-1.5 bg-[#FAF7F2] border border-slate-200 rounded-lg text-xs font-bengali"
+                            placeholder="অনলাইন অনুদান প্রদান"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-medium text-slate-500">Target Route / URL (লিংক)</label>
+                        <input
+                          type="text"
+                          value={homepageConfig.supportBanner?.primaryButtonUrl || homepageConfig.supportBanner?.primaryCtaUrl || 'donate'}
+                          onChange={(e) => updateHomepageConfig({
+                            supportBanner: {
+                              ...(homepageConfig.supportBanner || {} as any),
+                              primaryButtonUrl: e.target.value,
+                              primaryCtaUrl: e.target.value
+                            }
+                          })}
+                          className="w-full px-2.5 py-1.5 bg-[#FAF7F2] border border-slate-200 rounded-lg text-xs font-mono"
+                          placeholder="donate"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Secondary Button */}
+                    <div className="p-4 rounded-2xl bg-white border border-[#EAE3D9] space-y-2.5">
+                      <span className="text-xs font-extrabold text-slate-800 block">
+                        {isBn ? 'দ্বিতীয় স্বচ্ছতা বাটন (Secondary Transparency CTA)' : 'Secondary Transparency Button'}
+                      </span>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="text-[10px] font-medium text-slate-500">Text (EN)</label>
+                          <input
+                            type="text"
+                            value={homepageConfig.supportBanner?.secondaryButtonText?.en || homepageConfig.supportBanner?.secondaryCtaText?.en || ''}
+                            onChange={(e) => updateHomepageConfig({
+                              supportBanner: {
+                                ...(homepageConfig.supportBanner || {} as any),
+                                secondaryButtonText: { ...(homepageConfig.supportBanner?.secondaryButtonText || { en: '', bn: '' }), en: e.target.value },
+                                secondaryCtaText: { ...(homepageConfig.supportBanner?.secondaryCtaText || { en: '', bn: '' }), en: e.target.value }
+                              }
+                            })}
+                            className="w-full px-2.5 py-1.5 bg-[#FAF7F2] border border-slate-200 rounded-lg text-xs"
+                            placeholder="Audit & Reports"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-medium text-slate-500">লেখা (বাং)</label>
+                          <input
+                            type="text"
+                            value={homepageConfig.supportBanner?.secondaryButtonText?.bn || homepageConfig.supportBanner?.secondaryCtaText?.bn || ''}
+                            onChange={(e) => updateHomepageConfig({
+                              supportBanner: {
+                                ...(homepageConfig.supportBanner || {} as any),
+                                secondaryButtonText: { ...(homepageConfig.supportBanner?.secondaryButtonText || { en: '', bn: '' }), bn: e.target.value },
+                                secondaryCtaText: { ...(homepageConfig.supportBanner?.secondaryCtaText || { en: '', bn: '' }), bn: e.target.value }
+                              }
+                            })}
+                            className="w-full px-2.5 py-1.5 bg-[#FAF7F2] border border-slate-200 rounded-lg text-xs font-bengali"
+                            placeholder="স্বচ্ছতা ও অডিট রিপোর্ট"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-medium text-slate-500">Target Route / URL (লিংক)</label>
+                        <input
+                          type="text"
+                          value={homepageConfig.supportBanner?.secondaryButtonUrl || homepageConfig.supportBanner?.secondaryCtaUrl || 'transparency'}
+                          onChange={(e) => updateHomepageConfig({
+                            supportBanner: {
+                              ...(homepageConfig.supportBanner || {} as any),
+                              secondaryButtonUrl: e.target.value,
+                              secondaryCtaUrl: e.target.value
+                            }
+                          })}
+                          className="w-full px-2.5 py-1.5 bg-[#FAF7F2] border border-slate-200 rounded-lg text-xs font-mono"
+                          placeholder="transparency"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -2428,7 +3145,10 @@ export const AdminPage: React.FC = () => {
 
                 {/* Top Notice Bar */}
                 <div className="space-y-4">
-                  <h3 className="text-sm font-bold text-slate-900 font-display">Top Announcement Notice Bar</h3>
+                  <h3 className="text-sm font-bold text-slate-900 font-display flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-[#006A4E]" />
+                    <span>Top Announcement Notice Bar & Target Link</span>
+                  </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-slate-700">Notice Text (English)</label>
@@ -2453,13 +3173,126 @@ export const AdminPage: React.FC = () => {
                       />
                     </div>
                   </div>
+
+                  <div className="p-3.5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                        <LinkIcon className="w-3.5 h-3.5 text-[#006A4E]" />
+                        <span>Notice Click Target Route / URL (ক্লিক করলে যে পেজে যাবে)</span>
+                      </label>
+                      <span className="text-[11px] text-slate-400 font-mono">Current: /{headerSettings.noticeBarLink || 'transparency'}</span>
+                    </div>
+                    <input
+                      type="text"
+                      value={headerSettings.noticeBarLink || 'transparency'}
+                      onChange={(e) => updateHeaderSettings({ noticeBarLink: e.target.value })}
+                      placeholder="e.g. transparency, campaigns, donate, https://..."
+                      className="w-full px-3 py-2 bg-white border border-[#EAE3D9] rounded-xl text-xs font-mono"
+                    />
+                    <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                      <span className="text-[10px] font-bold text-slate-400">Quick Route Selectors:</span>
+                      {['transparency', 'campaigns', 'donate', 'volunteer', 'contact', 'media-coverage'].map(r => (
+                        <button
+                          key={r}
+                          type="button"
+                          onClick={() => updateHeaderSettings({ noticeBarLink: r })}
+                          className={`px-2 py-0.5 rounded-md text-[10px] font-bold cursor-pointer transition-colors ${
+                            (headerSettings.noticeBarLink || 'transparency') === r
+                              ? 'bg-[#006A4E] text-white'
+                              : 'bg-white text-slate-600 border border-slate-200 hover:border-[#006A4E]'
+                          }`}
+                        >
+                          {r}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Header Support CTA Button */}
+                <div className="space-y-4 pt-4 border-t border-slate-100">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-bold text-slate-900 font-display flex items-center gap-2">
+                      <Heart className="w-4 h-4 text-rose-600" />
+                      <span>Header Support / Action CTA Button (হেডারের ডানপাশের বাটন)</span>
+                    </h3>
+                    <label className="inline-flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={headerSettings.showSupportButton !== false}
+                        onChange={(e) => updateHeaderSettings({ showSupportButton: e.target.checked })}
+                        className="rounded text-[#006A4E]"
+                      />
+                      <span>{isBn ? 'হেডারে বাটন দেখান' : 'Show in Header'}</span>
+                    </label>
+                  </div>
+
+                  <div className="p-4 sm:p-5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="text-[11px] font-medium text-slate-600 block mb-1">Button Text (English)</label>
+                        <input
+                          type="text"
+                          value={headerSettings.supportButtonText?.en || ''}
+                          onChange={(e) => updateHeaderSettings({
+                            supportButtonText: { ...(headerSettings.supportButtonText || { en: '', bn: '' }), en: e.target.value }
+                          })}
+                          placeholder="Donate"
+                          className="w-full px-3 py-2 bg-white border border-[#EAE3D9] rounded-xl text-xs"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] font-medium text-slate-600 block mb-1">বোতামের লেখা (বাংলা)</label>
+                        <input
+                          type="text"
+                          value={headerSettings.supportButtonText?.bn || ''}
+                          onChange={(e) => updateHeaderSettings({
+                            supportButtonText: { ...(headerSettings.supportButtonText || { en: '', bn: '' }), bn: e.target.value }
+                          })}
+                          placeholder="সহায়তা করুন"
+                          className="w-full px-3 py-2 bg-white border border-[#EAE3D9] rounded-xl text-xs font-bengali"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[11px] font-medium text-slate-600 block mb-1">Target Route / URL (লিংক)</label>
+                        <input
+                          type="text"
+                          value={headerSettings.supportButtonUrl || 'donate'}
+                          onChange={(e) => updateHeaderSettings({ supportButtonUrl: e.target.value })}
+                          placeholder="e.g. donate, volunteer"
+                          className="w-full px-3 py-2 bg-white border border-[#EAE3D9] rounded-xl text-xs font-mono"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Quick Route Chips */}
+                    <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                      <span className="text-[10px] font-bold text-slate-400">Quick Route Selectors:</span>
+                      {['donate', 'volunteer', 'campaigns', 'transparency', 'contact'].map(r => (
+                        <button
+                          key={r}
+                          type="button"
+                          onClick={() => updateHeaderSettings({ supportButtonUrl: r })}
+                          className={`px-2 py-0.5 rounded-md text-[10px] font-bold cursor-pointer transition-colors ${
+                            (headerSettings.supportButtonUrl || 'donate') === r
+                              ? 'bg-[#006A4E] text-white'
+                              : 'bg-white text-slate-600 border border-slate-200 hover:border-[#006A4E]'
+                          }`}
+                        >
+                          {r}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
 
                 {/* Footer Top Callout Banner */}
                 <div className="space-y-4 pt-4 border-t border-slate-100">
                   <h3 className="text-sm font-bold text-slate-900 font-display flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-[#006A4E]" />
-                    <span>Footer Top Callout Banner (সব পেজের নিচের ব্যানার)</span>
+                    <span>Footer Top Callout Banner (সব পেজের নিচের কলআউট ও বাটনসমূহ)</span>
                   </h3>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -2537,28 +3370,94 @@ export const AdminPage: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-700">Volunteer CTA Button Text (English)</label>
-                      <input
-                        type="text"
-                        value={footerSettings.volunteerCtaText?.en || ''}
-                        onChange={(e) => updateFooterSettings({
-                          volunteerCtaText: { ...(footerSettings.volunteerCtaText || { en: '', bn: '' }), en: e.target.value }
-                        })}
-                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
-                      />
+                  {/* Footer CTAs Configuration (Volunteer & Support) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                    {/* Volunteer CTA */}
+                    <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-3">
+                      <span className="text-xs font-extrabold text-slate-900 block flex items-center gap-1.5">
+                        <Users className="w-3.5 h-3.5 text-[#006A4E]" />
+                        <span>{isBn ? 'ফুটার ভলান্টিয়ার বাটন ও লিংক' : 'Footer Volunteer Button & Link'}</span>
+                      </span>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="text-[10px] font-medium text-slate-500">Text (EN)</label>
+                          <input
+                            type="text"
+                            value={footerSettings.volunteerCtaText?.en || ''}
+                            onChange={(e) => updateFooterSettings({
+                              volunteerCtaText: { ...(footerSettings.volunteerCtaText || { en: '', bn: '' }), en: e.target.value }
+                            })}
+                            className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs"
+                            placeholder="Become a Volunteer"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-medium text-slate-500">লেখা (বাং)</label>
+                          <input
+                            type="text"
+                            value={footerSettings.volunteerCtaText?.bn || ''}
+                            onChange={(e) => updateFooterSettings({
+                              volunteerCtaText: { ...(footerSettings.volunteerCtaText || { en: '', bn: '' }), bn: e.target.value }
+                            })}
+                            className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bengali"
+                            placeholder="স্বেচ্ছাসেবী হিসেবে যোগ দিন"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-medium text-slate-500">Target Route / URL (লিংক)</label>
+                        <input
+                          type="text"
+                          value={footerSettings.volunteerCtaUrl || 'volunteer'}
+                          onChange={(e) => updateFooterSettings({ volunteerCtaUrl: e.target.value })}
+                          className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-mono"
+                          placeholder="volunteer"
+                        />
+                      </div>
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-700">ভলান্টিয়ার বাটন টেক্সট (বাংলা)</label>
-                      <input
-                        type="text"
-                        value={footerSettings.volunteerCtaText?.bn || ''}
-                        onChange={(e) => updateFooterSettings({
-                          volunteerCtaText: { ...(footerSettings.volunteerCtaText || { en: '', bn: '' }), bn: e.target.value }
-                        })}
-                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
-                      />
+
+                    {/* Support CTA */}
+                    <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-3">
+                      <span className="text-xs font-extrabold text-slate-900 block flex items-center gap-1.5">
+                        <Heart className="w-3.5 h-3.5 text-rose-600" />
+                        <span>{isBn ? 'ফুটার অনুদান বাটন ও লিংক' : 'Footer Donation Button & Link'}</span>
+                      </span>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="text-[10px] font-medium text-slate-500">Text (EN)</label>
+                          <input
+                            type="text"
+                            value={footerSettings.supportCtaText?.en || ''}
+                            onChange={(e) => updateFooterSettings({
+                              supportCtaText: { ...(footerSettings.supportCtaText || { en: '', bn: '' }), en: e.target.value }
+                            })}
+                            className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs"
+                            placeholder="Support Our Mission"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-medium text-slate-500">লেখা (বাং)</label>
+                          <input
+                            type="text"
+                            value={footerSettings.supportCtaText?.bn || ''}
+                            onChange={(e) => updateFooterSettings({
+                              supportCtaText: { ...(footerSettings.supportCtaText || { en: '', bn: '' }), bn: e.target.value }
+                            })}
+                            className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bengali"
+                            placeholder="সহায়তা করুন"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-medium text-slate-500">Target Route / URL (লিংক)</label>
+                        <input
+                          type="text"
+                          value={footerSettings.supportCtaUrl || 'donate'}
+                          onChange={(e) => updateFooterSettings({ supportCtaUrl: e.target.value })}
+                          className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-mono"
+                          placeholder="donate"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -3536,6 +4435,14 @@ export const AdminPage: React.FC = () => {
                             {ban.subtitle && (
                               <p className="text-[11px] text-slate-400 truncate">{ban.subtitle.en}</p>
                             )}
+                            {ban.ctaText?.en && (
+                              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-semibold">
+                                <LinkIcon className="w-2.5 h-2.5 text-[#006A4E]" />
+                                <span>CTA: <strong>{ban.ctaText.en}</strong></span>
+                                <span className="font-mono text-emerald-600">&rarr; /{ban.ctaUrl || 'donate'}</span>
+                                {ban.openInNewTab && <span className="text-[9px] bg-emerald-200/70 text-emerald-900 px-1 rounded">New Tab</span>}
+                              </div>
+                            )}
                           </div>
                         </div>
 
@@ -3759,6 +4666,59 @@ export const AdminPage: React.FC = () => {
                       <Download className="w-3.5 h-3.5 text-[#006A4E]" />
                       <span>Export CSV</span>
                     </button>
+                  </div>
+                </div>
+
+                {/* Volunteer Settings & Google Form Application Link */}
+                <div className="p-5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xs font-bold text-slate-900 flex items-center gap-2 uppercase tracking-wider">
+                      <LinkIcon className="w-3.5 h-3.5 text-[#006A4E]" />
+                      <span>{isBn ? 'স্বেচ্ছাসেবী আবেদন ফরম ও বাহ্যিক রেজিস্ট্রেশন লিংক (CTA Settings)' : 'Volunteer Application Link & Form CTA Settings'}</span>
+                    </h3>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700 block">
+                      {isBn ? 'গুগল ফর্ম বা অনলাইন আবেদন লিংক (Google Form / External Registration URL)' : 'Google Form / External Application URL'}
+                    </label>
+                    <input
+                      type="text"
+                      value={volunteerSettings.googleFormUrl || ''}
+                      onChange={(e) => updateVolunteerSettings({ googleFormUrl: e.target.value })}
+                      placeholder="https://docs.google.com/forms/d/e/... or internal route"
+                      className="w-full px-3.5 py-2 bg-white border border-[#EAE3D9] rounded-xl text-xs font-mono"
+                    />
+                    <p className="text-[11px] text-slate-400">
+                      {isBn ? 'এখানে গুগল ফর্ম লিংক দিলে ভলান্টিয়ার পেজের আবেদন বাটনে সরাসরি এই ফর্ম ওপেন হবে।' : 'When set, clicking the volunteer join button opens this external Google Form directly.'}
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <div>
+                      <label className="text-[11px] font-medium text-slate-600 block mb-1">CTA Heading Text (English)</label>
+                      <input
+                        type="text"
+                        value={volunteerSettings.ctaText?.en || ''}
+                        onChange={(e) => updateVolunteerSettings({
+                          ctaText: { ...(volunteerSettings.ctaText || { en: '', bn: '' }), en: e.target.value }
+                        })}
+                        placeholder="Join Our Dedicated Force"
+                        className="w-full px-3 py-1.5 bg-white border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[11px] font-medium text-slate-600 block mb-1">হেডিং লেখা (বাংলা)</label>
+                      <input
+                        type="text"
+                        value={volunteerSettings.ctaText?.bn || ''}
+                        onChange={(e) => updateVolunteerSettings({
+                          ctaText: { ...(volunteerSettings.ctaText || { en: '', bn: '' }), bn: e.target.value }
+                        })}
+                        placeholder="আমাদের দলে যুক্ত হোন"
+                        className="w-full px-3 py-1.5 bg-white border border-[#EAE3D9] rounded-xl text-xs font-bengali"
+                      />
+                    </div>
                   </div>
                 </div>
 

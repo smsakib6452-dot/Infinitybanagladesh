@@ -541,8 +541,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           logoUrl: getFreshImageUrl(headerData.logo_url || prev.logoUrl),
           showNoticeBar: headerData.show_notice_bar ?? prev.showNoticeBar,
           noticeBarText: (headerData.notice_bar_text && headerData.notice_bar_text.bn) ? headerData.notice_bar_text : prev.noticeBarText,
+          noticeBarLink: headerData.notice_bar_link || prev.noticeBarLink,
           supportButtonText: (headerData.support_button_text && headerData.support_button_text.bn) ? headerData.support_button_text : prev.supportButtonText,
-          supportButtonUrl: headerData.support_button_url || prev.supportButtonUrl
+          supportButtonUrl: headerData.support_button_url || prev.supportButtonUrl,
+          showSupportButton: headerData.show_support_button ?? prev.showSupportButton
         }));
       }
 
@@ -556,7 +558,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           address: (footerData.address && footerData.address.bn) ? footerData.address : prev.address,
           phone: footerData.phone || prev.phone,
           email: footerData.email || prev.email,
-          copyrightText: (footerData.copyright_text && footerData.copyright_text.bn) ? footerData.copyright_text : prev.copyrightText
+          copyrightText: (footerData.copyright_text && footerData.copyright_text.bn) ? footerData.copyright_text : prev.copyrightText,
+          calloutEyebrow: footerData.callout_eyebrow || prev.calloutEyebrow,
+          calloutTitle: footerData.callout_title || prev.calloutTitle,
+          calloutSubtitle: footerData.callout_subtitle || prev.calloutSubtitle,
+          volunteerCtaText: footerData.volunteer_cta_text || prev.volunteerCtaText,
+          volunteerCtaUrl: footerData.volunteer_cta_url || prev.volunteerCtaUrl,
+          supportCtaText: footerData.support_cta_text || prev.supportCtaText,
+          supportCtaUrl: footerData.support_cta_url || prev.supportCtaUrl
         }));
       }
 
@@ -1052,10 +1061,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         logo_url: headerSettings.logoUrl,
         show_notice_bar: headerSettings.showNoticeBar,
         notice_bar_text: headerSettings.noticeBarText,
+        notice_bar_link: headerSettings.noticeBarLink || 'transparency',
         show_search: headerSettings.showSearch,
         show_language_switcher: headerSettings.showLanguageSwitcher,
         support_button_text: headerSettings.supportButtonText,
-        support_button_url: headerSettings.supportButtonUrl,
+        support_button_url: headerSettings.supportButtonUrl || 'donate',
         show_support_button: headerSettings.showSupportButton,
         updated_at: new Date().toISOString()
       });
@@ -1069,6 +1079,13 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         phone: footerSettings.phone,
         email: footerSettings.email,
         copyright_text: footerSettings.copyrightText,
+        callout_eyebrow: footerSettings.calloutEyebrow,
+        callout_title: footerSettings.calloutTitle,
+        callout_subtitle: footerSettings.calloutSubtitle,
+        volunteer_cta_text: footerSettings.volunteerCtaText,
+        volunteer_cta_url: footerSettings.volunteerCtaUrl || 'volunteer',
+        support_cta_text: footerSettings.supportCtaText,
+        support_cta_url: footerSettings.supportCtaUrl || 'donate',
         updated_at: new Date().toISOString()
       });
 
@@ -1326,10 +1343,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         logo_url: updated.logoUrl,
         show_notice_bar: updated.showNoticeBar,
         notice_bar_text: updated.noticeBarText,
+        notice_bar_link: updated.noticeBarLink || 'transparency',
         show_search: updated.showSearch,
         show_language_switcher: updated.showLanguageSwitcher,
         support_button_text: updated.supportButtonText,
-        support_button_url: updated.supportButtonUrl,
+        support_button_url: updated.supportButtonUrl || 'donate',
         show_support_button: updated.showSupportButton,
         updated_at: new Date().toISOString()
       });
@@ -1355,6 +1373,13 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         phone: updated.phone,
         email: updated.email,
         copyright_text: updated.copyrightText,
+        callout_eyebrow: updated.calloutEyebrow,
+        callout_title: updated.calloutTitle,
+        callout_subtitle: updated.calloutSubtitle,
+        volunteer_cta_text: updated.volunteerCtaText,
+        volunteer_cta_url: updated.volunteerCtaUrl || 'volunteer',
+        support_cta_text: updated.supportCtaText,
+        support_cta_url: updated.supportCtaUrl || 'donate',
         updated_at: new Date().toISOString()
       });
 

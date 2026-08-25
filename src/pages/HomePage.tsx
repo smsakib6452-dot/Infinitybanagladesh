@@ -537,20 +537,20 @@ export const HomePage: React.FC = () => {
                 <div className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-3 justify-center">
                   <button
                     type="button"
-                    onClick={() => navigate('volunteer')}
+                    onClick={() => handleCtaClick(volBanner?.primaryButtonUrl || volBanner?.primaryCtaUrl || 'volunteer')}
                     className="w-full py-3.5 px-6 rounded-2xl bg-[#006A4E] hover:bg-[#008562] active:bg-[#004D38] text-white font-extrabold text-xs sm:text-sm shadow-warm-md transition-all flex items-center justify-center gap-2 cursor-pointer transform hover:-translate-y-0.5"
                   >
-                    <span>{tText(volBanner?.primaryButtonText) || (isBn ? 'স্বেচ্ছাসেবী হিসেবে যোগ দিন' : 'Become a Volunteer')}</span>
+                    <span>{tText(volBanner?.primaryButtonText || volBanner?.primaryCtaText) || (isBn ? 'স্বেচ্ছাসেবী হিসেবে যোগ দিন' : 'Become a Volunteer')}</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
 
                   <button
                     type="button"
-                    onClick={() => navigate('about/executive-committee')}
+                    onClick={() => handleCtaClick(volBanner?.secondaryButtonUrl || volBanner?.secondaryCtaUrl || 'about/executive-committee')}
                     className="w-full py-3.5 px-6 rounded-2xl bg-white/10 hover:bg-white/15 text-white font-bold text-xs sm:text-sm border border-emerald-500/30 transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <Users className="w-4 h-4 text-emerald-300" />
-                    <span>{tText(volBanner?.secondaryButtonText) || (isBn ? 'আমাদের নেতৃত্ব দেখুন' : 'Meet Our Team')}</span>
+                    <span>{tText(volBanner?.secondaryButtonText || volBanner?.secondaryCtaText) || (isBn ? 'আমাদের নেতৃত্ব দেখুন' : 'Meet Our Team')}</span>
                   </button>
                 </div>
               </div>
@@ -650,20 +650,20 @@ export const HomePage: React.FC = () => {
               <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
                 <button
                   type="button"
-                  onClick={() => navigate('donate')}
+                  onClick={() => handleCtaClick(supBanner?.primaryButtonUrl || supBanner?.primaryCtaUrl || 'donate')}
                   className="px-8 py-3.5 rounded-2xl bg-[#006A4E] hover:bg-[#00523C] text-white font-extrabold text-xs sm:text-sm shadow-warm-md transition-all flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5"
                 >
                   <Heart className="w-4 h-4 fill-white" />
-                  <span>{tText(supBanner?.primaryButtonText) || (isBn ? 'অনলাইন অনুদান প্রদান' : 'Donate to Infinity Bangladesh')}</span>
+                  <span>{tText(supBanner?.primaryButtonText || supBanner?.primaryCtaText) || (isBn ? 'অনলাইন অনুদান প্রদান' : 'Donate to Infinity Bangladesh')}</span>
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => navigate('transparency')}
+                  onClick={() => handleCtaClick(supBanner?.secondaryButtonUrl || supBanner?.secondaryCtaUrl || 'transparency')}
                   className="px-6 py-3.5 rounded-2xl bg-white hover:bg-[#FAF7F2] text-slate-800 font-bold text-xs sm:text-sm border border-[#EAE3D9] transition-all flex items-center gap-2 cursor-pointer"
                 >
                   <ShieldCheck className="w-4 h-4 text-[#006A4E]" />
-                  <span>{tText(supBanner?.secondaryButtonText) || (isBn ? 'স্বচ্ছতা ও অডিট রিপোর্ট' : 'Audit & Expense Logs')}</span>
+                  <span>{tText(supBanner?.secondaryButtonText || supBanner?.secondaryCtaText) || (isBn ? 'স্বচ্ছতা ও অডিট রিপোর্ট' : 'Audit & Expense Logs')}</span>
                 </button>
               </div>
             </div>

@@ -277,10 +277,12 @@ export const INITIAL_FOOTER_SETTINGS: FooterSettings = {
     en: 'Become a Volunteer',
     bn: 'স্বেচ্ছাসেবী হিসেবে যোগ দিন'
   },
+  volunteerCtaUrl: 'volunteer',
   supportCtaText: {
     en: 'Support Our Work',
     bn: 'সহায়তা করুন'
-  }
+  },
+  supportCtaUrl: 'donate'
 };
 
 export const INITIAL_FAQS: FAQItem[] = [

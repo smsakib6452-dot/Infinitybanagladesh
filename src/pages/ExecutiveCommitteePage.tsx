@@ -45,7 +45,9 @@ export const ExecutiveCommitteePage: React.FC = () => {
 
   const committeeIdToUse = selectedCommitteeId || activeExecCommittee?.id || 'comm-exec-2026';
   const currentCommittee = committees.find(c => c.id === committeeIdToUse) || activeExecCommittee;
-  const allMembers = getMembersWithDetails(committeeIdToUse);
+  const allMembers = getMembersWithDetails(committeeIdToUse).filter(
+    m => m.status === 'ACTIVE' && m.person?.active !== false
+  );
 
   // Dynamic Tier Bars configuration from settings with fallbacks
   const tierBars: ExecutiveTierBar[] = settings.executiveTierBars && settings.executiveTierBars.length > 0
@@ -108,7 +110,7 @@ export const ExecutiveCommitteePage: React.FC = () => {
     defaultBn: string,
     accentColor?: 'green' | 'red' | 'default'
   ) => {
-    if (!bar.visible) return null;
+    if (!bar || bar.visible === false) return null;
 
     const colorClasses = accentColor === 'green'
       ? 'text-[#00523C] bg-[#E6F3EF] border-[#C2E2D7]'

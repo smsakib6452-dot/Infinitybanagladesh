@@ -4,7 +4,7 @@ import { useRouter, Link } from '../context/RouterContext';
 import { useData } from '../context/DataContext';
 import { GalleryLightbox } from '../components/GalleryLightbox';
 import { Image as ImageIcon, Video, Newspaper, Calendar, Sparkles, Search, Tag } from 'lucide-react';
-import { getAssetUrl } from '../lib/utils/assetHelper';
+import { getAssetUrl, handleImageError } from '../lib/utils/assetHelper';
 import { GalleryPhoto } from '../types';
 
 export const GalleryPage: React.FC = () => {
@@ -218,11 +218,9 @@ export const GalleryPage: React.FC = () => {
                   <img
                     src={getAssetUrl(photo.imageUrl)}
                     alt={photoTitle}
-                    className="w-full h-full object-cover group-hover:scale-106 transition-transform duration-500"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 transform-gpu ease-out"
                     loading="lazy"
-                    onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).src = '/brand/infinity-logo.png';
-                    }}
+                    onError={handleImageError}
                   />
                   <span className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#006A4E]/90 text-white backdrop-blur-xs shadow-xs">
                     {photo.category}

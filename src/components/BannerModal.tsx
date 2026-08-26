@@ -161,7 +161,9 @@ export const BannerModal: React.FC<BannerModalProps> = ({
                   alt="Banner preview"
                   className="w-full h-full object-cover"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/images/infinity-cover-hero.jpg';
+                    const target = e.target as HTMLImageElement;
+                    target.onerror = null;
+                    target.src = '/images/infinity-cover-hero.jpg';
                   }}
                 />
               ) : (

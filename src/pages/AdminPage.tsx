@@ -99,7 +99,7 @@ import {
   FAQItem,
   PressCoverage
 } from '../types';
-import { getAssetUrl } from '../lib/utils/assetHelper';
+import { getAssetUrl, handleImageError } from '../lib/utils/assetHelper';
 import { formatBDT } from '../lib/utils/formatters';
 import { Toast } from '../components/Toast';
 import { MediaPickerModal } from '../components/MediaPickerModal';
@@ -3141,9 +3141,7 @@ export const AdminPage: React.FC = () => {
                               src={getAssetUrl(alb.coverImageUrl)}
                               alt={alb.title.en}
                               className="w-full h-full object-cover"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).src = '/images/infinity-cover-hero.jpg';
-                              }}
+                              onError={handleImageError}
                             />
                             <div className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-slate-900/80 backdrop-blur-xs text-white text-[10px] font-bold">
                               {alb.category}
@@ -5104,9 +5102,7 @@ export const AdminPage: React.FC = () => {
                               src={getAssetUrl(ban.desktopImageUrl)}
                               alt={ban.title.en}
                               className="w-full h-full object-cover"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).src = '/images/infinity-cover-hero.jpg';
-                              }}
+                              onError={handleImageError}
                             />
                           </div>
 
@@ -5230,9 +5226,7 @@ export const AdminPage: React.FC = () => {
                               src={getAssetUrl(item.imageUrl || '/images/infinity-cover-hero.jpg')}
                               alt={item.title.en}
                               className="w-full h-full object-cover"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).src = '/images/winter-warmth.jpg';
-                              }}
+                              onError={handleImageError}
                             />
                           </div>
 

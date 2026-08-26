@@ -216,7 +216,9 @@ export const ImagePublishModal: React.FC<ImagePublishModalProps> = ({
                   alt="Asset preview"
                   className="w-full h-full object-cover"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/images/winter-warmth.jpg';
+                    const target = e.target as HTMLImageElement;
+                    target.onerror = null;
+                    target.src = '/images/winter-warmth.jpg';
                   }}
                 />
               ) : (

@@ -263,7 +263,9 @@ export const VideoModal: React.FC<VideoModalProps> = ({
                           alt="Thumbnail Preview"
                           className="w-full h-full object-cover"
                           onError={(e) => {
-                            (e.currentTarget as HTMLImageElement).src = DEFAULT_VIDEO_THUMBNAIL;
+                            const target = e.currentTarget as HTMLImageElement;
+                            target.onerror = null;
+                            target.src = DEFAULT_VIDEO_THUMBNAIL;
                           }}
                         />
                         <div className="absolute inset-0 bg-slate-950/20 flex items-center justify-center">

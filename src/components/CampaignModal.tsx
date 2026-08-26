@@ -666,7 +666,9 @@ export const CampaignModal: React.FC<CampaignModalProps> = ({
                       alt="Campaign Cover Preview"
                       className="w-full h-full object-cover"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = '/images/infinity-cover-hero.jpg';
+                        const target = e.target as HTMLImageElement;
+                        target.onerror = null;
+                        target.src = '/images/infinity-cover-hero.jpg';
                       }}
                     />
                   </div>

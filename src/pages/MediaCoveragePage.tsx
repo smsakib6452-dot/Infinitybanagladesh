@@ -3,7 +3,7 @@ import { Newspaper, ExternalLink, Search, Calendar, Tv, Globe, BookOpen, Share2,
 import { useData } from '../context/DataContext';
 import { useLanguage } from '../context/LanguageContext';
 import { PressCoverageType } from '../types';
-import { getAssetUrl } from '../lib/utils/assetHelper';
+import { getAssetUrl, handleImageError } from '../lib/utils/assetHelper';
 
 export const MediaCoveragePage: React.FC = () => {
   const { pressCoverages, settings } = useData();
@@ -148,10 +148,8 @@ export const MediaCoveragePage: React.FC = () => {
                   <img
                     src={getAssetUrl(item.imageUrl || '/images/infinity-cover-hero.jpg')}
                     alt={isBn ? item.title.bn : item.title.en}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/images/winter-warmth.jpg';
-                    }}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 transform-gpu ease-out"
+                    onError={handleImageError}
                   />
 
                   {/* Coverage Type Badge */}

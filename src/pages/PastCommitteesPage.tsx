@@ -14,7 +14,7 @@ import {
   ArrowRight,
   LayoutGrid
 } from 'lucide-react';
-import { getAssetUrl } from '../lib/utils/assetHelper';
+import { getAssetUrl, handleImageError } from '../lib/utils/assetHelper';
 
 export const PastCommitteesPage: React.FC = () => {
   const { isBn, tText } = useLanguage();
@@ -152,10 +152,8 @@ export const PastCommitteesPage: React.FC = () => {
                               <img
                                 src={getAssetUrl(m.person.photoUrl)}
                                 alt={m.person.fullName}
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).src = getAssetUrl('assets/images/infinity-logo.png');
-                                }}
+                                className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
+                                onError={handleImageError}
                                 loading="lazy"
                               />
                             ) : (

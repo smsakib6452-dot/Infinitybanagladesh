@@ -19,7 +19,7 @@ import {
   Search
 } from 'lucide-react';
 import { CommitteeMember, Person, Position } from '../types';
-import { getAssetUrl } from '../lib/utils/assetHelper';
+import { getAssetUrl, handleImageError } from '../lib/utils/assetHelper';
 
 export const StandingCommitteesPage: React.FC = () => {
   const { isBn, tText } = useLanguage();
@@ -174,14 +174,12 @@ export const StandingCommitteesPage: React.FC = () => {
                           <img
                             src={getAssetUrl(m.person.photoUrl)}
                             alt={m.person.fullName}
-                            className="w-full h-full object-cover transition-all"
+                            className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
                             style={{
                               objectPosition: m.person.photoPosition || 'center 15%',
                               transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
                             }}
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = getAssetUrl('assets/images/infinity-logo.png');
-                            }}
+                            onError={handleImageError}
                             loading="lazy"
                           />
                         ) : (
@@ -228,14 +226,12 @@ export const StandingCommitteesPage: React.FC = () => {
                           <img
                             src={getAssetUrl(m.person.photoUrl)}
                             alt={m.person.fullName}
-                            className="w-full h-full object-cover transition-all"
+                            className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
                             style={{
                               objectPosition: m.person.photoPosition || 'center 15%',
                               transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
                             }}
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = getAssetUrl('assets/images/infinity-logo.png');
-                            }}
+                            onError={handleImageError}
                             loading="lazy"
                           />
                         ) : (
@@ -283,14 +279,12 @@ export const StandingCommitteesPage: React.FC = () => {
                             <img
                               src={getAssetUrl(m.person.photoUrl)}
                               alt={m.person.fullName}
-                              className="w-full h-full object-cover transition-all"
+                              className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
                               style={{
                                 objectPosition: m.person.photoPosition || 'center 15%',
                                 transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
                               }}
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).src = getAssetUrl('assets/images/infinity-logo.png');
-                              }}
+                              onError={handleImageError}
                               loading="lazy"
                             />
                           ) : (
@@ -341,14 +335,12 @@ export const StandingCommitteesPage: React.FC = () => {
                   <img
                     src={getAssetUrl(selectedMember.person.photoUrl)}
                     alt={selectedMember.person.fullName}
-                    className="w-full h-full object-cover transition-all"
+                    className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
                     style={{
                       objectPosition: selectedMember.person.photoPosition || 'center 15%',
                       transform: selectedMember.person.photoZoom ? `scale(${selectedMember.person.photoZoom})` : undefined
                     }}
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = getAssetUrl('assets/images/infinity-logo.png');
-                    }}
+                    onError={handleImageError}
                   />
                 ) : (
                   <Users className="w-12 h-12 text-[#006A4E]/60" />

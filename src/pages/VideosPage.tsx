@@ -268,7 +268,9 @@ export const VideosPage: React.FC = () => {
                       className="w-full h-full object-cover group-hover:scale-106 transition-transform duration-500 opacity-90 group-hover:opacity-100"
                       loading="lazy"
                       onError={(e) => {
-                        (e.currentTarget as HTMLImageElement).src = DEFAULT_VIDEO_THUMBNAIL;
+                        const target = e.currentTarget as HTMLImageElement;
+                        target.onerror = null;
+                        target.src = DEFAULT_VIDEO_THUMBNAIL;
                       }}
                     />
                     <div className="absolute inset-0 bg-slate-950/30 group-hover:bg-slate-950/10 transition-colors flex items-center justify-center">

@@ -61,6 +61,13 @@
     max-width: 100%;
     display: block;
   }
+
+  /* Anti-flicker, anti-jitter image stability across all browsers */
+  img {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+  }
 }
 
 /* Typography Helpers */

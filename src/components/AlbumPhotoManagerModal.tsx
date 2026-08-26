@@ -188,7 +188,9 @@ export const AlbumPhotoManagerModal: React.FC<AlbumPhotoManagerModalProps> = ({
                             alt={photo.title.en}
                             className="w-full h-full object-cover"
                             onError={(e) => {
-                              (e.target as HTMLImageElement).src = '/images/winter-warmth.jpg';
+                              const target = e.target as HTMLImageElement;
+                              target.onerror = null;
+                              target.src = '/images/winter-warmth.jpg';
                             }}
                           />
                         </div>
@@ -255,7 +257,9 @@ export const AlbumPhotoManagerModal: React.FC<AlbumPhotoManagerModalProps> = ({
                         alt={photo.title.en}
                         className="w-full h-full object-cover"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = '/images/winter-warmth.jpg';
+                          const target = e.target as HTMLImageElement;
+                          target.onerror = null;
+                          target.src = '/images/winter-warmth.jpg';
                         }}
                       />
                     </div>

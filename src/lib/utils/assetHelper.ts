@@ -12,3 +12,17 @@ export const getAssetUrl = (path?: string): string => {
   const cleanPath = path.startsWith('/') ? path.slice(1) : path;
   return `${cleanBase}${cleanPath}`;
 };
+
+export const FALLBACK_LOGO_URL = getAssetUrl('brand/infinity-logo.png');
+
+/**
+ * Safe error handler for HTML images.
+ * Immediately unbinds onerror to prevent infinite repaint and flickering loops.
+ */
+export const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>, fallbackUrl: string = FALLBACK_LOGO_URL): void => {
+  const target = e.currentTarget;
+  if (!target) return;
+  target.onerror = null; // PREVENT RECURSIVE FLICKER LOOP
+  target.src = fallbackUrl;
+};
+

@@ -100,10 +100,10 @@
       {
         "id": "departmentalExecutive",
         "title": {
-          "en": "Departmental Secretaries & Executive Members",
-          "bn": "বিভাগীয় সম্পাদক ও কার্যনির্বাহী সদস্যবৃন্দ"
+          "en": "Other Executive Committee Members",
+          "bn": "অন্যান্য কার্যনির্বাহী কমিটির সদস্যবৃন্দ"
         },
-        "visible": false,
+        "visible": true,
         "rangeLabel": "Members #23+"
       }
     ]

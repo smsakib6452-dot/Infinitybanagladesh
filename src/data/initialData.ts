@@ -74,8 +74,8 @@ export const DEFAULT_EXECUTIVE_TIER_BARS: ExecutiveTierBar[] = [
   },
   {
     id: 'departmentalExecutive',
-    title: { en: 'Departmental Secretaries & Executive Members', bn: 'বিভাগীয় সম্পাদক ও কার্যনির্বাহী সদস্যবৃন্দ' },
-    visible: false,
+    title: { en: 'Other Executive Committee Members', bn: 'অন্যান্য কার্যনির্বাহী কমিটির সদস্যবৃন্দ' },
+    visible: true,
     rangeLabel: 'Members #23+'
   }
 ];

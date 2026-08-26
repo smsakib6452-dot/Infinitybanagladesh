@@ -780,9 +780,9 @@ export const ExecutiveCommitteePage: React.FC = () => {
             {members23Plus.length > 0 && (
               <div className="executive-supporting space-y-4 pt-6 border-t border-slate-100">
                 {renderTierBar(
-                  getTierBar('departmentalExecutive', 'Departmental Secretaries & Executive Members', 'বিভাগীয় সম্পাদক ও কার্যনির্বাহী সদস্যবৃন্দ', 'Members #23+'),
-                  'Departmental Secretaries & Executive Members',
-                  'বিভাগীয় সম্পাদক ও কার্যনির্বাহী সদস্যবৃন্দ'
+                  getTierBar('departmentalExecutive', 'Other Executive Committee Members', 'অন্যান্য কার্যনির্বাহী কমিটির সদস্যবৃন্দ', 'Members #23+'),
+                  'Other Executive Committee Members',
+                  'অন্যান্য কার্যনির্বাহী কমিটির সদস্যবৃন্দ'
                 )}
 
                 <div className="flex flex-wrap justify-center items-start gap-3 sm:gap-3.5 lg:gap-4 max-w-5xl mx-auto">

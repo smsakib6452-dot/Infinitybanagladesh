@@ -58,8 +58,8 @@ export const INITIAL_SITE_SETTINGS: SiteSettings = {
   "youtubeUrl": "https://youtube.com",
   "instagramUrl": "https://instagram.com",
   "linkedinUrl": "https://linkedin.com",
-  "bKashNumber": "01800-000000",
-  "nagadNumber": "01800-000000",
+  "bKashNumber": "01839-008339",
+  "nagadNumber": "01839-008339",
   "bankDetails": {
     "bankName": "[OFFICIAL BANK NAME REQUIRED]",
     "accountName": "Infinity Bangladesh / Team Infinity",
@@ -358,7 +358,7 @@ export const INITIAL_SOCIAL_LINKS: SocialLink[] = [
     "platform": "youtube",
     "url": "https://youtube.com",
     "label": "YouTube",
-    "active": true,
+    "active": false,
     "displayOrder": 2
   },
   {
@@ -374,13 +374,13 @@ export const INITIAL_SOCIAL_LINKS: SocialLink[] = [
     "platform": "linkedin",
     "url": "https://linkedin.com",
     "label": "LinkedIn",
-    "active": true,
+    "active": false,
     "displayOrder": 4
   },
   {
     "id": "soc-5",
     "platform": "whatsapp",
-    "url": "https://wa.me/8801800000000",
+    "url": "https://wa.me/8801839008339",
     "label": "WhatsApp",
     "active": true,
     "displayOrder": 5
@@ -436,9 +436,9 @@ export const INITIAL_SUPPORT_SETTINGS: SupportSettings = {
     "en": "Your contribution transforms directly into verified aid on the ground. 100% transparent and audited with itemized receipts published.",
     "bn": "আপনার সহায়তা সরাসরি মাঠপর্যায়ে সুবিধাবঞ্চিত মানুষের কাছে পৌঁছে দেওয়া হয়। শতভাগ স্বচ্ছ ও জবাবদিহিতামূলক।"
   },
-  "bKashNumber": "01800-000000 [Official Helpline/Merchant]",
+  "bKashNumber": "01839-008339",
   "bKashType": "Merchant / Personal Number",
-  "nagadNumber": "01800-000000 [Official Nagad]",
+  "nagadNumber": "01839-008339",
   "nagadType": "Official Personal / Merchant",
   "bankDetails": {
     "bankName": "[OFFICIAL BANK NAME REQUIRED]",
@@ -453,7 +453,7 @@ export const INITIAL_SUPPORT_SETTINGS: SupportSettings = {
     "bn": "অনুগ্রহ করে ট্রানজেকশনে আপনার নাম ও রেফারেন্স উল্লেখ করুন। অনুদান নিশ্চিতকরণের পর ডিজিটাল মানি রিসিট ডাউনলোড করতে পারবেন।"
   },
   "supportEmail": "donate@infinitybangladesh.org",
-  "supportPhone": "+880 1800-000000"
+  "supportPhone": "+880 1839-008339"
 };
 
 export const INITIAL_CONTACT_SETTINGS: ContactSettings = {
@@ -461,14 +461,14 @@ export const INITIAL_CONTACT_SETTINGS: ContactSettings = {
     "en": "Hathazari, Chattogram, Bangladesh",
     "bn": "হাটহাজারী, চট্টগ্রাম, বাংলাদেশ"
   },
-  "phone": "+880 1800-000000",
+  "phone": "+880 1839-008339",
   "email": "contact@infinitybangladesh.org",
   "officeHours": {
     "en": "Saturday – Thursday: 10:00 AM – 6:00 PM (Friday Closed)",
     "bn": "শনিবার – বৃহস্পতিবার: সকাল ১০:০০ – সন্ধ্যা ৬:০০ (শুক্রবার বন্ধ)"
   },
   "googleMapsEmbedUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3686.2736208047025!2d91.8049!3d22.5073!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30ad2f1a6f022417%3A0x7d6f51c11bb8c8e9!2sHathazari%2C%20Chattogram!5e0!3m2!1sen!2sbd!4v1700000000000!5m2!1sen!2sbd",
-  "emergencyHelpline": "+880 1800-000000"
+  "emergencyHelpline": "+880 1839-008339"
 };
 
 export const INITIAL_SEO_SETTINGS: GlobalSEOSettings = {

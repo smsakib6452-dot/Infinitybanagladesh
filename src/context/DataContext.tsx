@@ -260,7 +260,7 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-const CURRENT_DATA_VERSION = '2026.08.26.04';
+const CURRENT_DATA_VERSION = '2026.08.26.05';
 const DATA_VERSION_KEY = 'infinity_data_version';
 const STORAGE_PREFIX = 'infinity_bd_v2_';
 

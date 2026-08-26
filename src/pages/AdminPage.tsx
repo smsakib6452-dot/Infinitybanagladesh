@@ -58,6 +58,7 @@ import {
   ToggleLeft,
   ToggleRight,
   HelpCircle,
+  RotateCcw,
   Play,
   Star,
   Copy,
@@ -97,8 +98,10 @@ import {
   AdminRole,
   PageRoute,
   FAQItem,
-  PressCoverage
+  PressCoverage,
+  ExecutiveTierBar
 } from '../types';
+import { DEFAULT_EXECUTIVE_TIER_BARS } from '../data/initialData';
 import { getAssetUrl, handleImageError } from '../lib/utils/assetHelper';
 import { formatBDT } from '../lib/utils/formatters';
 import { Toast } from '../components/Toast';
@@ -281,6 +284,48 @@ export const AdminPage: React.FC = () => {
   const [newCommitteeType, setNewCommitteeType] = useState<Committee['type']>('STANDING');
   const [newCommitteeDescEn, setNewCommitteeDescEn] = useState('');
   const [newCommitteeDescBn, setNewCommitteeDescBn] = useState('');
+
+  // Executive Section/Tier Bar CMS states
+  const [adminEditingTierBar, setAdminEditingTierBar] = useState<ExecutiveTierBar | null>(null);
+  const [isAdminTierModalOpen, setIsAdminTierModalOpen] = useState(false);
+
+  const adminTierBars: ExecutiveTierBar[] = settings.executiveTierBars && settings.executiveTierBars.length > 0
+    ? settings.executiveTierBars
+    : DEFAULT_EXECUTIVE_TIER_BARS;
+
+  const handleAdminSaveTierBar = (updated: ExecutiveTierBar) => {
+    const list = settings.executiveTierBars && settings.executiveTierBars.length > 0
+      ? [...settings.executiveTierBars]
+      : [...DEFAULT_EXECUTIVE_TIER_BARS];
+    const idx = list.findIndex(b => b.id === updated.id);
+    if (idx >= 0) {
+      list[idx] = updated;
+    } else {
+      list.push(updated);
+    }
+    updateSettings({ executiveTierBars: list });
+    setIsAdminTierModalOpen(false);
+    setAdminEditingTierBar(null);
+    showToast(isBn ? 'সেকশন বার আপডেট করা হয়েছে' : 'Section bar updated successfully');
+  };
+
+  const handleAdminToggleTierBar = (id: string, currentVisible: boolean) => {
+    const list = (settings.executiveTierBars && settings.executiveTierBars.length > 0
+      ? settings.executiveTierBars
+      : DEFAULT_EXECUTIVE_TIER_BARS
+    ).map(b => b.id === id ? { ...b, visible: !currentVisible } : b);
+    updateSettings({ executiveTierBars: list });
+    showToast(currentVisible
+      ? (isBn ? 'সেকশন বারটি লুকানো/মুছে ফেলা হয়েছে' : 'Section bar hidden/deleted from live page')
+      : (isBn ? 'সেকশন বারটি দৃশ্যমান করা হয়েছে' : 'Section bar restored and visible'));
+  };
+
+  const handleAdminResetTierBars = () => {
+    if (confirm(isBn ? 'সবগুলো সেকশন বার ডিফল্ট অবস্থায় ফিরিয়ে আনতে চান?' : 'Reset all 7 section bars to their default titles and visible status?')) {
+      updateSettings({ executiveTierBars: DEFAULT_EXECUTIVE_TIER_BARS });
+      showToast(isBn ? 'সবগুলো সেকশন বার ডিফল্ট অবস্থায় ফিরেছে' : 'All section bars reset to default');
+    }
+  };
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -1485,7 +1530,7 @@ export const AdminPage: React.FC = () => {
                             hero: {
                               ...homepageConfig.hero,
                               storyCta: {
-                                ...homepageConfig.hero,
+                                ...homepageConfig.hero.storyCta,
                                 text: { ...homepageConfig.hero.storyCta.text, en: e.target.value }
                               }
                             }
@@ -1504,7 +1549,7 @@ export const AdminPage: React.FC = () => {
                             hero: {
                               ...homepageConfig.hero,
                               storyCta: {
-                                ...homepageConfig.hero,
+                                ...homepageConfig.hero.storyCta,
                                 text: { ...homepageConfig.hero.storyCta.text, bn: e.target.value }
                               }
                             }
@@ -5313,6 +5358,312 @@ export const AdminPage: React.FC = () => {
             )}
 
             {/* -------------------------------------------------------- */}
+            {/* TAB: COMMITTEES & LEADERSHIP CMS */}
+            {/* -------------------------------------------------------- */}
+            {activeTab === 'committees' && (() => {
+              const currentComm = committees.find(c => c.id === selectedCommitteeId) || committees[0];
+              const membersOfSelected = getMembersWithDetails(selectedCommitteeId).filter(m => {
+                if (!memberSearchQuery) return true;
+                const q = memberSearchQuery.toLowerCase();
+                const nameEn = (m.person?.fullName || m.person?.englishName || '').toLowerCase();
+                const nameBn = (m.person?.banglaName || '').toLowerCase();
+                const desEn = (m.position?.name?.en || '').toLowerCase();
+                const desBn = (m.position?.name?.bn || '').toLowerCase();
+                return nameEn.includes(q) || nameBn.includes(q) || desEn.includes(q) || desBn.includes(q) || String(m.serialNumber).includes(q);
+              }).sort((a, b) => (a.serialNumber || a.sortOrder || 0) - (b.serialNumber || b.sortOrder || 0));
+
+              return (
+                <div className="space-y-8">
+                  {/* Top Bar: Committee Selector & Actions */}
+                  <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <div>
+                        <div className="flex items-center gap-2.5">
+                          <h2 className="text-xl font-extrabold text-slate-900 font-display">
+                            {isBn ? 'কমিটি ও পরিষদ নেতৃত্ব CMS' : 'Committees & Leadership CMS'}
+                          </h2>
+                          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#E6F3EF] text-[#00523C] border border-[#C2E2D7]">
+                            {currentComm?.type === 'EXECUTIVE' ? (isBn ? 'কার্যনির্বাহী পরিষদ' : 'Executive Council') : (isBn ? 'স্থায়ী পরিষদ' : 'Standing Council')}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500 mt-1">
+                          {isBn ? 'কার্যনির্বাহী ও স্থায়ী কমিটির সদস্য তালিকা, পদবী, সিরিয়াল ক্রম এবং সেকশন বার পরিচালনা করুন।' : 'Manage executive & standing committee rosters, member rankings, and section tier bars.'}
+                        </p>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-3">
+                        {/* Target Committee Selector */}
+                        <div className="relative">
+                          <select
+                            value={selectedCommitteeId}
+                            onChange={(e) => setSelectedCommitteeId(e.target.value)}
+                            className="px-4 py-2.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-2xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#006A4E] cursor-pointer"
+                          >
+                            {committees.map(c => (
+                              <option key={c.id} value={c.id}>
+                                {isBn ? (c.name.bn || c.name.en) : (c.name.en || c.name.bn)} ({c.year})
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* Add Member Button */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingMember(null);
+                            setIsMemberModalOpen(true);
+                          }}
+                          className="px-4 py-2.5 rounded-2xl bg-[#006A4E] hover:bg-[#00523C] text-white text-xs font-bold flex items-center gap-2 shadow-warm-xs transition-colors cursor-pointer"
+                        >
+                          <Plus className="w-4 h-4" />
+                          <span>{isBn ? 'নতুন সদস্য যোগ করুন' : 'Add Member'}</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ======================================================== */}
+                  {/* EXECUTIVE COMMITTEE TIER BARS / SECTION BADGES CMS       */}
+                  {/* ======================================================== */}
+                  <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <Award className="w-5 h-5 text-[#006A4E]" />
+                          <h3 className="text-lg font-extrabold text-slate-900 font-display">
+                            {isBn ? 'কার্যনির্বাহী পরিষদ সেকশন ও টিয়ার বার ম্যানেজার' : 'Executive Committee Section & Tier Badges'}
+                          </h3>
+                        </div>
+                        <p className="text-xs text-slate-500 mt-0.5">
+                          {isBn
+                            ? 'কার্যনির্বাহী পরিষদ পেজের বিভিন্ন স্তরের বিভাজন বার (যেমন: JOINT GENERAL SECRETARIAT) সম্পাদনা করুন অথবা প্রয়োজনমতো মুছে/লুকিয়ে ফেলুন।'
+                            : 'Edit titles or delete/hide the pill section bars separating member tiers on the Executive Committee page.'}
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handleAdminResetTierBars}
+                        className="px-3.5 py-1.5 rounded-xl bg-[#FAF7F2] hover:bg-[#F2ECE1] text-slate-700 border border-[#EAE3D9] text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
+                        title="Reset all 7 section bars to defaults"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
+                        <span>{isBn ? 'ডিফল্ট রিসেট' : 'Reset All to Default'}</span>
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {adminTierBars.map((bar, idx) => {
+                        const isBarVisible = bar.visible !== false;
+                        return (
+                          <div
+                            key={bar.id}
+                            className={`p-4 rounded-2xl border transition-all flex flex-col justify-between space-y-3 ${
+                              isBarVisible
+                                ? 'bg-[#FAF7F2] border-[#EAE3D9] hover:border-slate-300'
+                                : 'bg-slate-50 border-dashed border-slate-300 opacity-70'
+                            }`}
+                          >
+                            <div className="space-y-2.5">
+                              {/* Range & Visibility Status */}
+                              <div className="flex items-center justify-between">
+                                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700">
+                                  #{idx + 1} &bull; {bar.rangeLabel || `Tier ${idx + 1}`}
+                                </span>
+
+                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 ${
+                                  isBarVisible ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
+                                }`}>
+                                  {isBarVisible ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+                                  <span>{isBarVisible ? (isBn ? 'দৃশ্যমান' : 'Visible') : (isBn ? 'লুকানো / মুছে ফেলা' : 'Deleted / Hidden')}</span>
+                                </span>
+                              </div>
+
+                              {/* Actual Live Badge Preview */}
+                              <div className="py-2 text-center">
+                                <span className={`text-[11px] font-extrabold uppercase tracking-widest px-3.5 py-1 rounded-full border shadow-2xs inline-block max-w-full truncate ${
+                                  bar.id === 'presidential'
+                                    ? 'text-[#00523C] bg-[#E6F3EF] border-[#C2E2D7]'
+                                    : bar.id === 'secretariat'
+                                    ? 'text-[#B31224] bg-[#FDF1F2] border-[#FCD3D7]'
+                                    : 'text-slate-700 bg-white border-[#EAE3D9]'
+                                }`}>
+                                  {bar.title.en}
+                                </span>
+                              </div>
+
+                              {/* Bilingual Labels */}
+                              <div className="text-xs space-y-1 bg-white p-2.5 rounded-xl border border-slate-200/70">
+                                <div className="truncate">
+                                  <span className="text-[10px] font-bold text-slate-400 uppercase">EN:</span>{' '}
+                                  <span className="font-bold text-slate-800">{bar.title.en}</span>
+                                </div>
+                                <div className="truncate font-bengali">
+                                  <span className="text-[10px] font-bold text-slate-400 uppercase font-sans">BN:</span>{' '}
+                                  <span className="font-bold text-slate-800">{bar.title.bn}</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Actions: Edit & Delete/Toggle */}
+                            <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-200/60">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setAdminEditingTierBar({ ...bar });
+                                  setIsAdminTierModalOpen(true);
+                                }}
+                                className="px-3 py-1.5 rounded-xl bg-white border border-[#EAE3D9] hover:bg-slate-100 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+                              >
+                                <Edit2 className="w-3.5 h-3.5 text-[#006A4E]" />
+                                <span>{isBn ? 'সম্পাদনা' : 'Edit Text'}</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => handleAdminToggleTierBar(bar.id, isBarVisible)}
+                                className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                                  isBarVisible
+                                    ? 'bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200'
+                                    : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200'
+                                }`}
+                              >
+                                {isBarVisible ? (
+                                  <>
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <span>{isBn ? 'মুছে ফেলুন' : 'Delete / Hide'}</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Eye className="w-3.5 h-3.5" />
+                                    <span>{isBn ? 'পুনরুদ্ধার' : 'Restore Bar'}</span>
+                                  </>
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* ======================================================== */}
+                  {/* COMMITTEE MEMBERS ROSTER TABLE                           */}
+                  {/* ======================================================== */}
+                  <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div>
+                        <h3 className="text-lg font-extrabold text-slate-900 font-display">
+                          {isBn ? 'সদস্য তালিকা ও পদমর্যাদা' : 'Committee Members Roster'}
+                        </h3>
+                        <p className="text-xs text-slate-500">
+                          {isBn ? `মোট সদস্য: ${membersOfSelected.length} জন` : `Total active roster: ${membersOfSelected.length} members`}
+                        </p>
+                      </div>
+
+                      <div className="relative w-full sm:w-64">
+                        <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                        <input
+                          type="text"
+                          value={memberSearchQuery}
+                          onChange={(e) => setMemberSearchQuery(e.target.value)}
+                          placeholder={isBn ? 'সদস্য খুঁজুন...' : 'Search by name or serial...'}
+                          className="w-full pl-9 pr-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#006A4E]"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      {membersOfSelected.length === 0 ? (
+                        <div className="text-center py-12 bg-[#FAF7F2] rounded-2xl border border-dashed border-[#EAE3D9] space-y-2">
+                          <Users className="w-8 h-8 text-slate-400 mx-auto" />
+                          <p className="text-sm font-bold text-slate-700">No members found</p>
+                          <p className="text-xs text-slate-500">Click "Add Member" above to add committee leaders.</p>
+                        </div>
+                      ) : (
+                        membersOfSelected.map((m) => (
+                          <div
+                            key={m.id}
+                            className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] flex flex-col md:flex-row md:items-center justify-between gap-4 hover:border-slate-300 transition-all"
+                          >
+                            <div className="flex items-center gap-3.5 min-w-0">
+                              <span className="w-8 h-8 rounded-xl bg-white text-slate-800 font-mono font-bold text-xs flex items-center justify-center border border-slate-200 shrink-0 shadow-2xs">
+                                #{String(m.serialNumber || 1).padStart(2, '0')}
+                              </span>
+
+                              <div className="w-12 h-14 rounded-xl overflow-hidden bg-slate-200 border border-slate-300 shrink-0">
+                                <img
+                                  src={getAssetUrl(m.person?.photoUrl || '/brand/infinity-logo.png')}
+                                  alt={m.person?.fullName}
+                                  className="w-full h-full object-cover"
+                                  onError={handleImageError}
+                                />
+                              </div>
+
+                              <div className="min-w-0 space-y-0.5">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <h4 className="font-bold text-sm text-slate-900 truncate">
+                                    {isBn ? (m.person?.banglaName || m.person?.fullName) : (m.person?.fullName || m.person?.englishName)}
+                                  </h4>
+                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#E6F3EF] text-[#00523C]">
+                                    {isBn ? (m.position?.name?.bn || m.position?.name?.en) : (m.position?.name?.en || m.position?.name?.bn)}
+                                  </span>
+                                  {m.isFeaturedLeader && (
+                                    <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-100 text-amber-800">
+                                      Key Leader
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-xs text-slate-500 truncate">
+                                  {m.person?.englishName} &bull; {m.person?.banglaName}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 shrink-0">
+                              <span className={`px-2.5 py-1 rounded-xl text-[11px] font-bold ${
+                                m.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'
+                              }`}>
+                                {m.status}
+                              </span>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEditingMember(m);
+                                  setIsMemberModalOpen(true);
+                                }}
+                                className="p-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 cursor-pointer transition-colors shadow-2xs"
+                                title="Edit Member Profile"
+                              >
+                                <Edit3 className="w-3.5 h-3.5" />
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (confirm(`Remove member "${m.person?.fullName || m.person?.englishName}" from this committee?`)) {
+                                    deleteCommitteeMember(m.id);
+                                    showToast('Member removed from committee roster');
+                                  }
+                                }}
+                                className="p-2 rounded-xl bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100 cursor-pointer transition-colors"
+                                title="Delete Member"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* -------------------------------------------------------- */}
             {/* TAB: VOLUNTEERS */}
             {/* -------------------------------------------------------- */}
             {activeTab === 'volunteers' && (
@@ -5351,32 +5702,63 @@ export const AdminPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Volunteer Settings & Google Form Application Link */}
+                {/* Volunteer Settings & Google Apps Script Webhook Integration */}
                 <div className="p-5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-4">
                   <div className="flex items-center justify-between">
                     <h3 className="text-xs font-bold text-slate-900 flex items-center gap-2 uppercase tracking-wider">
                       <LinkIcon className="w-3.5 h-3.5 text-[#006A4E]" />
-                      <span>{isBn ? 'স্বেচ্ছাসেবী আবেদন ফরম ও বাহ্যিক রেজিস্ট্রেশন লিংক (CTA Settings)' : 'Volunteer Application Link & Form CTA Settings'}</span>
+                      <span>{isBn ? 'গুগল শিট ও গুগল ড্রাইভ ইন্টিগ্রেশন সেটিংস' : 'Google Sheets & Drive Webhook Integration'}</span>
                     </h3>
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#E6F3EF] text-[#00523C] border border-[#C2E2D7]">
+                      Google Apps Script Webhook
+                    </span>
                   </div>
 
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-700 block">
-                      {isBn ? 'গুগল ফর্ম বা অনলাইন আবেদন লিংক (Google Form / External Registration URL)' : 'Google Form / External Application URL'}
-                    </label>
-                    <input
-                      type="text"
-                      value={volunteerSettings.googleFormUrl || ''}
-                      onChange={(e) => updateVolunteerSettings({ googleFormUrl: e.target.value })}
-                      placeholder="https://docs.google.com/forms/d/e/... or internal route"
-                      className="w-full px-3.5 py-2 bg-white border border-[#EAE3D9] rounded-xl text-xs font-mono"
-                    />
-                    <p className="text-[11px] text-slate-400">
-                      {isBn ? 'এখানে গুগল ফর্ম লিংক দিলে ভলান্টিয়ার পেজের আবেদন বাটনে সরাসরি এই ফর্ম ওপেন হবে।' : 'When set, clicking the volunteer join button opens this external Google Form directly.'}
-                    </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-slate-700 block">
+                        {isBn ? 'Google Apps Script Web App URL (ওয়েবহুক এন্ডপয়েন্ট)' : 'Google Apps Script Web App URL (Webhook)'}
+                      </label>
+                      <input
+                        type="text"
+                        value={volunteerSettings.googleScriptUrl || ''}
+                        onChange={(e) => updateVolunteerSettings({ googleScriptUrl: e.target.value })}
+                        placeholder="https://script.google.com/macros/s/AKfycb.../exec"
+                        className="w-full px-3.5 py-2 bg-white border border-[#EAE3D9] rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#006A4E]"
+                      />
+                      <p className="text-[11px] text-slate-500">
+                        {isBn
+                          ? 'scripts/google-apps-script-volunteer-backend.js ডিপ্লয় করে প্রাপ্ত ওয়েব অ্যাপ লিংক এখানে বসান।'
+                          : 'Paste your deployed Google Apps Script Web App URL to receive live sheet & drive sync.'}
+                      </p>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-slate-700 block">
+                        {isBn ? 'সংযুক্ত গুগল শিট লিংক (Linked Google Sheet URL)' : 'Linked Google Sheet View URL'}
+                      </label>
+                      <input
+                        type="text"
+                        value={volunteerSettings.googleSheetUrl || ''}
+                        onChange={(e) => updateVolunteerSettings({ googleSheetUrl: e.target.value })}
+                        placeholder="https://docs.google.com/spreadsheets/d/..."
+                        className="w-full px-3.5 py-2 bg-white border border-[#EAE3D9] rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-[#006A4E]"
+                      />
+                      {volunteerSettings.googleSheetUrl && (
+                        <a
+                          href={volunteerSettings.googleSheetUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-[11px] text-[#006A4E] font-bold hover:underline"
+                        >
+                          <span>{isBn ? 'গুগল শিট ওপেন করুন' : 'Open Google Sheet'}</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      )}
+                    </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-slate-200">
                     <div>
                       <label className="text-[11px] font-medium text-slate-600 block mb-1">CTA Heading Text (English)</label>
                       <input
@@ -5390,7 +5772,7 @@ export const AdminPage: React.FC = () => {
                       />
                     </div>
                     <div>
-                      <label className="text-[11px] font-medium text-slate-600 block mb-1">হেডিং লেখা (বাংলা)</label>
+                      <label className="text-[11px] font-medium text-slate-600 block mb-1 font-bengali">হেডিং লেখা (বাংলা)</label>
                       <input
                         type="text"
                         value={volunteerSettings.ctaText?.bn || ''}
@@ -5404,58 +5786,131 @@ export const AdminPage: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Volunteer Applicants CRM Roster */}
                 <div className="space-y-3">
-                  {volunteers.map(vol => (
-                    <div
-                      key={vol.id}
-                      className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-                    >
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-bold text-sm text-slate-900">{vol.fullName}</h4>
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                            {vol.bloodGroup || 'Blood: N/A'}
-                          </span>
-                          <span className="text-[10px] text-slate-500 font-mono">Ref: {vol.id}</span>
-                        </div>
-                        <p className="text-xs text-slate-600">
-                          {vol.district} &bull; {vol.phone} &bull; {vol.email}
-                        </p>
-                        <p className="text-[11px] text-slate-500 italic">
-                          Interests: {vol.interests?.join(', ') || 'General Relief'}
-                        </p>
-                      </div>
-
-                      <div className="flex items-center gap-2 shrink-0">
-                        <select
-                          value={vol.status}
-                          onChange={(e) => {
-                            updateVolunteerStatus(vol.id, e.target.value as VolunteerApplication['status']);
-                            showToast(`Status updated to ${e.target.value}`);
-                          }}
-                          className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-bold"
-                        >
-                          <option value="New">New</option>
-                          <option value="Reviewing">Reviewing</option>
-                          <option value="Approved">Approved</option>
-                          <option value="Rejected">Rejected</option>
-                        </select>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (confirm(`Delete volunteer application for ${vol.fullName}?`)) {
-                              deleteVolunteerApplication(vol.id);
-                              showToast('Volunteer application removed');
-                            }
-                          }}
-                          className="p-2 rounded-xl bg-rose-50 text-rose-600 border border-rose-200 cursor-pointer"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
+                  {volunteers.length === 0 ? (
+                    <div className="text-center py-12 bg-[#FAF7F2] rounded-2xl border border-dashed border-[#EAE3D9] space-y-2">
+                      <Users className="w-8 h-8 text-slate-400 mx-auto" />
+                      <p className="text-sm font-bold text-slate-700">{isBn ? 'কোনো আবেদন জমা পড়েনি' : 'No applications received yet'}</p>
+                      <p className="text-xs text-slate-500">{isBn ? 'ওয়েবসাইটের সদস্যপদ ফরম পূরণ করলে এখানে তালিকা দেখাবে।' : 'Incoming applications from the website form will appear here.'}</p>
                     </div>
-                  ))}
+                  ) : (
+                    volunteers.map(vol => (
+                      <div
+                        key={vol.id}
+                        className="p-4 sm:p-5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-3 hover:border-slate-300 transition-all"
+                      >
+                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                          <div className="flex items-start gap-3.5">
+                            {vol.photoUrl ? (
+                              <div className="w-12 h-14 rounded-xl overflow-hidden bg-slate-200 border border-slate-300 shrink-0 shadow-2xs">
+                                <img
+                                  src={vol.photoUrl}
+                                  alt={vol.fullName}
+                                  className="w-full h-full object-cover"
+                                  onError={handleImageError}
+                                />
+                              </div>
+                            ) : (
+                              <div className="w-12 h-14 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 shrink-0 shadow-2xs font-bold text-xs">
+                                No Pic
+                              </div>
+                            )}
+
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <h4 className="font-bold text-sm text-slate-900">
+                                  {vol.fullName}
+                                  {vol.fullNameBn && vol.fullNameBn !== vol.fullName && ` (${vol.fullNameBn})`}
+                                </h4>
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                                  {vol.bloodGroup || 'Blood: N/A'}
+                                </span>
+                                {vol.educationCategory && (
+                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 uppercase font-mono">
+                                    {vol.educationCategory}
+                                  </span>
+                                )}
+                                <span className="text-[10px] text-slate-500 font-mono">
+                                  {vol.trackingRef || `Ref: ${vol.id}`}
+                                </span>
+                              </div>
+
+                              <p className="text-xs text-slate-600">
+                                <span className="font-bold">{vol.district}</span> {vol.upazila ? `(${vol.upazila})` : ''} &bull; <span className="font-mono">{vol.phone}</span> &bull; {vol.email}
+                              </p>
+
+                              {vol.fatherName && (
+                                <p className="text-[11px] text-slate-500">
+                                  Father: {vol.fatherName} &bull; Mother: {vol.motherName || 'N/A'}
+                                </p>
+                              )}
+
+                              {vol.schoolName && (
+                                <p className="text-[11px] text-[#006A4E] font-medium">
+                                  School: {vol.schoolName} (Class: {vol.currentClass || 'N/A'}, Expected SSC: {vol.expectedSscYear || 'N/A'})
+                                </p>
+                              )}
+
+                              {vol.diplomaTechnology && (
+                                <p className="text-[11px] text-amber-800 font-medium">
+                                  Diploma: {vol.diplomaTechnology} ({vol.diplomaInstitute || 'Polytechnic'}, Sem: {vol.diplomaSemester || 'N/A'})
+                                </p>
+                              )}
+
+                              {vol.honoursInstitute && (
+                                <p className="text-[11px] text-[#006A4E] font-medium">
+                                  Honours: {vol.honoursSubject} at {vol.honoursInstitute}
+                                </p>
+                              )}
+
+                              <p className="text-[11px] text-slate-500 italic">
+                                Skills: {Array.isArray(vol.skills) ? vol.skills.join(', ') : (vol.interests?.join(', ') || 'General Volunteering')}
+                              </p>
+
+                              {vol.motivation && (
+                                <p className="text-xs text-slate-700 bg-white p-2 rounded-xl border border-slate-200/70 mt-1.5">
+                                  <span className="font-bold text-[10px] text-slate-400 uppercase block">Motivation:</span>
+                                  {vol.motivation}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2 shrink-0 self-end sm:self-start">
+                            <select
+                              value={vol.status}
+                              onChange={(e) => {
+                                updateVolunteerStatus(vol.id, e.target.value as VolunteerApplication['status']);
+                                showToast(`Status updated to ${e.target.value}`);
+                              }}
+                              className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-bold shadow-2xs"
+                            >
+                              <option value="New">New</option>
+                              <option value="Reviewing">Reviewing</option>
+                              <option value="Approved">Approved</option>
+                              <option value="Contacted">Contacted</option>
+                              <option value="Rejected">Rejected</option>
+                            </select>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (confirm(`Delete volunteer application for ${vol.fullName}?`)) {
+                                  deleteVolunteerApplication(vol.id);
+                                  showToast('Volunteer application removed');
+                                }
+                              }}
+                              className="p-2 rounded-xl bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100 cursor-pointer shadow-2xs transition-colors"
+                              title="Delete Application"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             )}
@@ -6224,6 +6679,143 @@ export const AdminPage: React.FC = () => {
         onSave={handleSaveMember}
         onOpenMediaPicker={openMediaPicker}
       />
+
+      {/* Executive Section/Tier Bar Edit Modal */}
+      {isAdminTierModalOpen && adminEditingTierBar && (
+        <div
+          className="fixed inset-0 z-[9995] bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-4"
+          onClick={() => setIsAdminTierModalOpen(false)}
+        >
+          <div
+            className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 space-y-5 shadow-2xl border border-slate-200 relative animate-in fade-in zoom-in-95"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-[#E6F3EF] text-[#006A4E] flex items-center justify-center font-bold">
+                  <Edit2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-base text-slate-900 font-display">
+                    {isBn ? 'সেকশন ও টিয়ার বার সম্পাদনা' : 'Edit Committee Section Bar'}
+                  </h3>
+                  <p className="text-[11px] text-slate-500 font-mono">
+                    {adminEditingTierBar.rangeLabel || adminEditingTierBar.id}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsAdminTierModalOpen(false)}
+                className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleAdminSaveTierBar(adminEditingTierBar);
+              }}
+              className="space-y-4"
+            >
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700 block">
+                  {isBn ? 'সেকশন শিরোনাম (English)' : 'Section Bar Title (English)'}
+                </label>
+                <input
+                  type="text"
+                  value={adminEditingTierBar.title.en}
+                  onChange={(e) => setAdminEditingTierBar({
+                    ...adminEditingTierBar,
+                    title: { ...adminEditingTierBar.title, en: e.target.value }
+                  })}
+                  placeholder="e.g. JOINT GENERAL SECRETARIAT"
+                  className="w-full px-3.5 py-2.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs sm:text-sm font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#006A4E]"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700 block font-bengali">
+                  {isBn ? 'সেকশন শিরোনাম (বাংলা)' : 'Section Bar Title (Bengali)'}
+                </label>
+                <input
+                  type="text"
+                  value={adminEditingTierBar.title.bn}
+                  onChange={(e) => setAdminEditingTierBar({
+                    ...adminEditingTierBar,
+                    title: { ...adminEditingTierBar.title, bn: e.target.value }
+                  })}
+                  placeholder="যেমন: যুগ্ম সাধারণ সম্পাদক পরিষদ"
+                  className="w-full px-3.5 py-2.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs sm:text-sm font-bengali font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#006A4E]"
+                  required
+                />
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] flex items-center justify-between gap-3">
+                <div className="space-y-0.5">
+                  <span className="text-xs font-bold text-slate-800 block">
+                    {isBn ? 'সেকশন বারের দৃশ্যমানতা' : 'Section Bar Visibility'}
+                  </span>
+                  <p className="text-[11px] text-slate-500">
+                    {adminEditingTierBar.visible !== false
+                      ? (isBn ? 'এই বারটি পেজে প্রদর্শিত হচ্ছে।' : 'This pill bar is currently visible on the page.')
+                      : (isBn ? 'এই বারটি পেজে লুকানো/মুছে ফেলা হয়েছে।' : 'This pill bar is currently hidden/deleted.')}
+                  </p>
+                </div>
+
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={adminEditingTierBar.visible !== false}
+                    onChange={(e) => setAdminEditingTierBar({
+                      ...adminEditingTierBar,
+                      visible: e.target.checked
+                    })}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#006A4E]"></div>
+                </label>
+              </div>
+
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleAdminToggleTierBar(adminEditingTierBar.id, adminEditingTierBar.visible !== false);
+                    setIsAdminTierModalOpen(false);
+                  }}
+                  className="px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>{adminEditingTierBar.visible !== false ? (isBn ? 'বার মুছে ফেলুন' : 'Delete / Hide Bar') : (isBn ? 'বার দৃশ্যমান করুন' : 'Show Bar')}</span>
+                </button>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsAdminTierModalOpen(false)}
+                    className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer transition-colors"
+                  >
+                    {isBn ? 'বাতিল' : 'Cancel'}
+                  </button>
+
+                  <button
+                    type="submit"
+                    className="px-5 py-2 rounded-xl bg-[#006A4E] hover:bg-[#00523C] text-white text-xs font-extrabold shadow-warm-xs flex items-center gap-1.5 cursor-pointer transition-colors"
+                  >
+                    <Check className="w-3.5 h-3.5" />
+                    <span>{isBn ? 'সংরক্ষণ করুন' : 'Save Changes'}</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
 
       {/* ======================================================== */}

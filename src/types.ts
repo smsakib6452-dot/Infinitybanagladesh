@@ -506,6 +506,8 @@ export interface Partner {
 export interface VolunteerSettings {
   ctaText: BilingualText;
   googleFormUrl: string;
+  googleScriptUrl?: string; // Google Apps Script Web App Webhook URL
+  googleSheetUrl?: string; // Linked Google Sheet view URL
   description: BilingualText;
   coverImageUrl: string;
   benefits: BilingualList;
@@ -546,25 +548,109 @@ export interface ContactSettings {
   emergencyHelpline?: string;
 }
 
+export type EducationCategory =
+  | 'high_school' // উচ্চ বিদ্যালয়ে অধ্যয়নরত (SSC পাস করেনি)
+  | 'ssc' // SSC / সমমান পাস
+  | 'hsc' // HSC / সমমান পাস
+  | 'diploma' // Diploma
+  | 'honours' // Honours (স্নাতক / অনার্স)
+  | 'masters' // Masters (স্নাতকোত্তর / মাস্টার্স)
+  | 'other'; // অন্যান্য
+
 export interface VolunteerApplication {
   id: string;
+  // Section 1: Basic Profile & Photo
   fullName: string;
+  fullNameBn?: string;
+  fullNameEn?: string;
   email: string;
+  photoUrl?: string;
+  photoBase64?: string;
+
+  // Section 2: Family & Guardian
+  fatherName?: string;
+  motherName?: string;
+  guardianPhone?: string;
+
+  // Section 3: Address & Contact
   phone: string;
+  whatsapp?: string;
+  facebookUrl?: string;
   district: string;
   upazila?: string;
-  age?: number | string;
-  occupation?: string;
+  presentAddressDetails?: string;
+  permanentDistrict?: string;
+  permanentUpazila?: string;
+  permanentAddressDetails?: string;
+  isSameAddress?: boolean;
+
+  // Section 4: Personal & Health
+  dob?: string;
+  gender?: 'Male' | 'Female' | 'Other' | string;
   bloodGroup?: string;
+  nidOrBirthCert?: string;
+  age?: number | string;
+
+  // Section 5: Educational Information (Conditional)
+  educationCategory?: EducationCategory | string;
+  occupation?: string;
+  // High School
+  schoolName?: string;
+  currentClass?: string;
+  expectedSscYear?: string;
+  // SSC
+  sscInstitution?: string;
+  sscGroup?: string;
+  sscPassingYear?: string;
+  sscBoard?: string;
+  // HSC
+  hscInstitution?: string;
+  hscGroup?: string;
+  hscPassingYear?: string;
+  hscBoard?: string;
+  // Diploma
+  diplomaTechnology?: string;
+  diplomaInstitute?: string;
+  diplomaDepartment?: string;
+  diplomaSemester?: string;
+  diplomaStatus?: 'running' | 'completed' | string;
+  diplomaPassingYear?: string;
+  // Honours
+  honoursInstitute?: string;
+  honoursSubject?: string;
+  honoursDepartment?: string;
+  honoursYear?: string;
+  honoursStatus?: 'running' | 'completed' | string;
+  honoursPassingYear?: string;
+  // Masters
+  mastersInstitute?: string;
+  mastersSubject?: string;
+  mastersDepartment?: string;
+  mastersStatus?: 'running' | 'completed' | string;
+  mastersPassingYear?: string;
+  // Other
+  otherEducation?: string;
+
+  // Section 6: Skills & Availability
   skills?: string[];
   areasOfInterest?: string[];
   interests?: string[];
-  motivation?: string;
-  previousExperience?: string;
   availability?: string;
+
+  // Section 7: Infinity & Motivation
+  referralSource?: string;
+  hasPreviousVolunteering?: boolean;
+  previousExperience?: string;
+  motivation?: string;
   message?: string;
-  consent?: boolean;
+
+  // Section 8: Agreement & Status
   agreedCodeOfConduct?: boolean;
+  agreedTruthfulness?: boolean;
+  consent?: boolean;
+  trackingRef?: string;
+  drivePhotoUrl?: string;
+  sheetSynced?: boolean;
   submittedAt?: string;
   appliedAt?: string;
   status: 'New' | 'Reviewing' | 'Approved' | 'Rejected' | 'Contacted' | 'approved' | 'pending' | 'contacted';
@@ -616,6 +702,13 @@ export interface FAQItem {
 // ----------------------------------------------------
 // SITE SETTINGS, SEO & AUDIT
 // ----------------------------------------------------
+export interface ExecutiveTierBar {
+  id: string;
+  title: BilingualText;
+  visible: boolean;
+  rangeLabel?: string;
+}
+
 export interface SiteSettings {
   organizationName: any;
   teamIdentity: string;
@@ -646,6 +739,7 @@ export interface SiteSettings {
   bannerAnnouncement: BilingualText;
   showAnnouncementBanner: boolean;
   registrationNumber: string;
+  executiveTierBars?: ExecutiveTierBar[];
 }
 
 export interface AboutSettings {

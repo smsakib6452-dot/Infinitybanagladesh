@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "exportedAt": "2026-08-26T04:41:36.697Z",
+  "exportedAt": "2026-08-26T14:53:29.509Z",
   "organization": "Infinity Bangladesh",
   "slogan": "United for Humanity",
   "settings": {
@@ -355,7 +355,7 @@
       "en": "Become a Volunteer",
       "bn": "স্বেচ্ছাসেবী হিসেবে যোগ দিন"
     },
-    "googleFormUrl": "",
+    "googleFormUrl": "https://forms.gle/duwyx9gWS4kSjsKC8",
     "description": {
       "en": "Join a vibrant, ethical youth community committed to transparent grassroots humanitarian action across Bangladesh.",
       "bn": "আপনার মেধা, সময় এবং সহমর্মিতা দিয়ে একজন মানুষের মুখে হাসি ফোটাতে টিম ইনফিনিটির সাথে যুক্ত হোন।"
@@ -679,7 +679,7 @@
       "category": "Events",
       "altText": "C-Plus TV তে সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৫ (২০১৯)",
       "caption": "",
-      "uploadedAt": "2026-08-26T04:40:23.314+00:00",
+      "uploadedAt": "2026-08-26T14:50:03.96+00:00",
       "usageTags": [
         "External Media URL"
       ]
@@ -693,7 +693,7 @@
       "category": "General",
       "altText": "Hathazari Darpan এ সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৬ (২০২১)",
       "caption": "",
-      "uploadedAt": "2026-08-26T04:40:23.506+00:00",
+      "uploadedAt": "2026-08-26T14:50:04.144+00:00",
       "usageTags": [
         "External Media URL"
       ]
@@ -707,7 +707,7 @@
       "category": "Events",
       "altText": "সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-১১ (২০২৬)",
       "caption": "",
-      "uploadedAt": "2026-08-26T04:40:23.677+00:00",
+      "uploadedAt": "2026-08-26T14:50:04.313+00:00",
       "usageTags": [
         "External Media URL"
       ]
@@ -721,7 +721,7 @@
       "category": "Relief Campaigns",
       "altText": "Hathazari Darpan এ সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৬ (২০২১)",
       "caption": "Team Infinity official field drive video footage.",
-      "uploadedAt": "2026-08-26T04:40:23.843+00:00",
+      "uploadedAt": "2026-08-26T14:50:04.495+00:00",
       "usageTags": [
         "Video Gallery",
         "Field Footage"
@@ -736,7 +736,7 @@
       "category": "Volunteers",
       "altText": "Standing Committee Official Declaration Poster",
       "caption": "Official roster of 9 standing committee members",
-      "uploadedAt": "2026-08-26T04:40:24.01+00:00",
+      "uploadedAt": "2026-08-26T14:50:04.666+00:00",
       "usageTags": [
         "Standing Committee Page"
       ]
@@ -750,7 +750,7 @@
       "category": "Volunteers",
       "altText": "Executive Committee 2026 Official Declaration Poster",
       "caption": "Official roster of 27 executive leaders",
-      "uploadedAt": "2026-08-26T04:40:24.182+00:00",
+      "uploadedAt": "2026-08-26T14:50:04.834+00:00",
       "usageTags": [
         "Executive Committee Page"
       ]
@@ -764,7 +764,7 @@
       "category": "Events",
       "altText": "Team Infinity Volunteers during Winter Blanket Distribution",
       "caption": "Direct ground-level delivery to cold-affected communities",
-      "uploadedAt": "2026-08-26T04:40:24.354+00:00",
+      "uploadedAt": "2026-08-26T14:50:05.002+00:00",
       "usageTags": [
         "About Section Preview",
         "Winter Relief Campaign"
@@ -779,7 +779,7 @@
       "category": "Logos",
       "altText": "Infinity Bangladesh Official Authoritative Logo",
       "caption": "United for Humanity Brand Mark with Infinity Wings",
-      "uploadedAt": "2026-08-26T04:40:24.538+00:00",
+      "uploadedAt": "2026-08-26T14:50:05.177+00:00",
       "usageTags": [
         "Header Logo",
         "Footer Logo",
@@ -795,7 +795,7 @@
       "category": "Hero",
       "altText": "Infinity Bangladesh Official Group Photo with Children in Hathazari",
       "caption": "Official Team Infinity Field Gathering with Eid Joy Banner",
-      "uploadedAt": "2026-08-26T04:40:24.724+00:00",
+      "uploadedAt": "2026-08-26T14:50:05.346+00:00",
       "usageTags": [
         "Homepage Hero",
         "About Hero"
@@ -1104,8 +1104,8 @@
         "en": "Bringing genuine smiles to street children and underprivileged families on Eid by providing new festive clothes, gift boxes, and special food packages."
       },
       "details": {
-        "bn": "",
-        "en": ""
+        "bn": "সুবিধাবঞ্চিত শিশুদের মুখে হাসি ফোটাতে নতুন জামা ও উৎসব সামগ্রী উপহার দেওয়ার বিশেষ ঈদ ক্যাম্পেইন।",
+        "en": "Bringing genuine smiles to street children and underprivileged families on Eid by providing new festive clothes, gift boxes, and special food packages."
       },
       "objectives": {
         "bn": [
@@ -1135,8 +1135,8 @@
         "bn": "পথশিশু, এতিম এবং অতিদরিদ্র পরিবারের সদস্যবৃন্দ।",
         "en": "Street children, orphans, children of day laborers, and ultra-poor families."
       },
-      "beneficiariesCount": 0,
-      "volunteersCount": 0,
+      "beneficiariesCount": 500,
+      "volunteersCount": 50,
       "impact": {
         "bn": "ঈদকে কেবল একটি দিন নয়, বরং ভালোবাসা ও মর্যাদার মিলনমেলায় পরিণত করা।",
         "en": "Transformed Eid from a day of isolation into a celebration of dignity, belonging, and boundless joy."
@@ -1145,7 +1145,7 @@
       "isFeatured": true,
       "targetAmountBDT": "[TARGET DEFINED PER DRIVE]",
       "raisedAmountBDT": "[OFFICIAL AUDIT REPORT LINKED]",
-      "imageUrl": "https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=1200&q=80",
+      "imageUrl": "https://res.cloudinary.com/evj6fhsf/image/upload/v1787719148/qhwvqglkgiwfrvdypsjb.jpg",
       "galleryImages": [
         "https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80",
         "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80",
@@ -1156,39 +1156,6 @@
     }
   ],
   "programs": [
-    {
-      "id": "prog-2",
-      "slug": "ramadan-food-relief",
-      "title": {
-        "bn": "রমজান ইফতার ও খাদ্য সহায়তা",
-        "en": "Ramadan Iftar & Grocery Aid"
-      },
-      "category": "Food Distribution",
-      "shortDescription": {
-        "bn": "দরিদ্র ও দিনমজুর পরিবারের জন্য মাসব্যাপী প্রয়োজনীয় খাদ্যসামগ্রী এবং পুষ্টিকর ইফতার সামগ্রী বিতরণ।",
-        "en": "Providing month-long grocery baskets and wholesome Iftar packages to daily wage earners and struggling families."
-      },
-      "fullDetails": {
-        "bn": "পবিত্র রমজান মাসে স্বল্পআয়ের পরিবারের জন্য চাল, ডাল, তেল, ছোলা, খেজুর ইত্যাদি জরুরি খাদ্যসামগ্রীর সমন্বয়ে তৈরি খাদ্য সহায়তা প্যাকেজ বিতরণ করা হয়।",
-        "en": "Throughout the holy month of Ramadan, Team Infinity delivers curated dry grocery packages (rice, lentils, oil, chickpeas, dates, flour) ensuring low-income families can observe fasting with food security and dignity."
-      },
-      "impactHighlights": {
-        "bn": [
-          "পুষ্টিকর ও প্রয়োজনীয় খাদ্যপণ্যের সমন্বয়ে তৈরি প্যাকেজ",
-          "দিনমজুর, রিকশাচালক ও ছিন্নমূল মানুষের জন্য সম্মিলিত ইফতার আয়োজন",
-          "স্বেচ্ছাসেবকদের সরাসরি তদারকিতে নিরপেক্ষভাবে তালিকা প্রণয়ন ও বিতরণ"
-        ],
-        "en": [
-          "Nutritionally balanced Ramadan grocery hampers",
-          "Community Iftar drives for laborers, rickshaw pullers, and street workers",
-          "Volunteer-managed packing and neighborhood delivery logistics"
-        ]
-      },
-      "imageUrl": "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1200&q=80",
-      "iconName": "Utensils",
-      "status": "active",
-      "displayOrder": 0
-    },
     {
       "id": "prog-4",
       "slug": "child-education-support",
@@ -1219,6 +1186,39 @@
       },
       "imageUrl": "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1200&q=80",
       "iconName": "BookOpen",
+      "status": "active",
+      "displayOrder": 0
+    },
+    {
+      "id": "prog-2",
+      "slug": "ramadan-food-relief",
+      "title": {
+        "bn": "রমজান ইফতার ও খাদ্য সহায়তা",
+        "en": "Ramadan Iftar & Grocery Aid"
+      },
+      "category": "Food Distribution",
+      "shortDescription": {
+        "bn": "দরিদ্র ও দিনমজুর পরিবারের জন্য মাসব্যাপী প্রয়োজনীয় খাদ্যসামগ্রী এবং পুষ্টিকর ইফতার সামগ্রী বিতরণ।",
+        "en": "Providing month-long grocery baskets and wholesome Iftar packages to daily wage earners and struggling families."
+      },
+      "fullDetails": {
+        "bn": "পবিত্র রমজান মাসে স্বল্পআয়ের পরিবারের জন্য চাল, ডাল, তেল, ছোলা, খেজুর ইত্যাদি জরুরি খাদ্যসামগ্রীর সমন্বয়ে তৈরি খাদ্য সহায়তা প্যাকেজ বিতরণ করা হয়।",
+        "en": "Throughout the holy month of Ramadan, Team Infinity delivers curated dry grocery packages (rice, lentils, oil, chickpeas, dates, flour) ensuring low-income families can observe fasting with food security and dignity."
+      },
+      "impactHighlights": {
+        "bn": [
+          "পুষ্টিকর ও প্রয়োজনীয় খাদ্যপণ্যের সমন্বয়ে তৈরি প্যাকেজ",
+          "দিনমজুর, রিকশাচালক ও ছিন্নমূল মানুষের জন্য সম্মিলিত ইফতার আয়োজন",
+          "স্বেচ্ছাসেবকদের সরাসরি তদারকিতে নিরপেক্ষভাবে তালিকা প্রণয়ন ও বিতরণ"
+        ],
+        "en": [
+          "Nutritionally balanced Ramadan grocery hampers",
+          "Community Iftar drives for laborers, rickshaw pullers, and street workers",
+          "Volunteer-managed packing and neighborhood delivery logistics"
+        ]
+      },
+      "imageUrl": "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1200&q=80",
+      "iconName": "Utensils",
       "status": "active",
       "displayOrder": 0
     },
@@ -1921,42 +1921,7 @@
       "partnershipYear": "2025"
     }
   ],
-  "volunteers": [
-    {
-      "id": "vol-1",
-      "fullName": "Demo Applicant (Sample for Admin Verification)",
-      "email": "volunteer.sample@example.com",
-      "phone": "+8801700000000",
-      "district": "Dhaka",
-      "upazila": "Dhanmondi",
-      "age": 22,
-      "occupation": "University Student",
-      "bloodGroup": "B+",
-      "skills": [
-        "Event Management",
-        "Photography",
-        "Field Coordination"
-      ],
-      "areasOfInterest": [
-        "Child Welfare",
-        "Eid Campaigns",
-        "Emergency Relief"
-      ],
-      "interests": [
-        "Field Distribution & Relief",
-        "Logistics & Packing"
-      ],
-      "previousExperience": "Organized local campus donation drive.",
-      "availability": "Weekends & Holidays (10-15 hours/month)",
-      "message": "I want to stand with Team Infinity and support vulnerable children in Bangladesh.",
-      "consent": true,
-      "agreedCodeOfConduct": true,
-      "submittedAt": "2025-02-18 14:30",
-      "appliedAt": "2025-02-18 14:30",
-      "status": "Reviewing",
-      "adminNotes": "Sample entry to test admin approval workflow."
-    }
-  ],
+  "volunteers": [],
   "donations": [
     {
       "id": "don-1",
@@ -2022,7 +1987,7 @@
     {
       "id": "person-1",
       "fullName": "MD. SHAHIDUL ALAM SAKIB",
-      "banglaName": "মোঃ শাহিদুল আলম সাকিব",
+      "banglaName": "মোঃ শহিদুল আলম সাকিব",
       "englishName": "MD. SHAHIDUL ALAM SAKIB",
       "photoUrl": "https://res.cloudinary.com/evj6fhsf/image/upload/v1787464356/nvdp2wahmmvef9d80mzr.jpg",
       "photoPosition": "center top",
@@ -2134,7 +2099,7 @@
     {
       "id": "person-5",
       "fullName": "SALIMUR RAHMAN OPI",
-      "banglaName": "সলিমুর রহমান অপি",
+      "banglaName": "সেলিমুর রহমান অপি",
       "englishName": "SALIMUR RAHMAN OPI",
       "photoUrl": "https://res.cloudinary.com/evj6fhsf/image/upload/v1787423830/kkupeso03vr0eeolqhbx.jpg",
       "photoPosition": "center top",
@@ -2162,7 +2127,7 @@
     {
       "id": "person-6",
       "fullName": "ANAYET ULLAH FARHAD",
-      "banglaName": "এনায়েত উল্লাহ ফারহাদ",
+      "banglaName": "এনায়েত উল্লাহ ফরহাদ",
       "englishName": "ANAYET ULLAH FARHAD",
       "photoUrl": "https://res.cloudinary.com/evj6fhsf/image/upload/v1787460659/vqafuyure9yyp8cwr9x4.jpg",
       "photoPosition": "center top",
@@ -2498,7 +2463,7 @@
     {
       "id": "person-18",
       "fullName": "SHANZIDA SHARMIN",
-      "banglaName": "শানজিদা শারমিন",
+      "banglaName": "সানজিদা শারমিন",
       "englishName": "SHANZIDA SHARMIN",
       "photoUrl": "https://res.cloudinary.com/evj6fhsf/image/upload/v1787461768/svcklx1xn1bclbrwahsp.jpg",
       "photoPosition": "center top",
@@ -2806,7 +2771,7 @@
     {
       "id": "person-sc-2",
       "fullName": "Tamimul Hasib Rimad",
-      "banglaName": "তামীমুল হাসিব রিমাদ",
+      "banglaName": "তামিমুল হাসিব রিমাদ",
       "englishName": "Tamimul Hasib Rimad",
       "photoUrl": "https://res.cloudinary.com/evj6fhsf/image/upload/v1787510798/v1cncnfe5q6ekybwsdiu.jpg",
       "photoPosition": "center top",
@@ -2834,7 +2799,7 @@
     {
       "id": "person-sc-3",
       "fullName": "Shifat Sattar",
-      "banglaName": "শিফাত সাত্তার",
+      "banglaName": "সিফাত সাত্তার",
       "englishName": "Shifat Sattar",
       "photoUrl": "https://res.cloudinary.com/evj6fhsf/image/upload/v1787510774/okvpywmbgvlvnlcrnsp8.jpg",
       "photoPosition": "center top",
@@ -3056,19 +3021,6 @@
       }
     },
     {
-      "id": "pos-vice-chairman",
-      "name": {
-        "bn": "ভাইস-চেয়ারম্যান",
-        "en": "Vice-Chairman"
-      },
-      "level": 2,
-      "sortOrder": 2,
-      "description": {
-        "bn": "স্থায়ী কমিটির ভাইস-চেয়ারম্যান",
-        "en": "Standing Committee Vice-Chairman"
-      }
-    },
-    {
       "id": "pos-2",
       "name": {
         "bn": "সিনিয়র সহ-সভাপতি",
@@ -3079,6 +3031,19 @@
       "description": {
         "bn": "",
         "en": ""
+      }
+    },
+    {
+      "id": "pos-vice-chairman",
+      "name": {
+        "bn": "ভাইস-চেয়ারম্যান",
+        "en": "Vice-Chairman"
+      },
+      "level": 2,
+      "sortOrder": 2,
+      "description": {
+        "bn": "স্থায়ী কমিটির ভাইস-চেয়ারম্যান",
+        "en": "Standing Committee Vice-Chairman"
       }
     },
     {
@@ -3305,6 +3270,18 @@
   ],
   "committeeMembers": [
     {
+      "id": "cm-1",
+      "committeeId": "comm-exec-2026",
+      "personId": "person-1",
+      "positionId": "pos-1",
+      "serialNumber": 1,
+      "sortOrder": 1,
+      "isFeaturedLeader": true,
+      "startDate": "",
+      "endDate": "",
+      "status": "ACTIVE"
+    },
+    {
       "id": "cm-sc-1",
       "committeeId": "comm-stand-central",
       "personId": "person-sc-1",
@@ -3317,8 +3294,8 @@
       "status": "ACTIVE"
     },
     {
-      "id": "cm-1",
-      "committeeId": "comm-exec-2026",
+      "id": "cm-past-24-1",
+      "committeeId": "comm-exec-2024",
       "personId": "person-1",
       "positionId": "pos-1",
       "serialNumber": 1,
@@ -3326,7 +3303,31 @@
       "isFeaturedLeader": true,
       "startDate": "",
       "endDate": "",
+      "status": "ARCHIVED"
+    },
+    {
+      "id": "cm-sc-2",
+      "committeeId": "comm-stand-central",
+      "personId": "person-sc-2",
+      "positionId": "pos-vice-chairman",
+      "serialNumber": 2,
+      "sortOrder": 2,
+      "isFeaturedLeader": true,
+      "startDate": "",
+      "endDate": "",
       "status": "ACTIVE"
+    },
+    {
+      "id": "cm-past-24-2",
+      "committeeId": "comm-exec-2024",
+      "personId": "person-3",
+      "positionId": "pos-3",
+      "serialNumber": 2,
+      "sortOrder": 2,
+      "isFeaturedLeader": true,
+      "startDate": "",
+      "endDate": "",
+      "status": "ARCHIVED"
     },
     {
       "id": "cm-2",
@@ -3341,16 +3342,16 @@
       "status": "ACTIVE"
     },
     {
-      "id": "cm-sc-2",
-      "committeeId": "comm-stand-central",
-      "personId": "person-sc-2",
-      "positionId": "pos-vice-chairman",
-      "serialNumber": 2,
-      "sortOrder": 2,
+      "id": "cm-past-24-3",
+      "committeeId": "comm-exec-2024",
+      "personId": "person-5",
+      "positionId": "pos-4",
+      "serialNumber": 3,
+      "sortOrder": 3,
       "isFeaturedLeader": true,
       "startDate": "",
       "endDate": "",
-      "status": "ACTIVE"
+      "status": "ARCHIVED"
     },
     {
       "id": "cm-sc-3",
@@ -3389,6 +3390,42 @@
       "status": "ACTIVE"
     },
     {
+      "id": "cm-past-25-4",
+      "committeeId": "comm-exec-2025",
+      "personId": "person-5",
+      "positionId": "pos-4",
+      "serialNumber": 4,
+      "sortOrder": 4,
+      "isFeaturedLeader": false,
+      "startDate": "",
+      "endDate": "",
+      "status": "ARCHIVED"
+    },
+    {
+      "id": "cm-past-23-4",
+      "committeeId": "comm-exec-2023",
+      "personId": "person-12",
+      "positionId": "pos-7",
+      "serialNumber": 4,
+      "sortOrder": 4,
+      "isFeaturedLeader": false,
+      "startDate": "",
+      "endDate": "",
+      "status": "ARCHIVED"
+    },
+    {
+      "id": "cm-past-24-4",
+      "committeeId": "comm-exec-2024",
+      "personId": "person-8",
+      "positionId": "pos-8",
+      "serialNumber": 4,
+      "sortOrder": 4,
+      "isFeaturedLeader": false,
+      "startDate": "",
+      "endDate": "",
+      "status": "ARCHIVED"
+    },
+    {
       "id": "cm-4",
       "committeeId": "comm-exec-2026",
       "personId": "person-4",
@@ -3425,18 +3462,6 @@
       "status": "ACTIVE"
     },
     {
-      "id": "cm-6",
-      "committeeId": "comm-exec-2026",
-      "personId": "person-6",
-      "positionId": "pos-5",
-      "serialNumber": 6,
-      "sortOrder": 6,
-      "isFeaturedLeader": false,
-      "startDate": "",
-      "endDate": "",
-      "status": "ACTIVE"
-    },
-    {
       "id": "cm-sc-6",
       "committeeId": "comm-stand-central",
       "personId": "person-sc-6",
@@ -3449,12 +3474,12 @@
       "status": "ACTIVE"
     },
     {
-      "id": "cm-sc-7",
-      "committeeId": "comm-stand-central",
-      "personId": "person-sc-7",
-      "positionId": "pos-member",
-      "serialNumber": 7,
-      "sortOrder": 7,
+      "id": "cm-6",
+      "committeeId": "comm-exec-2026",
+      "personId": "person-6",
+      "positionId": "pos-5",
+      "serialNumber": 6,
+      "sortOrder": 6,
       "isFeaturedLeader": false,
       "startDate": "",
       "endDate": "",
@@ -3465,6 +3490,18 @@
       "committeeId": "comm-exec-2026",
       "personId": "person-7",
       "positionId": "pos-5",
+      "serialNumber": 7,
+      "sortOrder": 7,
+      "isFeaturedLeader": false,
+      "startDate": "",
+      "endDate": "",
+      "status": "ACTIVE"
+    },
+    {
+      "id": "cm-sc-7",
+      "committeeId": "comm-stand-central",
+      "personId": "person-sc-7",
+      "positionId": "pos-member",
       "serialNumber": 7,
       "sortOrder": 7,
       "isFeaturedLeader": false,
@@ -3533,10 +3570,10 @@
       "status": "ACTIVE"
     },
     {
-      "id": "cm-11",
+      "id": "cm-12",
       "committeeId": "comm-exec-2026",
-      "personId": "person-11",
-      "positionId": "pos-6",
+      "personId": "person-12",
+      "positionId": "pos-7",
       "serialNumber": 11,
       "sortOrder": 11,
       "isFeaturedLeader": false,
@@ -3545,10 +3582,10 @@
       "status": "ACTIVE"
     },
     {
-      "id": "cm-12",
+      "id": "cm-11",
       "committeeId": "comm-exec-2026",
-      "personId": "person-12",
-      "positionId": "pos-7",
+      "personId": "person-11",
+      "positionId": "pos-6",
       "serialNumber": 12,
       "sortOrder": 12,
       "isFeaturedLeader": false,
@@ -3569,10 +3606,10 @@
       "status": "ACTIVE"
     },
     {
-      "id": "cm-14",
+      "id": "cm-15",
       "committeeId": "comm-exec-2026",
-      "personId": "person-14",
-      "positionId": "pos-9",
+      "personId": "person-15",
+      "positionId": "pos-8",
       "serialNumber": 14,
       "sortOrder": 14,
       "isFeaturedLeader": false,
@@ -3581,10 +3618,10 @@
       "status": "ACTIVE"
     },
     {
-      "id": "cm-15",
+      "id": "cm-14",
       "committeeId": "comm-exec-2026",
-      "personId": "person-15",
-      "positionId": "pos-8",
+      "personId": "person-14",
+      "positionId": "pos-9",
       "serialNumber": 15,
       "sortOrder": 15,
       "isFeaturedLeader": false,
@@ -3605,10 +3642,10 @@
       "status": "ACTIVE"
     },
     {
-      "id": "cm-17",
+      "id": "cm-18",
       "committeeId": "comm-exec-2026",
-      "personId": "person-17",
-      "positionId": "pos-11",
+      "personId": "person-18",
+      "positionId": "pos-10",
       "serialNumber": 17,
       "sortOrder": 17,
       "isFeaturedLeader": false,
@@ -3617,10 +3654,10 @@
       "status": "ACTIVE"
     },
     {
-      "id": "cm-18",
+      "id": "cm-17",
       "committeeId": "comm-exec-2026",
-      "personId": "person-18",
-      "positionId": "pos-10",
+      "personId": "person-17",
+      "positionId": "pos-11",
       "serialNumber": 18,
       "sortOrder": 18,
       "isFeaturedLeader": false,
@@ -3641,10 +3678,10 @@
       "status": "ACTIVE"
     },
     {
-      "id": "cm-20",
+      "id": "cm-21",
       "committeeId": "comm-exec-2026",
-      "personId": "person-20",
-      "positionId": "pos-13",
+      "personId": "person-21",
+      "positionId": "pos-12",
       "serialNumber": 20,
       "sortOrder": 20,
       "isFeaturedLeader": false,
@@ -3653,10 +3690,10 @@
       "status": "ACTIVE"
     },
     {
-      "id": "cm-21",
+      "id": "cm-20",
       "committeeId": "comm-exec-2026",
-      "personId": "person-21",
-      "positionId": "pos-12",
+      "personId": "person-20",
+      "positionId": "pos-13",
       "serialNumber": 21,
       "sortOrder": 21,
       "isFeaturedLeader": false,
@@ -3735,6 +3772,251 @@
       "startDate": "",
       "endDate": "",
       "status": "ACTIVE"
+    }
+  ],
+  "auditLogs": [
+    {
+      "id": "audit-1787755993990-x4lg",
+      "user": "Admin",
+      "action": "SYNC",
+      "entity": "Database",
+      "entityId": "full_push",
+      "timestamp": "2026-08-26T14:53:13.990Z",
+      "details": "Pushed all local CMS entities to Supabase Cloud Database"
+    },
+    {
+      "id": "audit-1787755929423-fhuh",
+      "user": "Admin",
+      "action": "UPDATE",
+      "entity": "Campaign",
+      "entityId": "camp-1",
+      "timestamp": "2026-08-26T14:52:09.423Z",
+      "details": "Updated campaign details or gallery"
+    },
+    {
+      "id": "audit-1787755806863-c32i",
+      "user": "Admin",
+      "action": "SYNC",
+      "entity": "Database",
+      "entityId": "full_push",
+      "timestamp": "2026-08-26T14:50:06.863Z",
+      "details": "Pushed all local CMS entities to Supabase Cloud Database"
+    },
+    {
+      "id": "audit-1787755775944-c33m",
+      "user": "Admin",
+      "action": "UPDATE",
+      "entity": "CommitteeMember",
+      "entityId": "cm-sc-2",
+      "timestamp": "2026-08-26T14:49:35.944Z",
+      "details": "Updated committee member assignment"
+    },
+    {
+      "id": "audit-1787755775944-mz7s",
+      "user": "Admin",
+      "action": "UPDATE",
+      "entity": "Position",
+      "entityId": "pos-vice-chairman",
+      "timestamp": "2026-08-26T14:49:35.944Z",
+      "details": "Updated position"
+    },
+    {
+      "id": "audit-1787755775944-t8ns",
+      "user": "Admin",
+      "action": "UPDATE",
+      "entity": "Person",
+      "entityId": "person-sc-2",
+      "timestamp": "2026-08-26T14:49:35.944Z",
+      "details": "Updated person profile/photo"
+    },
+    {
+      "id": "audit-1787755765257-uleh",
+      "user": "Admin",
+      "action": "UPDATE",
+      "entity": "CommitteeMember",
+      "entityId": "cm-sc-3",
+      "timestamp": "2026-08-26T14:49:25.257Z",
+      "details": "Updated committee member assignment"
+    },
+    {
+      "id": "audit-1787755765257-69z2",
+      "user": "Admin",
+      "action": "UPDATE",
+      "entity": "Position",
+      "entityId": "pos-vice-chairman",
+      "timestamp": "2026-08-26T14:49:25.257Z",
+      "details": "Updated position"
+    },
+    {
+      "id": "audit-1787755765257-1stu",
+      "user": "Admin",
+      "action": "UPDATE",
+      "entity": "Person",
+      "entityId": "person-sc-3",
+      "timestamp": "2026-08-26T14:49:25.257Z",
+      "details": "Updated person profile/photo"
+    },
+    {
+      "id": "audit-1787755670414-9jws",
+      "user": "Admin",
+      "action": "SYNC",
+      "entity": "Database",
+      "entityId": "full_push",
+      "timestamp": "2026-08-26T14:47:50.414Z",
+      "details": "Pushed all local CMS entities to Supabase Cloud Database"
+    },
+    {
+      "id": "audit-1787755636729-iswc",
+      "user": "Admin",
+      "action": "DELETE",
+      "entity": "VolunteerApplication",
+      "entityId": "vol-1",
+      "timestamp": "2026-08-26T14:47:16.729Z",
+      "details": "Deleted volunteer application"
+    },
+    {
+      "id": "audit-1787755607362-uf4a",
+      "user": "Admin",
+      "action": "UPDATE",
+      "entity": "VolunteerSettings",
+      "entityId": "volunteer",
+      "timestamp": "2026-08-26T14:46:47.362Z",
+      "details": "Updated volunteer CTA, benefits or form link"
+    },
+    {
+      "id": "audit-1787747831104-95tb",
+      "user": "Admin",
+      "action": "UPDATE",
+      "entity": "CommitteeMember",
+      "entityId": "cm-6",
+      "timestamp": "2026-08-26T12:37:11.104Z",
+      "details": "Updated committee member assignment"
+    },
+    {
+      "id": "audit-1787747831104-z1rt",
+      "user": "Admin",
+      "action": "UPDATE",
+      "entity": "Position",
+      "entityId": "pos-5",
+      "timestamp": "2026-08-26T12:37:11.104Z",
+      "details": "Updated position"
+    },
+    {
+      "id": "audit-1787747831104-7run",
+      "user": "Admin",
+      "action": "UPDATE",
+      "entity": "Person",
+      "entityId": "person-6",
+      "timestamp": "2026-08-26T12:37:11.104Z",
+      "details": "Updated person profile/photo"
+    },
+    {
+      "id": "audit-1787747818872-qjln",
+      "user": "Admin",
+      "action": "UPDATE",
+      "entity": "CommitteeMember",
+      "entityId": "cm-5",
+      "timestamp": "2026-08-26T12:36:58.872Z",
+      "details": "Updated committee member assignment"
+    },
+    {
+      "id": "audit-1787747818872-zj43",
+      "user": "Admin",
+      "action": "UPDATE",
+      "entity": "Position",
+      "entityId": "pos-4",
+      "timestamp": "2026-08-26T12:36:58.872Z",
+      "details": "Updated position"
+    },
+    {
+      "id": "audit-1787747818872-jpqo",
+      "user": "Admin",
+      "action": "UPDATE",
+      "entity": "Person",
+      "entityId": "person-5",
+      "timestamp": "2026-08-26T12:36:58.872Z",
+      "details": "Updated person profile/photo"
+    },
+    {
+      "id": "audit-1787747795281-txzm",
+      "user": "Admin",
+      "action": "UPDATE",
+      "entity": "CommitteeMember",
+      "entityId": "cm-1",
+      "timestamp": "2026-08-26T12:36:35.281Z",
+      "details": "Updated committee member assignment"
+    },
+    {
+      "id": "audit-1787747795281-mp6n",
+      "user": "Admin",
+      "action": "UPDATE",
+      "entity": "Position",
+      "entityId": "pos-1",
+      "timestamp": "2026-08-26T12:36:35.281Z",
+      "details": "Updated position"
+    },
+    {
+      "id": "audit-1787747795281-h3xn",
+      "user": "Admin",
+      "action": "UPDATE",
+      "entity": "Person",
+      "entityId": "person-1",
+      "timestamp": "2026-08-26T12:36:35.281Z",
+      "details": "Updated person profile/photo"
+    },
+    {
+      "id": "audit-1787747751218-wzee",
+      "user": "Admin",
+      "action": "SYNC",
+      "entity": "Database",
+      "entityId": "full_push",
+      "timestamp": "2026-08-26T12:35:51.218Z",
+      "details": "Pushed all local CMS entities to Supabase Cloud Database"
+    },
+    {
+      "id": "audit-1787747725490-tgn0",
+      "user": "Admin",
+      "action": "SYNC",
+      "entity": "Database",
+      "entityId": "full_push",
+      "timestamp": "2026-08-26T12:35:25.490Z",
+      "details": "Pushed all local CMS entities to Supabase Cloud Database"
+    },
+    {
+      "id": "audit-1787747720809-q9ab",
+      "user": "Admin",
+      "action": "UPDATE",
+      "entity": "CommitteeMembers",
+      "entityId": "comm-exec-2026",
+      "timestamp": "2026-08-26T12:35:20.809Z",
+      "details": "Reordered committee members lineup"
+    },
+    {
+      "id": "audit-1787747717154-rk3n",
+      "user": "Admin",
+      "action": "UPDATE",
+      "entity": "CommitteeMembers",
+      "entityId": "comm-exec-2026",
+      "timestamp": "2026-08-26T12:35:17.154Z",
+      "details": "Reordered committee members lineup"
+    },
+    {
+      "id": "audit-1787747695681-9e29",
+      "user": "Admin",
+      "action": "UPDATE",
+      "entity": "CommitteeMembers",
+      "entityId": "comm-exec-2026",
+      "timestamp": "2026-08-26T12:34:55.681Z",
+      "details": "Reordered committee members lineup"
+    },
+    {
+      "id": "audit-1787747688465-wz6t",
+      "user": "Admin",
+      "action": "UPDATE",
+      "entity": "CommitteeMembers",
+      "entityId": "comm-exec-2026",
+      "timestamp": "2026-08-26T12:34:48.465Z",
+      "details": "Reordered committee members lineup"
     }
   ]
 }

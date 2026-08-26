@@ -1,10 +1,13 @@
+import fs from 'fs';
 import { createClient } from '@supabase/supabase-js';
-import {
-  INITIAL_COMMITTEES,
-  INITIAL_COMMITTEE_MEMBERS,
-  INITIAL_PERSONS,
-  INITIAL_POSITIONS
-} from '../src/data/initialData';
+
+const raw = fs.readFileSync('scripts/incoming_user_data.json', 'utf8');
+const data = JSON.parse(raw);
+
+const INITIAL_COMMITTEES = data.committees || [];
+const INITIAL_COMMITTEE_MEMBERS = data.committeeMembers || [];
+const INITIAL_PERSONS = data.persons || [];
+const INITIAL_POSITIONS = data.positions || [];
 
 const supabaseUrl = 'https://pzpnphgnexfaxxaorqsq.supabase.co';
 const supabaseAnonKey = 'sb_publishable_Vqapvc2C91UpllwvFevK9w_OJPdTi3V';

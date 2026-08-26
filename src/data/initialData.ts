@@ -31,8 +31,54 @@ import {
   GalleryAlbum,
   AdminProfile,
   FAQItem,
-  PressCoverage
+  PressCoverage,
+  ExecutiveTierBar
 } from '../types';
+
+export const DEFAULT_EXECUTIVE_TIER_BARS: ExecutiveTierBar[] = [
+  {
+    id: 'presidential',
+    title: { en: 'Presidential Leadership', bn: 'সভাপতি পরিষদ' },
+    visible: true,
+    rangeLabel: 'Member #01'
+  },
+  {
+    id: 'vicePresidential',
+    title: { en: 'Vice Presidential Leadership', bn: 'সহ-সভাপতি পরিষদ' },
+    visible: true,
+    rangeLabel: 'Members #02–#04'
+  },
+  {
+    id: 'secretariat',
+    title: { en: 'Secretariat Leadership', bn: 'সাধারণ সম্পাদক' },
+    visible: true,
+    rangeLabel: 'Member #05'
+  },
+  {
+    id: 'jointSecretariat',
+    title: { en: 'Joint General Secretariat', bn: 'যুগ্ম সাধারণ সম্পাদক পরিষদ' },
+    visible: true,
+    rangeLabel: 'Members #06–#10'
+  },
+  {
+    id: 'organizingFinance',
+    title: { en: 'Organizing & Finance Secretariat', bn: 'সাংগঠনিক ও অর্থ বিভাগ' },
+    visible: true,
+    rangeLabel: 'Members #11–#16'
+  },
+  {
+    id: 'publicityMediaIt',
+    title: { en: 'Publicity, Media & IT Secretariat', bn: 'প্রচার, তথ্য ও প্রযুক্তি বিভাগ' },
+    visible: true,
+    rangeLabel: 'Members #17–#22'
+  },
+  {
+    id: 'departmentalExecutive',
+    title: { en: 'Departmental Secretaries & Executive Members', bn: 'বিভাগীয় সম্পাদক ও কার্যনির্বাহী সদস্যবৃন্দ' },
+    visible: true,
+    rangeLabel: 'Members #23+'
+  }
+];
 
 export const INITIAL_SITE_SETTINGS: SiteSettings = {
   "organizationName": "Infinity Bangladesh",
@@ -72,7 +118,8 @@ export const INITIAL_SITE_SETTINGS: SiteSettings = {
     "bn": "ইনফিনিটি বাংলাদেশ-এর অফিসিয়াল প্ল্যাটফর্মে স্বাগতম — প্রতিষ্ঠিত ২০১৫, হাটহাজারী"
   },
   "showAnnouncementBanner": true,
-  "registrationNumber": "Hathazari, Chattogram • Established 2015"
+  "registrationNumber": "Hathazari, Chattogram • Established 2015",
+  "executiveTierBars": DEFAULT_EXECUTIVE_TIER_BARS
 };
 
 export const INITIAL_HOMEPAGE_CONFIG: HomepageConfig = {
@@ -392,7 +439,9 @@ export const INITIAL_VOLUNTEER_SETTINGS: VolunteerSettings = {
     "en": "Become a Volunteer",
     "bn": "স্বেচ্ছাসেবী হিসেবে যোগ দিন"
   },
-  "googleFormUrl": "",
+  "googleFormUrl": "https://forms.gle/58mVMzR1MAoNY3QLA",
+  "googleScriptUrl": "https://script.google.com/macros/s/AKfycbwcxmsl9WY-EPo5OMdnouohrwCx1m93BM_DoPZhKTh1Gfi-BdyQ4bncu2hkXq4-vcoN/exec",
+  "googleSheetUrl": "",
   "description": {
     "en": "Join a vibrant, ethical youth community committed to transparent grassroots humanitarian action across Bangladesh.",
     "bn": "আপনার মেধা, সময় এবং সহমর্মিতা দিয়ে একজন মানুষের মুখে হাসি ফোটাতে টিম ইনফিনিটির সাথে যুক্ত হোন।"
@@ -722,7 +771,7 @@ export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
     "category": "Events",
     "altText": "C-Plus TV তে সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৫ (২০১৯)",
     "caption": "",
-    "uploadedAt": "2026-08-26T04:40:23.314+00:00",
+    "uploadedAt": "2026-08-26T14:50:03.96+00:00",
     "usageTags": [
       "External Media URL"
     ]
@@ -736,7 +785,7 @@ export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
     "category": "General",
     "altText": "Hathazari Darpan এ সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৬ (২০২১)",
     "caption": "",
-    "uploadedAt": "2026-08-26T04:40:23.506+00:00",
+    "uploadedAt": "2026-08-26T14:50:04.144+00:00",
     "usageTags": [
       "External Media URL"
     ]
@@ -750,7 +799,7 @@ export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
     "category": "Events",
     "altText": "সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-১১ (২০২৬)",
     "caption": "",
-    "uploadedAt": "2026-08-26T04:40:23.677+00:00",
+    "uploadedAt": "2026-08-26T14:50:04.313+00:00",
     "usageTags": [
       "External Media URL"
     ]
@@ -761,10 +810,10 @@ export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
     "url": "https://youtu.be/cg8zkgv_EAs?si=bpNgowCaAQ6yCPE7",
     "fileSize": "External Stream",
     "mimeType": "video/embed",
-    "category": "Relief Campaigns",
+    "category": "Campaigns",
     "altText": "Hathazari Darpan এ সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৬ (২০২১)",
     "caption": "Team Infinity official field drive video footage.",
-    "uploadedAt": "2026-08-26T04:40:23.843+00:00",
+    "uploadedAt": "2026-08-26T14:50:04.495+00:00",
     "usageTags": [
       "Video Gallery",
       "Field Footage"
@@ -779,7 +828,7 @@ export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
     "category": "Volunteers",
     "altText": "Standing Committee Official Declaration Poster",
     "caption": "Official roster of 9 standing committee members",
-    "uploadedAt": "2026-08-26T04:40:24.01+00:00",
+    "uploadedAt": "2026-08-26T14:50:04.666+00:00",
     "usageTags": [
       "Standing Committee Page"
     ]
@@ -793,7 +842,7 @@ export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
     "category": "Volunteers",
     "altText": "Executive Committee 2026 Official Declaration Poster",
     "caption": "Official roster of 27 executive leaders",
-    "uploadedAt": "2026-08-26T04:40:24.182+00:00",
+    "uploadedAt": "2026-08-26T14:50:04.834+00:00",
     "usageTags": [
       "Executive Committee Page"
     ]
@@ -807,7 +856,7 @@ export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
     "category": "Events",
     "altText": "Team Infinity Volunteers during Winter Blanket Distribution",
     "caption": "Direct ground-level delivery to cold-affected communities",
-    "uploadedAt": "2026-08-26T04:40:24.354+00:00",
+    "uploadedAt": "2026-08-26T14:50:05.002+00:00",
     "usageTags": [
       "About Section Preview",
       "Winter Relief Campaign"
@@ -822,7 +871,7 @@ export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
     "category": "Logos",
     "altText": "Infinity Bangladesh Official Authoritative Logo",
     "caption": "United for Humanity Brand Mark with Infinity Wings",
-    "uploadedAt": "2026-08-26T04:40:24.538+00:00",
+    "uploadedAt": "2026-08-26T14:50:05.177+00:00",
     "usageTags": [
       "Header Logo",
       "Footer Logo",
@@ -838,7 +887,7 @@ export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
     "category": "Hero",
     "altText": "Infinity Bangladesh Official Group Photo with Children in Hathazari",
     "caption": "Official Team Infinity Field Gathering with Eid Joy Banner",
-    "uploadedAt": "2026-08-26T04:40:24.724+00:00",
+    "uploadedAt": "2026-08-26T14:50:05.346+00:00",
     "usageTags": [
       "Homepage Hero",
       "About Hero"
@@ -1151,8 +1200,8 @@ export const INITIAL_CAMPAIGNS: Campaign[] = [
       "en": "Bringing genuine smiles to street children and underprivileged families on Eid by providing new festive clothes, gift boxes, and special food packages."
     },
     "details": {
-      "bn": "",
-      "en": ""
+      "bn": "সুবিধাবঞ্চিত শিশুদের মুখে হাসি ফোটাতে নতুন জামা ও উৎসব সামগ্রী উপহার দেওয়ার বিশেষ ঈদ ক্যাম্পেইন।",
+      "en": "Bringing genuine smiles to street children and underprivileged families on Eid by providing new festive clothes, gift boxes, and special food packages."
     },
     "objectives": {
       "bn": [
@@ -1182,8 +1231,8 @@ export const INITIAL_CAMPAIGNS: Campaign[] = [
       "bn": "পথশিশু, এতিম এবং অতিদরিদ্র পরিবারের সদস্যবৃন্দ।",
       "en": "Street children, orphans, children of day laborers, and ultra-poor families."
     },
-    "beneficiariesCount": 0,
-    "volunteersCount": 0,
+    "beneficiariesCount": 500,
+    "volunteersCount": 50,
     "impact": {
       "bn": "ঈদকে কেবল একটি দিন নয়, বরং ভালোবাসা ও মর্যাদার মিলনমেলায় পরিণত করা।",
       "en": "Transformed Eid from a day of isolation into a celebration of dignity, belonging, and boundless joy."
@@ -1192,7 +1241,7 @@ export const INITIAL_CAMPAIGNS: Campaign[] = [
     "isFeatured": true,
     "targetAmountBDT": "[TARGET DEFINED PER DRIVE]",
     "raisedAmountBDT": "[OFFICIAL AUDIT REPORT LINKED]",
-    "imageUrl": "https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=1200&q=80",
+    "imageUrl": "https://res.cloudinary.com/evj6fhsf/image/upload/v1787719148/qhwvqglkgiwfrvdypsjb.jpg",
     "galleryImages": [
       "https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80",
       "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80",
@@ -1204,39 +1253,6 @@ export const INITIAL_CAMPAIGNS: Campaign[] = [
 ];
 
 export const INITIAL_PROGRAMS: Program[] = [
-  {
-    "id": "prog-2",
-    "slug": "ramadan-food-relief",
-    "title": {
-      "bn": "রমজান ইফতার ও খাদ্য সহায়তা",
-      "en": "Ramadan Iftar & Grocery Aid"
-    },
-    "category": "Food Distribution",
-    "shortDescription": {
-      "bn": "দরিদ্র ও দিনমজুর পরিবারের জন্য মাসব্যাপী প্রয়োজনীয় খাদ্যসামগ্রী এবং পুষ্টিকর ইফতার সামগ্রী বিতরণ।",
-      "en": "Providing month-long grocery baskets and wholesome Iftar packages to daily wage earners and struggling families."
-    },
-    "fullDetails": {
-      "bn": "পবিত্র রমজান মাসে স্বল্পআয়ের পরিবারের জন্য চাল, ডাল, তেল, ছোলা, খেজুর ইত্যাদি জরুরি খাদ্যসামগ্রীর সমন্বয়ে তৈরি খাদ্য সহায়তা প্যাকেজ বিতরণ করা হয়।",
-      "en": "Throughout the holy month of Ramadan, Team Infinity delivers curated dry grocery packages (rice, lentils, oil, chickpeas, dates, flour) ensuring low-income families can observe fasting with food security and dignity."
-    },
-    "impactHighlights": {
-      "bn": [
-        "পুষ্টিকর ও প্রয়োজনীয় খাদ্যপণ্যের সমন্বয়ে তৈরি প্যাকেজ",
-        "দিনমজুর, রিকশাচালক ও ছিন্নমূল মানুষের জন্য সম্মিলিত ইফতার আয়োজন",
-        "স্বেচ্ছাসেবকদের সরাসরি তদারকিতে নিরপেক্ষভাবে তালিকা প্রণয়ন ও বিতরণ"
-      ],
-      "en": [
-        "Nutritionally balanced Ramadan grocery hampers",
-        "Community Iftar drives for laborers, rickshaw pullers, and street workers",
-        "Volunteer-managed packing and neighborhood delivery logistics"
-      ]
-    },
-    "imageUrl": "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1200&q=80",
-    "iconName": "Utensils",
-    "status": "active",
-    "displayOrder": 0
-  },
   {
     "id": "prog-4",
     "slug": "child-education-support",
@@ -1267,6 +1283,39 @@ export const INITIAL_PROGRAMS: Program[] = [
     },
     "imageUrl": "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1200&q=80",
     "iconName": "BookOpen",
+    "status": "active",
+    "displayOrder": 0
+  },
+  {
+    "id": "prog-2",
+    "slug": "ramadan-food-relief",
+    "title": {
+      "bn": "রমজান ইফতার ও খাদ্য সহায়তা",
+      "en": "Ramadan Iftar & Grocery Aid"
+    },
+    "category": "Food Distribution",
+    "shortDescription": {
+      "bn": "দরিদ্র ও দিনমজুর পরিবারের জন্য মাসব্যাপী প্রয়োজনীয় খাদ্যসামগ্রী এবং পুষ্টিকর ইফতার সামগ্রী বিতরণ।",
+      "en": "Providing month-long grocery baskets and wholesome Iftar packages to daily wage earners and struggling families."
+    },
+    "fullDetails": {
+      "bn": "পবিত্র রমজান মাসে স্বল্পআয়ের পরিবারের জন্য চাল, ডাল, তেল, ছোলা, খেজুর ইত্যাদি জরুরি খাদ্যসামগ্রীর সমন্বয়ে তৈরি খাদ্য সহায়তা প্যাকেজ বিতরণ করা হয়।",
+      "en": "Throughout the holy month of Ramadan, Team Infinity delivers curated dry grocery packages (rice, lentils, oil, chickpeas, dates, flour) ensuring low-income families can observe fasting with food security and dignity."
+    },
+    "impactHighlights": {
+      "bn": [
+        "পুষ্টিকর ও প্রয়োজনীয় খাদ্যপণ্যের সমন্বয়ে তৈরি প্যাকেজ",
+        "দিনমজুর, রিকশাচালক ও ছিন্নমূল মানুষের জন্য সম্মিলিত ইফতার আয়োজন",
+        "স্বেচ্ছাসেবকদের সরাসরি তদারকিতে নিরপেক্ষভাবে তালিকা প্রণয়ন ও বিতরণ"
+      ],
+      "en": [
+        "Nutritionally balanced Ramadan grocery hampers",
+        "Community Iftar drives for laborers, rickshaw pullers, and street workers",
+        "Volunteer-managed packing and neighborhood delivery logistics"
+      ]
+    },
+    "imageUrl": "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1200&q=80",
+    "iconName": "Utensils",
     "status": "active",
     "displayOrder": 0
   },
@@ -1978,42 +2027,7 @@ export const INITIAL_PARTNERS: Partner[] = [
   }
 ];
 
-export const INITIAL_VOLUNTEER_APPLICATIONS: VolunteerApplication[] = [
-  {
-    "id": "vol-1",
-    "fullName": "Demo Applicant (Sample for Admin Verification)",
-    "email": "volunteer.sample@example.com",
-    "phone": "+8801700000000",
-    "district": "Dhaka",
-    "upazila": "Dhanmondi",
-    "age": 22,
-    "occupation": "University Student",
-    "bloodGroup": "B+",
-    "skills": [
-      "Event Management",
-      "Photography",
-      "Field Coordination"
-    ],
-    "areasOfInterest": [
-      "Child Welfare",
-      "Eid Campaigns",
-      "Emergency Relief"
-    ],
-    "interests": [
-      "Field Distribution & Relief",
-      "Logistics & Packing"
-    ],
-    "previousExperience": "Organized local campus donation drive.",
-    "availability": "Weekends & Holidays (10-15 hours/month)",
-    "message": "I want to stand with Team Infinity and support vulnerable children in Bangladesh.",
-    "consent": true,
-    "agreedCodeOfConduct": true,
-    "submittedAt": "2025-02-18 14:30",
-    "appliedAt": "2025-02-18 14:30",
-    "status": "Reviewing",
-    "adminNotes": "Sample entry to test admin approval workflow."
-  }
-];
+export const INITIAL_VOLUNTEER_APPLICATIONS: VolunteerApplication[] = [];
 
 export const INITIAL_DONATIONS: DonationRecord[] = [
   {
@@ -2083,7 +2097,7 @@ export const INITIAL_PERSONS: Person[] = [
   {
     "id": "person-1",
     "fullName": "MD. SHAHIDUL ALAM SAKIB",
-    "banglaName": "মোঃ শাহিদুল আলম সাকিব",
+    "banglaName": "মোঃ শহিদুল আলম সাকিব",
     "englishName": "MD. SHAHIDUL ALAM SAKIB",
     "photoUrl": "https://res.cloudinary.com/evj6fhsf/image/upload/v1787464356/nvdp2wahmmvef9d80mzr.jpg",
     "photoPosition": "center top",
@@ -2195,7 +2209,7 @@ export const INITIAL_PERSONS: Person[] = [
   {
     "id": "person-5",
     "fullName": "SALIMUR RAHMAN OPI",
-    "banglaName": "সলিমুর রহমান অপি",
+    "banglaName": "সেলিমুর রহমান অপি",
     "englishName": "SALIMUR RAHMAN OPI",
     "photoUrl": "https://res.cloudinary.com/evj6fhsf/image/upload/v1787423830/kkupeso03vr0eeolqhbx.jpg",
     "photoPosition": "center top",
@@ -2223,7 +2237,7 @@ export const INITIAL_PERSONS: Person[] = [
   {
     "id": "person-6",
     "fullName": "ANAYET ULLAH FARHAD",
-    "banglaName": "এনায়েত উল্লাহ ফারহাদ",
+    "banglaName": "এনায়েত উল্লাহ ফরহাদ",
     "englishName": "ANAYET ULLAH FARHAD",
     "photoUrl": "https://res.cloudinary.com/evj6fhsf/image/upload/v1787460659/vqafuyure9yyp8cwr9x4.jpg",
     "photoPosition": "center top",
@@ -2559,7 +2573,7 @@ export const INITIAL_PERSONS: Person[] = [
   {
     "id": "person-18",
     "fullName": "SHANZIDA SHARMIN",
-    "banglaName": "শানজিদা শারমিন",
+    "banglaName": "সানজিদা শারমিন",
     "englishName": "SHANZIDA SHARMIN",
     "photoUrl": "https://res.cloudinary.com/evj6fhsf/image/upload/v1787461768/svcklx1xn1bclbrwahsp.jpg",
     "photoPosition": "center top",
@@ -2867,7 +2881,7 @@ export const INITIAL_PERSONS: Person[] = [
   {
     "id": "person-sc-2",
     "fullName": "Tamimul Hasib Rimad",
-    "banglaName": "তামীমুল হাসিব রিমাদ",
+    "banglaName": "তামিমুল হাসিব রিমাদ",
     "englishName": "Tamimul Hasib Rimad",
     "photoUrl": "https://res.cloudinary.com/evj6fhsf/image/upload/v1787510798/v1cncnfe5q6ekybwsdiu.jpg",
     "photoPosition": "center top",
@@ -2895,7 +2909,7 @@ export const INITIAL_PERSONS: Person[] = [
   {
     "id": "person-sc-3",
     "fullName": "Shifat Sattar",
-    "banglaName": "শিফাত সাত্তার",
+    "banglaName": "সিফাত সাত্তার",
     "englishName": "Shifat Sattar",
     "photoUrl": "https://res.cloudinary.com/evj6fhsf/image/upload/v1787510774/okvpywmbgvlvnlcrnsp8.jpg",
     "photoPosition": "center top",
@@ -3118,19 +3132,6 @@ export const INITIAL_POSITIONS: Position[] = [
     }
   },
   {
-    "id": "pos-vice-chairman",
-    "name": {
-      "bn": "ভাইস-চেয়ারম্যান",
-      "en": "Vice-Chairman"
-    },
-    "level": 2,
-    "sortOrder": 2,
-    "description": {
-      "bn": "স্থায়ী কমিটির ভাইস-চেয়ারম্যান",
-      "en": "Standing Committee Vice-Chairman"
-    }
-  },
-  {
     "id": "pos-2",
     "name": {
       "bn": "সিনিয়র সহ-সভাপতি",
@@ -3141,6 +3142,19 @@ export const INITIAL_POSITIONS: Position[] = [
     "description": {
       "bn": "",
       "en": ""
+    }
+  },
+  {
+    "id": "pos-vice-chairman",
+    "name": {
+      "bn": "ভাইস-চেয়ারম্যান",
+      "en": "Vice-Chairman"
+    },
+    "level": 2,
+    "sortOrder": 2,
+    "description": {
+      "bn": "স্থায়ী কমিটির ভাইস-চেয়ারম্যান",
+      "en": "Standing Committee Vice-Chairman"
     }
   },
   {
@@ -3368,6 +3382,18 @@ export const INITIAL_POSITIONS: Position[] = [
 
 export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
   {
+    "id": "cm-1",
+    "committeeId": "comm-exec-2026",
+    "personId": "person-1",
+    "positionId": "pos-1",
+    "serialNumber": 1,
+    "sortOrder": 1,
+    "isFeaturedLeader": true,
+    "startDate": "",
+    "endDate": "",
+    "status": "ACTIVE"
+  },
+  {
     "id": "cm-sc-1",
     "committeeId": "comm-stand-central",
     "personId": "person-sc-1",
@@ -3380,8 +3406,8 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "status": "ACTIVE"
   },
   {
-    "id": "cm-1",
-    "committeeId": "comm-exec-2026",
+    "id": "cm-past-24-1",
+    "committeeId": "comm-exec-2024",
     "personId": "person-1",
     "positionId": "pos-1",
     "serialNumber": 1,
@@ -3389,7 +3415,31 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "isFeaturedLeader": true,
     "startDate": "",
     "endDate": "",
+    "status": "ARCHIVED"
+  },
+  {
+    "id": "cm-sc-2",
+    "committeeId": "comm-stand-central",
+    "personId": "person-sc-2",
+    "positionId": "pos-vice-chairman",
+    "serialNumber": 2,
+    "sortOrder": 2,
+    "isFeaturedLeader": true,
+    "startDate": "",
+    "endDate": "",
     "status": "ACTIVE"
+  },
+  {
+    "id": "cm-past-24-2",
+    "committeeId": "comm-exec-2024",
+    "personId": "person-3",
+    "positionId": "pos-3",
+    "serialNumber": 2,
+    "sortOrder": 2,
+    "isFeaturedLeader": true,
+    "startDate": "",
+    "endDate": "",
+    "status": "ARCHIVED"
   },
   {
     "id": "cm-2",
@@ -3404,16 +3454,16 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "status": "ACTIVE"
   },
   {
-    "id": "cm-sc-2",
-    "committeeId": "comm-stand-central",
-    "personId": "person-sc-2",
-    "positionId": "pos-vice-chairman",
-    "serialNumber": 2,
-    "sortOrder": 2,
+    "id": "cm-past-24-3",
+    "committeeId": "comm-exec-2024",
+    "personId": "person-5",
+    "positionId": "pos-4",
+    "serialNumber": 3,
+    "sortOrder": 3,
     "isFeaturedLeader": true,
     "startDate": "",
     "endDate": "",
-    "status": "ACTIVE"
+    "status": "ARCHIVED"
   },
   {
     "id": "cm-sc-3",
@@ -3452,6 +3502,42 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "status": "ACTIVE"
   },
   {
+    "id": "cm-past-25-4",
+    "committeeId": "comm-exec-2025",
+    "personId": "person-5",
+    "positionId": "pos-4",
+    "serialNumber": 4,
+    "sortOrder": 4,
+    "isFeaturedLeader": false,
+    "startDate": "",
+    "endDate": "",
+    "status": "ARCHIVED"
+  },
+  {
+    "id": "cm-past-23-4",
+    "committeeId": "comm-exec-2023",
+    "personId": "person-12",
+    "positionId": "pos-7",
+    "serialNumber": 4,
+    "sortOrder": 4,
+    "isFeaturedLeader": false,
+    "startDate": "",
+    "endDate": "",
+    "status": "ARCHIVED"
+  },
+  {
+    "id": "cm-past-24-4",
+    "committeeId": "comm-exec-2024",
+    "personId": "person-8",
+    "positionId": "pos-8",
+    "serialNumber": 4,
+    "sortOrder": 4,
+    "isFeaturedLeader": false,
+    "startDate": "",
+    "endDate": "",
+    "status": "ARCHIVED"
+  },
+  {
     "id": "cm-4",
     "committeeId": "comm-exec-2026",
     "personId": "person-4",
@@ -3488,18 +3574,6 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "status": "ACTIVE"
   },
   {
-    "id": "cm-6",
-    "committeeId": "comm-exec-2026",
-    "personId": "person-6",
-    "positionId": "pos-5",
-    "serialNumber": 6,
-    "sortOrder": 6,
-    "isFeaturedLeader": false,
-    "startDate": "",
-    "endDate": "",
-    "status": "ACTIVE"
-  },
-  {
     "id": "cm-sc-6",
     "committeeId": "comm-stand-central",
     "personId": "person-sc-6",
@@ -3512,12 +3586,12 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "status": "ACTIVE"
   },
   {
-    "id": "cm-sc-7",
-    "committeeId": "comm-stand-central",
-    "personId": "person-sc-7",
-    "positionId": "pos-member",
-    "serialNumber": 7,
-    "sortOrder": 7,
+    "id": "cm-6",
+    "committeeId": "comm-exec-2026",
+    "personId": "person-6",
+    "positionId": "pos-5",
+    "serialNumber": 6,
+    "sortOrder": 6,
     "isFeaturedLeader": false,
     "startDate": "",
     "endDate": "",
@@ -3528,6 +3602,18 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "committeeId": "comm-exec-2026",
     "personId": "person-7",
     "positionId": "pos-5",
+    "serialNumber": 7,
+    "sortOrder": 7,
+    "isFeaturedLeader": false,
+    "startDate": "",
+    "endDate": "",
+    "status": "ACTIVE"
+  },
+  {
+    "id": "cm-sc-7",
+    "committeeId": "comm-stand-central",
+    "personId": "person-sc-7",
+    "positionId": "pos-member",
     "serialNumber": 7,
     "sortOrder": 7,
     "isFeaturedLeader": false,
@@ -3596,10 +3682,10 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "status": "ACTIVE"
   },
   {
-    "id": "cm-11",
+    "id": "cm-12",
     "committeeId": "comm-exec-2026",
-    "personId": "person-11",
-    "positionId": "pos-6",
+    "personId": "person-12",
+    "positionId": "pos-7",
     "serialNumber": 11,
     "sortOrder": 11,
     "isFeaturedLeader": false,
@@ -3608,10 +3694,10 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "status": "ACTIVE"
   },
   {
-    "id": "cm-12",
+    "id": "cm-11",
     "committeeId": "comm-exec-2026",
-    "personId": "person-12",
-    "positionId": "pos-7",
+    "personId": "person-11",
+    "positionId": "pos-6",
     "serialNumber": 12,
     "sortOrder": 12,
     "isFeaturedLeader": false,
@@ -3632,10 +3718,10 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "status": "ACTIVE"
   },
   {
-    "id": "cm-14",
+    "id": "cm-15",
     "committeeId": "comm-exec-2026",
-    "personId": "person-14",
-    "positionId": "pos-9",
+    "personId": "person-15",
+    "positionId": "pos-8",
     "serialNumber": 14,
     "sortOrder": 14,
     "isFeaturedLeader": false,
@@ -3644,10 +3730,10 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "status": "ACTIVE"
   },
   {
-    "id": "cm-15",
+    "id": "cm-14",
     "committeeId": "comm-exec-2026",
-    "personId": "person-15",
-    "positionId": "pos-8",
+    "personId": "person-14",
+    "positionId": "pos-9",
     "serialNumber": 15,
     "sortOrder": 15,
     "isFeaturedLeader": false,
@@ -3668,10 +3754,10 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "status": "ACTIVE"
   },
   {
-    "id": "cm-17",
+    "id": "cm-18",
     "committeeId": "comm-exec-2026",
-    "personId": "person-17",
-    "positionId": "pos-11",
+    "personId": "person-18",
+    "positionId": "pos-10",
     "serialNumber": 17,
     "sortOrder": 17,
     "isFeaturedLeader": false,
@@ -3680,10 +3766,10 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "status": "ACTIVE"
   },
   {
-    "id": "cm-18",
+    "id": "cm-17",
     "committeeId": "comm-exec-2026",
-    "personId": "person-18",
-    "positionId": "pos-10",
+    "personId": "person-17",
+    "positionId": "pos-11",
     "serialNumber": 18,
     "sortOrder": 18,
     "isFeaturedLeader": false,
@@ -3704,10 +3790,10 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "status": "ACTIVE"
   },
   {
-    "id": "cm-20",
+    "id": "cm-21",
     "committeeId": "comm-exec-2026",
-    "personId": "person-20",
-    "positionId": "pos-13",
+    "personId": "person-21",
+    "positionId": "pos-12",
     "serialNumber": 20,
     "sortOrder": 20,
     "isFeaturedLeader": false,
@@ -3716,10 +3802,10 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "status": "ACTIVE"
   },
   {
-    "id": "cm-21",
+    "id": "cm-20",
     "committeeId": "comm-exec-2026",
-    "personId": "person-21",
-    "positionId": "pos-12",
+    "personId": "person-20",
+    "positionId": "pos-13",
     "serialNumber": 21,
     "sortOrder": 21,
     "isFeaturedLeader": false,

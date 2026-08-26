@@ -13,14 +13,23 @@ import {
   Sparkles,
   ArrowRight,
   MapPin,
-  LayoutGrid
+  LayoutGrid,
+  Edit2,
+  Trash2,
+  RotateCcw,
+  Settings,
+  Eye,
+  EyeOff,
+  Check,
+  X
 } from 'lucide-react';
-import { CommitteeMember, Person, Position } from '../types';
+import { CommitteeMember, Person, Position, ExecutiveTierBar } from '../types';
+import { DEFAULT_EXECUTIVE_TIER_BARS } from '../data/initialData';
 import { getAssetUrl, handleImageError } from '../lib/utils/assetHelper';
 
 export const ExecutiveCommitteePage: React.FC = () => {
   const { isBn, tText } = useLanguage();
-  const { committees, getMembersWithDetails } = useData();
+  const { committees, getMembersWithDetails, settings, updateSettings } = useData();
 
   const activeExecCommittee =
     committees.find(c => c.type === 'EXECUTIVE' && c.status === 'ACTIVE') ||
@@ -30,9 +39,118 @@ export const ExecutiveCommitteePage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMember, setSelectedMember] = useState<(CommitteeMember & { person: Person; position: Position }) | null>(null);
 
+  // Section / Tier Bar Editing State
+  const [editingTierBar, setEditingTierBar] = useState<ExecutiveTierBar | null>(null);
+  const [isEditingTierModalOpen, setIsEditingTierModalOpen] = useState(false);
+
   const committeeIdToUse = selectedCommitteeId || activeExecCommittee?.id || 'comm-exec-2026';
   const currentCommittee = committees.find(c => c.id === committeeIdToUse) || activeExecCommittee;
   const allMembers = getMembersWithDetails(committeeIdToUse);
+
+  // Dynamic Tier Bars configuration from settings with fallbacks
+  const tierBars: ExecutiveTierBar[] = settings.executiveTierBars && settings.executiveTierBars.length > 0
+    ? settings.executiveTierBars
+    : DEFAULT_EXECUTIVE_TIER_BARS;
+
+  const getTierBar = (id: string, defaultEn: string, defaultBn: string, rangeLabel?: string): ExecutiveTierBar => {
+    const found = tierBars.find(b => b.id === id);
+    if (!found) {
+      return {
+        id,
+        title: { en: defaultEn, bn: defaultBn },
+        visible: true,
+        rangeLabel
+      };
+    }
+    return {
+      ...found,
+      title: {
+        en: found.title?.en ?? defaultEn,
+        bn: found.title?.bn ?? defaultBn
+      },
+      visible: found.visible !== false,
+      rangeLabel: found.rangeLabel || rangeLabel
+    };
+  };
+
+  const handleSaveTierBar = (bar: ExecutiveTierBar) => {
+    const currentList = settings.executiveTierBars && settings.executiveTierBars.length > 0
+      ? [...settings.executiveTierBars]
+      : [...DEFAULT_EXECUTIVE_TIER_BARS];
+    const idx = currentList.findIndex(b => b.id === bar.id);
+    if (idx >= 0) {
+      currentList[idx] = bar;
+    } else {
+      currentList.push(bar);
+    }
+    updateSettings({ executiveTierBars: currentList });
+    setIsEditingTierModalOpen(false);
+    setEditingTierBar(null);
+  };
+
+  const handleDeleteTierBar = (id: string) => {
+    const currentList = settings.executiveTierBars && settings.executiveTierBars.length > 0
+      ? [...settings.executiveTierBars]
+      : [...DEFAULT_EXECUTIVE_TIER_BARS];
+    const updated = currentList.map(b => b.id === id ? { ...b, visible: false } : b);
+    updateSettings({ executiveTierBars: updated });
+    setIsEditingTierModalOpen(false);
+    setEditingTierBar(null);
+  };
+
+  const handleRestoreTierBars = () => {
+    updateSettings({ executiveTierBars: DEFAULT_EXECUTIVE_TIER_BARS });
+  };
+
+  const renderTierBar = (
+    bar: ExecutiveTierBar,
+    defaultEn: string,
+    defaultBn: string,
+    accentColor?: 'green' | 'red' | 'default'
+  ) => {
+    if (!bar.visible) return null;
+
+    const colorClasses = accentColor === 'green'
+      ? 'text-[#00523C] bg-[#E6F3EF] border-[#C2E2D7]'
+      : accentColor === 'red'
+      ? 'text-[#B31224] bg-[#FDF1F2] border-[#FCD3D7]'
+      : 'text-slate-700 bg-[#FAF7F2] border-[#EAE3D9]';
+
+    return (
+      <div className="text-center group/tierbar relative flex items-center justify-center gap-1.5 mx-auto">
+        <span className={`text-[11px] font-extrabold uppercase tracking-widest px-3.5 py-1 rounded-full border shadow-2xs transition-all ${colorClasses}`}>
+          {isBn ? bar.title.bn : bar.title.en}
+        </span>
+
+        {/* Quick Edit & Delete Actions */}
+        <div className="inline-flex items-center gap-1 opacity-0 group-hover/tierbar:opacity-100 transition-opacity">
+          <button
+            type="button"
+            onClick={() => {
+              setEditingTierBar({ ...bar });
+              setIsEditingTierModalOpen(true);
+            }}
+            className="p-1 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 hover:text-[#006A4E] shadow-2xs transition-colors cursor-pointer"
+            title={isBn ? 'এই সেকশন বার সম্পাদনা করুন' : 'Edit Section Bar'}
+          >
+            <Edit2 className="w-3 h-3" />
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              if (confirm(isBn ? `আপনি কি "${bar.title.bn || bar.title.en}" বারটি লুকাতে/মুছতে চান?` : `Hide/Delete the "${bar.title.en}" section bar?`)) {
+                handleDeleteTierBar(bar.id);
+              }
+            }}
+            className="p-1 rounded-lg bg-white border border-rose-200 hover:bg-rose-50 text-rose-500 hover:text-rose-700 shadow-2xs transition-colors cursor-pointer"
+            title={isBn ? 'এই সেকশন বার মুছে ফেলুন' : 'Delete/Hide Section Bar'}
+          >
+            <Trash2 className="w-3 h-3" />
+          </button>
+        </div>
+      </div>
+    );
+  };
 
   // Sort members by serial number / sort order
   const sortedMembers = [...allMembers].sort(
@@ -253,11 +371,12 @@ export const ExecutiveCommitteePage: React.FC = () => {
               {/* TIER 1: PRESIDENT (#1) */}
               {member1 && (
                 <div className="space-y-4 pt-2">
-                  <div className="text-center">
-                    <span className="text-[11px] font-extrabold uppercase tracking-widest text-[#00523C] bg-[#E6F3EF] px-3.5 py-1 rounded-full border border-[#C2E2D7]">
-                      {isBn ? 'প্রধান নেতৃত্ব' : 'Presidential Leadership'}
-                    </span>
-                  </div>
+                  {renderTierBar(
+                    getTierBar('presidential', 'Presidential Leadership', 'সভাপতি পরিষদ', 'Member #01'),
+                    'Presidential Leadership',
+                    'সভাপতি পরিষদ',
+                    'green'
+                  )}
 
                   <div className="flex justify-center">
                     <div
@@ -310,11 +429,11 @@ export const ExecutiveCommitteePage: React.FC = () => {
               {/* TIER 2: SENIOR VICE PRESIDENT & VICE PRESIDENTS (#2–#4) */}
               {members2to4.length > 0 && (
                 <div className="space-y-4 pt-4">
-                  <div className="text-center">
-                    <span className="text-[11px] font-extrabold uppercase tracking-widest text-slate-700 bg-[#FAF7F2] px-3.5 py-1 rounded-full border border-[#EAE3D9]">
-                      {isBn ? 'সহ-সভাপতি পরিষদ' : 'Vice Presidential Leadership'}
-                    </span>
-                  </div>
+                  {renderTierBar(
+                    getTierBar('vicePresidential', 'Vice Presidential Leadership', 'সহ-সভাপতি পরিষদ', 'Members #02–#04'),
+                    'Vice Presidential Leadership',
+                    'সহ-সভাপতি পরিষদ'
+                  )}
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
                     {members2to4.map(m => (
@@ -361,11 +480,12 @@ export const ExecutiveCommitteePage: React.FC = () => {
               {/* TIER 3: GENERAL SECRETARY (#5) */}
               {member5 && (
                 <div className="space-y-4 pt-4">
-                  <div className="text-center">
-                    <span className="text-[11px] font-extrabold uppercase tracking-widest text-[#B31224] bg-[#FDF1F2] px-3.5 py-1 rounded-full border border-[#FCD3D7]">
-                      {isBn ? 'সাধারণ সম্পাদক' : 'Secretariat Leadership'}
-                    </span>
-                  </div>
+                  {renderTierBar(
+                    getTierBar('secretariat', 'Secretariat Leadership', 'সাধারণ সম্পাদক', 'Member #05'),
+                    'Secretariat Leadership',
+                    'সাধারণ সম্পাদক',
+                    'red'
+                  )}
 
                   <div className="flex justify-center">
                     <div
@@ -421,11 +541,11 @@ export const ExecutiveCommitteePage: React.FC = () => {
             {/* ============================================================ */}
             {members6to10.length > 0 && (
               <div className="executive-five space-y-4 pt-6 border-t border-slate-100">
-                <div className="text-center">
-                  <span className="text-[11px] font-extrabold uppercase tracking-widest text-slate-700 bg-[#FAF7F2] px-3.5 py-1 rounded-full border border-[#EAE3D9]">
-                    {isBn ? 'যুগ্ম সাধারণ সম্পাদক পরিষদ' : 'Joint General Secretariat'}
-                  </span>
-                </div>
+                {renderTierBar(
+                  getTierBar('jointSecretariat', 'Joint General Secretariat', 'যুগ্ম সাধারণ সম্পাদক পরিষদ', 'Members #06–#10'),
+                  'Joint General Secretariat',
+                  'যুগ্ম সাধারণ সম্পাদক পরিষদ'
+                )}
 
                 <div className="flex flex-wrap lg:flex-nowrap justify-center items-start gap-3 sm:gap-3.5 lg:gap-4 max-w-5xl mx-auto">
                   {members6to10.map(m => (
@@ -479,11 +599,11 @@ export const ExecutiveCommitteePage: React.FC = () => {
             {/* ============================================================ */}
             {section3Items.length > 0 && (
               <div className="executive-six-a space-y-4 pt-6 border-t border-slate-100">
-                <div className="text-center">
-                  <span className="text-[11px] font-extrabold uppercase tracking-widest text-slate-700 bg-[#FAF7F2] px-3.5 py-1 rounded-full border border-[#EAE3D9]">
-                    {isBn ? 'সাংগঠনিক ও অর্থ বিভাগ' : 'Organizing & Finance Secretariat'}
-                  </span>
-                </div>
+                {renderTierBar(
+                  getTierBar('organizingFinance', 'Organizing & Finance Secretariat', 'সাংগঠনিক ও অর্থ বিভাগ', 'Members #11–#16'),
+                  'Organizing & Finance Secretariat',
+                  'সাংগঠনিক ও অর্থ বিভাগ'
+                )}
 
                 <div className="flex flex-wrap lg:flex-nowrap justify-center items-center gap-2.5 sm:gap-3 lg:gap-3.5 xl:gap-4 max-w-6xl mx-auto">
                   {section3Items.map(({ member: m, isHighlighted }) => (
@@ -565,11 +685,11 @@ export const ExecutiveCommitteePage: React.FC = () => {
             {/* ============================================================ */}
             {section4Items.length > 0 && (
               <div className="executive-six-b space-y-4 pt-6 border-t border-slate-100">
-                <div className="text-center">
-                  <span className="text-[11px] font-extrabold uppercase tracking-widest text-slate-700 bg-[#FAF7F2] px-3.5 py-1 rounded-full border border-[#EAE3D9]">
-                    {isBn ? 'প্রচার, তথ্য ও প্রযুক্তি বিভাগ' : 'Publicity, Media & IT Secretariat'}
-                  </span>
-                </div>
+                {renderTierBar(
+                  getTierBar('publicityMediaIt', 'Publicity, Media & IT Secretariat', 'প্রচার, তথ্য ও প্রযুক্তি বিভাগ', 'Members #17–#22'),
+                  'Publicity, Media & IT Secretariat',
+                  'প্রচার, তথ্য ও প্রযুক্তি বিভাগ'
+                )}
 
                 <div className="flex flex-wrap lg:flex-nowrap justify-center items-center gap-2.5 sm:gap-3 lg:gap-3.5 xl:gap-4 max-w-6xl mx-auto">
                   {section4Items.map(({ member: m, isHighlighted }) => (
@@ -651,11 +771,11 @@ export const ExecutiveCommitteePage: React.FC = () => {
             {/* ============================================================ */}
             {members23Plus.length > 0 && (
               <div className="executive-supporting space-y-4 pt-6 border-t border-slate-100">
-                <div className="text-center">
-                  <span className="text-[11px] font-extrabold uppercase tracking-widest text-slate-700 bg-[#FAF7F2] px-3.5 py-1 rounded-full border border-[#EAE3D9]">
-                    {isBn ? 'বিভাগীয় সম্পাদক ও কার্যনির্বাহী সদস্যবৃন্দ' : 'Departmental Secretaries & Executive Members'}
-                  </span>
-                </div>
+                {renderTierBar(
+                  getTierBar('departmentalExecutive', 'Departmental Secretaries & Executive Members', 'বিভাগীয় সম্পাদক ও কার্যনির্বাহী সদস্যবৃন্দ', 'Members #23+'),
+                  'Departmental Secretaries & Executive Members',
+                  'বিভাগীয় সম্পাদক ও কার্যনির্বাহী সদস্যবৃন্দ'
+                )}
 
                 <div className="flex flex-wrap justify-center items-start gap-3 sm:gap-3.5 lg:gap-4 max-w-5xl mx-auto">
                   {members23Plus.map(m => (
@@ -705,6 +825,144 @@ export const ExecutiveCommitteePage: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Quick Tier Bar Edit/Delete Modal */}
+      {isEditingTierModalOpen && editingTierBar && (
+        <div
+          className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4"
+          onClick={() => setIsEditingTierModalOpen(false)}
+        >
+          <div
+            className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 space-y-5 shadow-2xl border border-slate-200 relative animate-in fade-in zoom-in-95"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-[#E6F3EF] text-[#006A4E] flex items-center justify-center font-bold">
+                  <Edit2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-base text-slate-900 font-display">
+                    {isBn ? 'সেকশন ও টিয়ার বার সম্পাদনা' : 'Edit Committee Section Bar'}
+                  </h3>
+                  <p className="text-[11px] text-slate-500 font-mono">
+                    {editingTierBar.rangeLabel || editingTierBar.id}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsEditingTierModalOpen(false)}
+                className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSaveTierBar(editingTierBar);
+              }}
+              className="space-y-4"
+            >
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700 block">
+                  {isBn ? 'সেকশন শিরোনাম (English)' : 'Section Bar Title (English)'}
+                </label>
+                <input
+                  type="text"
+                  value={editingTierBar.title.en}
+                  onChange={(e) => setEditingTierBar({
+                    ...editingTierBar,
+                    title: { ...editingTierBar.title, en: e.target.value }
+                  })}
+                  placeholder="e.g. JOINT GENERAL SECRETARIAT"
+                  className="w-full px-3.5 py-2.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs sm:text-sm font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#006A4E]"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-700 block font-bengali">
+                  {isBn ? 'সেকশন শিরোনাম (বাংলা)' : 'Section Bar Title (Bengali)'}
+                </label>
+                <input
+                  type="text"
+                  value={editingTierBar.title.bn}
+                  onChange={(e) => setEditingTierBar({
+                    ...editingTierBar,
+                    title: { ...editingTierBar.title, bn: e.target.value }
+                  })}
+                  placeholder="যেমন: যুগ্ম সাধারণ সম্পাদক পরিষদ"
+                  className="w-full px-3.5 py-2.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs sm:text-sm font-bengali font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#006A4E]"
+                  required
+                />
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] flex items-center justify-between gap-3">
+                <div className="space-y-0.5">
+                  <span className="text-xs font-bold text-slate-800 block">
+                    {isBn ? 'সেকশন বারের দৃশ্যমানতা' : 'Section Bar Visibility'}
+                  </span>
+                  <p className="text-[11px] text-slate-500">
+                    {editingTierBar.visible
+                      ? (isBn ? 'এই বারটি পেজে প্রদর্শিত হচ্ছে।' : 'This pill bar is currently visible on the page.')
+                      : (isBn ? 'এই বারটি পেজে লুকানো/মুছে ফেলা হয়েছে।' : 'This pill bar is currently hidden/deleted.')}
+                  </p>
+                </div>
+
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={editingTierBar.visible !== false}
+                    onChange={(e) => setEditingTierBar({
+                      ...editingTierBar,
+                      visible: e.target.checked
+                    })}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#006A4E]"></div>
+                </label>
+              </div>
+
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (confirm(isBn ? 'আপনি কি এই সেকশন বারটি লুকাতে/মুছতে চান?' : 'Delete / Hide this section bar?')) {
+                      handleDeleteTierBar(editingTierBar.id);
+                    }
+                  }}
+                  className="px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>{isBn ? 'বার মুছে ফেলুন' : 'Delete / Hide Bar'}</span>
+                </button>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditingTierModalOpen(false)}
+                    className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer transition-colors"
+                  >
+                    {isBn ? 'বাতিল' : 'Cancel'}
+                  </button>
+
+                  <button
+                    type="submit"
+                    className="px-5 py-2 rounded-xl bg-[#006A4E] hover:bg-[#00523C] text-white text-xs font-extrabold shadow-warm-xs flex items-center gap-1.5 cursor-pointer transition-colors"
+                  >
+                    <Check className="w-3.5 h-3.5" />
+                    <span>{isBn ? 'সংরক্ষণ করুন' : 'Save Changes'}</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Member Details Modal */}
       {selectedMember && (

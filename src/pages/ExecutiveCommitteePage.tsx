@@ -194,45 +194,45 @@ export const ExecutiveCommitteePage: React.FC = () => {
             </div>
 
             {searchResults.length > 0 ? (
-              <div className="flex flex-wrap justify-center gap-3.5 sm:gap-4 max-w-5xl mx-auto">
+              <div className="flex flex-wrap justify-center items-start gap-3 sm:gap-3.5 lg:gap-4 max-w-5xl mx-auto">
                 {searchResults.map(m => (
                   <div
                     key={m.id}
                     onClick={() => setSelectedMember(m)}
-                    className="group cursor-pointer bg-[#FAF7F2] hover:bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-4 text-center border border-[#EAE3D9] hover:border-[#006A4E] hover:shadow-warm-md transition-all relative flex flex-col justify-between w-full max-w-[155px] sm:max-w-[170px] lg:max-w-[165px] xl:max-w-[175px] min-h-[210px] sm:min-h-[235px] flex-shrink-0"
+                    className="group cursor-pointer bg-[#FAF7F2] hover:bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-3.5 text-center border border-[#EAE3D9] hover:border-[#006A4E] hover:shadow-warm-md transition-all relative flex flex-col items-center w-full max-w-[155px] sm:max-w-[170px] lg:max-w-[175px] xl:max-w-[185px] flex-shrink-0"
                   >
-                    <div className="absolute top-2.5 right-2.5 bg-white text-slate-700 font-mono font-bold text-[10px] px-1.5 py-0.5 rounded-full border border-slate-200 shadow-2xs">
+                    <div className="absolute top-2 right-2 bg-white text-slate-700 font-mono font-bold text-[10px] px-1.5 py-0.5 rounded-full border border-slate-200 shadow-2xs">
                       #{String(m.serialNumber).padStart(2, '0')}
                     </div>
 
-                    <div>
-                      <div className="mx-auto w-16 h-20 sm:w-20 sm:h-24 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2.5 flex items-center justify-center shadow-xs">
-                        {m.person.photoUrl ? (
-                          <img
-                            src={getAssetUrl(m.person.photoUrl)}
-                            alt={m.person.fullName}
-                            className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
-                            style={{
-                              objectPosition: m.person.photoPosition || 'center 15%',
-                              transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
-                            }}
-                            onError={handleImageError}
-                            loading="lazy"
-                          />
-                        ) : (
-                          <Users className="w-8 h-8 text-rose-200/70" />
-                        )}
-                      </div>
-
-                      <h4 className="text-xs sm:text-sm font-bold text-slate-900 leading-snug group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words">
-                        {isBn ? m.person.banglaName : m.person.fullName}
-                      </h4>
+                    <div className="w-16 h-20 sm:w-20 sm:h-24 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2 sm:mb-2.5 flex items-center justify-center shadow-xs flex-shrink-0">
+                      {m.person.photoUrl ? (
+                        <img
+                          src={getAssetUrl(m.person.photoUrl)}
+                          alt={m.person.fullName}
+                          className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
+                          style={{
+                            objectPosition: m.person.photoPosition || 'center 15%',
+                            transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
+                          }}
+                          onError={handleImageError}
+                          loading="lazy"
+                        />
+                      ) : (
+                        <Users className="w-8 h-8 text-rose-200/70" />
+                      )}
                     </div>
 
-                    <div className="mt-2 pt-2 border-t border-slate-200/60">
-                      <span className="text-[10px] sm:text-[11px] font-semibold text-slate-600 line-clamp-2 leading-tight">
-                        {isBn ? m.position.name.bn : m.position.name.en}
-                      </span>
+                    <div className="w-full">
+                      <h4 className="text-xs sm:text-[13px] lg:text-[13.5px] font-bold text-slate-900 leading-tight group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words">
+                        {isBn ? m.person.banglaName : m.person.fullName}
+                      </h4>
+
+                      <div className="mt-1.5 pt-1.5 border-t border-slate-200/70">
+                        <span className="text-[10.5px] sm:text-[11.5px] font-semibold text-slate-600 line-clamp-2 leading-tight block break-words">
+                          {isBn ? m.position.name.bn : m.position.name.en}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -427,45 +427,45 @@ export const ExecutiveCommitteePage: React.FC = () => {
                   </span>
                 </div>
 
-                <div className="flex flex-wrap lg:flex-nowrap justify-center items-stretch gap-3 sm:gap-3.5 lg:gap-4 max-w-5xl mx-auto">
+                <div className="flex flex-wrap lg:flex-nowrap justify-center items-start gap-3 sm:gap-3.5 lg:gap-4 max-w-5xl mx-auto">
                   {members6to10.map(m => (
                     <div
                       key={m.id}
                       onClick={() => setSelectedMember(m)}
-                      className="group cursor-pointer bg-[#FAF7F2] hover:bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-4 text-center border border-[#EAE3D9] hover:border-[#006A4E] hover:shadow-warm-md transition-all relative flex flex-col justify-between w-full max-w-[155px] sm:max-w-[170px] lg:max-w-[175px] xl:max-w-[185px] min-h-[210px] sm:min-h-[235px] flex-shrink-0"
+                      className="group cursor-pointer bg-[#FAF7F2] hover:bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-3.5 text-center border border-[#EAE3D9] hover:border-[#006A4E] hover:shadow-warm-md transition-all relative flex flex-col items-center w-full max-w-[155px] sm:max-w-[170px] lg:max-w-[175px] xl:max-w-[185px] flex-shrink-0"
                     >
-                      <div className="absolute top-2.5 right-2.5 bg-white text-slate-700 font-mono font-bold text-[10px] px-1.5 py-0.5 rounded-full border border-slate-200 shadow-2xs">
+                      <div className="absolute top-2 right-2 bg-white text-slate-700 font-mono font-bold text-[10px] px-1.5 py-0.5 rounded-full border border-slate-200 shadow-2xs">
                         #{String(m.serialNumber).padStart(2, '0')}
                       </div>
 
-                      <div>
-                        <div className="mx-auto w-16 h-20 sm:w-20 sm:h-24 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2.5 flex items-center justify-center shadow-xs">
-                          {m.person.photoUrl ? (
-                            <img
-                              src={getAssetUrl(m.person.photoUrl)}
-                              alt={m.person.fullName}
-                              className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
-                              style={{
-                                objectPosition: m.person.photoPosition || 'center 15%',
-                                transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
-                              }}
-                              onError={handleImageError}
-                              loading="lazy"
-                            />
-                          ) : (
-                            <Users className="w-8 h-8 text-rose-200/70" />
-                          )}
-                        </div>
-
-                        <h4 className="text-xs sm:text-sm font-bold text-slate-900 leading-snug group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words">
-                          {isBn ? m.person.banglaName : m.person.fullName}
-                        </h4>
+                      <div className="w-16 h-20 sm:w-20 sm:h-24 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2 sm:mb-2.5 flex items-center justify-center shadow-xs flex-shrink-0">
+                        {m.person.photoUrl ? (
+                          <img
+                            src={getAssetUrl(m.person.photoUrl)}
+                            alt={m.person.fullName}
+                            className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
+                            style={{
+                              objectPosition: m.person.photoPosition || 'center 15%',
+                              transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
+                            }}
+                            onError={handleImageError}
+                            loading="lazy"
+                          />
+                        ) : (
+                          <Users className="w-8 h-8 text-rose-200/70" />
+                        )}
                       </div>
 
-                      <div className="mt-2 pt-2 border-t border-slate-200/60">
-                        <span className="text-[10px] sm:text-[11px] font-semibold text-slate-600 line-clamp-2 leading-tight">
-                          {isBn ? m.position.name.bn : m.position.name.en}
-                        </span>
+                      <div className="w-full">
+                        <h4 className="text-xs sm:text-[13px] lg:text-[13.5px] font-bold text-slate-900 leading-tight group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words">
+                          {isBn ? m.person.banglaName : m.person.fullName}
+                        </h4>
+
+                        <div className="mt-1.5 pt-1.5 border-t border-slate-200/70">
+                          <span className="text-[10.5px] sm:text-[11.5px] font-semibold text-slate-600 line-clamp-2 leading-tight block break-words">
+                            {isBn ? m.position.name.bn : m.position.name.en}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -492,66 +492,66 @@ export const ExecutiveCommitteePage: React.FC = () => {
                       onClick={() => setSelectedMember(m)}
                       className={
                         isHighlighted
-                          ? 'group cursor-pointer bg-white hover:bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 text-center border-2 border-[#006A4E]/50 hover:border-[#006A4E] shadow-warm-md hover:shadow-warm-lg transition-all relative flex flex-col justify-between w-full max-w-[180px] sm:max-w-[195px] lg:max-w-[188px] xl:max-w-[200px] min-h-[230px] sm:min-h-[255px] flex-shrink-0'
-                          : 'group cursor-pointer bg-[#FAF7F2] hover:bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-4 text-center border border-[#EAE3D9] hover:border-[#006A4E] hover:shadow-warm-md transition-all relative flex flex-col justify-between w-full max-w-[155px] sm:max-w-[170px] lg:max-w-[160px] xl:max-w-[170px] min-h-[210px] sm:min-h-[235px] flex-shrink-0'
+                          ? 'group cursor-pointer bg-white hover:bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 text-center border-2 border-[#006A4E]/50 hover:border-[#006A4E] shadow-warm-md hover:shadow-warm-lg transition-all relative flex flex-col items-center w-full max-w-[175px] sm:max-w-[190px] lg:max-w-[184px] xl:max-w-[195px] flex-shrink-0'
+                          : 'group cursor-pointer bg-[#FAF7F2] hover:bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-3.5 text-center border border-[#EAE3D9] hover:border-[#006A4E] hover:shadow-warm-md transition-all relative flex flex-col items-center w-full max-w-[150px] sm:max-w-[165px] lg:max-w-[158px] xl:max-w-[168px] flex-shrink-0'
                       }
                     >
                       <div
                         className={
                           isHighlighted
                             ? 'absolute top-2.5 right-2.5 bg-[#E6F3EF] text-[#00523C] font-mono font-bold text-[11px] px-2 py-0.5 rounded-full border border-[#C2E2D7] shadow-2xs'
-                            : 'absolute top-2.5 right-2.5 bg-white text-slate-700 font-mono font-bold text-[10px] px-1.5 py-0.5 rounded-full border border-slate-200 shadow-2xs'
+                            : 'absolute top-2 right-2 bg-white text-slate-700 font-mono font-bold text-[10px] px-1.5 py-0.5 rounded-full border border-slate-200 shadow-2xs'
                         }
                       >
                         #{String(m.serialNumber).padStart(2, '0')}
                       </div>
 
-                      <div>
-                        <div
-                          className={
-                            isHighlighted
-                              ? 'mx-auto w-20 h-24 sm:w-24 sm:h-28 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2.5 flex items-center justify-center shadow-xs'
-                              : 'mx-auto w-16 h-20 sm:w-20 sm:h-24 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2.5 flex items-center justify-center shadow-xs'
-                          }
-                        >
-                          {m.person.photoUrl ? (
-                            <img
-                              src={getAssetUrl(m.person.photoUrl)}
-                              alt={m.person.fullName}
-                              className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
-                              style={{
-                                objectPosition: m.person.photoPosition || 'center 15%',
-                                transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
-                              }}
-                              onError={handleImageError}
-                              loading="lazy"
-                            />
-                          ) : (
-                            <Users className={isHighlighted ? 'w-9 h-9 text-rose-200/70' : 'w-8 h-8 text-rose-200/70'} />
-                          )}
-                        </div>
+                      <div
+                        className={
+                          isHighlighted
+                            ? 'w-20 h-24 sm:w-24 sm:h-28 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2 sm:mb-2.5 flex items-center justify-center shadow-xs flex-shrink-0'
+                            : 'w-16 h-20 sm:w-20 sm:h-24 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2 sm:mb-2.5 flex items-center justify-center shadow-xs flex-shrink-0'
+                        }
+                      >
+                        {m.person.photoUrl ? (
+                          <img
+                            src={getAssetUrl(m.person.photoUrl)}
+                            alt={m.person.fullName}
+                            className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
+                            style={{
+                              objectPosition: m.person.photoPosition || 'center 15%',
+                              transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
+                            }}
+                            onError={handleImageError}
+                            loading="lazy"
+                          />
+                        ) : (
+                          <Users className={isHighlighted ? 'w-9 h-9 text-rose-200/70' : 'w-8 h-8 text-rose-200/70'} />
+                        )}
+                      </div>
 
+                      <div className="w-full">
                         <h4
                           className={
                             isHighlighted
-                              ? 'text-sm sm:text-[15px] font-extrabold text-slate-900 leading-snug group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words'
-                              : 'text-xs sm:text-sm font-bold text-slate-900 leading-snug group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words'
+                              ? 'text-sm sm:text-[14.5px] lg:text-[15px] font-extrabold text-slate-900 leading-tight group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words'
+                              : 'text-xs sm:text-[13px] lg:text-[13.5px] font-bold text-slate-900 leading-tight group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words'
                           }
                         >
                           {isBn ? m.person.banglaName : m.person.fullName}
                         </h4>
-                      </div>
 
-                      <div className={isHighlighted ? 'mt-2 pt-2 border-t border-[#006A4E]/20' : 'mt-2 pt-2 border-t border-slate-200/60'}>
-                        <span
-                          className={
-                            isHighlighted
-                              ? 'text-[10px] sm:text-[11px] font-bold text-[#006A4E] line-clamp-2 leading-tight'
-                              : 'text-[10px] sm:text-[11px] font-semibold text-slate-600 line-clamp-2 leading-tight'
-                          }
-                        >
-                          {isBn ? m.position.name.bn : m.position.name.en}
-                        </span>
+                        <div className={isHighlighted ? 'mt-1.5 pt-1.5 border-t border-[#006A4E]/20' : 'mt-1.5 pt-1.5 border-t border-slate-200/70'}>
+                          <span
+                            className={
+                              isHighlighted
+                                ? 'text-[11px] sm:text-[12px] font-bold text-[#006A4E] line-clamp-2 leading-tight block break-words'
+                                : 'text-[10.5px] sm:text-[11.5px] font-semibold text-slate-600 line-clamp-2 leading-tight block break-words'
+                            }
+                          >
+                            {isBn ? m.position.name.bn : m.position.name.en}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -578,66 +578,66 @@ export const ExecutiveCommitteePage: React.FC = () => {
                       onClick={() => setSelectedMember(m)}
                       className={
                         isHighlighted
-                          ? 'group cursor-pointer bg-white hover:bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 text-center border-2 border-[#006A4E]/50 hover:border-[#006A4E] shadow-warm-md hover:shadow-warm-lg transition-all relative flex flex-col justify-between w-full max-w-[180px] sm:max-w-[195px] lg:max-w-[188px] xl:max-w-[200px] min-h-[230px] sm:min-h-[255px] flex-shrink-0'
-                          : 'group cursor-pointer bg-[#FAF7F2] hover:bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-4 text-center border border-[#EAE3D9] hover:border-[#006A4E] hover:shadow-warm-md transition-all relative flex flex-col justify-between w-full max-w-[155px] sm:max-w-[170px] lg:max-w-[160px] xl:max-w-[170px] min-h-[210px] sm:min-h-[235px] flex-shrink-0'
+                          ? 'group cursor-pointer bg-white hover:bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 text-center border-2 border-[#006A4E]/50 hover:border-[#006A4E] shadow-warm-md hover:shadow-warm-lg transition-all relative flex flex-col items-center w-full max-w-[175px] sm:max-w-[190px] lg:max-w-[184px] xl:max-w-[195px] flex-shrink-0'
+                          : 'group cursor-pointer bg-[#FAF7F2] hover:bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-3.5 text-center border border-[#EAE3D9] hover:border-[#006A4E] hover:shadow-warm-md transition-all relative flex flex-col items-center w-full max-w-[150px] sm:max-w-[165px] lg:max-w-[158px] xl:max-w-[168px] flex-shrink-0'
                       }
                     >
                       <div
                         className={
                           isHighlighted
                             ? 'absolute top-2.5 right-2.5 bg-[#E6F3EF] text-[#00523C] font-mono font-bold text-[11px] px-2 py-0.5 rounded-full border border-[#C2E2D7] shadow-2xs'
-                            : 'absolute top-2.5 right-2.5 bg-white text-slate-700 font-mono font-bold text-[10px] px-1.5 py-0.5 rounded-full border border-slate-200 shadow-2xs'
+                            : 'absolute top-2 right-2 bg-white text-slate-700 font-mono font-bold text-[10px] px-1.5 py-0.5 rounded-full border border-slate-200 shadow-2xs'
                         }
                       >
                         #{String(m.serialNumber).padStart(2, '0')}
                       </div>
 
-                      <div>
-                        <div
-                          className={
-                            isHighlighted
-                              ? 'mx-auto w-20 h-24 sm:w-24 sm:h-28 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2.5 flex items-center justify-center shadow-xs'
-                              : 'mx-auto w-16 h-20 sm:w-20 sm:h-24 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2.5 flex items-center justify-center shadow-xs'
-                          }
-                        >
-                          {m.person.photoUrl ? (
-                            <img
-                              src={getAssetUrl(m.person.photoUrl)}
-                              alt={m.person.fullName}
-                              className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
-                              style={{
-                                objectPosition: m.person.photoPosition || 'center 15%',
-                                transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
-                              }}
-                              onError={handleImageError}
-                              loading="lazy"
-                            />
-                          ) : (
-                            <Users className={isHighlighted ? 'w-9 h-9 text-rose-200/70' : 'w-8 h-8 text-rose-200/70'} />
-                          )}
-                        </div>
+                      <div
+                        className={
+                          isHighlighted
+                            ? 'w-20 h-24 sm:w-24 sm:h-28 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2 sm:mb-2.5 flex items-center justify-center shadow-xs flex-shrink-0'
+                            : 'w-16 h-20 sm:w-20 sm:h-24 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2 sm:mb-2.5 flex items-center justify-center shadow-xs flex-shrink-0'
+                        }
+                      >
+                        {m.person.photoUrl ? (
+                          <img
+                            src={getAssetUrl(m.person.photoUrl)}
+                            alt={m.person.fullName}
+                            className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
+                            style={{
+                              objectPosition: m.person.photoPosition || 'center 15%',
+                              transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
+                            }}
+                            onError={handleImageError}
+                            loading="lazy"
+                          />
+                        ) : (
+                          <Users className={isHighlighted ? 'w-9 h-9 text-rose-200/70' : 'w-8 h-8 text-rose-200/70'} />
+                        )}
+                      </div>
 
+                      <div className="w-full">
                         <h4
                           className={
                             isHighlighted
-                              ? 'text-sm sm:text-[15px] font-extrabold text-slate-900 leading-snug group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words'
-                              : 'text-xs sm:text-sm font-bold text-slate-900 leading-snug group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words'
+                              ? 'text-sm sm:text-[14.5px] lg:text-[15px] font-extrabold text-slate-900 leading-tight group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words'
+                              : 'text-xs sm:text-[13px] lg:text-[13.5px] font-bold text-slate-900 leading-tight group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words'
                           }
                         >
                           {isBn ? m.person.banglaName : m.person.fullName}
                         </h4>
-                      </div>
 
-                      <div className={isHighlighted ? 'mt-2 pt-2 border-t border-[#006A4E]/20' : 'mt-2 pt-2 border-t border-slate-200/60'}>
-                        <span
-                          className={
-                            isHighlighted
-                              ? 'text-[10px] sm:text-[11px] font-bold text-[#006A4E] line-clamp-2 leading-tight'
-                              : 'text-[10px] sm:text-[11px] font-semibold text-slate-600 line-clamp-2 leading-tight'
-                          }
-                        >
-                          {isBn ? m.position.name.bn : m.position.name.en}
-                        </span>
+                        <div className={isHighlighted ? 'mt-1.5 pt-1.5 border-t border-[#006A4E]/20' : 'mt-1.5 pt-1.5 border-t border-slate-200/70'}>
+                          <span
+                            className={
+                              isHighlighted
+                                ? 'text-[11px] sm:text-[12px] font-bold text-[#006A4E] line-clamp-2 leading-tight block break-words'
+                                : 'text-[10.5px] sm:text-[11.5px] font-semibold text-slate-600 line-clamp-2 leading-tight block break-words'
+                            }
+                          >
+                            {isBn ? m.position.name.bn : m.position.name.en}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -657,45 +657,45 @@ export const ExecutiveCommitteePage: React.FC = () => {
                   </span>
                 </div>
 
-                <div className="flex flex-wrap justify-center items-stretch gap-3 sm:gap-3.5 lg:gap-4 max-w-5xl mx-auto">
+                <div className="flex flex-wrap justify-center items-start gap-3 sm:gap-3.5 lg:gap-4 max-w-5xl mx-auto">
                   {members23Plus.map(m => (
                     <div
                       key={m.id}
                       onClick={() => setSelectedMember(m)}
-                      className="group cursor-pointer bg-[#FAF7F2] hover:bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-4 text-center border border-[#EAE3D9] hover:border-[#006A4E] hover:shadow-warm-md transition-all relative flex flex-col justify-between w-full max-w-[155px] sm:max-w-[170px] lg:max-w-[175px] xl:max-w-[185px] min-h-[210px] sm:min-h-[235px] flex-shrink-0"
+                      className="group cursor-pointer bg-[#FAF7F2] hover:bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-3.5 text-center border border-[#EAE3D9] hover:border-[#006A4E] hover:shadow-warm-md transition-all relative flex flex-col items-center w-full max-w-[155px] sm:max-w-[170px] lg:max-w-[175px] xl:max-w-[185px] flex-shrink-0"
                     >
-                      <div className="absolute top-2.5 right-2.5 bg-white text-slate-700 font-mono font-bold text-[10px] px-1.5 py-0.5 rounded-full border border-slate-200 shadow-2xs">
+                      <div className="absolute top-2 right-2 bg-white text-slate-700 font-mono font-bold text-[10px] px-1.5 py-0.5 rounded-full border border-slate-200 shadow-2xs">
                         #{String(m.serialNumber).padStart(2, '0')}
                       </div>
 
-                      <div>
-                        <div className="mx-auto w-16 h-20 sm:w-20 sm:h-24 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2.5 flex items-center justify-center shadow-xs">
-                          {m.person.photoUrl ? (
-                            <img
-                              src={getAssetUrl(m.person.photoUrl)}
-                              alt={m.person.fullName}
-                              className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
-                              style={{
-                                objectPosition: m.person.photoPosition || 'center 15%',
-                                transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
-                              }}
-                              onError={handleImageError}
-                              loading="lazy"
-                            />
-                          ) : (
-                            <Users className="w-8 h-8 text-rose-200/70" />
-                          )}
-                        </div>
-
-                        <h4 className="text-xs sm:text-sm font-bold text-slate-900 leading-snug group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words">
-                          {isBn ? m.person.banglaName : m.person.fullName}
-                        </h4>
+                      <div className="w-16 h-20 sm:w-20 sm:h-24 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2 sm:mb-2.5 flex items-center justify-center shadow-xs flex-shrink-0">
+                        {m.person.photoUrl ? (
+                          <img
+                            src={getAssetUrl(m.person.photoUrl)}
+                            alt={m.person.fullName}
+                            className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
+                            style={{
+                              objectPosition: m.person.photoPosition || 'center 15%',
+                              transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
+                            }}
+                            onError={handleImageError}
+                            loading="lazy"
+                          />
+                        ) : (
+                          <Users className="w-8 h-8 text-rose-200/70" />
+                        )}
                       </div>
 
-                      <div className="mt-2 pt-2 border-t border-slate-200/60">
-                        <span className="text-[10px] sm:text-[11px] font-semibold text-slate-600 line-clamp-2 leading-tight">
-                          {isBn ? m.position.name.bn : m.position.name.en}
-                        </span>
+                      <div className="w-full">
+                        <h4 className="text-xs sm:text-[13px] lg:text-[13.5px] font-bold text-slate-900 leading-tight group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words">
+                          {isBn ? m.person.banglaName : m.person.fullName}
+                        </h4>
+
+                        <div className="mt-1.5 pt-1.5 border-t border-slate-200/70">
+                          <span className="text-[10.5px] sm:text-[11.5px] font-semibold text-slate-600 line-clamp-2 leading-tight block break-words">
+                            {isBn ? m.position.name.bn : m.position.name.en}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   ))}

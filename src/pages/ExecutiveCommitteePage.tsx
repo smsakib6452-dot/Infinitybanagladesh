@@ -22,7 +22,10 @@ export const ExecutiveCommitteePage: React.FC = () => {
   const { isBn, tText } = useLanguage();
   const { committees, getMembersWithDetails } = useData();
 
-  const activeExecCommittee = committees.find(c => c.type === 'EXECUTIVE' && c.status === 'ACTIVE') || committees.find(c => c.type === 'EXECUTIVE') || committees[0];
+  const activeExecCommittee =
+    committees.find(c => c.type === 'EXECUTIVE' && c.status === 'ACTIVE') ||
+    committees.find(c => c.type === 'EXECUTIVE') ||
+    committees[0];
   const [selectedCommitteeId, setSelectedCommitteeId] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMember, setSelectedMember] = useState<(CommitteeMember & { person: Person; position: Position }) | null>(null);
@@ -31,20 +34,71 @@ export const ExecutiveCommitteePage: React.FC = () => {
   const currentCommittee = committees.find(c => c.id === committeeIdToUse) || activeExecCommittee;
   const allMembers = getMembersWithDetails(committeeIdToUse);
 
-  // Filter members if search query exists
-  const filteredMembers = allMembers.filter(m => {
-    if (!searchQuery.trim()) return true;
-    const q = searchQuery.toLowerCase();
-    const nameMatch = m.person.fullName.toLowerCase().includes(q) || m.person.banglaName.toLowerCase().includes(q);
-    const posMatch = m.position.name.en.toLowerCase().includes(q) || m.position.name.bn.toLowerCase().includes(q);
-    return nameMatch || posMatch;
-  });
+  // Sort members by serial number / sort order
+  const sortedMembers = [...allMembers].sort(
+    (a, b) => (a.serialNumber || a.sortOrder || 0) - (b.serialNumber || b.sortOrder || 0)
+  );
 
-  // Group into tiers for visual hierarchy
-  const tier1Members = filteredMembers.filter(m => m.position.level === 1); // President
-  const tier2Members = filteredMembers.filter(m => m.position.level === 2); // Senior VP & VPs
-  const tier3Members = filteredMembers.filter(m => m.position.level === 3); // General Secretary
-  const tier4Members = filteredMembers.filter(m => m.position.level >= 4); // Joint Secs, Dept Secs & Executive
+  // Helper to safely get member by serial number or fallback index
+  const getMember = (serialNum: number, fallbackIdx: number) => {
+    return sortedMembers.find(m => m.serialNumber === serialNum) || sortedMembers[fallbackIdx];
+  };
+
+  // Section 1: #1 to #5 (LOCKED: President, VPs, GS)
+  const member1 = getMember(1, 0);
+  const members2to4 = [getMember(2, 1), getMember(3, 2), getMember(4, 3)].filter(
+    (m): m is CommitteeMember & { person: Person; position: Position } => Boolean(m)
+  );
+  const member5 = getMember(5, 4);
+
+  // Section 2: #6 to #10 (Joint General Secretaries - 5 cards in 1 row)
+  const members6to10 = [6, 7, 8, 9, 10]
+    .map((num, i) => getMember(num, 5 + i))
+    .filter((m): m is CommitteeMember & { person: Person; position: Position } => Boolean(m));
+
+  // Section 3: #11 to #16 (Organizing & Finance - 6 cards in 1 row)
+  // Visual order: [ #12, #11★, #13, #15, #14★, #16 ]
+  const section3Items = [
+    { member: getMember(12, 11), isHighlighted: false },
+    { member: getMember(11, 10), isHighlighted: true },
+    { member: getMember(13, 12), isHighlighted: false },
+    { member: getMember(15, 14), isHighlighted: false },
+    { member: getMember(14, 13), isHighlighted: true },
+    { member: getMember(16, 15), isHighlighted: false }
+  ].filter((item): item is { member: CommitteeMember & { person: Person; position: Position }; isHighlighted: boolean } =>
+    Boolean(item.member)
+  );
+
+  // Section 4: #17 to #22 (Publicity & IT - 6 cards in 1 row)
+  // Visual order: [ #18, #17★, #19, #21, #20★, #22 ]
+  const section4Items = [
+    { member: getMember(18, 17), isHighlighted: false },
+    { member: getMember(17, 16), isHighlighted: true },
+    { member: getMember(19, 18), isHighlighted: false },
+    { member: getMember(21, 20), isHighlighted: false },
+    { member: getMember(20, 19), isHighlighted: true },
+    { member: getMember(22, 21), isHighlighted: false }
+  ].filter((item): item is { member: CommitteeMember & { person: Person; position: Position }; isHighlighted: boolean } =>
+    Boolean(item.member)
+  );
+
+  // Section 5: #23 to last member (Supporting & Executive Members)
+  const members23Plus = sortedMembers.filter(
+    m => (m.serialNumber || 0) >= 23 || (!m.serialNumber && sortedMembers.indexOf(m) >= 22)
+  );
+
+  // Filter members if search query exists
+  const isSearchActive = Boolean(searchQuery.trim());
+  const searchResults = isSearchActive
+    ? allMembers.filter(m => {
+        const q = searchQuery.toLowerCase();
+        const nameMatch =
+          m.person.fullName.toLowerCase().includes(q) || m.person.banglaName.toLowerCase().includes(q);
+        const posMatch =
+          m.position.name.en.toLowerCase().includes(q) || m.position.name.bn.toLowerCase().includes(q);
+        return nameMatch || posMatch;
+      })
+    : [];
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-10 sm:space-y-14">
@@ -104,7 +158,7 @@ export const ExecutiveCommitteePage: React.FC = () => {
       </div>
 
       {/* Official Hierarchy & Search Bar */}
-      <div className="bg-white rounded-[2.5rem] border border-[#EAE3D9] p-6 sm:p-10 space-y-8 shadow-warm-md">
+      <div className="bg-white rounded-[2.5rem] border border-[#EAE3D9] p-6 sm:p-10 space-y-10 sm:space-y-12 shadow-warm-md">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-6">
           <div className="space-y-1">
             <h2 className="text-xl font-extrabold text-slate-900 font-display flex items-center gap-2">
@@ -128,220 +182,526 @@ export const ExecutiveCommitteePage: React.FC = () => {
           </div>
         </div>
 
-        {/* TIER 1: PRESIDENT */}
-        {tier1Members.length > 0 && (
-          <div className="space-y-4 pt-2">
+        {/* SEARCH RESULTS VIEW */}
+        {isSearchActive ? (
+          <div className="space-y-6">
             <div className="text-center">
-              <span className="text-[11px] font-extrabold uppercase tracking-widest text-[#00523C] bg-[#E6F3EF] px-3.5 py-1 rounded-full border border-[#C2E2D7]">
-                {isBn ? 'প্রধান নেতৃত্ব' : 'Presidential Leadership'}
+              <span className="text-xs font-bold text-slate-600 bg-[#FAF7F2] px-4 py-1.5 rounded-full border border-[#EAE3D9]">
+                {isBn
+                  ? `অনুসন্ধানের ফলাফল: ${searchResults.length} জন সদস্য পাওয়া গেছে`
+                  : `Search Results: ${searchResults.length} member(s) found`}
               </span>
             </div>
 
-            <div className="flex justify-center">
-              {tier1Members.map(m => (
-                <div
-                  key={m.id}
-                  onClick={() => setSelectedMember(m)}
-                  className="group relative cursor-pointer max-w-sm w-full bg-white text-slate-900 rounded-3xl p-6 sm:p-8 text-center shadow-warm-lg border-2 border-[#006A4E]/40 hover:border-[#006A4E] transition-all transform hover:-translate-y-1"
-                >
-                  <div className="absolute top-4 right-4 bg-[#E6F3EF] text-[#00523C] font-mono font-bold text-xs px-2.5 py-1 rounded-full border border-[#C2E2D7]">
-                    #{String(m.serialNumber).padStart(2, '0')}
-                  </div>
-
-                  <div className="relative mx-auto w-32 h-36 sm:w-36 sm:h-40 rounded-t-full rounded-b-2xl overflow-hidden bg-[#E6F3EF] border-2 border-[#006A4E]/30 shadow-inner mb-4 flex items-center justify-center">
-                    {m.person.photoUrl ? (
-                      <img
-                        src={getAssetUrl(m.person.photoUrl)}
-                        alt={m.person.fullName}
-                        className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
-                        style={{
-                          objectPosition: m.person.photoPosition || 'center 15%',
-                          transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
-                        }}
-                        onError={handleImageError}
-                        loading="lazy"
-                      />
-                    ) : (
-                      <Users className="w-16 h-16 text-[#006A4E]/60" />
-                    )}
-                  </div>
-
-                  <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight font-display text-slate-900 group-hover:text-[#006A4E] transition-colors">
-                    {isBn ? m.person.banglaName : m.person.fullName}
-                  </h3>
-
-                  <div className="mt-2 inline-block px-3.5 py-1 rounded-full bg-[#006A4E] text-white font-extrabold text-xs shadow-xs">
-                    {isBn ? m.position.name.bn : m.position.name.en}
-                  </div>
-
-                  <p className="mt-3 text-xs text-slate-600 line-clamp-2 leading-relaxed">
-                    {m.person.shortBio ? tText(m.person.shortBio) : (isBn ? 'ইনফিনিটি বাংলাদেশ-এর সম্মানিত সভাপতি।' : 'President of Infinity Bangladesh.')}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* TIER 2: SENIOR VICE PRESIDENT & VICE PRESIDENTS */}
-        {tier2Members.length > 0 && (
-          <div className="space-y-4 pt-6">
-            <div className="text-center">
-              <span className="text-[11px] font-extrabold uppercase tracking-widest text-slate-700 bg-[#FAF7F2] px-3.5 py-1 rounded-full border border-[#EAE3D9]">
-                {isBn ? 'সহ-সভাপতি পরিষদ' : 'Vice Presidential Leadership'}
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
-              {tier2Members.map(m => (
-                <div
-                  key={m.id}
-                  onClick={() => setSelectedMember(m)}
-                  className="group cursor-pointer bg-white text-slate-900 rounded-3xl p-5 sm:p-6 text-center shadow-warm-sm border border-[#EAE3D9] hover:border-[#006A4E] transition-all transform hover:-translate-y-1 relative"
-                >
-                  <div className="absolute top-3 right-3 bg-[#FAF7F2] text-slate-700 font-mono font-bold text-[11px] px-2 py-0.5 rounded-full border border-[#EAE3D9]">
-                    #{String(m.serialNumber).padStart(2, '0')}
-                  </div>
-
-                  <div className="relative mx-auto w-24 h-28 sm:w-28 sm:h-32 rounded-t-full rounded-b-2xl overflow-hidden bg-[#FAF7F2] border border-[#EAE3D9] mb-3 flex items-center justify-center">
-                    {m.person.photoUrl ? (
-                      <img
-                        src={getAssetUrl(m.person.photoUrl)}
-                        alt={m.person.fullName}
-                        className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
-                        style={{
-                          objectPosition: m.person.photoPosition || 'center 15%',
-                          transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
-                        }}
-                        onError={handleImageError}
-                        loading="lazy"
-                      />
-                    ) : (
-                      <Users className="w-12 h-12 text-slate-400" />
-                    )}
-                  </div>
-
-                  <h3 className="text-base sm:text-lg font-bold font-display text-slate-900 group-hover:text-[#006A4E] transition-colors">
-                    {isBn ? m.person.banglaName : m.person.fullName}
-                  </h3>
-
-                  <div className="mt-1.5 inline-block px-3 py-0.5 rounded-full bg-[#FAF7F2] text-slate-700 font-semibold text-xs border border-[#EAE3D9]">
-                    {isBn ? m.position.name.bn : m.position.name.en}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* TIER 3: GENERAL SECRETARY */}
-        {tier3Members.length > 0 && (
-          <div className="space-y-4 pt-6">
-            <div className="text-center">
-              <span className="text-[11px] font-extrabold uppercase tracking-widest text-[#B31224] bg-[#FDF1F2] px-3.5 py-1 rounded-full border border-[#FCD3D7]">
-                {isBn ? 'সাধারণ সম্পাদক' : 'Secretariat Leadership'}
-              </span>
-            </div>
-
-            <div className="flex justify-center">
-              {tier3Members.map(m => (
-                <div
-                  key={m.id}
-                  onClick={() => setSelectedMember(m)}
-                  className="group relative cursor-pointer max-w-sm w-full bg-white text-slate-900 rounded-3xl p-6 sm:p-8 text-center shadow-warm-lg border-2 border-[#D4182E]/40 hover:border-[#D4182E] transition-all transform hover:-translate-y-1"
-                >
-                  <div className="absolute top-4 right-4 bg-[#FDF1F2] text-[#B31224] font-mono font-bold text-xs px-2.5 py-1 rounded-full border border-[#FCD3D7]">
-                    #{String(m.serialNumber).padStart(2, '0')}
-                  </div>
-
-                  <div className="relative mx-auto w-32 h-36 sm:w-36 sm:h-40 rounded-t-full rounded-b-2xl overflow-hidden bg-[#FDF1F2] border-2 border-[#D4182E]/30 shadow-inner mb-4 flex items-center justify-center">
-                    {m.person.photoUrl ? (
-                      <img
-                        src={getAssetUrl(m.person.photoUrl)}
-                        alt={m.person.fullName}
-                        className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
-                        style={{
-                          objectPosition: m.person.photoPosition || 'center 15%',
-                          transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
-                        }}
-                        onError={handleImageError}
-                        loading="lazy"
-                      />
-                    ) : (
-                      <Users className="w-16 h-16 text-[#D4182E]/60" />
-                    )}
-                  </div>
-
-                  <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight font-display text-slate-900 group-hover:text-[#D4182E] transition-colors">
-                    {isBn ? m.person.banglaName : m.person.fullName}
-                  </h3>
-
-                  <div className="mt-2 inline-block px-3.5 py-1 rounded-full bg-[#D4182E] text-white font-extrabold text-xs shadow-xs">
-                    {isBn ? m.position.name.bn : m.position.name.en}
-                  </div>
-
-                  <p className="mt-3 text-xs text-slate-600 line-clamp-2 leading-relaxed">
-                    {m.person.shortBio ? tText(m.person.shortBio) : (isBn ? 'ইনফিনিটি বাংলাদেশ-এর সাধারণ সম্পাদক।' : 'General Secretary of Infinity Bangladesh.')}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* TIER 4: JOINT GENERAL SECRETARIES & FUNCTIONAL SECRETARIES */}
-        {tier4Members.length > 0 && (
-          <div className="space-y-4 pt-8 border-t border-slate-100">
-            <div className="text-center">
-              <span className="text-[11px] font-extrabold uppercase tracking-widest text-slate-700 bg-[#FAF7F2] px-3.5 py-1 rounded-full border border-[#EAE3D9]">
-                {isBn ? 'যুগ্ম সম্পাদক ও বিভাগীয় সম্পাদকবৃন্দ' : 'Joint Secretaries & Executive Officers'}
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5 sm:gap-4">
-              {tier4Members.map(m => (
-                <div
-                  key={m.id}
-                  onClick={() => setSelectedMember(m)}
-                  className="group cursor-pointer bg-[#FAF7F2] hover:bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-4 text-center border border-[#EAE3D9] hover:border-[#006A4E] hover:shadow-warm-md transition-all relative flex flex-col justify-between min-h-[195px] sm:min-h-[220px]"
-                >
-                  <div className="absolute top-2.5 right-2.5 bg-white text-slate-700 font-mono font-bold text-[10px] px-1.5 py-0.5 rounded-full border border-slate-200 shadow-2xs">
-                    #{String(m.serialNumber).padStart(2, '0')}
-                  </div>
-
-                  <div>
-                    {/* Arch Framing matching official poster style */}
-                    <div className="mx-auto w-16 h-20 sm:w-20 sm:h-24 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2.5 flex items-center justify-center shadow-xs">
-                      {m.person.photoUrl ? (
-                        <img
-                          src={getAssetUrl(m.person.photoUrl)}
-                          alt={m.person.fullName}
-                          className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
-                          style={{
-                            objectPosition: m.person.photoPosition || 'center 15%',
-                            transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
-                          }}
-                          onError={handleImageError}
-                          loading="lazy"
-                        />
-                      ) : (
-                        <Users className="w-8 h-8 text-rose-200/70" />
-                      )}
+            {searchResults.length > 0 ? (
+              <div className="flex flex-wrap justify-center gap-3.5 sm:gap-4 max-w-5xl mx-auto">
+                {searchResults.map(m => (
+                  <div
+                    key={m.id}
+                    onClick={() => setSelectedMember(m)}
+                    className="group cursor-pointer bg-[#FAF7F2] hover:bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-4 text-center border border-[#EAE3D9] hover:border-[#006A4E] hover:shadow-warm-md transition-all relative flex flex-col justify-between w-full max-w-[155px] sm:max-w-[170px] lg:max-w-[165px] xl:max-w-[175px] min-h-[210px] sm:min-h-[235px] flex-shrink-0"
+                  >
+                    <div className="absolute top-2.5 right-2.5 bg-white text-slate-700 font-mono font-bold text-[10px] px-1.5 py-0.5 rounded-full border border-slate-200 shadow-2xs">
+                      #{String(m.serialNumber).padStart(2, '0')}
                     </div>
 
-                    <h4 className="text-xs sm:text-sm font-bold text-slate-900 leading-snug group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words">
-                      {isBn ? m.person.banglaName : m.person.fullName}
-                    </h4>
-                  </div>
+                    <div>
+                      <div className="mx-auto w-16 h-20 sm:w-20 sm:h-24 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2.5 flex items-center justify-center shadow-xs">
+                        {m.person.photoUrl ? (
+                          <img
+                            src={getAssetUrl(m.person.photoUrl)}
+                            alt={m.person.fullName}
+                            className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
+                            style={{
+                              objectPosition: m.person.photoPosition || 'center 15%',
+                              transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
+                            }}
+                            onError={handleImageError}
+                            loading="lazy"
+                          />
+                        ) : (
+                          <Users className="w-8 h-8 text-rose-200/70" />
+                        )}
+                      </div>
 
-                  <div className="mt-2 pt-2 border-t border-slate-200/60">
-                    <span className="text-[10px] sm:text-[11px] font-semibold text-slate-600 line-clamp-2 leading-tight">
-                      {isBn ? m.position.name.bn : m.position.name.en}
+                      <h4 className="text-xs sm:text-sm font-bold text-slate-900 leading-snug group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words">
+                        {isBn ? m.person.banglaName : m.person.fullName}
+                      </h4>
+                    </div>
+
+                    <div className="mt-2 pt-2 border-t border-slate-200/60">
+                      <span className="text-[10px] sm:text-[11px] font-semibold text-slate-600 line-clamp-2 leading-tight">
+                        {isBn ? m.position.name.bn : m.position.name.en}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 text-slate-500 text-sm">
+                {isBn ? 'কোন সদস্য পাওয়া যায়নি।' : 'No members found matching your search.'}
+              </div>
+            )}
+          </div>
+        ) : (
+          /* MASTER LAYOUT STRUCTURE */
+          <div className="space-y-12 sm:space-y-16">
+            {/* ============================================================ */}
+            {/* SECTION 1 — MEMBERS #1–#5 (LOCKED: PRESIDENT, VPS, GS)       */}
+            {/* ============================================================ */}
+            <div className="executive-top space-y-8 sm:space-y-10">
+              {/* TIER 1: PRESIDENT (#1) */}
+              {member1 && (
+                <div className="space-y-4 pt-2">
+                  <div className="text-center">
+                    <span className="text-[11px] font-extrabold uppercase tracking-widest text-[#00523C] bg-[#E6F3EF] px-3.5 py-1 rounded-full border border-[#C2E2D7]">
+                      {isBn ? 'প্রধান নেতৃত্ব' : 'Presidential Leadership'}
                     </span>
                   </div>
+
+                  <div className="flex justify-center">
+                    <div
+                      key={member1.id}
+                      onClick={() => setSelectedMember(member1)}
+                      className="group relative cursor-pointer max-w-sm w-full bg-white text-slate-900 rounded-3xl p-6 sm:p-8 text-center shadow-warm-lg border-2 border-[#006A4E]/40 hover:border-[#006A4E] transition-all transform hover:-translate-y-1"
+                    >
+                      <div className="absolute top-4 right-4 bg-[#E6F3EF] text-[#00523C] font-mono font-bold text-xs px-2.5 py-1 rounded-full border border-[#C2E2D7]">
+                        #{String(member1.serialNumber).padStart(2, '0')}
+                      </div>
+
+                      <div className="relative mx-auto w-32 h-36 sm:w-36 sm:h-40 rounded-t-full rounded-b-2xl overflow-hidden bg-[#E6F3EF] border-2 border-[#006A4E]/30 shadow-inner mb-4 flex items-center justify-center">
+                        {member1.person.photoUrl ? (
+                          <img
+                            src={getAssetUrl(member1.person.photoUrl)}
+                            alt={member1.person.fullName}
+                            className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
+                            style={{
+                              objectPosition: member1.person.photoPosition || 'center 15%',
+                              transform: member1.person.photoZoom ? `scale(${member1.person.photoZoom})` : undefined
+                            }}
+                            onError={handleImageError}
+                            loading="lazy"
+                          />
+                        ) : (
+                          <Users className="w-16 h-16 text-[#006A4E]/60" />
+                        )}
+                      </div>
+
+                      <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight font-display text-slate-900 group-hover:text-[#006A4E] transition-colors">
+                        {isBn ? member1.person.banglaName : member1.person.fullName}
+                      </h3>
+
+                      <div className="mt-2 inline-block px-3.5 py-1 rounded-full bg-[#006A4E] text-white font-extrabold text-xs shadow-xs">
+                        {isBn ? member1.position.name.bn : member1.position.name.en}
+                      </div>
+
+                      <p className="mt-3 text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                        {member1.person.shortBio
+                          ? tText(member1.person.shortBio)
+                          : isBn
+                          ? 'ইনফিনিটি বাংলাদেশ-এর সম্মানিত সভাপতি।'
+                          : 'President of Infinity Bangladesh.'}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-              ))}
+              )}
+
+              {/* TIER 2: SENIOR VICE PRESIDENT & VICE PRESIDENTS (#2–#4) */}
+              {members2to4.length > 0 && (
+                <div className="space-y-4 pt-4">
+                  <div className="text-center">
+                    <span className="text-[11px] font-extrabold uppercase tracking-widest text-slate-700 bg-[#FAF7F2] px-3.5 py-1 rounded-full border border-[#EAE3D9]">
+                      {isBn ? 'সহ-সভাপতি পরিষদ' : 'Vice Presidential Leadership'}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                    {members2to4.map(m => (
+                      <div
+                        key={m.id}
+                        onClick={() => setSelectedMember(m)}
+                        className="group cursor-pointer bg-white text-slate-900 rounded-3xl p-5 sm:p-6 text-center shadow-warm-sm border border-[#EAE3D9] hover:border-[#006A4E] transition-all transform hover:-translate-y-1 relative"
+                      >
+                        <div className="absolute top-3 right-3 bg-[#FAF7F2] text-slate-700 font-mono font-bold text-[11px] px-2 py-0.5 rounded-full border border-[#EAE3D9]">
+                          #{String(m.serialNumber).padStart(2, '0')}
+                        </div>
+
+                        <div className="relative mx-auto w-24 h-28 sm:w-28 sm:h-32 rounded-t-full rounded-b-2xl overflow-hidden bg-[#FAF7F2] border border-[#EAE3D9] mb-3 flex items-center justify-center">
+                          {m.person.photoUrl ? (
+                            <img
+                              src={getAssetUrl(m.person.photoUrl)}
+                              alt={m.person.fullName}
+                              className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
+                              style={{
+                                objectPosition: m.person.photoPosition || 'center 15%',
+                                transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
+                              }}
+                              onError={handleImageError}
+                              loading="lazy"
+                            />
+                          ) : (
+                            <Users className="w-12 h-12 text-slate-400" />
+                          )}
+                        </div>
+
+                        <h3 className="text-base sm:text-lg font-bold font-display text-slate-900 group-hover:text-[#006A4E] transition-colors">
+                          {isBn ? m.person.banglaName : m.person.fullName}
+                        </h3>
+
+                        <div className="mt-1.5 inline-block px-3 py-0.5 rounded-full bg-[#FAF7F2] text-slate-700 font-semibold text-xs border border-[#EAE3D9]">
+                          {isBn ? m.position.name.bn : m.position.name.en}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* TIER 3: GENERAL SECRETARY (#5) */}
+              {member5 && (
+                <div className="space-y-4 pt-4">
+                  <div className="text-center">
+                    <span className="text-[11px] font-extrabold uppercase tracking-widest text-[#B31224] bg-[#FDF1F2] px-3.5 py-1 rounded-full border border-[#FCD3D7]">
+                      {isBn ? 'সাধারণ সম্পাদক' : 'Secretariat Leadership'}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-center">
+                    <div
+                      key={member5.id}
+                      onClick={() => setSelectedMember(member5)}
+                      className="group relative cursor-pointer max-w-sm w-full bg-white text-slate-900 rounded-3xl p-6 sm:p-8 text-center shadow-warm-lg border-2 border-[#D4182E]/40 hover:border-[#D4182E] transition-all transform hover:-translate-y-1"
+                    >
+                      <div className="absolute top-4 right-4 bg-[#FDF1F2] text-[#B31224] font-mono font-bold text-xs px-2.5 py-1 rounded-full border border-[#FCD3D7]">
+                        #{String(member5.serialNumber).padStart(2, '0')}
+                      </div>
+
+                      <div className="relative mx-auto w-32 h-36 sm:w-36 sm:h-40 rounded-t-full rounded-b-2xl overflow-hidden bg-[#FDF1F2] border-2 border-[#D4182E]/30 shadow-inner mb-4 flex items-center justify-center">
+                        {member5.person.photoUrl ? (
+                          <img
+                            src={getAssetUrl(member5.person.photoUrl)}
+                            alt={member5.person.fullName}
+                            className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
+                            style={{
+                              objectPosition: member5.person.photoPosition || 'center 15%',
+                              transform: member5.person.photoZoom ? `scale(${member5.person.photoZoom})` : undefined
+                            }}
+                            onError={handleImageError}
+                            loading="lazy"
+                          />
+                        ) : (
+                          <Users className="w-16 h-16 text-[#D4182E]/60" />
+                        )}
+                      </div>
+
+                      <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight font-display text-slate-900 group-hover:text-[#D4182E] transition-colors">
+                        {isBn ? member5.person.banglaName : member5.person.fullName}
+                      </h3>
+
+                      <div className="mt-2 inline-block px-3.5 py-1 rounded-full bg-[#D4182E] text-white font-extrabold text-xs shadow-xs">
+                        {isBn ? member5.position.name.bn : member5.position.name.en}
+                      </div>
+
+                      <p className="mt-3 text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                        {member5.person.shortBio
+                          ? tText(member5.person.shortBio)
+                          : isBn
+                          ? 'ইনফিনিটি বাংলাদেশ-এর সাধারণ সম্পাদক।'
+                          : 'General Secretary of Infinity Bangladesh.'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
+
+            {/* ============================================================ */}
+            {/* SECTION 2 — MEMBERS #6–#10 (JOINT GENERAL SECRETARIES)       */}
+            {/* ============================================================ */}
+            {members6to10.length > 0 && (
+              <div className="executive-five space-y-4 pt-6 border-t border-slate-100">
+                <div className="text-center">
+                  <span className="text-[11px] font-extrabold uppercase tracking-widest text-slate-700 bg-[#FAF7F2] px-3.5 py-1 rounded-full border border-[#EAE3D9]">
+                    {isBn ? 'যুগ্ম সাধারণ সম্পাদক পরিষদ' : 'Joint General Secretariat'}
+                  </span>
+                </div>
+
+                <div className="flex flex-wrap lg:flex-nowrap justify-center items-stretch gap-3 sm:gap-3.5 lg:gap-4 max-w-5xl mx-auto">
+                  {members6to10.map(m => (
+                    <div
+                      key={m.id}
+                      onClick={() => setSelectedMember(m)}
+                      className="group cursor-pointer bg-[#FAF7F2] hover:bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-4 text-center border border-[#EAE3D9] hover:border-[#006A4E] hover:shadow-warm-md transition-all relative flex flex-col justify-between w-full max-w-[155px] sm:max-w-[170px] lg:max-w-[175px] xl:max-w-[185px] min-h-[210px] sm:min-h-[235px] flex-shrink-0"
+                    >
+                      <div className="absolute top-2.5 right-2.5 bg-white text-slate-700 font-mono font-bold text-[10px] px-1.5 py-0.5 rounded-full border border-slate-200 shadow-2xs">
+                        #{String(m.serialNumber).padStart(2, '0')}
+                      </div>
+
+                      <div>
+                        <div className="mx-auto w-16 h-20 sm:w-20 sm:h-24 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2.5 flex items-center justify-center shadow-xs">
+                          {m.person.photoUrl ? (
+                            <img
+                              src={getAssetUrl(m.person.photoUrl)}
+                              alt={m.person.fullName}
+                              className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
+                              style={{
+                                objectPosition: m.person.photoPosition || 'center 15%',
+                                transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
+                              }}
+                              onError={handleImageError}
+                              loading="lazy"
+                            />
+                          ) : (
+                            <Users className="w-8 h-8 text-rose-200/70" />
+                          )}
+                        </div>
+
+                        <h4 className="text-xs sm:text-sm font-bold text-slate-900 leading-snug group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words">
+                          {isBn ? m.person.banglaName : m.person.fullName}
+                        </h4>
+                      </div>
+
+                      <div className="mt-2 pt-2 border-t border-slate-200/60">
+                        <span className="text-[10px] sm:text-[11px] font-semibold text-slate-600 line-clamp-2 leading-tight">
+                          {isBn ? m.position.name.bn : m.position.name.en}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ============================================================ */}
+            {/* SECTION 3 — MEMBERS #11–#16 (ORGANIZING & FINANCE)           */}
+            {/* Visual Order: [ #12, #11★, #13, #15, #14★, #16 ]             */}
+            {/* ============================================================ */}
+            {section3Items.length > 0 && (
+              <div className="executive-six-a space-y-4 pt-6 border-t border-slate-100">
+                <div className="text-center">
+                  <span className="text-[11px] font-extrabold uppercase tracking-widest text-slate-700 bg-[#FAF7F2] px-3.5 py-1 rounded-full border border-[#EAE3D9]">
+                    {isBn ? 'সাংগঠনিক ও অর্থ বিভাগ' : 'Organizing & Finance Secretariat'}
+                  </span>
+                </div>
+
+                <div className="flex flex-wrap lg:flex-nowrap justify-center items-center gap-2.5 sm:gap-3 lg:gap-3.5 xl:gap-4 max-w-6xl mx-auto">
+                  {section3Items.map(({ member: m, isHighlighted }) => (
+                    <div
+                      key={m.id}
+                      onClick={() => setSelectedMember(m)}
+                      className={
+                        isHighlighted
+                          ? 'group cursor-pointer bg-white hover:bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 text-center border-2 border-[#006A4E]/50 hover:border-[#006A4E] shadow-warm-md hover:shadow-warm-lg transition-all relative flex flex-col justify-between w-full max-w-[180px] sm:max-w-[195px] lg:max-w-[188px] xl:max-w-[200px] min-h-[230px] sm:min-h-[255px] flex-shrink-0'
+                          : 'group cursor-pointer bg-[#FAF7F2] hover:bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-4 text-center border border-[#EAE3D9] hover:border-[#006A4E] hover:shadow-warm-md transition-all relative flex flex-col justify-between w-full max-w-[155px] sm:max-w-[170px] lg:max-w-[160px] xl:max-w-[170px] min-h-[210px] sm:min-h-[235px] flex-shrink-0'
+                      }
+                    >
+                      <div
+                        className={
+                          isHighlighted
+                            ? 'absolute top-2.5 right-2.5 bg-[#E6F3EF] text-[#00523C] font-mono font-bold text-[11px] px-2 py-0.5 rounded-full border border-[#C2E2D7] shadow-2xs'
+                            : 'absolute top-2.5 right-2.5 bg-white text-slate-700 font-mono font-bold text-[10px] px-1.5 py-0.5 rounded-full border border-slate-200 shadow-2xs'
+                        }
+                      >
+                        #{String(m.serialNumber).padStart(2, '0')}
+                      </div>
+
+                      <div>
+                        <div
+                          className={
+                            isHighlighted
+                              ? 'mx-auto w-20 h-24 sm:w-24 sm:h-28 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2.5 flex items-center justify-center shadow-xs'
+                              : 'mx-auto w-16 h-20 sm:w-20 sm:h-24 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2.5 flex items-center justify-center shadow-xs'
+                          }
+                        >
+                          {m.person.photoUrl ? (
+                            <img
+                              src={getAssetUrl(m.person.photoUrl)}
+                              alt={m.person.fullName}
+                              className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
+                              style={{
+                                objectPosition: m.person.photoPosition || 'center 15%',
+                                transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
+                              }}
+                              onError={handleImageError}
+                              loading="lazy"
+                            />
+                          ) : (
+                            <Users className={isHighlighted ? 'w-9 h-9 text-rose-200/70' : 'w-8 h-8 text-rose-200/70'} />
+                          )}
+                        </div>
+
+                        <h4
+                          className={
+                            isHighlighted
+                              ? 'text-sm sm:text-[15px] font-extrabold text-slate-900 leading-snug group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words'
+                              : 'text-xs sm:text-sm font-bold text-slate-900 leading-snug group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words'
+                          }
+                        >
+                          {isBn ? m.person.banglaName : m.person.fullName}
+                        </h4>
+                      </div>
+
+                      <div className={isHighlighted ? 'mt-2 pt-2 border-t border-[#006A4E]/20' : 'mt-2 pt-2 border-t border-slate-200/60'}>
+                        <span
+                          className={
+                            isHighlighted
+                              ? 'text-[10px] sm:text-[11px] font-bold text-[#006A4E] line-clamp-2 leading-tight'
+                              : 'text-[10px] sm:text-[11px] font-semibold text-slate-600 line-clamp-2 leading-tight'
+                          }
+                        >
+                          {isBn ? m.position.name.bn : m.position.name.en}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ============================================================ */}
+            {/* SECTION 4 — MEMBERS #17–#22 (PUBLICITY, MEDIA & IT)          */}
+            {/* Visual Order: [ #18, #17★, #19, #21, #20★, #22 ]             */}
+            {/* ============================================================ */}
+            {section4Items.length > 0 && (
+              <div className="executive-six-b space-y-4 pt-6 border-t border-slate-100">
+                <div className="text-center">
+                  <span className="text-[11px] font-extrabold uppercase tracking-widest text-slate-700 bg-[#FAF7F2] px-3.5 py-1 rounded-full border border-[#EAE3D9]">
+                    {isBn ? 'প্রচার, তথ্য ও প্রযুক্তি বিভাগ' : 'Publicity, Media & IT Secretariat'}
+                  </span>
+                </div>
+
+                <div className="flex flex-wrap lg:flex-nowrap justify-center items-center gap-2.5 sm:gap-3 lg:gap-3.5 xl:gap-4 max-w-6xl mx-auto">
+                  {section4Items.map(({ member: m, isHighlighted }) => (
+                    <div
+                      key={m.id}
+                      onClick={() => setSelectedMember(m)}
+                      className={
+                        isHighlighted
+                          ? 'group cursor-pointer bg-white hover:bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 text-center border-2 border-[#006A4E]/50 hover:border-[#006A4E] shadow-warm-md hover:shadow-warm-lg transition-all relative flex flex-col justify-between w-full max-w-[180px] sm:max-w-[195px] lg:max-w-[188px] xl:max-w-[200px] min-h-[230px] sm:min-h-[255px] flex-shrink-0'
+                          : 'group cursor-pointer bg-[#FAF7F2] hover:bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-4 text-center border border-[#EAE3D9] hover:border-[#006A4E] hover:shadow-warm-md transition-all relative flex flex-col justify-between w-full max-w-[155px] sm:max-w-[170px] lg:max-w-[160px] xl:max-w-[170px] min-h-[210px] sm:min-h-[235px] flex-shrink-0'
+                      }
+                    >
+                      <div
+                        className={
+                          isHighlighted
+                            ? 'absolute top-2.5 right-2.5 bg-[#E6F3EF] text-[#00523C] font-mono font-bold text-[11px] px-2 py-0.5 rounded-full border border-[#C2E2D7] shadow-2xs'
+                            : 'absolute top-2.5 right-2.5 bg-white text-slate-700 font-mono font-bold text-[10px] px-1.5 py-0.5 rounded-full border border-slate-200 shadow-2xs'
+                        }
+                      >
+                        #{String(m.serialNumber).padStart(2, '0')}
+                      </div>
+
+                      <div>
+                        <div
+                          className={
+                            isHighlighted
+                              ? 'mx-auto w-20 h-24 sm:w-24 sm:h-28 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2.5 flex items-center justify-center shadow-xs'
+                              : 'mx-auto w-16 h-20 sm:w-20 sm:h-24 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2.5 flex items-center justify-center shadow-xs'
+                          }
+                        >
+                          {m.person.photoUrl ? (
+                            <img
+                              src={getAssetUrl(m.person.photoUrl)}
+                              alt={m.person.fullName}
+                              className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
+                              style={{
+                                objectPosition: m.person.photoPosition || 'center 15%',
+                                transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
+                              }}
+                              onError={handleImageError}
+                              loading="lazy"
+                            />
+                          ) : (
+                            <Users className={isHighlighted ? 'w-9 h-9 text-rose-200/70' : 'w-8 h-8 text-rose-200/70'} />
+                          )}
+                        </div>
+
+                        <h4
+                          className={
+                            isHighlighted
+                              ? 'text-sm sm:text-[15px] font-extrabold text-slate-900 leading-snug group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words'
+                              : 'text-xs sm:text-sm font-bold text-slate-900 leading-snug group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words'
+                          }
+                        >
+                          {isBn ? m.person.banglaName : m.person.fullName}
+                        </h4>
+                      </div>
+
+                      <div className={isHighlighted ? 'mt-2 pt-2 border-t border-[#006A4E]/20' : 'mt-2 pt-2 border-t border-slate-200/60'}>
+                        <span
+                          className={
+                            isHighlighted
+                              ? 'text-[10px] sm:text-[11px] font-bold text-[#006A4E] line-clamp-2 leading-tight'
+                              : 'text-[10px] sm:text-[11px] font-semibold text-slate-600 line-clamp-2 leading-tight'
+                          }
+                        >
+                          {isBn ? m.position.name.bn : m.position.name.en}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ============================================================ */}
+            {/* SECTION 5 — MEMBERS #23 TO LAST MEMBER (SUPPORTING MEMBERS) */}
+            {/* Centered wrapping layout (Row 1: 5 cards, Row 2: centered)   */}
+            {/* ============================================================ */}
+            {members23Plus.length > 0 && (
+              <div className="executive-supporting space-y-4 pt-6 border-t border-slate-100">
+                <div className="text-center">
+                  <span className="text-[11px] font-extrabold uppercase tracking-widest text-slate-700 bg-[#FAF7F2] px-3.5 py-1 rounded-full border border-[#EAE3D9]">
+                    {isBn ? 'বিভাগীয় সম্পাদক ও কার্যনির্বাহী সদস্যবৃন্দ' : 'Departmental Secretaries & Executive Members'}
+                  </span>
+                </div>
+
+                <div className="flex flex-wrap justify-center items-stretch gap-3 sm:gap-3.5 lg:gap-4 max-w-5xl mx-auto">
+                  {members23Plus.map(m => (
+                    <div
+                      key={m.id}
+                      onClick={() => setSelectedMember(m)}
+                      className="group cursor-pointer bg-[#FAF7F2] hover:bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-4 text-center border border-[#EAE3D9] hover:border-[#006A4E] hover:shadow-warm-md transition-all relative flex flex-col justify-between w-full max-w-[155px] sm:max-w-[170px] lg:max-w-[175px] xl:max-w-[185px] min-h-[210px] sm:min-h-[235px] flex-shrink-0"
+                    >
+                      <div className="absolute top-2.5 right-2.5 bg-white text-slate-700 font-mono font-bold text-[10px] px-1.5 py-0.5 rounded-full border border-slate-200 shadow-2xs">
+                        #{String(m.serialNumber).padStart(2, '0')}
+                      </div>
+
+                      <div>
+                        <div className="mx-auto w-16 h-20 sm:w-20 sm:h-24 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2.5 flex items-center justify-center shadow-xs">
+                          {m.person.photoUrl ? (
+                            <img
+                              src={getAssetUrl(m.person.photoUrl)}
+                              alt={m.person.fullName}
+                              className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
+                              style={{
+                                objectPosition: m.person.photoPosition || 'center 15%',
+                                transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
+                              }}
+                              onError={handleImageError}
+                              loading="lazy"
+                            />
+                          ) : (
+                            <Users className="w-8 h-8 text-rose-200/70" />
+                          )}
+                        </div>
+
+                        <h4 className="text-xs sm:text-sm font-bold text-slate-900 leading-snug group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words">
+                          {isBn ? m.person.banglaName : m.person.fullName}
+                        </h4>
+                      </div>
+
+                      <div className="mt-2 pt-2 border-t border-slate-200/60">
+                        <span className="text-[10px] sm:text-[11px] font-semibold text-slate-600 line-clamp-2 leading-tight">
+                          {isBn ? m.position.name.bn : m.position.name.en}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -417,7 +777,11 @@ export const ExecutiveCommitteePage: React.FC = () => {
             </div>
 
             <p className="text-xs text-slate-600 leading-relaxed text-center bg-[#FAF7F2] p-3.5 rounded-2xl border border-[#EAE3D9]">
-              {selectedMember.person.shortBio ? tText(selectedMember.person.shortBio) : (isBn ? 'ইনফিনিটি বাংলাদেশ কার্যনির্বাহী পরিষদের সম্মানিত সদস্য।' : 'Distinguished member of Infinity Bangladesh Executive Council.')}
+              {selectedMember.person.shortBio
+                ? tText(selectedMember.person.shortBio)
+                : isBn
+                ? 'ইনফিনিটি বাংলাদেশ কার্যনির্বাহী পরিষদের সম্মানিত সদস্য।'
+                : 'Distinguished member of Infinity Bangladesh Executive Council.'}
             </p>
 
             <button

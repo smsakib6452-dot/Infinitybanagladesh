@@ -363,10 +363,20 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>(() => getStoredOrDefault('auditLogs', []));
 
   // 3. Committees & Leadership
-  const [committees, setCommittees] = useState<Committee[]>(() => getStoredOrDefault('committees', INITIAL_COMMITTEES));
+  const [committees, setCommittees] = useState<Committee[]>(() => {
+    const stored = getStoredOrDefault<Committee[]>('committees', INITIAL_COMMITTEES);
+    return stored.filter(c => {
+      if (c.type === 'STANDING' && c.id !== 'comm-stand-central') return false;
+      return true;
+    });
+  });
   const [persons, setPersons] = useState<Person[]>(() => getStoredOrDefault('persons', INITIAL_PERSONS));
   const [positions, setPositions] = useState<Position[]>(() => getStoredOrDefault('positions', INITIAL_POSITIONS));
-  const [committeeMembers, setCommitteeMembers] = useState<CommitteeMember[]>(() => getStoredOrDefault('committeeMembers', INITIAL_COMMITTEE_MEMBERS));
+  const [committeeMembers, setCommitteeMembers] = useState<CommitteeMember[]>(() => {
+    const stored = getStoredOrDefault<CommitteeMember[]>('committeeMembers', INITIAL_COMMITTEE_MEMBERS);
+    const validCommitteeIds = new Set(['comm-exec-2026', 'comm-stand-central', 'comm-exec-2025', 'comm-exec-2024', 'comm-exec-2023']);
+    return stored.filter(cm => validCommitteeIds.has(cm.committeeId));
+  });
 
   // Local storage auto-sync
   useEffect(() => {

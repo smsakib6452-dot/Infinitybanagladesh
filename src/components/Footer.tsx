@@ -152,7 +152,7 @@ export const Footer: React.FC = () => {
               </li>
               <li>
                 <Link to="about/standing-committees" className="hover:text-white transition-colors cursor-pointer block">
-                  {isBn ? 'স্থায়ী কমিটি' : 'Standing Committees'}
+                  {isBn ? 'স্থায়ী কমিটি' : 'Standing Committee'}
                 </Link>
               </li>
               <li>

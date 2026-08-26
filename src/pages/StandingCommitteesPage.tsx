@@ -15,7 +15,8 @@ import {
   ArrowRight,
   Calendar,
   Sparkles,
-  LayoutGrid
+  LayoutGrid,
+  Search
 } from 'lucide-react';
 import { CommitteeMember, Person, Position } from '../types';
 import { getAssetUrl } from '../lib/utils/assetHelper';
@@ -25,17 +26,26 @@ export const StandingCommitteesPage: React.FC = () => {
   const { committees, getMembersWithDetails } = useData();
 
   const [selectedMember, setSelectedMember] = useState<(CommitteeMember & { person: Person; position: Position }) | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  // Dynamic Standing Committees List
-  const standingCommittees = committees.filter(c => c.type === 'STANDING');
-  const defaultCommittee = standingCommittees.find(c => c.id === 'comm-stand-central') || standingCommittees[0] || committees[0];
-  const [activeCommId, setActiveCommId] = useState<string>(defaultCommittee?.id || 'comm-stand-central');
+  // Single unified Standing Committee
+  const standingCommittee =
+    committees.find(c => c.type === 'STANDING' && c.status === 'ACTIVE') ||
+    committees.find(c => c.id === 'comm-stand-central') ||
+    committees.find(c => c.type === 'STANDING');
 
-  // Fallback to default if activeCommId not found
-  const activeStandingComm = standingCommittees.find(c => c.id === activeCommId) || defaultCommittee;
-  const currentMembers = getMembersWithDetails(activeStandingComm?.id);
+  const allMembers = standingCommittee ? getMembersWithDetails(standingCommittee.id) : [];
 
-  // Robust Hierarchy grouping
+  // Filter members if search query exists
+  const filteredMembers = allMembers.filter(m => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+    const nameMatch = m.person.fullName.toLowerCase().includes(q) || m.person.banglaName.toLowerCase().includes(q);
+    const posMatch = m.position.name.en.toLowerCase().includes(q) || m.position.name.bn.toLowerCase().includes(q);
+    return nameMatch || posMatch;
+  });
+
+  // Hierarchy grouping
   const isChairman = (m: CommitteeMember & { position: Position }) => {
     const posName = (m.position?.name?.en || '').toLowerCase();
     return (m.position?.level === 1 || posName.includes('chairman')) && !posName.includes('vice');
@@ -46,9 +56,9 @@ export const StandingCommitteesPage: React.FC = () => {
     return m.position?.level === 2 || posName.includes('vice-chairman') || posName.includes('vice chairman');
   };
 
-  const chairman = currentMembers.filter(isChairman);
-  const viceChairmen = currentMembers.filter(isViceChairman);
-  const regularMembers = currentMembers.filter(m => !isChairman(m) && !isViceChairman(m));
+  const chairman = filteredMembers.filter(isChairman);
+  const viceChairmen = filteredMembers.filter(isViceChairman);
+  const regularMembers = filteredMembers.filter(m => !isChairman(m) && !isViceChairman(m));
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-10 sm:space-y-14">
@@ -102,53 +112,39 @@ export const StandingCommitteesPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Dynamic Sub-Committees Selector if multiple standing committees exist */}
-      {standingCommittees.length > 1 && (
-        <div className="flex flex-wrap justify-center items-center gap-2 max-w-4xl mx-auto bg-[#FAF7F2] p-2 rounded-2xl border border-[#EAE3D9]">
-          {standingCommittees.map(comm => {
-            const isSelected = (activeStandingComm?.id || defaultCommittee?.id) === comm.id;
-            return (
-              <button
-                key={comm.id}
-                type="button"
-                onClick={() => setActiveCommId(comm.id)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  isSelected
-                    ? 'bg-[#006A4E] text-white shadow-xs'
-                    : 'bg-white text-slate-700 hover:bg-[#F2ECE1] border border-[#EAE3D9]'
-                }`}
-              >
-                {tText(comm.name)}
-              </button>
-            );
-          })}
-        </div>
-      )}
-
       {/* STANDING COMMITTEE HIERARCHY & MEMBERS */}
-      <div className="bg-white rounded-[2.5rem] border border-[#EAE3D9] p-6 sm:p-10 space-y-10 shadow-warm-md relative overflow-hidden">
-        {/* Committee Title Header */}
-        <div className="text-center space-y-2 border-b border-slate-100 pb-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E6F3EF] text-[#00523C] text-xs font-bold font-mono tracking-widest uppercase border border-[#C2E2D7]">
-            Official Standing Council
+      <div className="bg-white rounded-[2.5rem] border border-[#EAE3D9] p-6 sm:p-10 space-y-8 shadow-warm-md relative overflow-hidden">
+        {/* Committee Title Header & Search Bar */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-6">
+          <div className="space-y-1">
+            <h2 className="text-xl font-extrabold text-slate-900 font-display flex items-center gap-2">
+              <Users className="w-5 h-5 text-[#006A4E]" />
+              {standingCommittee ? tText(standingCommittee.name) : (isBn ? 'ইনফিনিটি বাংলাদেশ স্থায়ী কমিটি' : 'Infinity Bangladesh Standing Committee')}
+            </h2>
+            <p className="text-xs text-slate-500 font-medium">
+              {isBn ? 'মোট স্থায়ী সদস্য:' : 'Total Standing Members:'} <span className="font-bold text-slate-800">{allMembers.length} {isBn ? 'জন' : 'Leaders'}</span> &bull; {isBn ? 'অনুমোদিত কেন্দ্রীয় স্থায়ী পরিষদ' : 'Central Standing Council'}
+            </p>
           </div>
-          <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 font-display">
-            {activeStandingComm ? tText(activeStandingComm.name) : (isBn ? 'ইনফিনিটি বাংলাদেশ স্থায়ী পরিষদ' : 'Infinity Bangladesh Standing Committee')}
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-600 max-w-2xl mx-auto">
-            {activeStandingComm && activeStandingComm.description
-              ? tText(activeStandingComm.description)
-              : (isBn
-                ? 'প্রাতিষ্ঠানিক দিকনির্দেশনা ও দীর্ঘমেয়াদী মানবিক পরিকল্পনায় দায়িত্বপ্রাপ্ত স্থায়ী নেতৃবৃন্দ।'
-                : 'Permanent institutional leadership ensuring continuous governance, integrity, and ethical oversight.')}
-          </p>
+
+          <div className="relative w-full sm:w-72">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={isBn ? 'সদস্য বা পদবী খুঁজুন...' : 'Search member or position...'}
+              className="w-full pl-9 pr-4 py-2.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-2xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#006A4E] focus:bg-white transition-all"
+            />
+          </div>
         </div>
 
-        {currentMembers.length === 0 ? (
+        {filteredMembers.length === 0 ? (
           <div className="text-center py-12 space-y-3 bg-[#FAF7F2] rounded-3xl border border-dashed border-[#EAE3D9]">
             <Users className="w-12 h-12 text-slate-400 mx-auto" />
             <p className="text-sm font-bold text-slate-600">
-              {isBn ? 'এই কমিটিতে এখনও কোনো সদস্য যুক্ত করা হয়নি।' : 'No members assigned to this standing committee yet.'}
+              {searchQuery
+                ? (isBn ? 'অনুসন্ধানের সাথে কোনো সদস্য মেলেনি।' : 'No members matched your search criteria.')
+                : (isBn ? 'এই কমিটিতে এখনও কোনো সদস্য যুক্ত করা হয়নি।' : 'No members assigned to this standing committee yet.')}
             </p>
           </div>
         ) : (
@@ -380,7 +376,7 @@ export const StandingCommitteesPage: React.FC = () => {
               <div className="flex justify-between py-1 border-b border-slate-100">
                 <span className="text-slate-500">{isBn ? 'কমিটি:' : 'Committee:'}</span>
                 <span className="font-medium text-slate-800">
-                  {activeStandingComm ? tText(activeStandingComm.name) : 'Standing Committee'}
+                  {standingCommittee ? tText(standingCommittee.name) : 'Standing Committee'}
                 </span>
               </div>
               {selectedMember.person.district && (

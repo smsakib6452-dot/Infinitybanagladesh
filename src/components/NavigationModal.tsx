@@ -14,7 +14,7 @@ const PRESET_ROUTES = [
   { value: 'home', label: 'Home / হোম' },
   { value: 'about', label: 'About Us / আমাদের পরিচয়' },
   { value: 'about/executive-committee', label: 'Executive Committee / কার্যনির্বাহী কমিটি' },
-  { value: 'about/standing-committees', label: 'Standing Committees / স্থায়ী কমিটিসমূহ' },
+  { value: 'about/standing-committees', label: 'Standing Committee / স্থায়ী কমিটি' },
   { value: 'about/past-committees', label: 'Past Leadership / সাবেক কমিটিসমূহ' },
   { value: 'programs', label: 'Programs / কার্যক্রম ও কর্মসূচি' },
   { value: 'campaigns', label: 'Campaigns / ক্যাম্পেইন' },

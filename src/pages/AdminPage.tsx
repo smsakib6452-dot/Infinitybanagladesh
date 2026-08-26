@@ -5615,16 +5615,43 @@ export const AdminPage: React.FC = () => {
                   {(() => {
                     const currentComm = committees.find(c => c.id === selectedCommitteeId) || committees[0];
                     if (!currentComm) return null;
+                    const memberCount = committeeMembers.filter(m => m.committeeId === currentComm.id).length;
                     return (
                       <div className="p-4 sm:p-5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-4">
-                        <div className="flex items-center justify-between border-b border-slate-200/80 pb-3">
-                          <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                            <Sparkles className="w-3.5 h-3.5 text-[#006A4E]" />
-                            <span>{isBn ? 'নির্বাচিত কমিটির বিবরণ ও সেটিংস' : 'Committee Information & Settings'}</span>
-                          </h3>
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-white text-[#006A4E] border border-slate-200">
-                            Type: {currentComm.type} &bull; Term: {currentComm.year}
-                          </span>
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200/80 pb-3 gap-3">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                              <Sparkles className="w-3.5 h-3.5 text-[#006A4E]" />
+                              <span>{isBn ? 'নির্বাচিত কমিটির বিবরণ ও সেটিংস' : 'Committee Information & Settings'}</span>
+                            </h3>
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-white text-[#006A4E] border border-slate-200">
+                              Type: {currentComm.type} &bull; Term: {currentComm.year}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const commTitle = currentComm.name?.bn || currentComm.name?.en || 'এই কমিটি';
+                                const confirmMsg = isBn
+                                  ? `আপনি কি নিশ্চিত যে "${commTitle}" কমিটিটি এবং এর সাথে থাকা ${memberCount} জন সদস্যকে সম্পূর্ণ মুছে ফেলতে চান?`
+                                  : `Are you sure you want to permanently delete "${commTitle}" and its ${memberCount} members?`;
+                                
+                                if (window.confirm(confirmMsg)) {
+                                  deleteCommittee(currentComm.id);
+                                  const remaining = committees.filter(c => c.id !== currentComm.id);
+                                  setSelectedCommitteeId(remaining[0]?.id || '');
+                                  showToast(isBn ? 'কমিটি সফলভাবে মুছে ফেলা হয়েছে' : 'Committee deleted successfully');
+                                }
+                              }}
+                              className="px-3.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors shadow-2xs"
+                              title={isBn ? 'এই কমিটি সম্পূর্ণ মুছে ফেলুন' : 'Delete this committee'}
+                            >
+                              <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+                              <span>{isBn ? 'কমিটি মুছুন' : 'Delete Committee'}</span>
+                            </button>
+                          </div>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

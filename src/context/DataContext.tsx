@@ -260,7 +260,36 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
+const CURRENT_DATA_VERSION = '2026.08.26.02';
+const DATA_VERSION_KEY = 'infinity_data_version';
 const STORAGE_PREFIX = 'infinity_bd_v2_';
+
+// Auto-check and invalidate stale cached data on startup so users never need to manually clear cache
+(() => {
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const storedVersion = localStorage.getItem(DATA_VERSION_KEY);
+      if (storedVersion !== CURRENT_DATA_VERSION) {
+        const keysToRemove: string[] = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (
+            key &&
+            (key.startsWith('infinity_') || key.startsWith(STORAGE_PREFIX)) &&
+            !key.includes('admin_auth') &&
+            !key.includes('admin_user')
+          ) {
+            keysToRemove.push(key);
+          }
+        }
+        keysToRemove.forEach(k => localStorage.removeItem(k));
+        localStorage.setItem(DATA_VERSION_KEY, CURRENT_DATA_VERSION);
+      }
+    }
+  } catch (e) {
+    console.warn('Storage migration check warning:', e);
+  }
+})();
 
 function getStoredOrDefault<T>(key: string, fallback: T): T {
   try {

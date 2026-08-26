@@ -119,36 +119,38 @@ export const ExecutiveCommitteePage: React.FC = () => {
       : 'text-slate-700 bg-[#FAF7F2] border-[#EAE3D9]';
 
     return (
-      <div className="text-center group/tierbar relative flex items-center justify-center gap-1.5 mx-auto">
-        <span className={`text-[11px] font-extrabold uppercase tracking-widest px-3.5 py-1 rounded-full border shadow-2xs transition-all ${colorClasses}`}>
-          {isBn ? bar.title.bn : bar.title.en}
-        </span>
+      <div className="w-full flex items-center justify-center my-3 sm:my-4">
+        <div className="relative inline-flex items-center justify-center group/tierbar">
+          <span className={`text-[11px] sm:text-xs font-extrabold uppercase tracking-widest px-4 py-1.5 rounded-full border shadow-2xs transition-all text-center inline-block ${colorClasses}`}>
+            {isBn ? bar.title.bn : bar.title.en}
+          </span>
 
-        {/* Quick Edit & Delete Actions */}
-        <div className="inline-flex items-center gap-1 opacity-0 group-hover/tierbar:opacity-100 transition-opacity">
-          <button
-            type="button"
-            onClick={() => {
-              setEditingTierBar({ ...bar });
-              setIsEditingTierModalOpen(true);
-            }}
-            className="p-1 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 hover:text-[#006A4E] shadow-2xs transition-colors cursor-pointer"
-            title={isBn ? 'এই সেকশন বার সম্পাদনা করুন' : 'Edit Section Bar'}
-          >
-            <Edit2 className="w-3 h-3" />
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              if (confirm(isBn ? `আপনি কি "${bar.title.bn || bar.title.en}" বারটি লুকাতে/মুছতে চান?` : `Hide/Delete the "${bar.title.en}" section bar?`)) {
-                handleDeleteTierBar(bar.id);
-              }
-            }}
-            className="p-1 rounded-lg bg-white border border-rose-200 hover:bg-rose-50 text-rose-500 hover:text-rose-700 shadow-2xs transition-colors cursor-pointer"
-            title={isBn ? 'এই সেকশন বার মুছে ফেলুন' : 'Delete/Hide Section Bar'}
-          >
-            <Trash2 className="w-3 h-3" />
-          </button>
+          {/* Quick Edit & Delete Actions (Positioned absolutely to keep pill exactly in the dead center) */}
+          <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover/tierbar:opacity-100 transition-opacity z-10">
+            <button
+              type="button"
+              onClick={() => {
+                setEditingTierBar({ ...bar });
+                setIsEditingTierModalOpen(true);
+              }}
+              className="p-1 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 hover:text-[#006A4E] shadow-2xs transition-colors cursor-pointer"
+              title={isBn ? 'এই সেকশন বার সম্পাদনা করুন' : 'Edit Section Bar'}
+            >
+              <Edit2 className="w-3 h-3" />
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (confirm(isBn ? `আপনি কি "${bar.title.bn || bar.title.en}" বারটি লুকাতে/মুছতে চান?` : `Hide/Delete the "${bar.title.en}" section bar?`)) {
+                  handleDeleteTierBar(bar.id);
+                }
+              }}
+              className="p-1 rounded-lg bg-white border border-rose-200 hover:bg-rose-50 text-rose-500 hover:text-rose-700 shadow-2xs transition-colors cursor-pointer"
+              title={isBn ? 'এই সেকশন বার মুছে ফেলুন' : 'Delete/Hide Section Bar'}
+            >
+              <Trash2 className="w-3 h-3" />
+            </button>
+          </div>
         </div>
       </div>
     );

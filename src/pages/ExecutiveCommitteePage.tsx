@@ -119,13 +119,15 @@ export const ExecutiveCommitteePage: React.FC = () => {
       : 'text-slate-700 bg-[#FAF7F2] border-[#EAE3D9]';
 
     return (
-      <div className="w-full flex items-center justify-center my-3 sm:my-4">
-        <div className="relative inline-flex items-center justify-center group/tierbar">
+      <div className="w-full flex items-center justify-center gap-3 sm:gap-4 my-4 sm:my-6 px-2">
+        <div className="h-px flex-1 max-w-xs sm:max-w-md bg-gradient-to-r from-transparent via-slate-200 to-slate-300" />
+
+        <div className="relative inline-flex items-center justify-center group/tierbar shrink-0">
           <span className={`text-[11px] sm:text-xs font-extrabold uppercase tracking-widest px-4 py-1.5 rounded-full border shadow-2xs transition-all text-center inline-block ${colorClasses}`}>
             {isBn ? bar.title.bn : bar.title.en}
           </span>
 
-          {/* Quick Edit & Delete Actions (Positioned absolutely to keep pill exactly in the dead center) */}
+          {/* Quick Edit & Delete Actions (Positioned absolutely to avoid shifting center position) */}
           <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover/tierbar:opacity-100 transition-opacity z-10">
             <button
               type="button"
@@ -152,6 +154,8 @@ export const ExecutiveCommitteePage: React.FC = () => {
             </button>
           </div>
         </div>
+
+        <div className="h-px flex-1 max-w-xs sm:max-w-md bg-gradient-to-l from-transparent via-slate-200 to-slate-300" />
       </div>
     );
   };

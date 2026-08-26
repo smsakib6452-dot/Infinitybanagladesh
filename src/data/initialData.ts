@@ -57,7 +57,7 @@ export const DEFAULT_EXECUTIVE_TIER_BARS: ExecutiveTierBar[] = [
   {
     id: 'jointSecretariat',
     title: { en: 'Joint General Secretariat', bn: 'যুগ্ম সাধারণ সম্পাদক পরিষদ' },
-    visible: true,
+    visible: false,
     rangeLabel: 'Members #06–#10'
   },
   {
@@ -69,13 +69,13 @@ export const DEFAULT_EXECUTIVE_TIER_BARS: ExecutiveTierBar[] = [
   {
     id: 'publicityMediaIt',
     title: { en: 'Publicity, Media & IT Secretariat', bn: 'প্রচার, তথ্য ও প্রযুক্তি বিভাগ' },
-    visible: true,
+    visible: false,
     rangeLabel: 'Members #17–#22'
   },
   {
     id: 'departmentalExecutive',
     title: { en: 'Departmental Secretaries & Executive Members', bn: 'বিভাগীয় সম্পাদক ও কার্যনির্বাহী সদস্যবৃন্দ' },
-    visible: true,
+    visible: false,
     rangeLabel: 'Members #23+'
   }
 ];

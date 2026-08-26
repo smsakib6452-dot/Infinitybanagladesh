@@ -64,11 +64,18 @@ export const ExecutiveCommitteePage: React.FC = () => {
         rangeLabel
       };
     }
+    const resolvedEn = (found.id === 'organizingFinance' && (found.title?.en === 'Organizing & Finance Secretariat' || !found.title?.en))
+      ? defaultEn
+      : (found.title?.en ?? defaultEn);
+    const resolvedBn = (found.id === 'organizingFinance' && (found.title?.bn === 'সাংগঠনিক ও অর্থ বিভাগ' || !found.title?.bn))
+      ? defaultBn
+      : (found.title?.bn ?? defaultBn);
+
     return {
       ...found,
       title: {
-        en: found.title?.en ?? defaultEn,
-        bn: found.title?.bn ?? defaultBn
+        en: resolvedEn,
+        bn: resolvedBn
       },
       visible: found.visible !== false,
       rangeLabel: found.rangeLabel || rangeLabel

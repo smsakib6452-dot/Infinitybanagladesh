@@ -311,7 +311,26 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const deletedIdsRef = useRef<Set<string>>(new Set(getStoredOrDefault<string[]>('deleted_video_ids', [])));
 
   // 1. Site Settings & Global Configurations
-  const [settings, setSettings] = useState<SiteSettings>(() => getStoredOrDefault('settings', INITIAL_SITE_SETTINGS));
+  const [settings, setSettings] = useState<SiteSettings>(() => {
+    const stored = getStoredOrDefault<SiteSettings>('settings', INITIAL_SITE_SETTINGS);
+    if (stored?.executiveTierBars && Array.isArray(stored.executiveTierBars)) {
+      stored.executiveTierBars = stored.executiveTierBars.map(b => {
+        if (b.id === 'organizingFinance' && (b.title?.en === 'Organizing & Finance Secretariat' || b.title?.bn === 'সাংগঠনিক ও অর্থ বিভাগ')) {
+          return {
+            ...b,
+            title: {
+              en: 'Other Executive Committee Members',
+              bn: 'অন্যান্য কার্যনির্বাহী কমিটির সদস্যবৃন্দ'
+            }
+          };
+        }
+        return b;
+      });
+    } else {
+      stored.executiveTierBars = DEFAULT_EXECUTIVE_TIER_BARS;
+    }
+    return stored;
+  });
   const [homepageConfig, setHomepageConfig] = useState<HomepageConfig>(() => {
     const stored = getStoredOrDefault<HomepageConfig>('homepageConfig', INITIAL_HOMEPAGE_CONFIG);
     if (

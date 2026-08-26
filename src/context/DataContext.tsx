@@ -260,7 +260,7 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-const CURRENT_DATA_VERSION = '2026.08.26.02';
+const CURRENT_DATA_VERSION = '2026.08.26.03';
 const DATA_VERSION_KEY = 'infinity_data_version';
 const STORAGE_PREFIX = 'infinity_bd_v2_';
 
@@ -736,6 +736,19 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           galleryImages: (c.gallery_images || []).map((img: string) => getFreshImageUrl(img)),
           videoUrl: c.video_url,
           reportUrl: c.report_url
+        })));
+      }
+
+      // 7.5. Impact Metrics
+      const { data: metricData } = await supabase.from('impact_metrics').select('*').order('order', { ascending: true });
+      if (metricData && metricData.length > 0) {
+        setMetrics(metricData.map(m => ({
+          id: m.id,
+          label: m.label,
+          value: m.value,
+          description: m.description,
+          iconName: m.icon_name || m.iconName || 'HeartHandshake',
+          order: m.order
         })));
       }
 
@@ -1256,6 +1269,19 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           video_url: c.videoUrl || '',
           report_url: c.reportUrl || '',
           display_order: c.displayOrder || 0,
+          updated_at: new Date().toISOString()
+        });
+      }
+
+      // Impact Metrics
+      for (const m of metrics) {
+        await supabase.from('impact_metrics').upsert({
+          id: m.id,
+          label: m.label,
+          value: m.value,
+          description: m.description,
+          icon_name: m.iconName,
+          order: m.order,
           updated_at: new Date().toISOString()
         });
       }

@@ -721,7 +721,7 @@ export const INITIAL_IMPACT_METRICS: ImpactMetric[] = [
   {
     id: 'metric-1',
     label: { en: 'People Reached', bn: 'মানুষের কাছে পৌঁছানো' },
-    value: '15,000+',
+    value: '5,000+',
     description: {
       en: 'Lives touched through humanitarian aid, festive Eid gifts, and community relief across Bangladesh.',
       bn: 'মানবিক সহায়তা, ঈদ উপহার এবং সামাজিক সহযোগিতার মাধ্যমে সরাসরি উপকৃত মানুষ।'
@@ -732,7 +732,7 @@ export const INITIAL_IMPACT_METRICS: ImpactMetric[] = [
   {
     id: 'metric-2',
     label: { en: 'Dedicated Volunteers', bn: 'নিবেদিতপ্রাণ স্বেচ্ছাসেবক' },
-    value: '350+',
+    value: '100+',
     description: {
       en: 'Passionate youth volunteers actively serving on the ground from Hathazari to remote districts.',
       bn: 'হাটহাজারী ও দেশের বিভিন্ন প্রান্তে মাঠপর্যায়ে নিরলস সেবায় নিয়োজিত তরুণ স্বেচ্ছাসেবী।'
@@ -743,7 +743,7 @@ export const INITIAL_IMPACT_METRICS: ImpactMetric[] = [
   {
     id: 'metric-3',
     label: { en: 'Field Campaigns', bn: 'মাঠপর্যায়ের ক্যাম্পেইন' },
-    value: '45+',
+    value: '50+',
     description: {
       en: 'Verified field drives covering Eid clothing, Ramadan food hampers, winter relief, and disaster aid.',
       bn: 'ঈদ উপহার, রমজান খাদ্য সহায়তা, শীতবস্ত্র বিতরণ এবং জরুরি সাহায্য ভিত্তিক মাঠপর্যায়ের ক্যাম্পেইন।'
@@ -754,7 +754,7 @@ export const INITIAL_IMPACT_METRICS: ImpactMetric[] = [
   {
     id: 'metric-4',
     label: { en: 'Years of Service', bn: 'নিরবচ্ছিন্ন সেবার বছর' },
-    value: '10+ Years',
+    value: '11+ Years',
     description: {
       en: 'Serving humanity with dignity, transparency, and youth empowerment since 2015.',
       bn: '২০১৫ সাল থেকে সততা, মর্যাদা ও স্বচ্ছতার সাথে সুবিধাবঞ্চিত মানুষের পাশে।'

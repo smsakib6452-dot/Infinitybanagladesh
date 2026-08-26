@@ -4397,8 +4397,9 @@ export const AdminPage: React.FC = () => {
                     <label className="text-xs font-bold text-slate-800">bKash Official Number</label>
                     <input
                       type="text"
-                      value={supportSettings.bkashNumber || '01800-000000'}
-                      onChange={(e) => updateSupportSettings({ bkashNumber: e.target.value })}
+                      value={supportSettings.bKashNumber || supportSettings.bkashNumber || settings.bKashNumber || ''}
+                      onChange={(e) => updateSupportSettings({ bKashNumber: e.target.value, bkashNumber: e.target.value })}
+                      placeholder="e.g. 01839-008339"
                       className="w-full px-3.5 py-2 bg-white border border-[#EAE3D9] rounded-xl text-xs font-mono font-bold text-slate-900"
                     />
                   </div>
@@ -4407,8 +4408,9 @@ export const AdminPage: React.FC = () => {
                     <label className="text-xs font-bold text-slate-800">Nagad Official Number</label>
                     <input
                       type="text"
-                      value={supportSettings.nagadNumber || '01800-000000'}
+                      value={supportSettings.nagadNumber || settings.nagadNumber || ''}
                       onChange={(e) => updateSupportSettings({ nagadNumber: e.target.value })}
+                      placeholder="e.g. 01839-008339"
                       className="w-full px-3.5 py-2 bg-white border border-[#EAE3D9] rounded-xl text-xs font-mono font-bold text-slate-900"
                     />
                   </div>

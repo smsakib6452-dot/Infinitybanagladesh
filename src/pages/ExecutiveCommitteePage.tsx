@@ -608,9 +608,9 @@ export const ExecutiveCommitteePage: React.FC = () => {
             {section3Items.length > 0 && (
               <div className="executive-six-a space-y-4 pt-6 border-t border-slate-100">
                 {renderTierBar(
-                  getTierBar('organizingFinance', 'Organizing & Finance Secretariat', 'সাংগঠনিক ও অর্থ বিভাগ', 'Members #11–#16'),
-                  'Organizing & Finance Secretariat',
-                  'সাংগঠনিক ও অর্থ বিভাগ'
+                  getTierBar('organizingFinance', 'Other Executive Committee Members', 'অন্যান্য কার্যনির্বাহী কমিটির সদস্যবৃন্দ', 'Members #11–#16'),
+                  'Other Executive Committee Members',
+                  'অন্যান্য কার্যনির্বাহী কমিটির সদস্যবৃন্দ'
                 )}
 
                 <div className="flex flex-wrap lg:flex-nowrap justify-center items-center gap-2.5 sm:gap-3 lg:gap-3.5 xl:gap-4 max-w-6xl mx-auto">

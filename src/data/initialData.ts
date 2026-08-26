@@ -62,7 +62,7 @@ export const DEFAULT_EXECUTIVE_TIER_BARS: ExecutiveTierBar[] = [
   },
   {
     id: 'organizingFinance',
-    title: { en: 'Organizing & Finance Secretariat', bn: 'সাংগঠনিক ও অর্থ বিভাগ' },
+    title: { en: 'Other Executive Committee Members', bn: 'অন্যান্য কার্যনির্বাহী কমিটির সদস্যবৃন্দ' },
     visible: true,
     rangeLabel: 'Members #11–#16'
   },
@@ -75,7 +75,7 @@ export const DEFAULT_EXECUTIVE_TIER_BARS: ExecutiveTierBar[] = [
   {
     id: 'departmentalExecutive',
     title: { en: 'Other Executive Committee Members', bn: 'অন্যান্য কার্যনির্বাহী কমিটির সদস্যবৃন্দ' },
-    visible: true,
+    visible: false,
     rangeLabel: 'Members #23+'
   }
 ];

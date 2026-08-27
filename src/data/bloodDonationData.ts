@@ -143,15 +143,63 @@ export const DEFAULT_DONOR_CATEGORIES: DonorCategoryOption[] = [
  * Initial Default Blood Donation Settings
  */
 export const INITIAL_BLOOD_SETTINGS: BloodDonationSettings = {
+  heroBadge: {
+    en: 'Emergency Blood Donation & Coordination',
+    bn: 'জরুরি রক্তদান ও সমন্বয় নেটওয়ার্ক'
+  },
   heroTitle: {
     en: 'Infinity Blood Donation Network',
     bn: 'ইনফিনিটি বাংলাদেশ রক্তদান নেটওয়ার্ক'
   },
   heroSubtitle: {
-    en: 'Donate Blood, Save Lives – Be a Hero',
-    bn: 'রক্ত দিন, জীবন বাঁচান — মানবতার কল্যাণে টিম ইনফিনিটি'
+    en: 'Donate Blood, Save Lives – Connecting compassionate voluntary donors across Bangladesh to serve emergency patients with speed, verified trust, and dignity.',
+    bn: 'রক্ত দিন, জীবন বাঁচান — চট্টগ্রামের হাটহাজারী থেকে শুরু করে দেশব্যাপী স্বেচ্ছাসেবী রক্তদাতাদের একত্রিত করে মুমূর্ষু রোগীর পাশে টিম ইনফিনিটি।'
   },
+  heroCtaBadge: {
+    en: 'JOIN THE CAUSE',
+    bn: 'মানবতার আহ্বান'
+  },
+  heroCtaTitle: {
+    en: 'Be a Donor, Be a Hero',
+    bn: 'রক্তদাতা হোন, জীবন বাঁচান'
+  },
+  heroCtaDescription: {
+    en: 'Every drop counts. Register as a voluntary blood donor with Team Infinity and become someone’s lifeline in moments of crisis.',
+    bn: 'আপনার এক ব্যাগ রক্ত বাঁচাতে পারে একটি মূল্যবান প্রাণ। ইনফিনিটি বাংলাদেশ রক্তদান নেটওয়ার্কে রক্তদাতা হিসেবে যুক্ত হতে এখনই রেজিস্ট্রেশন করুন।'
+  },
+  heroCtaBtn1Text: {
+    en: 'Become a Donor',
+    bn: 'রক্তদাতা হতে রেজিস্ট্রেশন করুন'
+  },
+  heroCtaBtn2Text: {
+    en: 'Emergency Blood Request',
+    bn: 'জরুরি রক্তের আবেদন করুন'
+  },
+  statTotalDonorsLabel: {
+    en: 'Total Donors',
+    bn: 'নিবন্ধিত রক্তদাতা'
+  },
+  statActiveDonorsLabel: {
+    en: 'Active Donors',
+    bn: 'জরুরিতে প্রস্তুত'
+  },
+  statGroupsLabel: {
+    en: 'Blood Groups',
+    bn: 'সকল ব্লাড গ্রুপ'
+  },
+  statGroupsValue: '8/8',
+  statImpactLabel: {
+    en: 'Lives Impacted',
+    bn: 'মোট রক্তদান সম্পন্ন'
+  },
+  statTotalDonorsOverride: null,
+  statActiveDonorsOverride: null,
+  statImpactOverride: null,
   emergencyHelpline: '+880 1839-008339',
+  helplineLabel: {
+    en: '24/7 Helpline:',
+    bn: '২৪/৭ ব্লাড হেল্পলাইন:'
+  },
   coordinationEmail: 'blood@infinitybangladesh.org',
   guidelinesTitle: {
     en: 'Blood Donation Guidelines & Eligibility',

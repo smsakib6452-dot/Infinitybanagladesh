@@ -289,6 +289,8 @@ export const AdminPage: React.FC = () => {
   const [bloodDonorGroupFilter, setBloodDonorGroupFilter] = useState('ALL');
   const [bloodDonorStatusFilter, setBloodDonorStatusFilter] = useState('ALL');
   const [bloodDonorDistrictFilter, setBloodDonorDistrictFilter] = useState('ALL');
+  const [newDonorCategoryEn, setNewDonorCategoryEn] = useState('');
+  const [newDonorCategoryBn, setNewDonorCategoryBn] = useState('');
 
   // Unified Media Library States
   const [mediaLibraryFilter, setMediaLibraryFilter] = useState<'all' | 'image' | 'video' | 'youtube' | 'facebook' | 'featured'>('all');
@@ -5213,23 +5215,32 @@ export const AdminPage: React.FC = () => {
                               key={donor.id}
                               className="p-4 rounded-2xl bg-white border border-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs"
                             >
-                              <div className="space-y-1">
-                                <div className="flex items-center gap-2">
-                                  <span className="px-2.5 py-0.5 rounded-lg bg-rose-600 text-white font-black text-xs font-display">
-                                    {donor.bloodGroup}
-                                  </span>
-                                  <span className="text-sm font-extrabold text-slate-900">{donor.fullName}</span>
-                                  <span className="text-xs text-emerald-700 font-bold">&bull; {donor.orgCategory}</span>
-                                </div>
-                                <p className="text-xs text-slate-500">
-                                  Phone: <span className="font-bold text-slate-700">{donor.phone}</span> &bull; Location: {donor.area}, {donor.upazila}, {donor.district}
-                                  {donor.lastDonationDate && (
-                                    <span className="text-emerald-800 font-bold ml-1.5 inline-flex items-center gap-1">
-                                      &bull; <Clock className="w-3 h-3 text-emerald-600 inline" />
-                                      {isBn ? 'সর্বশেষ রক্তদান:' : 'Last Donated:'} {new Date(donor.lastDonationDate).toLocaleDateString(isBn ? 'bn-BD' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
-                                    </span>
+                              <div className="flex items-center gap-3">
+                                <div className="w-11 h-11 rounded-xl bg-emerald-950 text-white font-bold flex items-center justify-center shrink-0 overflow-hidden border border-[#EAE3D9]">
+                                  {donor.photoUrl ? (
+                                    <img src={getAssetUrl(donor.photoUrl)} alt={donor.fullName} className="w-full h-full object-cover" />
+                                  ) : (
+                                    donor.fullName.charAt(0)
                                   )}
-                                </p>
+                                </div>
+                                <div className="space-y-1">
+                                  <div className="flex items-center gap-2">
+                                    <span className="px-2.5 py-0.5 rounded-lg bg-rose-600 text-white font-black text-xs font-display">
+                                      {donor.bloodGroup}
+                                    </span>
+                                    <span className="text-sm font-extrabold text-slate-900">{donor.fullName}</span>
+                                    <span className="text-xs text-emerald-700 font-bold">&bull; {donor.orgCategory}</span>
+                                  </div>
+                                  <p className="text-xs text-slate-500">
+                                    Phone: <span className="font-bold text-slate-700">{donor.phone}</span> &bull; Location: {donor.area}, {donor.upazila}, {donor.district}
+                                    {donor.lastDonationDate && (
+                                      <span className="text-emerald-800 font-bold ml-1.5 inline-flex items-center gap-1">
+                                        &bull; <Clock className="w-3 h-3 text-emerald-600 inline" />
+                                        {isBn ? 'সর্বশেষ রক্তদান:' : 'Last Donated:'} {new Date(donor.lastDonationDate).toLocaleDateString(isBn ? 'bn-BD' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                      </span>
+                                    )}
+                                  </p>
+                                </div>
                               </div>
 
                               <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -5580,51 +5591,716 @@ export const AdminPage: React.FC = () => {
                   </div>
                 )}
 
-                {/* SUBTAB 4: SETTINGS & CATEGORIES */}
+                {/* SUBTAB 4: SETTINGS & HERO CUSTOMIZATION */}
                 {bloodSubTab === 'settings' && (
-                  <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
-                    <div className="border-b border-slate-100 pb-3">
-                      <h3 className="text-lg font-extrabold text-slate-900 font-display">
-                        {isBn ? 'রক্তদান সেটিংস ও হেল্পলাইন কনফিগারেশন' : 'Blood Donation Settings & Helpline Configuration'}
-                      </h3>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <label className="block text-xs font-bold text-slate-800">24/7 Emergency Helpline</label>
-                        <input
-                          type="text"
-                          value={bloodDonationSettings.emergencyHelpline}
-                          onChange={(e) => updateBloodDonationSettings({ emergencyHelpline: e.target.value })}
-                          className="w-full px-3.5 py-2 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs focus:bg-white focus:outline-none"
-                        />
+                  <div className="space-y-6">
+                    {/* 1. Hero Content & Heading Configuration */}
+                    <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-5 shadow-warm-sm">
+                      <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
+                        <div>
+                          <h3 className="text-base sm:text-lg font-extrabold text-slate-900 font-display flex items-center gap-2">
+                            <Sparkles className="w-5 h-5 text-[#006A4E]" />
+                            <span>{isBn ? '১. হিরো সেকশন ও প্রধান ব্যানার কনফিগারেশন' : '1. Hero Section & Main Banner Settings'}</span>
+                          </h3>
+                          <p className="text-xs text-slate-500 mt-0.5">
+                            {isBn ? 'রক্তদান পেজের শীর্ষ ব্যানার, ব্যাজ ও শিরোনাম কাস্টমাইজ করুন।' : 'Customize the top hero banner title, subtitle, and badge.'}
+                          </p>
+                        </div>
                       </div>
 
-                      <div className="space-y-1.5">
-                        <label className="block text-xs font-bold text-slate-800">Coordination Email</label>
-                        <input
-                          type="email"
-                          value={bloodDonationSettings.coordinationEmail}
-                          onChange={(e) => updateBloodDonationSettings({ coordinationEmail: e.target.value })}
-                          className="w-full px-3.5 py-2 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs focus:bg-white focus:outline-none"
-                        />
+                      {/* Hero Badge */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-bold text-slate-800">
+                            {isBn ? 'হিরো টপ ব্যাজ (ইংরেজি)' : 'Hero Top Badge (English)'}
+                          </label>
+                          <input
+                            type="text"
+                            value={bloodDonationSettings.heroBadge?.en || ''}
+                            onChange={(e) => updateBloodDonationSettings({
+                              heroBadge: { ...bloodDonationSettings.heroBadge, en: e.target.value, bn: bloodDonationSettings.heroBadge?.bn || '' }
+                            })}
+                            placeholder="Emergency Blood Donation & Coordination"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-bold text-slate-800">
+                            {isBn ? 'হিরো টপ ব্যাজ (বাংলা)' : 'Hero Top Badge (Bangla)'}
+                          </label>
+                          <input
+                            type="text"
+                            value={bloodDonationSettings.heroBadge?.bn || ''}
+                            onChange={(e) => updateBloodDonationSettings({
+                              heroBadge: { ...bloodDonationSettings.heroBadge, bn: e.target.value, en: bloodDonationSettings.heroBadge?.en || '' }
+                            })}
+                            placeholder="জরুরি রক্তদান ও সমন্বয় নেটওয়ার্ক"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Hero Main Title */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-bold text-slate-800">
+                            {isBn ? 'প্রধান শিরোনাম (ইংরেজি) *' : 'Hero Main Title (English) *'}
+                          </label>
+                          <input
+                            type="text"
+                            value={bloodDonationSettings.heroTitle?.en || ''}
+                            onChange={(e) => updateBloodDonationSettings({
+                              heroTitle: { ...bloodDonationSettings.heroTitle, en: e.target.value, bn: bloodDonationSettings.heroTitle?.bn || '' }
+                            })}
+                            placeholder="Infinity Blood Donation Network"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm font-extrabold focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-bold text-slate-800">
+                            {isBn ? 'প্রধান শিরোনাম (বাংলা) *' : 'Hero Main Title (Bangla) *'}
+                          </label>
+                          <input
+                            type="text"
+                            value={bloodDonationSettings.heroTitle?.bn || ''}
+                            onChange={(e) => updateBloodDonationSettings({
+                              heroTitle: { ...bloodDonationSettings.heroTitle, bn: e.target.value, en: bloodDonationSettings.heroTitle?.en || '' }
+                            })}
+                            placeholder="ইনফিনিটি বাংলাদেশ রক্তদান নেটওয়ার্ক"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm font-extrabold focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Hero Subtitle */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-bold text-slate-800">
+                            {isBn ? 'উপশিরোনাম / বিবরণ (ইংরেজি)' : 'Hero Subtitle / Description (English)'}
+                          </label>
+                          <textarea
+                            rows={3}
+                            value={bloodDonationSettings.heroSubtitle?.en || ''}
+                            onChange={(e) => updateBloodDonationSettings({
+                              heroSubtitle: { ...bloodDonationSettings.heroSubtitle, en: e.target.value, bn: bloodDonationSettings.heroSubtitle?.bn || '' }
+                            })}
+                            placeholder="Donate Blood, Save Lives – Connecting compassionate voluntary donors..."
+                            className="w-full px-3.5 py-2 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-bold text-slate-800">
+                            {isBn ? 'উপশিরোনাম / বিবরণ (বাংলা)' : 'Hero Subtitle / Description (Bangla)'}
+                          </label>
+                          <textarea
+                            rows={3}
+                            value={bloodDonationSettings.heroSubtitle?.bn || ''}
+                            onChange={(e) => updateBloodDonationSettings({
+                              heroSubtitle: { ...bloodDonationSettings.heroSubtitle, bn: e.target.value, en: bloodDonationSettings.heroSubtitle?.en || '' }
+                            })}
+                            placeholder="রক্ত দিন, জীবন বাঁচান — চট্টগ্রামের হাটহাজারী থেকে শুরু করে..."
+                            className="w-full px-3.5 py-2 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                          />
+                        </div>
                       </div>
                     </div>
 
-                    <div className="space-y-3 pt-3 border-t border-slate-100">
-                      <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                        Donor Organization Categories
-                      </h4>
-                      <div className="space-y-2">
+                    {/* 2. Hero Right CTA Card Configuration ("Be a Donor, Be a Hero") */}
+                    <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-5 shadow-warm-sm">
+                      <div className="border-b border-slate-100 pb-3">
+                        <h3 className="text-base sm:text-lg font-extrabold text-slate-900 font-display flex items-center gap-2">
+                          <Droplet className="w-5 h-5 text-rose-600 fill-current" />
+                          <span>{isBn ? '২. ডানপাশের অ্যাকশন কার্ড ("Be a Donor, Be a Hero")' : '2. Hero Right Action Card Settings'}</span>
+                        </h3>
+                        <p className="text-xs text-slate-500 mt-0.5">
+                          {isBn ? 'হিরো ব্যানারের ডানদিকের কার্ডের বাটন টেক্সট, শিরোনাম ও হেল্পলাইন পরিবর্তন করুন।' : 'Configure the right-side CTA card badge, title, buttons and helpline.'}
+                        </p>
+                      </div>
+
+                      {/* Card Badge & Card Title */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-bold text-slate-800">
+                            {isBn ? 'কার্ডের ছোট ব্যাজ (ইংরেজি)' : 'Card Top Badge (English)'}
+                          </label>
+                          <input
+                            type="text"
+                            value={bloodDonationSettings.heroCtaBadge?.en || ''}
+                            onChange={(e) => updateBloodDonationSettings({
+                              heroCtaBadge: { ...bloodDonationSettings.heroCtaBadge, en: e.target.value, bn: bloodDonationSettings.heroCtaBadge?.bn || '' }
+                            })}
+                            placeholder="JOIN THE CAUSE"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-bold text-slate-800">
+                            {isBn ? 'কার্ডের ছোট ব্যাজ (বাংলা)' : 'Card Top Badge (Bangla)'}
+                          </label>
+                          <input
+                            type="text"
+                            value={bloodDonationSettings.heroCtaBadge?.bn || ''}
+                            onChange={(e) => updateBloodDonationSettings({
+                              heroCtaBadge: { ...bloodDonationSettings.heroCtaBadge, bn: e.target.value, en: bloodDonationSettings.heroCtaBadge?.en || '' }
+                            })}
+                            placeholder="মানবতার আহ্বান"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-bold text-slate-800">
+                            {isBn ? 'কার্ডের মূল শিরোনাম (ইংরেজি)' : 'Card Heading (English)'}
+                          </label>
+                          <input
+                            type="text"
+                            value={bloodDonationSettings.heroCtaTitle?.en || ''}
+                            onChange={(e) => updateBloodDonationSettings({
+                              heroCtaTitle: { ...bloodDonationSettings.heroCtaTitle, en: e.target.value, bn: bloodDonationSettings.heroCtaTitle?.bn || '' }
+                            })}
+                            placeholder="Be a Donor, Be a Hero"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm font-extrabold focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-bold text-slate-800">
+                            {isBn ? 'কার্ডের মূল শিরোনাম (বাংলা)' : 'Card Heading (Bangla)'}
+                          </label>
+                          <input
+                            type="text"
+                            value={bloodDonationSettings.heroCtaTitle?.bn || ''}
+                            onChange={(e) => updateBloodDonationSettings({
+                              heroCtaTitle: { ...bloodDonationSettings.heroCtaTitle, bn: e.target.value, en: bloodDonationSettings.heroCtaTitle?.en || '' }
+                            })}
+                            placeholder="রক্তদাতা হোন, জীবন বাঁচান"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm font-extrabold focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Card Description */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-bold text-slate-800">
+                            {isBn ? 'কার্ড বিবরণী (ইংরেজি)' : 'Card Description (English)'}
+                          </label>
+                          <textarea
+                            rows={2}
+                            value={bloodDonationSettings.heroCtaDescription?.en || ''}
+                            onChange={(e) => updateBloodDonationSettings({
+                              heroCtaDescription: { ...bloodDonationSettings.heroCtaDescription, en: e.target.value, bn: bloodDonationSettings.heroCtaDescription?.bn || '' }
+                            })}
+                            placeholder="Every drop counts. Register as a voluntary blood donor with Team Infinity..."
+                            className="w-full px-3.5 py-2 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-bold text-slate-800">
+                            {isBn ? 'কার্ড বিবরণী (বাংলা)' : 'Card Description (Bangla)'}
+                          </label>
+                          <textarea
+                            rows={2}
+                            value={bloodDonationSettings.heroCtaDescription?.bn || ''}
+                            onChange={(e) => updateBloodDonationSettings({
+                              heroCtaDescription: { ...bloodDonationSettings.heroCtaDescription, bn: e.target.value, en: bloodDonationSettings.heroCtaDescription?.en || '' }
+                            })}
+                            placeholder="আপনার এক ব্যাগ রক্ত বাঁচাতে পারে একটি মূল্যবান প্রাণ..."
+                            className="w-full px-3.5 py-2 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Button 1 and Button 2 Labels */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-bold text-slate-800">
+                            {isBn ? 'বাটন ১: রক্তদাতা হওয়ার বাটন টেক্সট (ইংরেজি)' : 'Button 1: Become a Donor Text (En)'}
+                          </label>
+                          <input
+                            type="text"
+                            value={bloodDonationSettings.heroCtaBtn1Text?.en || ''}
+                            onChange={(e) => updateBloodDonationSettings({
+                              heroCtaBtn1Text: { ...bloodDonationSettings.heroCtaBtn1Text, en: e.target.value, bn: bloodDonationSettings.heroCtaBtn1Text?.bn || '' }
+                            })}
+                            placeholder="Become a Donor"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm font-bold text-emerald-800 focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-bold text-slate-800">
+                            {isBn ? 'বাটন ১: রক্তদাতা হওয়ার বাটন টেক্সট (বাংলা)' : 'Button 1: Become a Donor Text (Bn)'}
+                          </label>
+                          <input
+                            type="text"
+                            value={bloodDonationSettings.heroCtaBtn1Text?.bn || ''}
+                            onChange={(e) => updateBloodDonationSettings({
+                              heroCtaBtn1Text: { ...bloodDonationSettings.heroCtaBtn1Text, bn: e.target.value, en: bloodDonationSettings.heroCtaBtn1Text?.en || '' }
+                            })}
+                            placeholder="রক্তদাতা হতে রেজিস্ট্রেশন করুন"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm font-bold text-emerald-800 focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-bold text-slate-800">
+                            {isBn ? 'বাটন ২: জরুরি আবেদন বাটন টেক্সট (ইংরেজি)' : 'Button 2: Emergency Request Text (En)'}
+                          </label>
+                          <input
+                            type="text"
+                            value={bloodDonationSettings.heroCtaBtn2Text?.en || ''}
+                            onChange={(e) => updateBloodDonationSettings({
+                              heroCtaBtn2Text: { ...bloodDonationSettings.heroCtaBtn2Text, en: e.target.value, bn: bloodDonationSettings.heroCtaBtn2Text?.bn || '' }
+                            })}
+                            placeholder="Emergency Blood Request"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm font-bold text-rose-700 focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-bold text-slate-800">
+                            {isBn ? 'বাটন ২: জরুরি আবেদন বাটন টেক্সট (বাংলা)' : 'Button 2: Emergency Request Text (Bn)'}
+                          </label>
+                          <input
+                            type="text"
+                            value={bloodDonationSettings.heroCtaBtn2Text?.bn || ''}
+                            onChange={(e) => updateBloodDonationSettings({
+                              heroCtaBtn2Text: { ...bloodDonationSettings.heroCtaBtn2Text, bn: e.target.value, en: bloodDonationSettings.heroCtaBtn2Text?.en || '' }
+                            })}
+                            placeholder="জরুরি রক্তের আবেদন করুন"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm font-bold text-rose-700 focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Helpline & Email */}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t border-slate-100">
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-bold text-slate-800">
+                            {isBn ? 'হেল্পলাইন লেবেল (ইংরেজি / বাংলা)' : 'Helpline Label'}
+                          </label>
+                          <input
+                            type="text"
+                            value={bloodDonationSettings.helplineLabel?.en || ''}
+                            onChange={(e) => updateBloodDonationSettings({
+                              helplineLabel: { ...bloodDonationSettings.helplineLabel, en: e.target.value, bn: bloodDonationSettings.helplineLabel?.bn || '২৪/৭ ব্লাড হেল্পলাইন:' }
+                            })}
+                            placeholder="24/7 Helpline:"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm focus:bg-white focus:outline-none"
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-bold text-slate-800">
+                            {isBn ? '২৪/৭ ইমার্জেন্সি হেল্পলাইন নম্বর *' : '24/7 Emergency Helpline Number *'}
+                          </label>
+                          <input
+                            type="text"
+                            value={bloodDonationSettings.emergencyHelpline}
+                            onChange={(e) => updateBloodDonationSettings({ emergencyHelpline: e.target.value })}
+                            placeholder="+880 1839-008339"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm font-mono font-bold text-[#006A4E] focus:bg-white focus:outline-none"
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-bold text-slate-800">
+                            {isBn ? 'সমন্বয় ইমেইল এড্রেস' : 'Coordination Email'}
+                          </label>
+                          <input
+                            type="email"
+                            value={bloodDonationSettings.coordinationEmail}
+                            onChange={(e) => updateBloodDonationSettings({ coordinationEmail: e.target.value })}
+                            placeholder="blood@infinitybangladesh.org"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm focus:bg-white focus:outline-none"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 3. Dynamic 4 Statistics Counters & Custom Labels */}
+                    <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-5 shadow-warm-sm">
+                      <div className="border-b border-slate-100 pb-3">
+                        <h3 className="text-base sm:text-lg font-extrabold text-slate-900 font-display flex items-center gap-2">
+                          <Activity className="w-5 h-5 text-emerald-600" />
+                          <span>{isBn ? '৩. চারটি পরিসংখ্যান কাউন্টার ও লেবেল কাস্টমাইজেশন' : '3. Four Dynamic Statistics Counters & Labels'}</span>
+                        </h3>
+                        <p className="text-xs text-slate-500 mt-0.5">
+                          {isBn ? 'কাউন্টারের লেবেল পরিবর্তন করুন অথবা ম্যানুয়াল সংখ্যা দিন (ফাঁকা রাখলে স্বয়ংক্রিয় ডাটাবেজ থেকে গণনা করবে)।' : 'Change metric labels or provide manual overrides (leave blank to auto-calculate from live database).'}
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        {/* Stat 1: Total Donors */}
+                        <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-3">
+                          <p className="text-xs font-black uppercase text-slate-700">
+                            {isBn ? 'কাউন্টার ১: মোট রক্তদাতা' : 'Counter 1: Total Donors'}
+                          </p>
+                          <div className="space-y-1">
+                            <label className="text-[11px] font-bold text-slate-600">English Label</label>
+                            <input
+                              type="text"
+                              value={bloodDonationSettings.statTotalDonorsLabel?.en || ''}
+                              onChange={(e) => updateBloodDonationSettings({
+                                statTotalDonorsLabel: { ...bloodDonationSettings.statTotalDonorsLabel, en: e.target.value, bn: bloodDonationSettings.statTotalDonorsLabel?.bn || 'নিবন্ধিত রক্তদাতা' }
+                              })}
+                              placeholder="Total Donors"
+                              className="w-full px-3 py-1.5 rounded-xl border border-[#EAE3D9] bg-white text-xs"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-[11px] font-bold text-slate-600">বাংলা লেবেল</label>
+                            <input
+                              type="text"
+                              value={bloodDonationSettings.statTotalDonorsLabel?.bn || ''}
+                              onChange={(e) => updateBloodDonationSettings({
+                                statTotalDonorsLabel: { ...bloodDonationSettings.statTotalDonorsLabel, bn: e.target.value, en: bloodDonationSettings.statTotalDonorsLabel?.en || 'Total Donors' }
+                              })}
+                              placeholder="নিবন্ধিত রক্তদাতা"
+                              className="w-full px-3 py-1.5 rounded-xl border border-[#EAE3D9] bg-white text-xs"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-[11px] font-bold text-slate-600 flex items-center justify-between">
+                              <span>Override Count</span>
+                              <span className="text-[10px] text-slate-400">Optional</span>
+                            </label>
+                            <input
+                              type="number"
+                              value={bloodDonationSettings.statTotalDonorsOverride ?? ''}
+                              onChange={(e) => updateBloodDonationSettings({
+                                statTotalDonorsOverride: e.target.value ? Number(e.target.value) : null
+                              })}
+                              placeholder="Auto from DB"
+                              className="w-full px-3 py-1.5 rounded-xl border border-[#EAE3D9] bg-white text-xs font-bold text-[#006A4E]"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Stat 2: Active Donors */}
+                        <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-3">
+                          <p className="text-xs font-black uppercase text-slate-700">
+                            {isBn ? 'কাউন্টার ২: সক্রিয় রক্তদাতা' : 'Counter 2: Active Donors'}
+                          </p>
+                          <div className="space-y-1">
+                            <label className="text-[11px] font-bold text-slate-600">English Label</label>
+                            <input
+                              type="text"
+                              value={bloodDonationSettings.statActiveDonorsLabel?.en || ''}
+                              onChange={(e) => updateBloodDonationSettings({
+                                statActiveDonorsLabel: { ...bloodDonationSettings.statActiveDonorsLabel, en: e.target.value, bn: bloodDonationSettings.statActiveDonorsLabel?.bn || 'জরুরিতে প্রস্তুত' }
+                              })}
+                              placeholder="Active Donors"
+                              className="w-full px-3 py-1.5 rounded-xl border border-[#EAE3D9] bg-white text-xs"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-[11px] font-bold text-slate-600">বাংলা লেবেল</label>
+                            <input
+                              type="text"
+                              value={bloodDonationSettings.statActiveDonorsLabel?.bn || ''}
+                              onChange={(e) => updateBloodDonationSettings({
+                                statActiveDonorsLabel: { ...bloodDonationSettings.statActiveDonorsLabel, bn: e.target.value, en: bloodDonationSettings.statActiveDonorsLabel?.en || 'Active Donors' }
+                              })}
+                              placeholder="জরুরিতে প্রস্তুত"
+                              className="w-full px-3 py-1.5 rounded-xl border border-[#EAE3D9] bg-white text-xs"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-[11px] font-bold text-slate-600 flex items-center justify-between">
+                              <span>Override Count</span>
+                              <span className="text-[10px] text-slate-400">Optional</span>
+                            </label>
+                            <input
+                              type="number"
+                              value={bloodDonationSettings.statActiveDonorsOverride ?? ''}
+                              onChange={(e) => updateBloodDonationSettings({
+                                statActiveDonorsOverride: e.target.value ? Number(e.target.value) : null
+                              })}
+                              placeholder="Auto from DB"
+                              className="w-full px-3 py-1.5 rounded-xl border border-[#EAE3D9] bg-white text-xs font-bold text-emerald-700"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Stat 3: Blood Groups */}
+                        <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-3">
+                          <p className="text-xs font-black uppercase text-slate-700">
+                            {isBn ? 'কাউন্টার ৩: ব্লাড গ্রুপস' : 'Counter 3: Blood Groups'}
+                          </p>
+                          <div className="space-y-1">
+                            <label className="text-[11px] font-bold text-slate-600">English Label</label>
+                            <input
+                              type="text"
+                              value={bloodDonationSettings.statGroupsLabel?.en || ''}
+                              onChange={(e) => updateBloodDonationSettings({
+                                statGroupsLabel: { ...bloodDonationSettings.statGroupsLabel, en: e.target.value, bn: bloodDonationSettings.statGroupsLabel?.bn || 'সকল ব্লাড গ্রুপ' }
+                              })}
+                              placeholder="Blood Groups"
+                              className="w-full px-3 py-1.5 rounded-xl border border-[#EAE3D9] bg-white text-xs"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-[11px] font-bold text-slate-600">বাংলা লেবেল</label>
+                            <input
+                              type="text"
+                              value={bloodDonationSettings.statGroupsLabel?.bn || ''}
+                              onChange={(e) => updateBloodDonationSettings({
+                                statGroupsLabel: { ...bloodDonationSettings.statGroupsLabel, bn: e.target.value, en: bloodDonationSettings.statGroupsLabel?.en || 'Blood Groups' }
+                              })}
+                              placeholder="সকল ব্লাড গ্রুপ"
+                              className="w-full px-3 py-1.5 rounded-xl border border-[#EAE3D9] bg-white text-xs"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-[11px] font-bold text-slate-600">Display Value</label>
+                            <input
+                              type="text"
+                              value={bloodDonationSettings.statGroupsValue || '8/8'}
+                              onChange={(e) => updateBloodDonationSettings({ statGroupsValue: e.target.value })}
+                              placeholder="8/8"
+                              className="w-full px-3 py-1.5 rounded-xl border border-[#EAE3D9] bg-white text-xs font-bold text-rose-700"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Stat 4: Lives Impacted */}
+                        <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-3">
+                          <p className="text-xs font-black uppercase text-slate-700">
+                            {isBn ? 'কাউন্টার ৪: রক্তদান সম্পন্ন' : 'Counter 4: Lives Impacted'}
+                          </p>
+                          <div className="space-y-1">
+                            <label className="text-[11px] font-bold text-slate-600">English Label</label>
+                            <input
+                              type="text"
+                              value={bloodDonationSettings.statImpactLabel?.en || ''}
+                              onChange={(e) => updateBloodDonationSettings({
+                                statImpactLabel: { ...bloodDonationSettings.statImpactLabel, en: e.target.value, bn: bloodDonationSettings.statImpactLabel?.bn || 'মোট রক্তদান সম্পন্ন' }
+                              })}
+                              placeholder="Lives Impacted"
+                              className="w-full px-3 py-1.5 rounded-xl border border-[#EAE3D9] bg-white text-xs"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-[11px] font-bold text-slate-600">বাংলা লেবেল</label>
+                            <input
+                              type="text"
+                              value={bloodDonationSettings.statImpactLabel?.bn || ''}
+                              onChange={(e) => updateBloodDonationSettings({
+                                statImpactLabel: { ...bloodDonationSettings.statImpactLabel, bn: e.target.value, en: bloodDonationSettings.statImpactLabel?.en || 'Lives Impacted' }
+                              })}
+                              placeholder="মোট রক্তদান সম্পন্ন"
+                              className="w-full px-3 py-1.5 rounded-xl border border-[#EAE3D9] bg-white text-xs"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-[11px] font-bold text-slate-600 flex items-center justify-between">
+                              <span>Override Count</span>
+                              <span className="text-[10px] text-slate-400">Optional</span>
+                            </label>
+                            <input
+                              type="number"
+                              value={bloodDonationSettings.statImpactOverride ?? ''}
+                              onChange={(e) => updateBloodDonationSettings({
+                                statImpactOverride: e.target.value ? Number(e.target.value) : null
+                              })}
+                              placeholder="Auto from DB"
+                              className="w-full px-3 py-1.5 rounded-xl border border-[#EAE3D9] bg-white text-xs font-bold text-amber-700"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 4. Guidelines & Consent Policy Configuration */}
+                    <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-5 shadow-warm-sm">
+                      <div className="border-b border-slate-100 pb-3">
+                        <h3 className="text-base sm:text-lg font-extrabold text-slate-900 font-display flex items-center gap-2">
+                          <FileText className="w-5 h-5 text-[#006A4E]" />
+                          <span>{isBn ? '৪. রক্তদানের নির্দেশিকা ও সম্মতি বিবৃতি' : '4. Guidelines & Registration Consent Policy'}</span>
+                        </h3>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-bold text-slate-800">
+                            {isBn ? 'নির্দেশিকা শিরোনাম (ইংরেজি)' : 'Guidelines Title (English)'}
+                          </label>
+                          <input
+                            type="text"
+                            value={bloodDonationSettings.guidelinesTitle?.en || ''}
+                            onChange={(e) => updateBloodDonationSettings({
+                              guidelinesTitle: { ...bloodDonationSettings.guidelinesTitle, en: e.target.value, bn: bloodDonationSettings.guidelinesTitle?.bn || '' }
+                            })}
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm focus:bg-white focus:outline-none"
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-bold text-slate-800">
+                            {isBn ? 'নির্দেশিকা শিরোনাম (বাংলা)' : 'Guidelines Title (Bangla)'}
+                          </label>
+                          <input
+                            type="text"
+                            value={bloodDonationSettings.guidelinesTitle?.bn || ''}
+                            onChange={(e) => updateBloodDonationSettings({
+                              guidelinesTitle: { ...bloodDonationSettings.guidelinesTitle, bn: e.target.value, en: bloodDonationSettings.guidelinesTitle?.en || '' }
+                            })}
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm focus:bg-white focus:outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-bold text-slate-800">
+                            {isBn ? 'রক্তদান নির্দেশিকা বিবরণী (ইংরেজি)' : 'Guidelines Details (English)'}
+                          </label>
+                          <textarea
+                            rows={3}
+                            value={bloodDonationSettings.guidelinesText?.en || ''}
+                            onChange={(e) => updateBloodDonationSettings({
+                              guidelinesText: { ...bloodDonationSettings.guidelinesText, en: e.target.value, bn: bloodDonationSettings.guidelinesText?.bn || '' }
+                            })}
+                            className="w-full px-3.5 py-2 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs focus:bg-white focus:outline-none"
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-bold text-slate-800">
+                            {isBn ? 'রক্তদান নির্দেশিকা বিবরণী (বাংলা)' : 'Guidelines Details (Bangla)'}
+                          </label>
+                          <textarea
+                            rows={3}
+                            value={bloodDonationSettings.guidelinesText?.bn || ''}
+                            onChange={(e) => updateBloodDonationSettings({
+                              guidelinesText: { ...bloodDonationSettings.guidelinesText, bn: e.target.value, en: bloodDonationSettings.guidelinesText?.en || '' }
+                            })}
+                            className="w-full px-3.5 py-2 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs focus:bg-white focus:outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Consent Statement */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-bold text-slate-800">
+                            {isBn ? 'নিবন্ধন সম্মতিপত্র (ইংরেজি)' : 'Consent Statement (English)'}
+                          </label>
+                          <textarea
+                            rows={2}
+                            value={bloodDonationSettings.consentStatement?.en || ''}
+                            onChange={(e) => updateBloodDonationSettings({
+                              consentStatement: { ...bloodDonationSettings.consentStatement, en: e.target.value, bn: bloodDonationSettings.consentStatement?.bn || '' }
+                            })}
+                            className="w-full px-3.5 py-2 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs focus:bg-white focus:outline-none"
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-bold text-slate-800">
+                            {isBn ? 'নিবন্ধন সম্মতিপত্র (বাংলা)' : 'Consent Statement (Bangla)'}
+                          </label>
+                          <textarea
+                            rows={2}
+                            value={bloodDonationSettings.consentStatement?.bn || ''}
+                            onChange={(e) => updateBloodDonationSettings({
+                              consentStatement: { ...bloodDonationSettings.consentStatement, bn: e.target.value, en: bloodDonationSettings.consentStatement?.en || '' }
+                            })}
+                            className="w-full px-3.5 py-2 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs focus:bg-white focus:outline-none"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 5. Donor Organization Categories Management */}
+                    <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-5 shadow-warm-sm">
+                      <div className="border-b border-slate-100 pb-3">
+                        <h3 className="text-base sm:text-lg font-extrabold text-slate-900 font-display flex items-center gap-2">
+                          <Building2 className="w-5 h-5 text-[#006A4E]" />
+                          <span>{isBn ? '৫. রক্তদাতা সাংগঠনিক ক্যাটাগরি ম্যানেজমেন্ট' : '5. Donor Organization Categories'}</span>
+                        </h3>
+                        <p className="text-xs text-slate-500 mt-0.5">
+                          {isBn ? 'রক্তদাতা নিবন্ধনে ব্যবহারের জন্য নতুন ক্যাটাগরি যোগ বা মুছে ফেলুন।' : 'Manage categorization options for blood donors (volunteers, committee members, etc.)'}
+                        </p>
+                      </div>
+
+                      {/* Add New Category Input Form */}
+                      <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-3">
+                        <p className="text-xs font-bold text-slate-800">
+                          {isBn ? 'নতুন ক্যাটাগরি যোগ করুন' : 'Add New Category'}
+                        </p>
+                        <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                          <input
+                            type="text"
+                            placeholder="Category Name (English)"
+                            value={newDonorCategoryEn}
+                            onChange={(e) => setNewDonorCategoryEn(e.target.value)}
+                            className="sm:col-span-5 px-3.5 py-2 rounded-xl border border-[#EAE3D9] bg-white text-xs"
+                          />
+                          <input
+                            type="text"
+                            placeholder="ক্যাটাগরির নাম (বাংলা)"
+                            value={newDonorCategoryBn}
+                            onChange={(e) => setNewDonorCategoryBn(e.target.value)}
+                            className="sm:col-span-5 px-3.5 py-2 rounded-xl border border-[#EAE3D9] bg-white text-xs font-bengali"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (!newDonorCategoryEn.trim()) {
+                                alert('Please provide English category name');
+                                return;
+                              }
+                              addDonorCategory({
+                                name: {
+                                  en: newDonorCategoryEn.trim(),
+                                  bn: newDonorCategoryBn.trim() || newDonorCategoryEn.trim()
+                                },
+                                displayOrder: donorCategories.length + 1
+                              });
+                              setNewDonorCategoryEn('');
+                              setNewDonorCategoryBn('');
+                              showToast('Donor category added');
+                            }}
+                            className="sm:col-span-2 px-4 py-2 rounded-xl bg-[#006A4E] hover:bg-[#00523C] text-white font-extrabold text-xs flex items-center justify-center gap-1 cursor-pointer"
+                          >
+                            <Plus className="w-4 h-4" />
+                            <span>{isBn ? 'যোগ করুন' : 'Add'}</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* List of Existing Categories */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {donorCategories.map(cat => (
-                          <div key={cat.id} className="p-3 rounded-xl bg-[#FAF7F2] border border-[#EAE3D9] flex items-center justify-between text-xs">
-                            <span className="font-bold text-slate-800">{cat.name.en} ({cat.name.bn})</span>
+                          <div key={cat.id} className="p-3.5 rounded-2xl bg-white border border-[#EAE3D9] flex items-center justify-between text-xs shadow-2xs hover:border-[#006A4E]/30 transition-colors">
+                            <div>
+                              <p className="font-extrabold text-slate-900">{cat.name.en}</p>
+                              <p className="text-slate-500 font-bengali">{cat.name.bn}</p>
+                            </div>
                             <button
                               type="button"
-                              onClick={() => deleteDonorCategory(cat.id)}
-                              className="text-rose-600 hover:text-rose-800 font-bold"
+                              onClick={() => {
+                                if (confirm(`Delete category "${cat.name.en}"?`)) {
+                                  deleteDonorCategory(cat.id);
+                                  showToast('Category deleted');
+                                }
+                              }}
+                              className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg cursor-pointer transition-colors"
+                              title="Delete Category"
                             >
-                              Delete
+                              <Trash2 className="w-4 h-4" />
                             </button>
                           </div>
                         ))}

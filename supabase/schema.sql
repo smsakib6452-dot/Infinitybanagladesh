@@ -764,16 +764,48 @@ CREATE INDEX IF NOT EXISTS idx_emergency_requests_status ON public.emergency_blo
 -- 4. Blood Donation Settings
 CREATE TABLE IF NOT EXISTS public.blood_donation_settings (
   id TEXT PRIMARY KEY DEFAULT 'default_blood_settings',
+  hero_badge JSONB NOT NULL DEFAULT '{"en": "Emergency Blood Donation & Coordination", "bn": "জরুরি রক্তদান ও সমন্বয় নেটওয়ার্ক"}'::jsonb,
   hero_title JSONB NOT NULL DEFAULT '{"en": "Infinity Blood Donation Network", "bn": "ইনফিনিটি বাংলাদেশ রক্তদান নেটওয়ার্ক"}'::jsonb,
-  hero_subtitle JSONB NOT NULL DEFAULT '{"en": "Donate Blood, Save Lives – Be a Hero", "bn": "রক্ত দিন, জীবন বাঁচান — মানবতার সেবায় এগিয়ে আসুন"}'::jsonb,
+  hero_subtitle JSONB NOT NULL DEFAULT '{"en": "Donate Blood, Save Lives – Connecting compassionate voluntary donors across Bangladesh to serve emergency patients with speed, verified trust, and dignity.", "bn": "রক্ত দিন, জীবন বাঁচান — চট্টগ্রামের হাটহাজারী থেকে শুরু করে দেশব্যাপী স্বেচ্ছাসেবী রক্তদাতাদের একত্রিত করে মুমূর্ষু রোগীর পাশে টিম ইনফিনিটি।"}'::jsonb,
+  hero_cta_badge JSONB NOT NULL DEFAULT '{"en": "JOIN THE CAUSE", "bn": "মানবতার আহ্বান"}'::jsonb,
+  hero_cta_title JSONB NOT NULL DEFAULT '{"en": "Be a Donor, Be a Hero", "bn": "রক্তদাতা হোন, জীবন বাঁচান"}'::jsonb,
+  hero_cta_description JSONB NOT NULL DEFAULT '{"en": "Every drop counts. Register as a voluntary blood donor with Team Infinity and become someone’s lifeline in moments of crisis.", "bn": "আপনার এক ব্যাগ রক্ত বাঁচাতে পারে একটি মূল্যবান প্রাণ। ইনফিনিটি বাংলাদেশ রক্তদান নেটওয়ার্কে রক্তদাতা হিসেবে যুক্ত হতে এখনই রেজিস্ট্রেশন করুন।"}'::jsonb,
+  hero_cta_btn1_text JSONB NOT NULL DEFAULT '{"en": "Become a Donor", "bn": "রক্তদাতা হতে রেজিস্ট্রেশন করুন"}'::jsonb,
+  hero_cta_btn2_text JSONB NOT NULL DEFAULT '{"en": "Emergency Blood Request", "bn": "জরুরি রক্তের আবেদন করুন"}'::jsonb,
+  stat_total_donors_label JSONB NOT NULL DEFAULT '{"en": "Total Donors", "bn": "নিবন্ধিত রক্তদাতা"}'::jsonb,
+  stat_active_donors_label JSONB NOT NULL DEFAULT '{"en": "Active Donors", "bn": "জরুরিতে প্রস্তুত"}'::jsonb,
+  stat_groups_label JSONB NOT NULL DEFAULT '{"en": "Blood Groups", "bn": "সকল ব্লাড গ্রুপ"}'::jsonb,
+  stat_groups_value TEXT NOT NULL DEFAULT '8/8',
+  stat_impact_label JSONB NOT NULL DEFAULT '{"en": "Lives Impacted", "bn": "মোট রক্তদান সম্পন্ন"}'::jsonb,
+  stat_total_donors_override INTEGER DEFAULT NULL,
+  stat_active_donors_override INTEGER DEFAULT NULL,
+  stat_impact_override INTEGER DEFAULT NULL,
   emergency_helpline TEXT NOT NULL DEFAULT '+880 1839-008339',
+  helpline_label JSONB NOT NULL DEFAULT '{"en": "24/7 Helpline:", "bn": "২৪/৭ ব্লাড হেল্পলাইন:"}'::jsonb,
   coordination_email TEXT NOT NULL DEFAULT 'blood@infinitybangladesh.org',
-  guidelines_title JSONB NOT NULL DEFAULT '{"en": "Blood Donation Guidelines & Eligibility", "bn": "রক্তদানের নীতিমালা ও আবশ্যিক নির্দেশিকা"}'::jsonb,
+  guidelines_title JSONB NOT NULL DEFAULT '{"en": "Blood Donation Guidelines & Health Safety", "bn": "রক্তদানের সাধারণ নিয়মাবলী ও স্বাস্থ্য তথ্য"}'::jsonb,
   guidelines_text JSONB NOT NULL DEFAULT '{"en": "Age: 18-60 years. Minimum Weight: 45kg for females, 50kg for males. Interval: At least 3-4 months between donations.", "bn": "বয়স: ১৮-৬০ বছর। সর্বনিম্ন ওজন: মহিলাদের ৪৫ কেজি, পুরুষদের ৫০ কেজি। ব্যবধান: প্রতি ৩-৪ মাস পর পর রক্তদান করা নিরাপদ।"}'::jsonb,
   consent_statement JSONB NOT NULL DEFAULT '{"en": "I hereby confirm my willingness to be a voluntary blood donor and consent to Infinity Bangladesh coordinating blood requests.", "bn": "আমি স্বেচ্ছায় রক্তদাতা হিসেবে নিবন্ধিত হতে সম্মত এবং ইনফিনিটি বাংলাদেশ কর্তৃক রক্তদানের সমন্বয়ে তথ্য ব্যবহারে সম্মতি দিচ্ছি।"}'::jsonb,
   enable_public_direct_contact BOOLEAN NOT NULL DEFAULT TRUE,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Ensure all new columns exist on existing table instances
+ALTER TABLE public.blood_donation_settings ADD COLUMN IF NOT EXISTS hero_badge JSONB DEFAULT '{"en": "Emergency Blood Donation & Coordination", "bn": "জরুরি রক্তদান ও সমন্বয় নেটওয়ার্ক"}'::jsonb;
+ALTER TABLE public.blood_donation_settings ADD COLUMN IF NOT EXISTS hero_cta_badge JSONB DEFAULT '{"en": "JOIN THE CAUSE", "bn": "মানবতার আহ্বান"}'::jsonb;
+ALTER TABLE public.blood_donation_settings ADD COLUMN IF NOT EXISTS hero_cta_title JSONB DEFAULT '{"en": "Be a Donor, Be a Hero", "bn": "রক্তদাতা হোন, জীবন বাঁচান"}'::jsonb;
+ALTER TABLE public.blood_donation_settings ADD COLUMN IF NOT EXISTS hero_cta_description JSONB DEFAULT '{"en": "Every drop counts. Register as a voluntary blood donor with Team Infinity and become someone’s lifeline in moments of crisis.", "bn": "আপনার এক ব্যাগ রক্ত বাঁচাতে পারে একটি মূল্যবান প্রাণ। ইনফিনিটি বাংলাদেশ রক্তদান নেটওয়ার্কে রক্তদাতা হিসেবে যুক্ত হতে এখনই রেজিস্ট্রেশন করুন।"}'::jsonb;
+ALTER TABLE public.blood_donation_settings ADD COLUMN IF NOT EXISTS hero_cta_btn1_text JSONB DEFAULT '{"en": "Become a Donor", "bn": "রক্তদাতা হতে রেজিস্ট্রেশন করুন"}'::jsonb;
+ALTER TABLE public.blood_donation_settings ADD COLUMN IF NOT EXISTS hero_cta_btn2_text JSONB DEFAULT '{"en": "Emergency Blood Request", "bn": "জরুরি রক্তের আবেদন করুন"}'::jsonb;
+ALTER TABLE public.blood_donation_settings ADD COLUMN IF NOT EXISTS stat_total_donors_label JSONB DEFAULT '{"en": "Total Donors", "bn": "নিবন্ধিত রক্তদাতা"}'::jsonb;
+ALTER TABLE public.blood_donation_settings ADD COLUMN IF NOT EXISTS stat_active_donors_label JSONB DEFAULT '{"en": "Active Donors", "bn": "জরুরিতে প্রস্তুত"}'::jsonb;
+ALTER TABLE public.blood_donation_settings ADD COLUMN IF NOT EXISTS stat_groups_label JSONB DEFAULT '{"en": "Blood Groups", "bn": "সকল ব্লাড গ্রুপ"}'::jsonb;
+ALTER TABLE public.blood_donation_settings ADD COLUMN IF NOT EXISTS stat_groups_value TEXT DEFAULT '8/8';
+ALTER TABLE public.blood_donation_settings ADD COLUMN IF NOT EXISTS stat_impact_label JSONB DEFAULT '{"en": "Lives Impacted", "bn": "মোট রক্তদান সম্পন্ন"}'::jsonb;
+ALTER TABLE public.blood_donation_settings ADD COLUMN IF NOT EXISTS stat_total_donors_override INTEGER DEFAULT NULL;
+ALTER TABLE public.blood_donation_settings ADD COLUMN IF NOT EXISTS stat_active_donors_override INTEGER DEFAULT NULL;
+ALTER TABLE public.blood_donation_settings ADD COLUMN IF NOT EXISTS stat_impact_override INTEGER DEFAULT NULL;
+ALTER TABLE public.blood_donation_settings ADD COLUMN IF NOT EXISTS helpline_label JSONB DEFAULT '{"en": "24/7 Helpline:", "bn": "২৪/৭ ব্লাড হেল্পলাইন:"}'::jsonb;
 
 -- ==============================================================================
 -- 6. ROW LEVEL SECURITY (RLS) POLICIES — FULL READ & WRITE ACCESS FOR ALL CMS TABLES

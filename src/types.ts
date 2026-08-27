@@ -958,9 +958,24 @@ export interface EmergencyBloodRequest {
 }
 
 export interface BloodDonationSettings {
+  heroBadge?: BilingualText;
   heroTitle: BilingualText;
   heroSubtitle: BilingualText;
+  heroCtaBadge?: BilingualText;
+  heroCtaTitle?: BilingualText;
+  heroCtaDescription?: BilingualText;
+  heroCtaBtn1Text?: BilingualText;
+  heroCtaBtn2Text?: BilingualText;
+  statTotalDonorsLabel?: BilingualText;
+  statActiveDonorsLabel?: BilingualText;
+  statGroupsLabel?: BilingualText;
+  statGroupsValue?: string;
+  statImpactLabel?: BilingualText;
+  statTotalDonorsOverride?: number | null;
+  statActiveDonorsOverride?: number | null;
+  statImpactOverride?: number | null;
   emergencyHelpline: string;
+  helplineLabel?: BilingualText;
   coordinationEmail: string;
   guidelinesTitle: BilingualText;
   guidelinesText: BilingualText;

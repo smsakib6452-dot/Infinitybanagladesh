@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
 import { useRouter } from '../context/RouterContext';
@@ -40,7 +40,11 @@ import {
   Check,
   Building2,
   Flame,
-  Plus
+  Plus,
+  Camera,
+  Upload,
+  Trash2,
+  ImageIcon
 } from 'lucide-react';
 
 interface BloodDonationPageProps {
@@ -103,6 +107,9 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
   const [regPhone, setRegPhone] = useState('');
   const [regEmail, setRegEmail] = useState('');
   const [regPhotoUrl, setRegPhotoUrl] = useState('');
+  const [regPhotoFileName, setRegPhotoFileName] = useState('');
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const regPhotoInputRef = useRef<HTMLInputElement>(null);
   const [regDistrict, setRegDistrict] = useState('Chattogram');
   const [regUpazila, setRegUpazila] = useState('Hathazari');
   const [regArea, setRegArea] = useState('');
@@ -119,6 +126,112 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
   const [regSubmitted, setRegSubmitted] = useState(false);
   const [regRefId, setRegRefId] = useState('');
   const [regFormError, setRegFormError] = useState<string | null>(null);
+
+  // Handle Donor Photo Selection with Canvas Compression
+  const handleDonorPhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate format
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      setRegFormError(
+        isBn
+          ? 'অনুগ্রহ করে JPG, JPEG, PNG বা WebP ফরম্যাটের ছবি আপলোড করুন।'
+          : 'Please upload a JPG, JPEG, PNG, or WebP format image.'
+      );
+      return;
+    }
+
+    // Validate size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setRegFormError(
+        isBn
+          ? 'ছবির সাইজ ৫ মেগাবাইট (5MB)-এর কম হতে হবে।'
+          : 'Image size must be under 5MB.'
+      );
+      return;
+    }
+
+    setRegPhotoFileName(file.name);
+    setRegFormError(null);
+    setIsUploadingPhoto(true);
+
+    const reader = new FileReader();
+    reader.onload = (readerEvent) => {
+      const img = new Image();
+      img.onload = () => {
+        // Optimize and compress large images to maintain snappy client performance
+        const maxDim = 800;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+          setRegPhotoUrl(compressedDataUrl);
+        } else {
+          setRegPhotoUrl(readerEvent.target?.result as string);
+        }
+        setIsUploadingPhoto(false);
+      };
+      img.onerror = () => {
+        setRegPhotoUrl(readerEvent.target?.result as string);
+        setIsUploadingPhoto(false);
+      };
+      img.src = readerEvent.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveDonorPhoto = () => {
+    setRegPhotoUrl('');
+    setRegPhotoFileName('');
+    if (regPhotoInputRef.current) {
+      regPhotoInputRef.current.value = '';
+    }
+  };
+
+  const resetDonorRegistrationForm = () => {
+    setRegFullName('');
+    setRegBloodGroup('O+');
+    setRegPhone('');
+    setRegEmail('');
+    setRegPhotoUrl('');
+    setRegPhotoFileName('');
+    if (regPhotoInputRef.current) {
+      regPhotoInputRef.current.value = '';
+    }
+    setRegDistrict('Chattogram');
+    setRegUpazila('Hathazari');
+    setRegArea('');
+    setRegDetailedAddress('');
+    setRegOrgCategory('Infinity Bangladesh Volunteer');
+    setRegCommitteePosition('');
+    setRegAvailability('AVAILABLE_EMERGENCY');
+    setRegFirstDonationDate('');
+    setRegLastDonationDate('');
+    setRegTotalDonations(0);
+    setRegExperienceNotes('');
+    setRegConsent(true);
+    setRegShowPhone(false);
+    setRegFormError(null);
+    setRegSubmitted(false);
+  };
 
   // ----------------------------------------------------
   // EMERGENCY BLOOD REQUEST FORM STATE
@@ -326,7 +439,9 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
             <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-rose-500/20 text-rose-300 border border-rose-400/30">
                 <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
-                <span>{isBn ? 'জরুরি রক্তদান ও সমন্বয় নেটওয়ার্ক' : 'Emergency Blood Donation & Coordination'}</span>
+                <span>
+                  {tText(bloodDonationSettings.heroBadge) || (isBn ? 'জরুরি রক্তদান ও সমন্বয় নেটওয়ার্ক' : 'Emergency Blood Donation & Coordination')}
+                </span>
               </div>
 
               <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight font-display text-white leading-tight">
@@ -343,37 +458,39 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
                 <div className="p-3.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 text-center">
                   <p className="text-2xl sm:text-3xl font-extrabold text-white font-display">
-                    {stats.totalDonors}
+                    {bloodDonationSettings.statTotalDonorsOverride ?? stats.totalDonors}
                   </p>
                   <p className="text-[11px] font-bold text-emerald-200 mt-0.5">
-                    {isBn ? 'নিবন্ধিত রক্তদাতা' : 'Total Donors'}
+                    {tText(bloodDonationSettings.statTotalDonorsLabel) || (isBn ? 'নিবন্ধিত রক্তদাতা' : 'Total Donors')}
                   </p>
                 </div>
 
                 <div className="p-3.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 text-center">
                   <p className="text-2xl sm:text-3xl font-extrabold text-emerald-300 font-display">
-                    {stats.activeDonors}
+                    {bloodDonationSettings.statActiveDonorsOverride ?? stats.activeDonors}
                   </p>
                   <p className="text-[11px] font-bold text-emerald-200 mt-0.5">
-                    {isBn ? 'জরুরিতে প্রস্তুত' : 'Active Donors'}
+                    {tText(bloodDonationSettings.statActiveDonorsLabel) || (isBn ? 'জরুরিতে প্রস্তুত' : 'Active Donors')}
                   </p>
                 </div>
 
                 <div className="p-3.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 text-center">
                   <p className="text-2xl sm:text-3xl font-extrabold text-rose-300 font-display">
-                    8/8
+                    {bloodDonationSettings.statGroupsValue || '8/8'}
                   </p>
                   <p className="text-[11px] font-bold text-emerald-200 mt-0.5">
-                    {isBn ? 'সকল ব্লাড গ্রুপ' : 'Blood Groups'}
+                    {tText(bloodDonationSettings.statGroupsLabel) || (isBn ? 'সকল ব্লাড গ্রুপ' : 'Blood Groups')}
                   </p>
                 </div>
 
                 <div className="p-3.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 text-center">
                   <p className="text-2xl sm:text-3xl font-extrabold text-amber-300 font-display">
-                    {stats.totalDonations}+
+                    {bloodDonationSettings.statImpactOverride !== null && bloodDonationSettings.statImpactOverride !== undefined
+                      ? `${bloodDonationSettings.statImpactOverride}+`
+                      : `${stats.totalDonations}+`}
                   </p>
                   <p className="text-[11px] font-bold text-emerald-200 mt-0.5">
-                    {isBn ? 'মোট রক্তদান সম্পন্ন' : 'Lives Impacted'}
+                    {tText(bloodDonationSettings.statImpactLabel) || (isBn ? 'মোট রক্তদান সম্পন্ন' : 'Lives Impacted')}
                   </p>
                 </div>
               </div>
@@ -389,19 +506,19 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                     </div>
                     <div>
                       <span className="text-[10px] font-extrabold uppercase tracking-wider text-rose-700 bg-rose-50 px-2 py-0.5 rounded-md">
-                        {isBn ? 'মানবতার আহ্বান' : 'Join The Cause'}
+                        {tText(bloodDonationSettings.heroCtaBadge) || (isBn ? 'মানবতার আহ্বান' : 'JOIN THE CAUSE')}
                       </span>
                       <h3 className="text-xl font-extrabold text-slate-900 font-display">
-                        {isBn ? 'রক্তদাতা হোন, জীবন বাঁচান' : 'Be a Donor, Be a Hero'}
+                        {tText(bloodDonationSettings.heroCtaTitle) || (isBn ? 'রক্তদাতা হোন, জীবন বাঁচান' : 'Be a Donor, Be a Hero')}
                       </h3>
                     </div>
                   </div>
                 </div>
 
                 <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                  {isBn
+                  {tText(bloodDonationSettings.heroCtaDescription) || (isBn
                     ? 'আপনার এক ব্যাগ রক্ত বাঁচাতে পারে একটি মূল্যবান প্রাণ। ইনফিনিটি বাংলাদেশ রক্তদান নেটওয়ার্কে রক্তদাতা হিসেবে যুক্ত হতে এখনই রেজিস্ট্রেশন করুন।'
-                    : 'Every drop counts. Register as a voluntary blood donor with Team Infinity and become someone’s lifeline in moments of crisis.'}
+                    : 'Every drop counts. Register as a voluntary blood donor with Team Infinity and become someone’s lifeline in moments of crisis.')}
                 </p>
 
                 <div className="space-y-3 pt-1">
@@ -411,7 +528,9 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                     className="w-full py-3.5 rounded-2xl bg-[#006A4E] hover:bg-[#00523C] text-white font-extrabold text-sm shadow-warm-md transition-all flex items-center justify-center gap-2 cursor-pointer transform hover:-translate-y-0.5"
                   >
                     <UserPlus className="w-4 h-4" />
-                    <span>{isBn ? 'রক্তদাতা হতে রেজিস্ট্রেশন করুন' : 'Become a Donor'}</span>
+                    <span>
+                      {tText(bloodDonationSettings.heroCtaBtn1Text) || (isBn ? 'রক্তদাতা হতে রেজিস্ট্রেশন করুন' : 'Become a Donor')}
+                    </span>
                   </button>
 
                   <button
@@ -420,7 +539,9 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                     className="w-full py-3.5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-sm shadow-warm-md transition-all flex items-center justify-center gap-2 cursor-pointer transform hover:-translate-y-0.5"
                   >
                     <AlertTriangle className="w-4 h-4" />
-                    <span>{isBn ? 'জরুরি রক্তের আবেদন করুন' : 'Emergency Blood Request'}</span>
+                    <span>
+                      {tText(bloodDonationSettings.heroCtaBtn2Text) || (isBn ? 'জরুরি রক্তের আবেদন করুন' : 'Emergency Blood Request')}
+                    </span>
                   </button>
                 </div>
 
@@ -428,7 +549,9 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                 <div className="p-3 bg-[#FAF7F2] rounded-2xl border border-[#EAE3D9] flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2 text-slate-700 font-bold">
                     <Phone className="w-3.5 h-3.5 text-[#006A4E]" />
-                    <span>{isBn ? '২৪/৭ ব্লাড হেল্পলাইন:' : '24/7 Helpline:'}</span>
+                    <span>
+                      {tText(bloodDonationSettings.helplineLabel) || (isBn ? '২৪/৭ ব্লাড হেল্পলাইন:' : '24/7 Helpline:')}
+                    </span>
                   </div>
                   <a
                     href={`tel:${bloodDonationSettings.emergencyHelpline}`}
@@ -802,7 +925,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                   <button
                     type="button"
                     onClick={() => {
-                      setRegSubmitted(false);
+                      resetDonorRegistrationForm();
                       setActiveTab('find-donor');
                     }}
                     className="px-6 py-3 rounded-2xl bg-[#006A4E] hover:bg-[#00523C] text-white font-extrabold text-xs shadow-warm-sm transition-all cursor-pointer"
@@ -832,6 +955,99 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                     <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
                       {isBn ? '১. ব্যক্তিগত তথ্য ও রক্তের গ্রুপ' : '1. Personal Details & Blood Group'}
                     </h4>
+
+                    {/* Optional Profile Photo Upload & URL */}
+                    <div className="space-y-2.5 p-4 rounded-3xl bg-[#FAF7F2] border-2 border-dashed border-[#EAE3D9] hover:border-[#006A4E] transition-colors">
+                      <div className="flex items-center justify-between">
+                        <label className="block text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                          <Camera className="w-4 h-4 text-[#006A4E]" />
+                          <span>{isBn ? 'প্রোফাইল ছবি (ঐচ্ছিক)' : 'Profile Photo (Optional)'}</span>
+                        </label>
+                        <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                          {isBn ? 'ঐচ্ছিক — ছবি ছাড়াও জমা দেওয়া যাবে' : 'Optional — Can submit without photo'}
+                        </span>
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
+                        {regPhotoUrl ? (
+                          <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden border-2 border-[#006A4E] shadow-warm-sm shrink-0 bg-white group">
+                            <img
+                              src={getAssetUrl(regPhotoUrl)}
+                              alt="Donor Preview"
+                              className="w-full h-full object-cover"
+                            />
+                            <button
+                              type="button"
+                              onClick={handleRemoveDonorPhoto}
+                              className="absolute inset-0 bg-black/60 text-white opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-1 transition-opacity cursor-pointer text-[10px] font-bold"
+                              title={isBn ? 'ছবি মুছুন' : 'Remove Photo'}
+                            >
+                              <Trash2 className="w-4 h-4 text-rose-300" />
+                              <span>{isBn ? 'মুছুন' : 'Remove'}</span>
+                            </button>
+                          </div>
+                        ) : (
+                          <div
+                            onClick={() => regPhotoInputRef.current?.click()}
+                            className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white border border-slate-200 flex flex-col items-center justify-center text-slate-400 hover:text-[#006A4E] hover:border-[#006A4E] transition-all cursor-pointer shrink-0 shadow-2xs group"
+                            title={isBn ? 'ছবি আপলোড করতে ক্লিক করুন' : 'Click to upload photo'}
+                          >
+                            <Camera className="w-7 h-7 mb-1 text-slate-400 group-hover:scale-110 group-hover:text-[#006A4E] transition-all" />
+                            <span className="text-[10px] font-bold uppercase text-center px-1 text-slate-600 group-hover:text-[#006A4E]">
+                              {isBn ? 'ছবি আপলোড' : 'Upload'}
+                            </span>
+                          </div>
+                        )}
+
+                        <div className="space-y-2 text-center sm:text-left min-w-0 flex-1 w-full">
+                          <input
+                            ref={regPhotoInputRef}
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp,image/jpg"
+                            onChange={handleDonorPhotoUpload}
+                            className="hidden"
+                          />
+                          <div className="flex flex-wrap sm:flex-nowrap gap-2">
+                            <button
+                              type="button"
+                              onClick={() => regPhotoInputRef.current?.click()}
+                              className="px-4 py-2.5 rounded-xl bg-white border border-[#EAE3D9] hover:bg-slate-100 text-slate-800 text-xs font-bold shadow-2xs inline-flex items-center justify-center gap-2 cursor-pointer transition-colors shrink-0"
+                            >
+                              <Upload className="w-3.5 h-3.5 text-[#006A4E]" />
+                              <span>
+                                {regPhotoUrl
+                                  ? (isBn ? 'ছবি পরিবর্তন করুন' : 'Change Photo')
+                                  : (isBn ? 'ডিভাইস থেকে ছবি আপলোড' : 'Upload from Device')}
+                              </span>
+                            </button>
+
+                            <input
+                              type="url"
+                              value={regPhotoUrl.startsWith('data:') ? '' : regPhotoUrl}
+                              onChange={(e) => {
+                                setRegPhotoUrl(e.target.value);
+                                setRegPhotoFileName('');
+                              }}
+                              placeholder={isBn ? 'অথবা সরাসরি ছবির লিঙ্ক দিন (URL)' : 'Or paste direct Image URL...'}
+                              className="flex-1 min-w-0 px-3.5 py-2 rounded-xl border border-[#EAE3D9] bg-white text-xs focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                            />
+                          </div>
+
+                          <p className="text-[11px] text-slate-500">
+                            {isBn
+                              ? 'JPG, PNG বা WebP ফরম্যাট। সর্বোচ্চ সাইজ: ৫MB। (ছবি না দিলেও নিবন্ধন সম্পন্ন হবে)'
+                              : 'Supported: JPG, PNG, WebP (max 5MB). Photo is optional.'}
+                          </p>
+
+                          {regPhotoFileName && (
+                            <p className="text-[11px] font-mono text-[#006A4E] truncate flex items-center justify-center sm:justify-start gap-1 font-bold">
+                              <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                              <span>{regPhotoFileName}</span>
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
                       <div className="sm:col-span-8 space-y-1.5">

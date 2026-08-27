@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
 import { BloodDonor, BloodGroup, DonorAvailabilityStatus, DonorApprovalStatus, BloodDonationHistoryEntry } from '../types';
 import { BANGLADESH_DISTRICTS } from '../data/bangladeshData';
 import { getUpazilasForDistrict } from '../data/bloodDonationData';
+import { getAssetUrl } from '../lib/utils/assetHelper';
 import {
   X,
   ShieldCheck,
@@ -19,6 +20,8 @@ import {
   Phone,
   Mail,
   ImageIcon,
+  Upload,
+  Camera,
   AlertTriangle
 } from 'lucide-react';
 import { MediaPickerModal } from './MediaPickerModal';
@@ -72,6 +75,57 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
   // Media Picker state
   const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
   const [modalError, setModalError] = useState<string | null>(null);
+  const adminPhotoInputRef = useRef<HTMLInputElement>(null);
+
+  const handleAdminPhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(file.type)) {
+      setModalError(isBn ? 'অনুগ্রহ করে JPG, PNG বা WebP ফরম্যাটের ছবি দিন।' : 'Please upload JPG, PNG or WebP image.');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setModalError(isBn ? 'ছবির সাইজ ৫MB-এর কম হতে হবে।' : 'File size must be under 5MB.');
+      return;
+    }
+
+    setModalError(null);
+    const reader = new FileReader();
+    reader.onload = (re) => {
+      const img = new Image();
+      img.onload = () => {
+        const maxDim = 800;
+        let w = img.width;
+        let h = img.height;
+        if (w > maxDim || h > maxDim) {
+          if (w > h) {
+            h = Math.round((h * maxDim) / w);
+            w = maxDim;
+          } else {
+            w = Math.round((w * maxDim) / h);
+            h = maxDim;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, w, h);
+          setPhotoUrl(canvas.toDataURL('image/jpeg', 0.85));
+        } else {
+          setPhotoUrl(re.target?.result as string);
+        }
+      };
+      img.onerror = () => {
+        setPhotoUrl(re.target?.result as string);
+      };
+      img.src = re.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
 
   useEffect(() => {
     if (donorToEdit) {
@@ -355,27 +409,70 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
                 </div>
               </div>
 
-              {/* Photo URL with Picker */}
-              <div className="space-y-1.5">
-                <label className="block text-xs font-bold text-slate-800">
-                  {isBn ? 'প্রোফাইল ছবি URL' : 'Profile Photo URL'}
+              {/* Photo URL with Device Upload & Picker */}
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-800 flex items-center justify-between">
+                  <span>{isBn ? 'প্রোফাইল ছবি (ঐচ্ছিক)' : 'Profile Photo (Optional)'}</span>
+                  <span className="text-[10px] text-slate-400">URL, Media Library or Device Upload</span>
                 </label>
-                <div className="flex gap-2">
-                  <input
-                    type="url"
-                    value={photoUrl}
-                    onChange={(e) => setPhotoUrl(e.target.value)}
-                    placeholder="https://images.unsplash.com/... or Cloudinary URL"
-                    className="flex-1 px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setIsMediaPickerOpen(true)}
-                    className="px-3.5 py-2.5 rounded-xl bg-white border border-[#EAE3D9] hover:bg-[#FAF7F2] text-slate-700 font-bold text-xs flex items-center gap-1.5 shrink-0 cursor-pointer"
-                  >
-                    <ImageIcon className="w-4 h-4 text-emerald-700" />
-                    <span>{isBn ? 'মিডিয়া লাইব্রেরি' : 'Media Picker'}</span>
-                  </button>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                  {photoUrl ? (
+                    <div className="relative w-14 h-14 rounded-xl overflow-hidden border border-[#006A4E] shadow-2xs shrink-0 bg-white group">
+                      <img src={getAssetUrl(photoUrl)} alt="Preview" className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => setPhotoUrl('')}
+                        className="absolute inset-0 bg-black/50 text-white opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer"
+                        title="Remove"
+                      >
+                        <Trash2 className="w-4 h-4 text-rose-300" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div
+                      onClick={() => adminPhotoInputRef.current?.click()}
+                      className="w-14 h-14 rounded-xl border border-dashed border-slate-300 flex items-center justify-center text-slate-400 hover:text-[#006A4E] hover:border-[#006A4E] cursor-pointer shrink-0 bg-slate-50 transition-colors"
+                      title="Upload Photo"
+                    >
+                      <Camera className="w-5 h-5" />
+                    </div>
+                  )}
+
+                  <div className="flex-1 w-full space-y-2">
+                    <input
+                      ref={adminPhotoInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/jpg"
+                      onChange={handleAdminPhotoUpload}
+                      className="hidden"
+                    />
+                    <div className="flex flex-wrap sm:flex-nowrap gap-2">
+                      <input
+                        type="url"
+                        value={photoUrl}
+                        onChange={(e) => setPhotoUrl(e.target.value)}
+                        placeholder="https://images.unsplash.com/... or Cloudinary URL"
+                        className="flex-1 min-w-0 px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => adminPhotoInputRef.current?.click()}
+                        className="px-3.5 py-2.5 rounded-xl bg-white border border-[#EAE3D9] hover:bg-[#FAF7F2] text-slate-700 font-bold text-xs flex items-center gap-1.5 shrink-0 cursor-pointer"
+                        title="Upload from Device"
+                      >
+                        <Upload className="w-4 h-4 text-[#006A4E]" />
+                        <span>{isBn ? 'আপলোড' : 'Upload'}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setIsMediaPickerOpen(true)}
+                        className="px-3.5 py-2.5 rounded-xl bg-white border border-[#EAE3D9] hover:bg-[#FAF7F2] text-slate-700 font-bold text-xs flex items-center gap-1.5 shrink-0 cursor-pointer"
+                      >
+                        <ImageIcon className="w-4 h-4 text-emerald-700" />
+                        <span>{isBn ? 'মিডিয়া লাইব্রেরি' : 'Media Picker'}</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

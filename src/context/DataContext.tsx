@@ -495,8 +495,27 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return INITIAL_EMERGENCY_REQUESTS;
   });
   const [bloodDonationSettings, setBloodDonationSettings] = useState<BloodDonationSettings>(() => {
-    const stored = getStoredOrDefault<BloodDonationSettings>('bloodDonationSettings', INITIAL_BLOOD_SETTINGS);
-    return stored?.heroTitle ? stored : INITIAL_BLOOD_SETTINGS;
+    const stored = getStoredOrDefault<any>('bloodDonationSettings', INITIAL_BLOOD_SETTINGS);
+    return {
+      ...INITIAL_BLOOD_SETTINGS,
+      ...(stored || {}),
+      heroBadge: { ...INITIAL_BLOOD_SETTINGS.heroBadge, ...(stored?.heroBadge || {}) },
+      heroTitle: { ...INITIAL_BLOOD_SETTINGS.heroTitle, ...(stored?.heroTitle || {}) },
+      heroSubtitle: { ...INITIAL_BLOOD_SETTINGS.heroSubtitle, ...(stored?.heroSubtitle || {}) },
+      heroCtaBadge: { ...INITIAL_BLOOD_SETTINGS.heroCtaBadge, ...(stored?.heroCtaBadge || {}) },
+      heroCtaTitle: { ...INITIAL_BLOOD_SETTINGS.heroCtaTitle, ...(stored?.heroCtaTitle || {}) },
+      heroCtaDescription: { ...INITIAL_BLOOD_SETTINGS.heroCtaDescription, ...(stored?.heroCtaDescription || {}) },
+      heroCtaBtn1Text: { ...INITIAL_BLOOD_SETTINGS.heroCtaBtn1Text, ...(stored?.heroCtaBtn1Text || {}) },
+      heroCtaBtn2Text: { ...INITIAL_BLOOD_SETTINGS.heroCtaBtn2Text, ...(stored?.heroCtaBtn2Text || {}) },
+      statTotalDonorsLabel: { ...INITIAL_BLOOD_SETTINGS.statTotalDonorsLabel, ...(stored?.statTotalDonorsLabel || {}) },
+      statActiveDonorsLabel: { ...INITIAL_BLOOD_SETTINGS.statActiveDonorsLabel, ...(stored?.statActiveDonorsLabel || {}) },
+      statGroupsLabel: { ...INITIAL_BLOOD_SETTINGS.statGroupsLabel, ...(stored?.statGroupsLabel || {}) },
+      statImpactLabel: { ...INITIAL_BLOOD_SETTINGS.statImpactLabel, ...(stored?.statImpactLabel || {}) },
+      helplineLabel: { ...INITIAL_BLOOD_SETTINGS.helplineLabel, ...(stored?.helplineLabel || {}) },
+      guidelinesTitle: { ...INITIAL_BLOOD_SETTINGS.guidelinesTitle, ...(stored?.guidelinesTitle || {}) },
+      guidelinesText: { ...INITIAL_BLOOD_SETTINGS.guidelinesText, ...(stored?.guidelinesText || {}) },
+      consentStatement: { ...INITIAL_BLOOD_SETTINGS.consentStatement, ...(stored?.consentStatement || {}) },
+    };
   });
   const [donorCategories, setDonorCategories] = useState<DonorCategoryOption[]>(() => {
     const stored = getStoredOrDefault<DonorCategoryOption[]>('donorCategories', DEFAULT_DONOR_CATEGORIES);
@@ -1311,9 +1330,24 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data: bSettingsData } = await supabase.from('blood_donation_settings').select('*').single();
       if (bSettingsData) {
         const remoteBSettings: BloodDonationSettings = {
+          heroBadge: bSettingsData.hero_badge || INITIAL_BLOOD_SETTINGS.heroBadge,
           heroTitle: bSettingsData.hero_title || INITIAL_BLOOD_SETTINGS.heroTitle,
           heroSubtitle: bSettingsData.hero_subtitle || INITIAL_BLOOD_SETTINGS.heroSubtitle,
+          heroCtaBadge: bSettingsData.hero_cta_badge || INITIAL_BLOOD_SETTINGS.heroCtaBadge,
+          heroCtaTitle: bSettingsData.hero_cta_title || INITIAL_BLOOD_SETTINGS.heroCtaTitle,
+          heroCtaDescription: bSettingsData.hero_cta_description || INITIAL_BLOOD_SETTINGS.heroCtaDescription,
+          heroCtaBtn1Text: bSettingsData.hero_cta_btn1_text || INITIAL_BLOOD_SETTINGS.heroCtaBtn1Text,
+          heroCtaBtn2Text: bSettingsData.hero_cta_btn2_text || INITIAL_BLOOD_SETTINGS.heroCtaBtn2Text,
+          statTotalDonorsLabel: bSettingsData.stat_total_donors_label || INITIAL_BLOOD_SETTINGS.statTotalDonorsLabel,
+          statActiveDonorsLabel: bSettingsData.stat_active_donors_label || INITIAL_BLOOD_SETTINGS.statActiveDonorsLabel,
+          statGroupsLabel: bSettingsData.stat_groups_label || INITIAL_BLOOD_SETTINGS.statGroupsLabel,
+          statGroupsValue: bSettingsData.stat_groups_value || INITIAL_BLOOD_SETTINGS.statGroupsValue,
+          statImpactLabel: bSettingsData.stat_impact_label || INITIAL_BLOOD_SETTINGS.statImpactLabel,
+          statTotalDonorsOverride: bSettingsData.stat_total_donors_override ?? INITIAL_BLOOD_SETTINGS.statTotalDonorsOverride,
+          statActiveDonorsOverride: bSettingsData.stat_active_donors_override ?? INITIAL_BLOOD_SETTINGS.statActiveDonorsOverride,
+          statImpactOverride: bSettingsData.stat_impact_override ?? INITIAL_BLOOD_SETTINGS.statImpactOverride,
           emergencyHelpline: bSettingsData.emergency_helpline || INITIAL_BLOOD_SETTINGS.emergencyHelpline,
+          helplineLabel: bSettingsData.helpline_label || INITIAL_BLOOD_SETTINGS.helplineLabel,
           coordinationEmail: bSettingsData.coordination_email || INITIAL_BLOOD_SETTINGS.coordinationEmail,
           guidelinesTitle: bSettingsData.guidelines_title || INITIAL_BLOOD_SETTINGS.guidelinesTitle,
           guidelinesText: bSettingsData.guidelines_text || INITIAL_BLOOD_SETTINGS.guidelinesText,
@@ -3541,9 +3575,24 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const updated = { ...prev, ...newSettings };
       safeDbUpsert('blood_donation_settings', {
         id: 'default_blood_settings',
+        hero_badge: updated.heroBadge,
         hero_title: updated.heroTitle,
         hero_subtitle: updated.heroSubtitle,
+        hero_cta_badge: updated.heroCtaBadge,
+        hero_cta_title: updated.heroCtaTitle,
+        hero_cta_description: updated.heroCtaDescription,
+        hero_cta_btn1_text: updated.heroCtaBtn1Text,
+        hero_cta_btn2_text: updated.heroCtaBtn2Text,
+        stat_total_donors_label: updated.statTotalDonorsLabel,
+        stat_active_donors_label: updated.statActiveDonorsLabel,
+        stat_groups_label: updated.statGroupsLabel,
+        stat_groups_value: updated.statGroupsValue,
+        stat_impact_label: updated.statImpactLabel,
+        stat_total_donors_override: updated.statTotalDonorsOverride,
+        stat_active_donors_override: updated.statActiveDonorsOverride,
+        stat_impact_override: updated.statImpactOverride,
         emergency_helpline: updated.emergencyHelpline,
+        helpline_label: updated.helplineLabel,
         coordination_email: updated.coordinationEmail,
         guidelines_title: updated.guidelinesTitle,
         guidelines_text: updated.guidelinesText,

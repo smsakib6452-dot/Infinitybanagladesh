@@ -303,7 +303,7 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-const CURRENT_DATA_VERSION = '2026.08.26.1787761154366';
+const CURRENT_DATA_VERSION = '2026.08.27.blood_and_journey_v4';
 const DATA_VERSION_KEY = 'infinity_data_version';
 const STORAGE_PREFIX = 'infinity_bd_v2_';
 
@@ -385,7 +385,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     return stored;
   });
-  const [aboutSettings, setAboutSettings] = useState<AboutSettings>(() => getStoredOrDefault('aboutSettings', INITIAL_ABOUT_SETTINGS));
+  const [aboutSettings, setAboutSettings] = useState<AboutSettings>(() => {
+    const stored = getStoredOrDefault<AboutSettings>('aboutSettings', INITIAL_ABOUT_SETTINGS);
+    return {
+      ...INITIAL_ABOUT_SETTINGS,
+      ...stored,
+      journeyVideoArchiveEnabled: stored?.journeyVideoArchiveEnabled ?? true
+    };
+  });
   const [headerSettings, setHeaderSettings] = useState<HeaderSettings>(() => {
     const stored = getStoredOrDefault<HeaderSettings>('headerSettings', INITIAL_HEADER_SETTINGS);
     if (
@@ -404,23 +411,24 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [seoSettings, setSeoSettings] = useState<GlobalSEOSettings>(() => getStoredOrDefault('seoSettings', INITIAL_SEO_SETTINGS));
   const [navigationItems, setNavigationItems] = useState<NavigationItem[]>(() => {
     const stored = getStoredOrDefault<NavigationItem[]>('navigationItems', INITIAL_NAVIGATION_ITEMS);
-    const teamItemInitial = INITIAL_NAVIGATION_ITEMS.find(i => i.id === 'nav-5' || i.path === 'team');
-    
-    if (teamItemInitial) {
-      const existingIdx = stored.findIndex(i => i.id === 'nav-5' || i.path === 'team');
-      if (existingIdx === -1) {
-        return [...stored, teamItemInitial].sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
-      } else {
-        const existing = stored[existingIdx];
-        const hasPast = existing.children?.some(c => c.path === 'team/past-committees');
-        if (!hasPast || !existing.active) {
-          const newStored = [...stored];
-          newStored[existingIdx] = { ...teamItemInitial, displayOrder: existing.displayOrder || teamItemInitial.displayOrder, active: true };
-          return newStored;
-        }
+    if (!Array.isArray(stored) || stored.length === 0) return INITIAL_NAVIGATION_ITEMS;
+
+    const merged = [...stored];
+    INITIAL_NAVIGATION_ITEMS.forEach(initItem => {
+      const idx = merged.findIndex(m => m.id === initItem.id || m.path === initItem.path);
+      if (idx === -1) {
+        merged.push(initItem);
+      } else if (initItem.id === 'nav-blood' || initItem.id === 'nav-5') {
+        // Ensure sub-items and active state are preserved
+        merged[idx] = {
+          ...initItem,
+          ...merged[idx],
+          active: true,
+          children: initItem.children || merged[idx].children
+        };
       }
-    }
-    return stored;
+    });
+    return merged.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
   });
   const [banners, setBanners] = useState<BannerItem[]>(() => getStoredOrDefault('banners', INITIAL_BANNERS));
   const [mediaLibrary, setMediaLibrary] = useState<MediaItem[]>(() => {
@@ -447,34 +455,44 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [journeyVideos, setJourneyVideos] = useState<JourneyVideo[]>(() => {
     const stored = getStoredOrDefault<JourneyVideo[]>('journeyVideos', INITIAL_JOURNEY_VIDEOS);
     if (Array.isArray(stored) && stored.length > 0) {
-      return stored.map(s => {
-        const initial = INITIAL_JOURNEY_VIDEOS.find(i => i.id === s.id);
-        if (initial) {
-          const needsUpgrade = !s.videoUrl || !s.thumbnailUrl || s.videoUrl.includes('dQw4w9WgXcQ');
-          if (needsUpgrade) {
-            return {
-              ...s,
-              videoUrl: initial.videoUrl,
-              embedUrl: initial.embedUrl,
-              thumbnailUrl: initial.thumbnailUrl,
-              videoPlatform: initial.videoPlatform,
-              isPublished: true,
-              isFeatured: initial.isFeatured
-            };
-          }
+      const merged = [...stored];
+      INITIAL_JOURNEY_VIDEOS.forEach(initV => {
+        const idx = merged.findIndex(m => m.id === initV.id);
+        if (idx === -1) {
+          merged.push(initV);
+        } else if (!merged[idx].videoUrl || merged[idx].videoUrl.includes('dQw4w9WgXcQ')) {
+          merged[idx] = { ...merged[idx], ...initV };
         }
-        return s;
       });
+      return merged.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
     }
     return INITIAL_JOURNEY_VIDEOS;
   });
   const [bloodDonors, setBloodDonors] = useState<BloodDonor[]>(() => {
     const stored = getStoredOrDefault<BloodDonor[]>('bloodDonors', INITIAL_BLOOD_DONORS);
-    return Array.isArray(stored) && stored.length > 0 ? stored : INITIAL_BLOOD_DONORS;
+    if (Array.isArray(stored) && stored.length > 0) {
+      const merged = [...stored];
+      INITIAL_BLOOD_DONORS.forEach(initD => {
+        if (!merged.some(m => m.id === initD.id)) {
+          merged.push(initD);
+        }
+      });
+      return merged;
+    }
+    return INITIAL_BLOOD_DONORS;
   });
   const [emergencyBloodRequests, setEmergencyBloodRequests] = useState<EmergencyBloodRequest[]>(() => {
     const stored = getStoredOrDefault<EmergencyBloodRequest[]>('emergencyRequests', INITIAL_EMERGENCY_REQUESTS);
-    return Array.isArray(stored) && stored.length > 0 ? stored : INITIAL_EMERGENCY_REQUESTS;
+    if (Array.isArray(stored) && stored.length > 0) {
+      const merged = [...stored];
+      INITIAL_EMERGENCY_REQUESTS.forEach(initR => {
+        if (!merged.some(m => m.id === initR.id)) {
+          merged.push(initR);
+        }
+      });
+      return merged;
+    }
+    return INITIAL_EMERGENCY_REQUESTS;
   });
   const [bloodDonationSettings, setBloodDonationSettings] = useState<BloodDonationSettings>(() => {
     const stored = getStoredOrDefault<BloodDonationSettings>('bloodDonationSettings', INITIAL_BLOOD_SETTINGS);

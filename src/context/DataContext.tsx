@@ -499,6 +499,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return {
       ...INITIAL_BLOOD_SETTINGS,
       ...(stored || {}),
+      wingLogoUrl: stored?.wingLogoUrl || INITIAL_BLOOD_SETTINGS.wingLogoUrl,
       heroBadge: { ...INITIAL_BLOOD_SETTINGS.heroBadge, ...(stored?.heroBadge || {}) },
       heroTitle: { ...INITIAL_BLOOD_SETTINGS.heroTitle, ...(stored?.heroTitle || {}) },
       heroSubtitle: { ...INITIAL_BLOOD_SETTINGS.heroSubtitle, ...(stored?.heroSubtitle || {}) },
@@ -1330,6 +1331,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data: bSettingsData } = await supabase.from('blood_donation_settings').select('*').single();
       if (bSettingsData) {
         const remoteBSettings: BloodDonationSettings = {
+          wingLogoUrl: bSettingsData.wing_logo_url || INITIAL_BLOOD_SETTINGS.wingLogoUrl,
           heroBadge: bSettingsData.hero_badge || INITIAL_BLOOD_SETTINGS.heroBadge,
           heroTitle: bSettingsData.hero_title || INITIAL_BLOOD_SETTINGS.heroTitle,
           heroSubtitle: bSettingsData.hero_subtitle || INITIAL_BLOOD_SETTINGS.heroSubtitle,
@@ -3575,6 +3577,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const updated = { ...prev, ...newSettings };
       safeDbUpsert('blood_donation_settings', {
         id: 'default_blood_settings',
+        wing_logo_url: updated.wingLogoUrl,
         hero_badge: updated.heroBadge,
         hero_title: updated.heroTitle,
         hero_subtitle: updated.heroSubtitle,

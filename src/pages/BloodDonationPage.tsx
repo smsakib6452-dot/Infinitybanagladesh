@@ -435,24 +435,38 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-            {/* Left Column: Hero Copy & Live Stats */}
+            {/* Left Column: Hero Brand Hierarchy & Live Stats */}
             <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-rose-500/20 text-rose-300 border border-rose-400/30">
-                <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+              {/* Parent Organization Tie-in Badge */}
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-white/10 text-emerald-200 border border-white/20 backdrop-blur-md">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 <span>
-                  {tText(bloodDonationSettings.heroBadge) || (isBn ? 'জরুরি রক্তদান ও সমন্বয় নেটওয়ার্ক' : 'Emergency Blood Donation & Coordination')}
+                  {tText(bloodDonationSettings.heroBadge) || (isBn ? 'ইনফিনিটি বাংলাদেশ-এর একটি মানবিক উদ্যোগ' : 'An Initiative by Infinity Bangladesh')}
                 </span>
               </div>
 
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight font-display text-white leading-tight">
-                {tText(bloodDonationSettings.heroTitle) || (isBn ? 'ইনফিনিটি বাংলাদেশ রক্তদান নেটওয়ার্ক' : 'Infinity Blood Donation Network')}
-              </h1>
+              {/* Sub-brand Main Logo Card */}
+              <div className="pt-1">
+                <div className="inline-block p-4 sm:p-5 rounded-3xl bg-white text-slate-900 shadow-2xl border-2 border-white/40 max-w-md">
+                  <img
+                    src={getAssetUrl(bloodDonationSettings.wingLogoUrl || '/brand/Infinitylifeline-logo.png')}
+                    alt="Infinity LifeLine - One Drop, Infinite Hope"
+                    className="h-14 sm:h-16 w-auto object-contain mx-auto lg:mx-0"
+                  />
+                </div>
+              </div>
 
-              <p className="text-sm sm:text-base text-emerald-100/90 max-w-2xl leading-relaxed">
-                {tText(bloodDonationSettings.heroSubtitle) || (isBn
-                  ? 'রক্ত দিন, জীবন বাঁচান — চট্টগ্রামের হাটহাজারী থেকে শুরু করে দেশব্যাপী স্বেচ্ছাসেবী রক্তদাতাদের একত্রিত করে মুমূর্ষু রোগীর পাশে টিম ইনফিনিটি।'
-                  : 'Donate Blood, Save Lives – Connecting compassionate voluntary donors across Bangladesh to serve emergency patients with speed, verified trust, and dignity.')}
-              </p>
+              {/* Platform / Service Title & Humanitarian Subtitle */}
+              <div>
+                <h1 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight font-display text-white leading-tight">
+                  {tText(bloodDonationSettings.heroTitle) || (isBn ? 'রক্তদান নেটওয়ার্ক' : 'Blood Donation Network')}
+                </h1>
+                <p className="text-xs sm:text-sm text-emerald-100/90 max-w-2xl leading-relaxed mt-2">
+                  {tText(bloodDonationSettings.heroSubtitle) || (isBn
+                    ? 'জরুরি রোগীদের পাশে দ্রুত, বিশ্বস্ত ও মানবিক সহায়তায় সারা বাংলাদেশের স্বেচ্ছাসেবী রক্তদাতাদের মেলবন্ধন।'
+                    : 'Connecting voluntary blood donors across Bangladesh to serve emergency patients with speed, verified trust, and compassion.')}
+                </p>
+              </div>
 
               {/* 4 Dynamic Statistics Counters */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
@@ -496,7 +510,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
               </div>
             </div>
 
-            {/* Right Column: Hero CTA Card ("Be a Donor, Be a Hero") */}
+            {/* Right Column: Hero CTA Card */}
             <div className="lg:col-span-5 relative">
               <div className="relative rounded-3xl bg-white p-7 sm:p-8 text-slate-900 shadow-2xl border-4 border-white/40 space-y-6">
                 <div className="flex items-center justify-between">
@@ -509,7 +523,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                         {tText(bloodDonationSettings.heroCtaBadge) || (isBn ? 'মানবতার আহ্বান' : 'JOIN THE CAUSE')}
                       </span>
                       <h3 className="text-xl font-extrabold text-slate-900 font-display">
-                        {tText(bloodDonationSettings.heroCtaTitle) || (isBn ? 'রক্তদাতা হোন, জীবন বাঁচান' : 'Be a Donor, Be a Hero')}
+                        {tText(bloodDonationSettings.heroCtaTitle) || (isBn ? 'জীবন বাঁচাতে এগিয়ে আসুন' : 'Be a Lifesaver')}
                       </h3>
                     </div>
                   </div>
@@ -517,8 +531,8 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
 
                 <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                   {tText(bloodDonationSettings.heroCtaDescription) || (isBn
-                    ? 'আপনার এক ব্যাগ রক্ত বাঁচাতে পারে একটি মূল্যবান প্রাণ। ইনফিনিটি বাংলাদেশ রক্তদান নেটওয়ার্কে রক্তদাতা হিসেবে যুক্ত হতে এখনই রেজিস্ট্রেশন করুন।'
-                    : 'Every drop counts. Register as a voluntary blood donor with Team Infinity and become someone’s lifeline in moments of crisis.')}
+                    ? 'আপনার এক ব্যাগ রক্ত বাঁচাতে পারে একটি মূল্যবান প্রাণ। ইনফিনিটি লাইফলাইন নেটওয়ার্কে রক্তদাতা হিসেবে যুক্ত হতে এখনই রেজিস্ট্রেশন করুন।'
+                    : 'Every drop counts. Register as a voluntary blood donor with Infinity LifeLine and become someone’s lifeline in moments of crisis.')}
                 </p>
 
                 <div className="space-y-3 pt-1">

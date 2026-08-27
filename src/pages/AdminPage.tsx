@@ -5610,6 +5610,47 @@ export const AdminPage: React.FC = () => {
                         </div>
                       </div>
 
+                      {/* Wing Logo Configuration */}
+                      <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-3">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                          <div>
+                            <label className="block text-xs font-bold text-slate-800">
+                              {isBn ? 'ইনফিনিটি লাইফলাইন উইং লোগো (Infinity LifeLine Logo)' : 'Infinity LifeLine Sub-brand Logo'}
+                            </label>
+                            <p className="text-[11px] text-slate-500">
+                              {isBn ? 'রক্তদান সেকশনের অফিশিয়াল সাব-ব্র্যান্ড লোগো (PNG বা SVG)' : 'Official sub-brand logo displayed in the blood donation portal'}
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => updateBloodDonationSettings({ wingLogoUrl: '/brand/Infinitylifeline-logo.png' })}
+                            className="text-[11px] font-bold text-[#006A4E] hover:underline cursor-pointer"
+                          >
+                            {isBn ? 'ডিফল্ট লোগো রিসেট করুন' : 'Reset to Default Logo'}
+                          </button>
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row items-center gap-4">
+                          <div className="w-36 h-16 rounded-xl bg-white border border-slate-200 p-2 flex items-center justify-center shrink-0 shadow-2xs">
+                            <img
+                              src={getAssetUrl(bloodDonationSettings.wingLogoUrl || '/brand/Infinitylifeline-logo.png')}
+                              alt="Infinity LifeLine Logo Preview"
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
+
+                          <div className="flex-1 w-full space-y-1">
+                            <input
+                              type="text"
+                              value={bloodDonationSettings.wingLogoUrl || '/brand/Infinitylifeline-logo.png'}
+                              onChange={(e) => updateBloodDonationSettings({ wingLogoUrl: e.target.value })}
+                              placeholder="/brand/Infinitylifeline-logo.png"
+                              className="w-full px-3.5 py-2 rounded-xl border border-[#EAE3D9] bg-white text-xs font-mono focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
                       {/* Hero Badge */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-1.5">

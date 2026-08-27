@@ -18,8 +18,8 @@ import {
   Sparkles,
   Film,
   RotateCcw,
-  Volume2,
-  AlertCircle
+  AlertCircle,
+  Maximize2
 } from 'lucide-react';
 
 interface JourneyVideoArchiveProps {
@@ -102,7 +102,7 @@ export const JourneyVideoArchive: React.FC<JourneyVideoArchiveProps> = ({
   const effectiveThumbnail = getAssetUrl(rawThumbnail);
   const hasValidVideoUrl = Boolean(currentVideo && currentVideo.videoUrl && currentVideo.videoUrl.trim().length > 0);
 
-  // Limit direct top buttons to first 3 items if more exist, tucking the rest into an elegant "More Journeys" menu
+  // Limit direct top buttons to first 3 items if more exist
   const primaryPills = publishedVideos.slice(0, 3);
   const extraPills = publishedVideos.slice(3);
 
@@ -110,14 +110,14 @@ export const JourneyVideoArchive: React.FC<JourneyVideoArchiveProps> = ({
   if (publishedVideos.length === 0) {
     return (
       <div className="relative">
-        <div className="rounded-3xl overflow-hidden shadow-warm-xl border-4 border-white aspect-4/3 bg-slate-100">
+        <div className="rounded-3xl overflow-hidden shadow-warm-xl border-4 border-white aspect-video bg-slate-100">
           <img
             src={getAssetUrl(aboutSettings.heroImageUrl || '/images/infinity-cover-hero.jpg')}
             alt="Infinity Bangladesh Field Service"
             className="w-full h-full object-cover"
           />
         </div>
-        <div className="absolute -bottom-4 -left-4 bg-[#006A4E] text-white p-4 rounded-2xl shadow-warm-md text-xs font-bold border border-emerald-400">
+        <div className="absolute -bottom-3.5 -left-3.5 bg-[#006A4E] text-white px-4 py-2.5 rounded-2xl shadow-warm-md text-xs font-bold border border-emerald-400">
           <span>{effectiveLocation.split(',')[0]} &bull; Est. {effectiveEstYear}</span>
         </div>
       </div>
@@ -125,10 +125,10 @@ export const JourneyVideoArchive: React.FC<JourneyVideoArchiveProps> = ({
   }
 
   return (
-    <div className="space-y-3.5">
+    <div className="space-y-3">
       {/* 1. Dynamic Timeline Navigation Bar */}
       <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar scroll-smooth py-1 max-w-full">
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar scroll-smooth py-0.5 max-w-full">
           {primaryPills.map(video => {
             const isSelected = video.id === currentVideo?.id;
             const timelineText = tText(video.timelineLabel) || (typeof video.timelineLabel === 'string' ? video.timelineLabel : 'Timeline');
@@ -207,44 +207,44 @@ export const JourneyVideoArchive: React.FC<JourneyVideoArchiveProps> = ({
         )}
       </div>
 
-      {/* 2. Interactive Video Card & Player Container */}
+      {/* 2. Professional 16:9 Video Card & Player Container */}
       <div className="relative group">
-        <div className="rounded-3xl overflow-hidden shadow-warm-xl border-4 border-white aspect-4/3 bg-slate-950 relative flex items-center justify-center">
+        <div className="rounded-3xl overflow-hidden shadow-2xl border-4 border-white aspect-video bg-black relative flex items-center justify-center ring-1 ring-slate-900/10">
           {/* STATE A: ACTIVE EMBEDDED PLAYER */}
           {isPlaying && hasValidVideoUrl && mediaInfo?.embedUrl && !embedError ? (
-            <div className="w-full h-full relative bg-black flex flex-col justify-between">
+            <div className="w-full h-full relative bg-black flex flex-col justify-between overflow-hidden">
               <iframe
                 src={mediaInfo.embedUrl}
                 title={tText(currentVideo.title) || 'Infinity Bangladesh Journey Video'}
-                className="w-full h-full border-0"
+                className="w-full h-full border-0 absolute inset-0 z-0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
                 onError={() => setEmbedError(true)}
               />
 
-              {/* Floating Top Control Bar */}
-              <div className="absolute top-3 inset-x-3 flex items-center justify-between pointer-events-none z-20">
-                {currentVideo.videoUrl && (
+              {/* Floating Glassmorphism Player Control Bar */}
+              <div className="absolute top-2.5 inset-x-2.5 flex items-center justify-between pointer-events-none z-10 opacity-90 hover:opacity-100 transition-opacity">
+                {currentVideo.videoUrl ? (
                   <a
                     href={currentVideo.videoUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="pointer-events-auto p-1.5 px-3 rounded-full bg-black/75 hover:bg-black text-white text-[11px] font-bold backdrop-blur-sm transition-all flex items-center gap-1.5 shadow-md border border-white/20"
+                    className="pointer-events-auto px-3 py-1.5 rounded-xl bg-black/80 hover:bg-black text-white text-[11px] font-bold backdrop-blur-md transition-all flex items-center gap-1.5 shadow-md border border-white/20 hover:scale-105"
                     title="Open on Source Platform"
                   >
-                    <span>{mediaInfo?.platform === 'facebook' ? (isBn ? 'ফেসবুকে খুলুন' : 'Open on Facebook') : (isBn ? 'সরাসরি ভিডিও' : 'Open Video')}</span>
+                    <span>{mediaInfo?.platform === 'facebook' ? (isBn ? 'ফেসবুকে দেখুন' : 'Watch on Facebook') : (isBn ? 'ইউটিউবে দেখুন' : 'Watch on YouTube')}</span>
                     <ExternalLink className="w-3 h-3" />
                   </a>
-                )}
+                ) : <span />}
 
                 <button
                   type="button"
                   onClick={() => setIsPlaying(false)}
-                  className="pointer-events-auto p-1.5 px-3 rounded-full bg-black/75 hover:bg-black text-white text-[11px] font-bold backdrop-blur-sm transition-all cursor-pointer flex items-center gap-1.5 shadow-md border border-white/20 ml-auto"
+                  className="pointer-events-auto px-3 py-1.5 rounded-xl bg-black/80 hover:bg-black text-white text-[11px] font-bold backdrop-blur-md transition-all cursor-pointer flex items-center gap-1.5 shadow-md border border-white/20 hover:scale-105"
                   title="Return to Preview"
                 >
                   <RotateCcw className="w-3 h-3" />
-                  <span>{isBn ? 'সংক্ষিপ্ত রূপ' : 'Preview'}</span>
+                  <span>{isBn ? 'প্রিভিউ' : 'Close Player'}</span>
                 </button>
               </div>
             </div>
@@ -282,9 +282,9 @@ export const JourneyVideoArchive: React.FC<JourneyVideoArchiveProps> = ({
               </div>
             </div>
           ) : hasValidVideoUrl ? (
-            /* STATE C: THUMBNAIL WITH PLAY OVERLAY */
+            /* STATE C: CINEMATIC THUMBNAIL WITH PULSING PLAY BUTTON */
             <div
-              className="w-full h-full relative cursor-pointer group/thumb"
+              className="w-full h-full relative cursor-pointer group/thumb select-none"
               onClick={() => setIsPlaying(true)}
             >
               <img
@@ -298,27 +298,27 @@ export const JourneyVideoArchive: React.FC<JourneyVideoArchiveProps> = ({
                 }}
               />
 
-              {/* Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/25 to-transparent transition-opacity" />
+              {/* Cinematic Gradient Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent transition-opacity" />
 
-              {/* Centered Pulsing Play Button */}
+              {/* Centered Glowing Play Button */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="relative">
-                  <span className="absolute -inset-2 rounded-full bg-emerald-500/30 animate-ping" />
-                  <div className="relative w-16 sm:w-18 h-16 sm:h-18 rounded-full bg-[#006A4E] text-white flex items-center justify-center shadow-2xl transition-all duration-300 transform group-hover/thumb:scale-110 group-hover/thumb:bg-emerald-600 border-2 border-white/50">
-                    <Play className="w-7 h-7 sm:w-8 sm:h-8 fill-current ml-1" />
+                  <span className="absolute -inset-2.5 rounded-full bg-emerald-500/35 animate-ping" />
+                  <div className="relative w-15 sm:w-16 h-15 sm:h-16 rounded-full bg-[#006A4E] text-white flex items-center justify-center shadow-2xl transition-all duration-300 transform group-hover/thumb:scale-110 group-hover/thumb:bg-emerald-600 border-2 border-white/60">
+                    <Play className="w-6 h-6 sm:w-7 sm:h-7 fill-current ml-0.5" />
                   </div>
                 </div>
               </div>
 
               {/* Floating Timeline Tag on Top Right */}
-              <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md text-white text-[11px] font-bold px-3 py-1 rounded-full border border-white/20 flex items-center gap-1.5 shadow-warm-sm">
+              <div className="absolute top-3.5 right-3.5 bg-black/70 backdrop-blur-md text-white text-[11px] font-bold px-3 py-1 rounded-full border border-white/20 flex items-center gap-1.5 shadow-warm-sm">
                 <Clock className="w-3 h-3 text-amber-400" />
                 <span>{tText(currentVideo.timelineLabel)}</span>
               </div>
 
               {/* Card Footer Details Overlaid on Thumbnail */}
-              <div className="absolute bottom-0 inset-x-0 p-4 sm:p-6 text-white space-y-1.5 z-10">
+              <div className="absolute bottom-0 inset-x-0 p-4 sm:p-5 text-white space-y-1 z-10">
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#006A4E] text-emerald-100 border border-emerald-400/40">
                     {isBn ? 'ভিডিও ডকুমেন্টারি' : 'Official Journey Archive'}
@@ -331,21 +331,28 @@ export const JourneyVideoArchive: React.FC<JourneyVideoArchiveProps> = ({
                   )}
                 </div>
 
-                <h3 className="text-base sm:text-lg font-extrabold tracking-tight font-display text-white drop-shadow-md">
+                <h3 className="text-base sm:text-lg font-extrabold tracking-tight font-display text-white drop-shadow-md truncate">
                   {tText(currentVideo.title)}
                 </h3>
 
                 {tText(currentVideo.description) && (
-                  <p className="text-xs text-slate-200 line-clamp-2 leading-relaxed drop-shadow-sm">
+                  <p className="text-xs text-slate-200 line-clamp-1 leading-relaxed drop-shadow-sm">
                     {tText(currentVideo.description)}
                   </p>
                 )}
 
-                <div className="pt-1.5 flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-600/90 text-white text-[11px] font-bold backdrop-blur-sm transition-all shadow-sm">
+                <div className="pt-1 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsPlaying(true);
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold backdrop-blur-sm transition-all shadow-sm cursor-pointer"
+                  >
                     <Play className="w-3 h-3 fill-current" />
                     <span>{isBn ? 'ভিডিও চালান' : 'Play Video'}</span>
-                  </span>
+                  </button>
 
                   {currentVideo.videoUrl && (
                     <a
@@ -353,7 +360,7 @@ export const JourneyVideoArchive: React.FC<JourneyVideoArchiveProps> = ({
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="inline-flex items-center gap-1 px-3 py-1 rounded-xl bg-black/50 hover:bg-black text-slate-200 hover:text-white text-[11px] font-bold backdrop-blur-sm transition-all border border-white/20"
+                      className="inline-flex items-center gap-1 px-3 py-1 rounded-xl bg-black/60 hover:bg-black text-slate-200 hover:text-white text-[11px] font-bold backdrop-blur-sm transition-all border border-white/20"
                     >
                       <span>{mediaInfo?.platform === 'facebook' ? (isBn ? 'ফেসবুকে দেখুন' : 'Watch on Facebook') : (isBn ? 'সরাসরি লিঙ্ক' : 'Source Link')}</span>
                       <ExternalLink className="w-2.5 h-2.5" />
@@ -372,25 +379,25 @@ export const JourneyVideoArchive: React.FC<JourneyVideoArchiveProps> = ({
                   className="absolute inset-0 w-full h-full object-cover opacity-20 filter blur-xs"
                 />
               )}
-              <div className="relative z-10 space-y-3 max-w-xs sm:max-w-sm">
-                <div className="w-14 h-14 rounded-2xl bg-emerald-950/80 text-emerald-400 mx-auto flex items-center justify-center border border-emerald-800/80 shadow-warm-sm">
-                  <Film className="w-7 h-7" />
+              <div className="relative z-10 space-y-2.5 max-w-xs sm:max-w-sm">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-950/80 text-emerald-400 mx-auto flex items-center justify-center border border-emerald-800/80 shadow-warm-sm">
+                  <Film className="w-6 h-6" />
                 </div>
                 <div>
-                  <span className="inline-block px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-900/60 text-emerald-300 border border-emerald-700/50 mb-1.5">
+                  <span className="inline-block px-3 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-900/60 text-emerald-300 border border-emerald-700/50 mb-1">
                     {tText(currentVideo.timelineLabel)}
                   </span>
-                  <h4 className="font-extrabold text-base sm:text-lg text-white font-display">
+                  <h4 className="font-extrabold text-base text-white font-display">
                     {tText(currentVideo.title)}
                   </h4>
                 </div>
-                <p className="text-xs text-emerald-200/80 leading-relaxed">
+                <p className="text-xs text-emerald-200/80 leading-relaxed line-clamp-2">
                   {tText(currentVideo.description) || (isBn
                     ? 'আমাদের এই পর্বের প্রামাণ্যচিত্রটি শীঘ্রই এখানে সরাসরি উপভোগ করতে পারবেন।'
-                    : 'The documentary video for this milestone journey is being finalized and will be uploaded shortly.')}
+                    : 'The documentary video for this milestone journey will be uploaded shortly.')}
                 </p>
-                <div className="pt-1">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 text-emerald-100 text-xs font-bold border border-white/15">
+                <div>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white/10 text-emerald-100 text-xs font-bold border border-white/15">
                     <Clock className="w-3.5 h-3.5 text-amber-400" />
                     <span>{isBn ? 'ভিডিওটি শীঘ্রই আসছে' : 'Video Coming Soon'}</span>
                   </span>
@@ -400,8 +407,8 @@ export const JourneyVideoArchive: React.FC<JourneyVideoArchiveProps> = ({
           )}
         </div>
 
-        {/* Floating Est. Badge at bottom left matching original card */}
-        <div className="absolute -bottom-4 -left-4 bg-[#006A4E] text-white p-3.5 sm:p-4 rounded-2xl shadow-warm-md text-xs font-bold border border-emerald-400 z-10 flex items-center gap-2">
+        {/* Floating Est. Badge at bottom left matching original card style */}
+        <div className="absolute -bottom-3 -left-3 bg-[#006A4E] text-white px-3.5 py-2 rounded-2xl shadow-warm-md text-xs font-bold border border-emerald-400 z-10 flex items-center gap-1.5">
           <span>{effectiveLocation.split(',')[0]} &bull; Est. {effectiveEstYear}</span>
         </div>
       </div>

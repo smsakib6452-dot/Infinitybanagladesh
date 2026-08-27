@@ -759,6 +759,7 @@ export interface AboutSettings {
   secondaryImageUrl?: string;
   ctaText?: BilingualText;
   ctaUrl?: string;
+  journeyVideoArchiveEnabled?: boolean;
 }
 
 export interface GlobalSEOSettings {

@@ -626,7 +626,9 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                                     {donor.fullName}
                                   </h4>
                                   {donor.isVerified && (
-                                    <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" title="Verified Donor" />
+                                    <span title="Verified Donor" className="inline-flex shrink-0">
+                                      <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                                    </span>
                                   )}
                                 </div>
                                 <span className="inline-block text-[11px] text-[#006A4E] font-bold truncate">

@@ -635,7 +635,7 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
         <MediaPickerModal
           isOpen={isMediaPickerOpen}
           onClose={() => setIsMediaPickerOpen(false)}
-          onSelectImage={(url) => {
+          onSelect={(url) => {
             setPhotoUrl(url);
             setIsMediaPickerOpen(false);
           }}

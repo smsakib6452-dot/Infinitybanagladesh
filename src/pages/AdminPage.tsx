@@ -70,7 +70,8 @@ import {
   Edit3,
   Link as LinkIcon,
   Film,
-  Droplet
+  Droplet,
+  AlertTriangle
 } from 'lucide-react';
 import {
   Campaign,
@@ -5355,7 +5356,9 @@ export const AdminPage: React.FC = () => {
                                       <p className="font-extrabold text-slate-900 flex items-center gap-1">
                                         <span>{donor.fullName}</span>
                                         {donor.isVerified && (
-                                          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" title="Verified" />
+                                          <span title="Verified">
+                                            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                                          </span>
                                         )}
                                       </p>
                                       <p className="text-[10px] text-slate-400 font-mono">ID: {donor.id}</p>

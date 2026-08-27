@@ -5222,7 +5222,13 @@ export const AdminPage: React.FC = () => {
                                   <span className="text-xs text-emerald-700 font-bold">&bull; {donor.orgCategory}</span>
                                 </div>
                                 <p className="text-xs text-slate-500">
-                                  Phone: {donor.phone} &bull; Location: {donor.area}, {donor.upazila}, {donor.district}
+                                  Phone: <span className="font-bold text-slate-700">{donor.phone}</span> &bull; Location: {donor.area}, {donor.upazila}, {donor.district}
+                                  {donor.lastDonationDate && (
+                                    <span className="text-emerald-800 font-bold ml-1.5 inline-flex items-center gap-1">
+                                      &bull; <Clock className="w-3 h-3 text-emerald-600 inline" />
+                                      {isBn ? 'সর্বশেষ রক্তদান:' : 'Last Donated:'} {new Date(donor.lastDonationDate).toLocaleDateString(isBn ? 'bn-BD' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                    </span>
+                                  )}
                                 </p>
                               </div>
 
@@ -5312,15 +5318,16 @@ export const AdminPage: React.FC = () => {
 
                     {/* Donors Table with Smooth Horizontal Scroll & Sticky Actions */}
                     <div className="overflow-x-auto border border-slate-200 rounded-2xl bg-white shadow-xs">
-                      <table className="w-full min-w-[1020px] text-left text-xs border-collapse">
+                      <table className="w-full min-w-[1100px] text-left text-xs border-collapse">
                         <thead className="bg-[#FAF7F2] text-slate-600 font-bold uppercase text-[10px] tracking-wider border-b border-[#EAE3D9]">
                           <tr>
                             <th className="p-3.5 min-w-[200px]">Donor</th>
                             <th className="p-3.5 text-center w-16">Blood</th>
-                            <th className="p-3.5 min-w-[160px]">Contact</th>
-                            <th className="p-3.5 min-w-[160px]">Location</th>
+                            <th className="p-3.5 min-w-[150px]">Contact</th>
+                            <th className="p-3.5 min-w-[150px]">Location</th>
                             <th className="p-3.5 min-w-[140px]">Org Category</th>
                             <th className="p-3.5 min-w-[130px]">Availability</th>
+                            <th className="p-3.5 min-w-[150px]">Last Donation</th>
                             <th className="p-3.5 min-w-[100px]">Status</th>
                             <th className="p-3.5 text-center w-28 sticky right-0 bg-[#FAF7F2] shadow-[-6px_0_12px_-4px_rgba(0,0,0,0.06)] z-10">Actions</th>
                           </tr>
@@ -5402,6 +5409,30 @@ export const AdminPage: React.FC = () => {
                                       ? (isBn ? '🟡 নোটিশ সাপেক্ষে' : '🟡 Prior Notice')
                                       : (isBn ? '🔴 অনুপলব্ধ' : '🔴 Unavailable')}
                                   </span>
+                                </td>
+
+                                <td className="p-3.5 whitespace-nowrap">
+                                  {donor.lastDonationDate ? (
+                                    <div>
+                                      <p className="font-bold text-slate-900 flex items-center gap-1.5">
+                                        <Clock className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                                        <span>
+                                          {new Date(donor.lastDonationDate).toLocaleDateString(isBn ? 'bn-BD' : 'en-US', {
+                                            day: 'numeric',
+                                            month: 'short',
+                                            year: 'numeric'
+                                          })}
+                                        </span>
+                                      </p>
+                                      <p className="text-[10px] text-slate-500 font-medium">
+                                        {donor.totalDonations ? `${donor.totalDonations} ${isBn ? 'বার রক্তদান' : 'donations'}` : (isBn ? 'রক্তদান সম্পন্ন' : 'Donated')}
+                                      </p>
+                                    </div>
+                                  ) : (
+                                    <span className="text-[11px] text-slate-400 italic">
+                                      {isBn ? 'কোনো রেকর্ড নেই' : 'No Record'}
+                                    </span>
+                                  )}
                                 </td>
 
                                 <td className="p-3.5 whitespace-nowrap">

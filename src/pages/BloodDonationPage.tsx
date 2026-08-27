@@ -200,10 +200,48 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
     e.preventDefault();
     if (!regFullName.trim() || !regPhone.trim() || !regDistrict || !regUpazila) return;
 
+    // Validate 11-digit BD Phone Number (e.g. 01XXXXXXXXX)
+    const cleanPhone = regPhone.replace(/\D/g, '');
+    if (!/^01[3-9]\d{8}$/.test(cleanPhone)) {
+      alert(
+        isBn
+          ? 'অনুগ্রহ করে সঠিক ১১ ডিজিটের বাংলাদেশি মোবাইল নম্বর প্রদান করুন (যেমন: 018XXXXXXXX)'
+          : 'Please enter a valid 11-digit Bangladeshi mobile number starting with 01 (e.g. 018XXXXXXXX)'
+      );
+      return;
+    }
+
+    // Validate No Future Dates for Blood Donation
+    const todayStr = new Date().toISOString().split('T')[0];
+    if (regFirstDonationDate && regFirstDonationDate > todayStr) {
+      alert(
+        isBn
+          ? 'প্রথম রক্তদানের তারিখ আজকের বা অতীতের তারিখ হতে হবে, ভবিষ্যতের তারিখ নয়।'
+          : 'First donation date cannot be in the future.'
+      );
+      return;
+    }
+    if (regLastDonationDate && regLastDonationDate > todayStr) {
+      alert(
+        isBn
+          ? 'সর্বশেষ রক্তদানের তারিখ আজকের বা অতীতের তারিখ হতে হবে, ভবিষ্যতের তারিখ নয়।'
+          : 'Last donation date cannot be in the future.'
+      );
+      return;
+    }
+    if (regFirstDonationDate && regLastDonationDate && regFirstDonationDate > regLastDonationDate) {
+      alert(
+        isBn
+          ? 'প্রথম রক্তদানের তারিখ শেষ রক্তদানের তারিখের চেয়ে পরের হতে পারে না।'
+          : 'First donation date cannot be after the last donation date.'
+      );
+      return;
+    }
+
     const newDonor = addBloodDonor({
       fullName: regFullName.trim(),
       bloodGroup: regBloodGroup,
-      phone: regPhone.trim(),
+      phone: cleanPhone,
       email: regEmail.trim() || undefined,
       photoUrl: regPhotoUrl.trim() || undefined,
       district: regDistrict,
@@ -232,6 +270,17 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
     e.preventDefault();
     if (!emgRequesterName.trim() || !emgContactNumber.trim() || !emgPatientName.trim() || !emgHospital.trim()) return;
 
+    // Validate 11-digit BD Phone Number
+    const cleanPhone = emgContactNumber.replace(/\D/g, '');
+    if (!/^01[3-9]\d{8}$/.test(cleanPhone)) {
+      alert(
+        isBn
+          ? 'যোগাযোগের জন্য সঠিক ১১ ডিজিটের বাংলাদেশি মোবাইল নম্বর প্রদান করুন (যেমন: 018XXXXXXXX)'
+          : 'Please enter a valid 11-digit Bangladeshi contact number (e.g. 018XXXXXXXX)'
+      );
+      return;
+    }
+
     // Auto-match donors
     const matched = bloodDonors.filter(
       d => d.approvalStatus === 'APPROVED' && d.bloodGroup === emgBloodGroup && d.availabilityStatus !== 'UNAVAILABLE'
@@ -239,7 +288,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
 
     const newReq = addEmergencyBloodRequest({
       requesterName: emgRequesterName.trim(),
-      contactNumber: emgContactNumber.trim(),
+      contactNumber: cleanPhone,
       patientName: emgPatientName.trim(),
       bloodGroup: emgBloodGroup,
       unitsNeeded: Number(emgUnits) || 1,
@@ -815,11 +864,15 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                         <input
                           type="tel"
                           required
+                          maxLength={11}
                           value={regPhone}
-                          onChange={(e) => setRegPhone(e.target.value)}
-                          placeholder="+880 18..."
-                          className="w-full px-4 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                          onChange={(e) => setRegPhone(e.target.value.replace(/\D/g, '').slice(0, 11))}
+                          placeholder="01XXXXXXXXX"
+                          className="w-full px-4 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm font-mono focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
                         />
+                        <p className="text-[10px] text-slate-500 font-medium">
+                          {isBn ? '১১ ডিজিটের মোবাইল নম্বর (যেমন: 018XXXXXXXX)' : '11-digit BD mobile number (e.g. 018XXXXXXXX)'}
+                        </p>
                       </div>
 
                       <div className="space-y-1.5">
@@ -954,10 +1007,14 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                         <label className="block text-xs font-bold text-slate-800">{isBn ? 'সর্বশেষ রক্তদানের তারিখ' : 'Last Donation Date'}</label>
                         <input
                           type="date"
+                          max={new Date().toISOString().split('T')[0]}
                           value={regLastDonationDate}
                           onChange={(e) => setRegLastDonationDate(e.target.value)}
                           className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
                         />
+                        <p className="text-[10px] text-slate-400 font-medium">
+                          {isBn ? 'ভবিষ্যতের কোনো তারিখ গ্রহণযোগ্য নয়' : 'Future dates not allowed'}
+                        </p>
                       </div>
                     </div>
 
@@ -1110,11 +1167,15 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                           <input
                             type="tel"
                             required
+                            maxLength={11}
                             value={emgContactNumber}
-                            onChange={(e) => setEmgContactNumber(e.target.value)}
-                            placeholder="+880 1..."
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                            onChange={(e) => setEmgContactNumber(e.target.value.replace(/\D/g, '').slice(0, 11))}
+                            placeholder="01XXXXXXXXX"
+                            className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs font-mono focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
                           />
+                          <p className="text-[10px] text-slate-500 font-medium">
+                            {isBn ? '১১ ডিজিটের মোবাইল নম্বর' : '11-digit BD mobile number'}
+                          </p>
                         </div>
                       </div>
 

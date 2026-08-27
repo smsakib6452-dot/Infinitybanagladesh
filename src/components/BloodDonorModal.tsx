@@ -121,6 +121,17 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
 
   const handleAddHistoryEntry = () => {
     if (!newHistHospital.trim() || !newHistDate) return;
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    if (newHistDate > todayStr) {
+      alert(
+        isBn
+          ? 'রক্তদানের তারিখ অতীতের অথবা আজকের তারিখ হতে হবে, ভবিষ্যতের নয়।'
+          : 'Donation date cannot be in the future.'
+      );
+      return;
+    }
+
     const newEntry: BloodDonationHistoryEntry = {
       id: `hist-local-${Date.now()}`,
       donorId: donorToEdit?.id || 'temp',
@@ -135,6 +146,16 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
     const updated = [newEntry, ...donationHistory];
     setDonationHistory(updated);
     setTotalDonations(updated.length);
+
+    // Auto-update last donation date to newest entry
+    const dates = updated.map(h => h.donationDate).filter(Boolean).sort();
+    if (dates.length > 0) {
+      setLastDonationDate(dates[dates.length - 1]);
+      if (!firstDonationDate) {
+        setFirstDonationDate(dates[0]);
+      }
+    }
+
     setNewHistHospital('');
     setNewHistRef('');
     setNewHistNotes('');
@@ -151,10 +172,48 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
     e.preventDefault();
     if (!fullName.trim() || !phone.trim() || !district || !upazila) return;
 
+    // Validate 11-digit BD Phone Number
+    const cleanPhone = phone.replace(/\D/g, '');
+    if (!/^01[3-9]\d{8}$/.test(cleanPhone)) {
+      alert(
+        isBn
+          ? 'অনুগ্রহ করে সঠিক ১১ ডিজিটের বাংলাদেশি মোবাইল নম্বর প্রদান করুন (যেমন: 018XXXXXXXX)'
+          : 'Please enter a valid 11-digit Bangladeshi mobile number starting with 01 (e.g. 018XXXXXXXX)'
+      );
+      return;
+    }
+
+    // Validate No Future Dates
+    const todayStr = new Date().toISOString().split('T')[0];
+    if (firstDonationDate && firstDonationDate > todayStr) {
+      alert(
+        isBn
+          ? 'প্রথম রক্তদানের তারিখ ভবিষ্যতের হতে পারে না।'
+          : 'First donation date cannot be in the future.'
+      );
+      return;
+    }
+    if (lastDonationDate && lastDonationDate > todayStr) {
+      alert(
+        isBn
+          ? 'সর্বশেষ রক্তদানের তারিখ ভবিষ্যতের হতে পারে না।'
+          : 'Last donation date cannot be in the future.'
+      );
+      return;
+    }
+    if (firstDonationDate && lastDonationDate && firstDonationDate > lastDonationDate) {
+      alert(
+        isBn
+          ? 'প্রথম রক্তদানের তারিখ শেষ রক্তদানের তারিখের চেয়ে পরের হতে পারে না।'
+          : 'First donation date cannot be after the last donation date.'
+      );
+      return;
+    }
+
     onSave({
       fullName: fullName.trim(),
       bloodGroup,
-      phone: phone.trim(),
+      phone: cleanPhone,
       email: email.trim() || undefined,
       photoUrl: photoUrl.trim() || undefined,
       district,
@@ -254,10 +313,10 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
+                <div className="sm:col-span-6 space-y-1.5">
                   <label className="block text-xs font-bold text-slate-800">
-                    {isBn ? 'মোবাইল নম্বর *' : 'Mobile Phone *'}
+                    {isBn ? 'মোবাইল নম্বর (১১ ডিজিট) *' : 'Mobile Phone (11 Digits) *'}
                   </label>
                   <div className="relative">
                     <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
@@ -517,6 +576,38 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
                 </button>
               </div>
 
+              {/* First & Last Donation Dates */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-slate-800">
+                    {isBn ? 'সর্বপ্রথম রক্তদানের তারিখ' : 'First Donation Date'}
+                  </label>
+                  <input
+                    type="date"
+                    max={new Date().toISOString().split('T')[0]}
+                    value={firstDonationDate}
+                    onChange={(e) => setFirstDonationDate(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-slate-800">
+                    {isBn ? 'সর্বশেষ রক্তদানের তারিখ *' : 'Last Donation Date *'}
+                  </label>
+                  <input
+                    type="date"
+                    max={new Date().toISOString().split('T')[0]}
+                    value={lastDonationDate}
+                    onChange={(e) => setLastDonationDate(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                  />
+                  <p className="text-[10px] text-slate-400">
+                    {isBn ? 'ভবিষ্যতের কোনো তারিখ প্রযোজ্য নয়' : 'Future dates not allowed'}
+                  </p>
+                </div>
+              </div>
+
               <div className="space-y-1.5">
                 <label className="block text-xs font-bold text-slate-800">
                   {isBn ? 'রক্তদানের অভিজ্ঞতা নোট' : 'Donation Experience Notes'}
@@ -539,6 +630,7 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <input
                       type="date"
+                      max={new Date().toISOString().split('T')[0]}
                       value={newHistDate}
                       onChange={(e) => setNewHistDate(e.target.value)}
                       className="px-3 py-2 rounded-xl border border-[#EAE3D9] bg-white text-xs"

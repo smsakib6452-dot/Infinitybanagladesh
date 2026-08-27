@@ -679,7 +679,7 @@ export const INITIAL_NAVIGATION_ITEMS: NavigationItem[] = [
     "id": "nav-5",
     "label": {
       "en": "Meet Our Team",
-      "bn": "আমাদের টিম ও নেতৃত্ব"
+      "bn": "আমাদের টিম"
     },
     "path": "team",
     "isDropdown": true,
@@ -720,7 +720,7 @@ export const INITIAL_NAVIGATION_ITEMS: NavigationItem[] = [
     "id": "nav-blood",
     "label": {
       "en": "Blood Donation",
-      "bn": "রক্তদান নেটওয়ার্ক"
+      "bn": "রক্তদান"
     },
     "path": "blood-donation",
     "isDropdown": true,

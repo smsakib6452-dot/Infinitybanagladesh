@@ -174,14 +174,14 @@ export const Navbar: React.FC = () => {
             : 'bg-white py-3.5 border-b border-[#EAE3D9]/60'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
+        <div className="max-w-[1440px] mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 flex items-center justify-between gap-2 xl:gap-4">
           {/* Official Brand Logo */}
           <Link to="home" className="shrink-0 block focus:outline-none group">
             <BrandLogo size="md" />
           </Link>
 
           {/* Desktop Navigation Links */}
-          <div className="hidden lg:flex items-center gap-1 xl:gap-2 text-xs xl:text-sm font-bold text-slate-700">
+          <div className="hidden lg:flex items-center justify-center gap-0.5 xl:gap-1.5 2xl:gap-2 text-[13px] xl:text-[13.5px] 2xl:text-sm font-bold text-slate-700 whitespace-nowrap flex-1 min-w-0 px-1">
             {activeNavItems.map(item => {
               if (item.isDropdown && item.children && item.children.length > 0) {
                 const isDropdownOpen = activeDropdownId === item.id;
@@ -191,7 +191,7 @@ export const Navbar: React.FC = () => {
                 return (
                   <div
                     key={item.id}
-                    className="relative nav-dropdown-container"
+                    className="relative nav-dropdown-container shrink-0"
                     onMouseEnter={() => handleMouseEnterDropdown(item.id)}
                     onMouseLeave={handleMouseLeaveDropdown}
                   >
@@ -201,13 +201,13 @@ export const Navbar: React.FC = () => {
                         to={item.path}
                         isExternal={item.isExternal}
                         onClick={() => setActiveDropdownId(null)}
-                        className={`px-3 py-2 rounded-l-xl flex items-center gap-1 transition-colors cursor-pointer ${
+                        className={`px-2 xl:px-2.5 2xl:px-3 py-1.5 xl:py-2 rounded-l-xl flex items-center gap-1 transition-colors cursor-pointer whitespace-nowrap ${
                           isChildActive || isItemActive(item.path)
                             ? 'text-[#006A4E] bg-[#E6F3EF]'
                             : 'hover:text-[#006A4E] hover:bg-slate-50'
                         }`}
                       >
-                        <span>{tText(item.label)}</span>
+                        <span className="whitespace-nowrap">{tText(item.label)}</span>
                       </Link>
 
                       {/* Dropdown Arrow Toggle Button */}
@@ -217,14 +217,14 @@ export const Navbar: React.FC = () => {
                           e.stopPropagation();
                           setActiveDropdownId(prev => (prev === item.id ? null : item.id));
                         }}
-                        className={`py-2 pr-2.5 pl-1 rounded-r-xl transition-colors cursor-pointer ${
+                        className={`py-1.5 xl:py-2 pr-1.5 xl:pr-2 pl-0.5 rounded-r-xl transition-colors cursor-pointer shrink-0 ${
                           isChildActive || isItemActive(item.path)
                             ? 'text-[#006A4E] bg-[#E6F3EF]'
                             : 'hover:text-[#006A4E] hover:bg-slate-50 text-slate-400'
                         }`}
                         aria-label="Toggle Submenu"
                       >
-                        <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180 text-[#006A4E]' : ''}`} />
+                        <ChevronDown className={`w-3 h-3 xl:w-3.5 xl:h-3.5 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180 text-[#006A4E]' : ''}`} />
                       </button>
                     </div>
 
@@ -341,25 +341,25 @@ export const Navbar: React.FC = () => {
                   key={item.id}
                   to={item.path}
                   isExternal={item.isExternal}
-                  className={`px-3 py-2 rounded-xl transition-colors cursor-pointer ${
+                  className={`px-2 xl:px-2.5 2xl:px-3 py-1.5 xl:py-2 rounded-xl transition-colors cursor-pointer shrink-0 whitespace-nowrap ${
                     isItemActive(item.path)
                       ? 'text-[#006A4E] bg-[#E6F3EF]'
                       : 'hover:text-[#006A4E] hover:bg-slate-50'
                   }`}
                 >
-                  {tText(item.label)}
+                  <span className="whitespace-nowrap">{tText(item.label)}</span>
                 </Link>
               );
             })}
           </div>
 
           {/* Desktop Right Action Cluster (Large Screens) */}
-          <div className="hidden lg:flex items-center gap-2.5 shrink-0">
+          <div className="hidden lg:flex items-center gap-1.5 xl:gap-2.5 shrink-0">
             {headerSettings.showSearch && (
               <button
                 type="button"
                 onClick={() => setIsSearchOpen(true)}
-                className="p-2.5 rounded-xl bg-[#FAF7F2] hover:bg-[#F2ECE1] text-slate-600 hover:text-[#006A4E] border border-[#EAE3D9] transition-colors cursor-pointer"
+                className="p-2 xl:p-2.5 rounded-xl bg-[#FAF7F2] hover:bg-[#F2ECE1] text-slate-600 hover:text-[#006A4E] border border-[#EAE3D9] transition-colors cursor-pointer shrink-0"
                 title={isBn ? 'অনুসন্ধান করুন (Search)' : 'Search Infinity Bangladesh'}
               >
                 <Search className="w-4 h-4" />
@@ -369,10 +369,10 @@ export const Navbar: React.FC = () => {
             {headerSettings.showSupportButton && (
               <Link
                 to={headerSettings.supportButtonUrl || 'donate'}
-                className="px-5 py-2.5 rounded-2xl bg-[#006A4E] hover:bg-[#00523C] active:bg-[#00402E] text-white text-xs sm:text-sm font-extrabold shadow-warm-sm hover:shadow-warm-md transition-all flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5"
+                className="px-3.5 xl:px-5 py-2 xl:py-2.5 rounded-2xl bg-[#006A4E] hover:bg-[#00523C] active:bg-[#00402E] text-white text-xs xl:text-sm font-extrabold shadow-warm-sm hover:shadow-warm-md transition-all flex items-center gap-1.5 xl:gap-2 cursor-pointer transform hover:-translate-y-0.5 whitespace-nowrap shrink-0"
               >
-                <Heart className="w-4 h-4 fill-white" />
-                <span>{tText(headerSettings.supportButtonText)}</span>
+                <Heart className="w-3.5 h-3.5 xl:w-4 xl:h-4 fill-white shrink-0" />
+                <span className="whitespace-nowrap">{tText(headerSettings.supportButtonText)}</span>
               </Link>
             )}
           </div>

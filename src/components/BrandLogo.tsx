@@ -34,8 +34,8 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
       badge: 'text-[8px] sm:text-[9px] px-1 sm:px-1.5 py-0.5'
     },
     md: {
-      imgWrapper: 'w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 lg:w-11 lg:h-11',
-      title: 'text-sm sm:text-base lg:text-lg font-extrabold',
+      imgWrapper: 'w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 lg:w-10 lg:h-10 xl:w-11 xl:h-11',
+      title: 'text-sm sm:text-base lg:text-base xl:text-lg font-extrabold',
       sub: 'text-[10px] sm:text-xs tracking-wider font-semibold',
       badge: 'text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5'
     },
@@ -115,7 +115,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
 
             {showBadge && (
               <span
-                className={`hidden md:inline-flex items-center rounded-full font-bold uppercase tracking-wider shrink-0 ${currentSize.badge} ${
+                className={`hidden 2xl:inline-flex items-center rounded-full font-bold uppercase tracking-wider shrink-0 ${currentSize.badge} ${
                   isLight
                     ? 'bg-emerald-950/90 text-emerald-300 border border-emerald-500/40'
                     : 'bg-[#E6F3EF] text-[#00523C] border border-[#C2E2D7]'
@@ -132,7 +132,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
                 e.stopPropagation();
                 setShowModal(true);
               }}
-              className={`hidden md:inline-flex p-1 rounded-full opacity-70 hover:opacity-100 transition-opacity shrink-0 cursor-pointer ${
+              className={`hidden 2xl:inline-flex p-1 rounded-full opacity-70 hover:opacity-100 transition-opacity shrink-0 cursor-pointer ${
                 isLight ? 'text-teal-300 hover:text-white' : 'text-slate-400 hover:text-[#006A4E]'
               }`}
               title="Official brand identity verification details"

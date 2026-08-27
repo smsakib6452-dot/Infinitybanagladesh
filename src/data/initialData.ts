@@ -3904,15 +3904,15 @@ export const INITIAL_JOURNEY_VIDEOS: JourneyVideo[] = [
       bn: "আমাদের সূচনা পর্ব, প্রাথমিক মানবিক কার্যক্রম ও অনুপ্রেরণার গল্প।"
     },
     category: "Organizational Journey",
-    videoUrl: "",
-    videoPlatform: "auto",
-    embedUrl: "",
-    thumbnailUrl: "",
+    videoUrl: "https://www.facebook.com/reel/2180583382747395",
+    videoPlatform: "facebook",
+    embedUrl: "https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Freel%2F2180583382747395&show_text=false&width=1280&allowfullscreen=true",
+    thumbnailUrl: "https://res.cloudinary.com/evj6fhsf/image/upload/v1787806819/Screenshot_2026-08-27_105905.png",
     displayOrder: 1,
     isPublished: true,
-    isFeatured: false,
+    isFeatured: true,
     createdAt: "2026-01-01T00:00:00.000Z",
-    updatedAt: "2026-01-01T00:00:00.000Z"
+    updatedAt: "2026-08-27T05:01:22.545Z"
   },
   {
     id: "jvid-2019-2025",
@@ -3929,15 +3929,15 @@ export const INITIAL_JOURNEY_VIDEOS: JourneyVideo[] = [
       bn: "অগ্রযাত্রার দশক, বহুমুখী সেবা কর্মসূচি ও সমন্বিত মানবিক প্রচেষ্টা।"
     },
     category: "Organizational Journey",
-    videoUrl: "",
-    videoPlatform: "auto",
-    embedUrl: "",
-    thumbnailUrl: "",
+    videoUrl: "https://www.facebook.com/reel/1606255444034690",
+    videoPlatform: "facebook",
+    embedUrl: "https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Freel%2F1606255444034690&show_text=false&width=1280&allowfullscreen=true",
+    thumbnailUrl: "https://res.cloudinary.com/evj6fhsf/image/upload/v1787807091/Screenshot_2026-08-27_110433.png",
     displayOrder: 2,
     isPublished: true,
-    isFeatured: true,
+    isFeatured: false,
     createdAt: "2026-01-02T00:00:00.000Z",
-    updatedAt: "2026-01-02T00:00:00.000Z"
+    updatedAt: "2026-08-27T05:05:37.196Z"
   }
 ];
 

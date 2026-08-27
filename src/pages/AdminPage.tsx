@@ -5310,19 +5310,19 @@ export const AdminPage: React.FC = () => {
                       </select>
                     </div>
 
-                    {/* Donors Table */}
-                    <div className="overflow-x-auto no-scrollbar border border-slate-100 rounded-2xl">
-                      <table className="w-full text-left text-xs">
+                    {/* Donors Table with Smooth Horizontal Scroll & Sticky Actions */}
+                    <div className="overflow-x-auto border border-slate-200 rounded-2xl bg-white shadow-xs">
+                      <table className="w-full min-w-[1020px] text-left text-xs border-collapse">
                         <thead className="bg-[#FAF7F2] text-slate-600 font-bold uppercase text-[10px] tracking-wider border-b border-[#EAE3D9]">
                           <tr>
-                            <th className="p-3.5">Donor</th>
-                            <th className="p-3.5">Blood</th>
-                            <th className="p-3.5">Contact</th>
-                            <th className="p-3.5">Location</th>
-                            <th className="p-3.5">Org Category</th>
-                            <th className="p-3.5">Availability</th>
-                            <th className="p-3.5">Status</th>
-                            <th className="p-3.5 text-center">Actions</th>
+                            <th className="p-3.5 min-w-[200px]">Donor</th>
+                            <th className="p-3.5 text-center w-16">Blood</th>
+                            <th className="p-3.5 min-w-[160px]">Contact</th>
+                            <th className="p-3.5 min-w-[160px]">Location</th>
+                            <th className="p-3.5 min-w-[140px]">Org Category</th>
+                            <th className="p-3.5 min-w-[130px]">Availability</th>
+                            <th className="p-3.5 min-w-[100px]">Status</th>
+                            <th className="p-3.5 text-center w-28 sticky right-0 bg-[#FAF7F2] shadow-[-6px_0_12px_-4px_rgba(0,0,0,0.06)] z-10">Actions</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
@@ -5342,7 +5342,7 @@ export const AdminPage: React.FC = () => {
                               return true;
                             })
                             .map(donor => (
-                              <tr key={donor.id} className="hover:bg-slate-50 transition-colors">
+                              <tr key={donor.id} className="hover:bg-slate-50 transition-colors group">
                                 <td className="p-3.5">
                                   <div className="flex items-center gap-2.5">
                                     <div className="w-9 h-9 rounded-xl bg-emerald-950 text-white font-bold flex items-center justify-center shrink-0 overflow-hidden">
@@ -5352,11 +5352,11 @@ export const AdminPage: React.FC = () => {
                                         donor.fullName.charAt(0)
                                       )}
                                     </div>
-                                    <div>
+                                    <div className="min-w-0">
                                       <p className="font-extrabold text-slate-900 flex items-center gap-1">
-                                        <span>{donor.fullName}</span>
+                                        <span className="truncate">{donor.fullName}</span>
                                         {donor.isVerified && (
-                                          <span title="Verified">
+                                          <span title="Verified" className="inline-flex shrink-0">
                                             <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
                                           </span>
                                         )}
@@ -5366,15 +5366,15 @@ export const AdminPage: React.FC = () => {
                                   </div>
                                 </td>
 
-                                <td className="p-3.5">
-                                  <span className="px-2 py-0.5 rounded-lg bg-rose-600 text-white font-black text-xs font-display">
+                                <td className="p-3.5 text-center">
+                                  <span className="inline-block px-2 py-0.5 rounded-lg bg-rose-600 text-white font-black text-xs font-display">
                                     {donor.bloodGroup}
                                   </span>
                                 </td>
 
                                 <td className="p-3.5 text-slate-700">
-                                  <p className="font-bold">{donor.phone}</p>
-                                  {donor.email && <p className="text-[10px] text-slate-400">{donor.email}</p>}
+                                  <p className="font-bold whitespace-nowrap">{donor.phone}</p>
+                                  {donor.email && <p className="text-[10px] text-slate-400 truncate max-w-[150px]">{donor.email}</p>}
                                 </td>
 
                                 <td className="p-3.5 text-slate-600">
@@ -5382,13 +5382,13 @@ export const AdminPage: React.FC = () => {
                                   <p className="text-[10px] text-slate-400">{donor.district}</p>
                                 </td>
 
-                                <td className="p-3.5 text-slate-700 font-medium">
+                                <td className="p-3.5 text-slate-700 font-medium whitespace-nowrap">
                                   {donor.orgCategory}
                                 </td>
 
-                                <td className="p-3.5">
+                                <td className="p-3.5 whitespace-nowrap">
                                   <span
-                                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${
                                       donor.availabilityStatus === 'AVAILABLE_EMERGENCY'
                                         ? 'bg-emerald-50 text-emerald-800'
                                         : donor.availabilityStatus === 'AVAILABLE_NOTICE'
@@ -5396,13 +5396,17 @@ export const AdminPage: React.FC = () => {
                                         : 'bg-rose-50 text-rose-800'
                                     }`}
                                   >
-                                    {donor.availabilityStatus}
+                                    {donor.availabilityStatus === 'AVAILABLE_EMERGENCY'
+                                      ? (isBn ? '🟢 জরুরি প্রস্তুত' : '🟢 Emergency Ready')
+                                      : donor.availabilityStatus === 'AVAILABLE_NOTICE'
+                                      ? (isBn ? '🟡 নোটিশ সাপেক্ষে' : '🟡 Prior Notice')
+                                      : (isBn ? '🔴 অনুপলব্ধ' : '🔴 Unavailable')}
                                   </span>
                                 </td>
 
-                                <td className="p-3.5">
+                                <td className="p-3.5 whitespace-nowrap">
                                   <span
-                                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${
                                       donor.approvalStatus === 'APPROVED'
                                         ? 'bg-emerald-100 text-emerald-800'
                                         : donor.approvalStatus === 'PENDING'
@@ -5410,11 +5414,15 @@ export const AdminPage: React.FC = () => {
                                         : 'bg-rose-100 text-rose-800'
                                     }`}
                                   >
-                                    {donor.approvalStatus}
+                                    {donor.approvalStatus === 'APPROVED'
+                                      ? (isBn ? 'অনুমোদিত' : 'Approved')
+                                      : donor.approvalStatus === 'PENDING'
+                                      ? (isBn ? 'অপেক্ষমাণ' : 'Pending')
+                                      : (isBn ? 'বাতিল' : 'Rejected')}
                                   </span>
                                 </td>
 
-                                <td className="p-3.5 text-center">
+                                <td className="p-3.5 text-center sticky right-0 bg-white group-hover:bg-slate-50 transition-colors shadow-[-6px_0_12px_-4px_rgba(0,0,0,0.06)] z-10">
                                   <div className="flex items-center justify-center gap-1.5">
                                     <button
                                       type="button"
@@ -5422,21 +5430,21 @@ export const AdminPage: React.FC = () => {
                                         setEditingBloodDonor(donor);
                                         setIsBloodDonorModalOpen(true);
                                       }}
-                                      className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-100 cursor-pointer"
+                                      className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-[#006A4E] transition-colors cursor-pointer"
                                       title="Edit Donor"
                                     >
-                                      <Edit3 className="w-3.5 h-3.5" />
+                                      <Edit3 className="w-4 h-4" />
                                     </button>
 
                                     <button
                                       type="button"
                                       onClick={() => verifyBloodDonor(donor.id, !donor.isVerified)}
-                                      className={`p-1.5 rounded-lg cursor-pointer ${
+                                      className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
                                         donor.isVerified ? 'text-emerald-600 hover:bg-emerald-50' : 'text-slate-400 hover:bg-slate-100'
                                       }`}
                                       title={donor.isVerified ? 'Unverify' : 'Verify'}
                                     >
-                                      <ShieldCheck className="w-3.5 h-3.5" />
+                                      <ShieldCheck className="w-4 h-4" />
                                     </button>
 
                                     <button
@@ -5447,10 +5455,10 @@ export const AdminPage: React.FC = () => {
                                           showToast('Donor record deleted');
                                         }
                                       }}
-                                      className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 cursor-pointer"
+                                      className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                                       title="Delete Donor"
                                     >
-                                      <Trash2 className="w-3.5 h-3.5" />
+                                      <Trash2 className="w-4 h-4" />
                                     </button>
                                   </div>
                                 </td>

@@ -544,3 +544,28 @@ model VideoItem {
   @@index([createdAt])
 }
 
+model JourneyVideo {
+  id             String   @id @default(cuid())
+  titleEn        String
+  titleBn        String
+  timelineLabelEn String
+  timelineLabelBn String
+  descriptionEn  String   @db.Text
+  descriptionBn  String   @db.Text
+  category       String   @default("Organizational Journey")
+  videoUrl       String   @default("")
+  videoPlatform  String   @default("auto")
+  embedUrl       String?
+  thumbnailUrl   String?
+  displayOrder   Int      @default(0)
+  isPublished    Boolean  @default(true)
+  isFeatured     Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([displayOrder])
+  @@index([isPublished])
+  @@index([isFeatured])
+}
+
+

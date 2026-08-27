@@ -34,7 +34,8 @@ import {
   GalleryAlbum,
   AdminProfile,
   FAQItem,
-  PressCoverage
+  PressCoverage,
+  JourneyVideo
 } from '../types';
 import {
   INITIAL_CAMPAIGNS,
@@ -69,7 +70,9 @@ import {
   INITIAL_GALLERY_ALBUMS,
   INITIAL_ADMIN_PROFILES,
   INITIAL_FAQS,
-  INITIAL_PRESS_COVERAGE
+  INITIAL_PRESS_COVERAGE,
+  INITIAL_JOURNEY_VIDEOS,
+  DEFAULT_EXECUTIVE_TIER_BARS
 } from '../data/initialData';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { getFreshImageUrl } from '../lib/cloudinary';
@@ -85,6 +88,7 @@ interface DataContextType {
   events: EventItem[];
   gallery: GalleryPhoto[];
   videos: VideoItem[];
+  journeyVideos: JourneyVideo[];
   reports: TransparencyReport[];
   partners: Partner[];
   volunteers: VolunteerApplication[];
@@ -200,6 +204,13 @@ interface DataContextType {
   addVideo: (video: Omit<VideoItem, 'id'>) => VideoItem;
   updateVideo: (id: string, video: Partial<VideoItem>) => void;
   deleteVideo: (id: string) => void;
+
+  // Journey Videos (About Overview & Story)
+  addJourneyVideo: (video: Omit<JourneyVideo, 'id' | 'createdAt' | 'updatedAt'>) => JourneyVideo;
+  updateJourneyVideo: (id: string, video: Partial<JourneyVideo>) => void;
+  deleteJourneyVideo: (id: string) => void;
+  reorderJourneyVideos: (orderedIds: string[]) => void;
+  setFeaturedJourneyVideo: (id: string) => void;
 
   addReport: (report: Omit<TransparencyReport, 'id'>) => TransparencyReport;
   updateReport: (id: string, report: Partial<TransparencyReport>) => void;
@@ -401,6 +412,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const deletedSet = new Set(getStoredOrDefault<string[]>('deleted_video_ids', []));
     return stored.filter(v => v.id !== 'vid-1' && !deletedSet.has(v.id) && !(v.videoUrl && v.videoUrl.includes('dQw4w9WgXcQ')));
   });
+  const [journeyVideos, setJourneyVideos] = useState<JourneyVideo[]>(() => getStoredOrDefault('journeyVideos', INITIAL_JOURNEY_VIDEOS));
   const [reports, setReports] = useState<TransparencyReport[]>(() => getStoredOrDefault('reports', INITIAL_REPORTS));
   const [pressCoverages, setPressCoverages] = useState<PressCoverage[]>(() => getStoredOrDefault('pressCoverages', INITIAL_PRESS_COVERAGE));
   const [partners, setPartners] = useState<Partner[]>(() => getStoredOrDefault('partners', INITIAL_PARTNERS));
@@ -452,6 +464,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem(`${STORAGE_PREFIX}events`, JSON.stringify(events));
     localStorage.setItem(`${STORAGE_PREFIX}gallery`, JSON.stringify(gallery));
     localStorage.setItem(`${STORAGE_PREFIX}videos`, JSON.stringify(videos));
+    localStorage.setItem(`${STORAGE_PREFIX}journeyVideos`, JSON.stringify(journeyVideos));
     localStorage.setItem(`${STORAGE_PREFIX}reports`, JSON.stringify(reports));
     localStorage.setItem(`${STORAGE_PREFIX}partners`, JSON.stringify(partners));
     localStorage.setItem(`${STORAGE_PREFIX}volunteers`, JSON.stringify(volunteers));
@@ -467,7 +480,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     settings, homepageConfig, aboutSettings, headerSettings, footerSettings,
     socialLinks, volunteerSettings, supportSettings, contactSettings, seoSettings,
     navigationItems, banners, mediaLibrary, galleryAlbums, pressCoverages, adminProfiles,
-    campaigns, programs, metrics, stories, news, events, gallery, videos,
+    campaigns, programs, metrics, stories, news, events, gallery, videos, journeyVideos,
     reports, partners, volunteers, donations, messages, faqs, auditLogs,
     committees, persons, positions, committeeMembers
   ]);
@@ -501,6 +514,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setNews(parsed);
         } else if (entityKey === 'events' && Array.isArray(parsed)) {
           setEvents(parsed);
+        } else if (entityKey === 'journeyVideos' && Array.isArray(parsed)) {
+          setJourneyVideos(parsed);
         }
       } catch (err) {
         console.warn('Storage sync error:', err);
@@ -1059,6 +1074,64 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
       }
 
+      // 17.5. Journey Videos (About Page Archive)
+      const { data: jvidData } = await supabase.from('journey_videos').select('*').order('display_order', { ascending: true });
+      if (jvidData && Array.isArray(jvidData) && jvidData.length > 0) {
+        const remoteJourneyVideos: JourneyVideo[] = jvidData.map(jv => {
+          const det = detectAndNormalizeMedia(jv.video_url || '');
+          return {
+            id: jv.id,
+            title: jv.title || { en: '', bn: '' },
+            timelineLabel: jv.timeline_label || { en: '', bn: '' },
+            description: jv.description || { en: '', bn: '' },
+            category: jv.category || 'Organizational Journey',
+            videoUrl: jv.video_url || '',
+            videoPlatform: jv.video_platform || det.platform || 'auto',
+            embedUrl: jv.embed_url || det.embedUrl || '',
+            thumbnailUrl: getFreshImageUrl(jv.thumbnail_url || det.thumbnailUrl || ''),
+            displayOrder: jv.display_order ?? 0,
+            isPublished: jv.is_published ?? true,
+            isFeatured: jv.is_featured ?? false,
+            createdAt: jv.created_at,
+            updatedAt: jv.updated_at
+          };
+        });
+
+        setJourneyVideos(prevLocal => {
+          const remoteIds = new Set(remoteJourneyVideos.map(r => r.id));
+          const localOnly = prevLocal.filter(l => !remoteIds.has(l.id));
+          if (localOnly.length > 0) {
+            localOnly.forEach(l => {
+              safeDbUpsert('journey_videos', {
+                id: l.id,
+                title: l.title,
+                timeline_label: l.timelineLabel,
+                description: l.description,
+                category: l.category,
+                video_url: l.videoUrl,
+                video_platform: l.videoPlatform,
+                embed_url: l.embedUrl || '',
+                thumbnail_url: l.thumbnailUrl || '',
+                display_order: l.displayOrder,
+                is_published: l.isPublished,
+                is_featured: l.isFeatured,
+                created_at: l.createdAt || new Date().toISOString(),
+                updated_at: l.updatedAt || new Date().toISOString()
+              });
+            });
+            const merged = [...localOnly, ...remoteJourneyVideos].sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+            try {
+              localStorage.setItem(`${STORAGE_PREFIX}journeyVideos`, JSON.stringify(merged));
+            } catch {}
+            return merged;
+          }
+          try {
+            localStorage.setItem(`${STORAGE_PREFIX}journeyVideos`, JSON.stringify(remoteJourneyVideos));
+          } catch {}
+          return remoteJourneyVideos;
+        });
+      }
+
       // 18. Press & Media Coverage
       const { data: pressData } = await supabase.from('press_coverage').select('*').order('published_date', { ascending: false });
       if (pressData && Array.isArray(pressData) && pressData.length > 0) {
@@ -1409,6 +1482,27 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           aspect_ratio: vid.aspectRatio || '16/9',
           is_shorts: vid.isShorts || false,
           created_at: vid.createdAt || new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        });
+      }
+
+      // Journey Videos
+      for (const jvid of journeyVideos) {
+        const det = detectAndNormalizeMedia(jvid.videoUrl || '');
+        await supabase.from('journey_videos').upsert({
+          id: jvid.id,
+          title: jvid.title,
+          timeline_label: jvid.timelineLabel,
+          description: jvid.description,
+          category: jvid.category || 'Organizational Journey',
+          video_url: jvid.videoUrl || '',
+          video_platform: jvid.videoPlatform || det.platform || 'auto',
+          embed_url: jvid.embedUrl || det.embedUrl || '',
+          thumbnail_url: jvid.thumbnailUrl || det.thumbnailUrl || '',
+          display_order: jvid.displayOrder ?? 0,
+          is_published: jvid.isPublished ?? true,
+          is_featured: jvid.isFeatured ?? false,
+          created_at: jvid.createdAt || new Date().toISOString(),
           updated_at: new Date().toISOString()
         });
       }
@@ -2718,6 +2812,205 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [logAudit]);
 
+  // ----------------------------------------------------
+  // JOURNEY VIDEOS (ABOUT OVERVIEW & STORY)
+  // ----------------------------------------------------
+  const addJourneyVideo = useCallback((video: Omit<JourneyVideo, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const id = `jvid-${Date.now()}`;
+    const det = detectAndNormalizeMedia(video.videoUrl || '');
+    const cleanEmbed = video.embedUrl || det.embedUrl || '';
+    const cleanThumbnail = video.thumbnailUrl || det.thumbnailUrl || '';
+    const cleanTitle = typeof video.title === 'string'
+      ? { en: video.title, bn: video.title }
+      : (video.title || { en: 'Infinity Bangladesh Journey', bn: 'ইনফিনিটি বাংলাদেশ পরিক্রমা' });
+    const cleanTimeline = typeof video.timelineLabel === 'string'
+      ? { en: video.timelineLabel, bn: video.timelineLabel }
+      : (video.timelineLabel || { en: 'Journey', bn: 'পরিক্রমা' });
+    const cleanDescription = typeof video.description === 'string'
+      ? { en: video.description, bn: video.description }
+      : (video.description || { en: '', bn: '' });
+
+    const newVid: JourneyVideo = {
+      ...video,
+      id,
+      title: cleanTitle,
+      timelineLabel: cleanTimeline,
+      description: cleanDescription,
+      category: video.category || 'Organizational Journey',
+      videoUrl: video.videoUrl || '',
+      videoPlatform: video.videoPlatform || det.platform || 'auto',
+      embedUrl: cleanEmbed,
+      thumbnailUrl: cleanThumbnail ? getFreshImageUrl(cleanThumbnail) : '',
+      displayOrder: video.displayOrder ?? (journeyVideos.length + 1),
+      isPublished: video.isPublished ?? true,
+      isFeatured: video.isFeatured ?? false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    setJourneyVideos(prev => {
+      let list = prev;
+      if (newVid.isFeatured) {
+        list = list.map(v => ({ ...v, isFeatured: false }));
+      }
+      return [...list, newVid].sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+    });
+
+    logAudit('CREATE', 'JourneyVideo', id, `Added journey video: ${cleanTimeline.en || cleanTitle.en}`);
+
+    if (newVid.isFeatured && supabase && isSupabaseConfigured) {
+      void supabase.from('journey_videos').update({ is_featured: false }).neq('id', id);
+    }
+
+    safeDbUpsert('journey_videos', {
+      id: newVid.id,
+      title: newVid.title,
+      timeline_label: newVid.timelineLabel,
+      description: newVid.description,
+      category: newVid.category,
+      video_url: newVid.videoUrl,
+      video_platform: newVid.videoPlatform,
+      embed_url: newVid.embedUrl || '',
+      thumbnail_url: newVid.thumbnailUrl || '',
+      display_order: newVid.displayOrder,
+      is_published: newVid.isPublished,
+      is_featured: newVid.isFeatured,
+      created_at: newVid.createdAt,
+      updated_at: newVid.updatedAt
+    });
+
+    return newVid;
+  }, [journeyVideos.length, logAudit, safeDbUpsert]);
+
+  const updateJourneyVideo = useCallback((id: string, video: Partial<JourneyVideo>) => {
+    setJourneyVideos(prev => {
+      const willBeFeatured = video.isFeatured === true;
+      const updated = prev.map(v => {
+        if (v.id !== id) {
+          if (willBeFeatured) return { ...v, isFeatured: false };
+          return v;
+        }
+        const nextVideoUrl = video.videoUrl !== undefined ? video.videoUrl : v.videoUrl;
+        const det = detectAndNormalizeMedia(nextVideoUrl);
+        const nextEmbed = video.embedUrl !== undefined
+          ? (video.embedUrl || det.embedUrl || '')
+          : (v.embedUrl || det.embedUrl || '');
+        const nextThumbnail = video.thumbnailUrl !== undefined
+          ? (video.thumbnailUrl || det.thumbnailUrl || '')
+          : (v.thumbnailUrl || det.thumbnailUrl || '');
+
+        return {
+          ...v,
+          ...video,
+          embedUrl: nextEmbed,
+          thumbnailUrl: nextThumbnail ? getFreshImageUrl(nextThumbnail) : '',
+          updatedAt: new Date().toISOString()
+        };
+      }).sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+
+      const match = updated.find(v => v.id === id);
+      if (match) {
+        if (willBeFeatured && supabase && isSupabaseConfigured) {
+          void supabase.from('journey_videos').update({ is_featured: false }).neq('id', id);
+        }
+
+        safeDbUpsert('journey_videos', {
+          id: match.id,
+          title: match.title,
+          timeline_label: match.timelineLabel,
+          description: match.description,
+          category: match.category || 'Organizational Journey',
+          video_url: match.videoUrl || '',
+          video_platform: match.videoPlatform || 'auto',
+          embed_url: match.embedUrl || '',
+          thumbnail_url: match.thumbnailUrl || '',
+          display_order: match.displayOrder ?? 0,
+          is_published: match.isPublished ?? true,
+          is_featured: match.isFeatured ?? false,
+          created_at: match.createdAt || new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        });
+      }
+      return updated;
+    });
+
+    logAudit('UPDATE', 'JourneyVideo', id, 'Updated journey video');
+  }, [logAudit, safeDbUpsert]);
+
+  const deleteJourneyVideo = useCallback((id: string) => {
+    setJourneyVideos(prev => {
+      const next = prev.filter(v => v.id !== id);
+      try {
+        localStorage.setItem(`${STORAGE_PREFIX}journeyVideos`, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+
+    logAudit('DELETE', 'JourneyVideo', id, 'Deleted journey video');
+    safeDbDelete('journey_videos', 'id', id);
+  }, [logAudit, safeDbDelete]);
+
+  const reorderJourneyVideos = useCallback((orderedIds: string[]) => {
+    setJourneyVideos(prev => {
+      const idMap = new Map(prev.map(item => [item.id, item]));
+      const reordered: JourneyVideo[] = [];
+
+      orderedIds.forEach((id, index) => {
+        const item = idMap.get(id);
+        if (item) {
+          const updatedItem = { ...item, displayOrder: index + 1, updatedAt: new Date().toISOString() };
+          reordered.push(updatedItem);
+          safeDbUpsert('journey_videos', {
+            id: updatedItem.id,
+            title: updatedItem.title,
+            timeline_label: updatedItem.timelineLabel,
+            description: updatedItem.description,
+            category: updatedItem.category,
+            video_url: updatedItem.videoUrl,
+            video_platform: updatedItem.videoPlatform,
+            embed_url: updatedItem.embedUrl || '',
+            thumbnail_url: updatedItem.thumbnailUrl || '',
+            display_order: updatedItem.displayOrder,
+            is_published: updatedItem.isPublished,
+            is_featured: updatedItem.isFeatured,
+            created_at: updatedItem.createdAt || new Date().toISOString(),
+            updated_at: updatedItem.updatedAt
+          });
+        }
+      });
+
+      try {
+        localStorage.setItem(`${STORAGE_PREFIX}journeyVideos`, JSON.stringify(reordered));
+      } catch {}
+      return reordered;
+    });
+
+    logAudit('REORDER', 'JourneyVideo', 'bulk', 'Updated journey videos display sequence');
+  }, [logAudit, safeDbUpsert]);
+
+  const setFeaturedJourneyVideo = useCallback((id: string) => {
+    setJourneyVideos(prev => {
+      const updated = prev.map(v => ({
+        ...v,
+        isFeatured: v.id === id,
+        updatedAt: v.id === id ? new Date().toISOString() : v.updatedAt
+      }));
+
+      if (supabase && isSupabaseConfigured) {
+        void supabase.from('journey_videos').update({ is_featured: false }).neq('id', id).then(() => {
+          void supabase?.from('journey_videos').update({ is_featured: true }).eq('id', id);
+        });
+      }
+
+      try {
+        localStorage.setItem(`${STORAGE_PREFIX}journeyVideos`, JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+
+    logAudit('UPDATE', 'JourneyVideo', id, 'Set as primary featured journey video');
+  }, [logAudit]);
+
   const addReport = useCallback((report: Omit<TransparencyReport, 'id'>) => {
     const id = `rep-${Date.now()}`;
     const newRep: TransparencyReport = { ...report, id };
@@ -3329,6 +3622,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       events,
       gallery,
       videos,
+      journeyVideos,
       reports,
       partners,
       volunteers,
@@ -3345,7 +3639,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     settings, homepageConfig, aboutSettings, headerSettings, footerSettings,
     socialLinks, volunteerSettings, supportSettings, contactSettings, seoSettings,
     navigationItems, banners, mediaLibrary, galleryAlbums, pressCoverages, adminProfiles,
-    campaigns, programs, metrics, stories, news, events, gallery, videos,
+    campaigns, programs, metrics, stories, news, events, gallery, videos, journeyVideos,
     reports, partners, volunteers, donations, messages, committees,
     persons, positions, committeeMembers, auditLogs
   ]);
@@ -3377,6 +3671,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (parsed.events) setEvents(parsed.events);
       if (parsed.gallery) setGallery(parsed.gallery);
       if (parsed.videos) setVideos(parsed.videos);
+      if (parsed.journeyVideos) setJourneyVideos(parsed.journeyVideos);
       if (parsed.reports) setReports(parsed.reports);
       if (parsed.partners) setPartners(parsed.partners);
       if (parsed.volunteers) setVolunteers(parsed.volunteers);
@@ -3420,6 +3715,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setEvents(INITIAL_EVENTS);
     setGallery(INITIAL_GALLERY);
     setVideos(INITIAL_VIDEOS);
+    setJourneyVideos(INITIAL_JOURNEY_VIDEOS);
     setReports(INITIAL_REPORTS);
     setPartners(INITIAL_PARTNERS);
     setVolunteers(INITIAL_VOLUNTEER_APPLICATIONS);
@@ -3452,6 +3748,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         events,
         gallery,
         videos,
+        journeyVideos,
         reports,
         partners,
         volunteers,
@@ -3557,6 +3854,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         addVideo,
         updateVideo,
         deleteVideo,
+
+        addJourneyVideo,
+        updateJourneyVideo,
+        deleteJourneyVideo,
+        reorderJourneyVideos,
+        setFeaturedJourneyVideo,
 
         addReport,
         updateReport,

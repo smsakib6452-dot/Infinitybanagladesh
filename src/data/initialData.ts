@@ -32,7 +32,8 @@ import {
   AdminProfile,
   FAQItem,
   PressCoverage,
-  ExecutiveTierBar
+  ExecutiveTierBar,
+  JourneyVideo
 } from '../types';
 
 export const DEFAULT_EXECUTIVE_TIER_BARS: ExecutiveTierBar[] = [
@@ -3886,3 +3887,57 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "status": "ACTIVE"
   }
 ];
+
+export const INITIAL_JOURNEY_VIDEOS: JourneyVideo[] = [
+  {
+    id: "jvid-2015-2019",
+    title: {
+      en: "Infinity Bangladesh Journey",
+      bn: "ইনফিনিটি বাংলাদেশ পরিক্রমা"
+    },
+    timelineLabel: {
+      en: "2015–2019",
+      bn: "২০১৫–২০১৯"
+    },
+    description: {
+      en: "Our early journey, beginnings, and humanitarian activities.",
+      bn: "আমাদের সূচনা পর্ব, প্রাথমিক মানবিক কার্যক্রম ও অনুপ্রেরণার গল্প।"
+    },
+    category: "Organizational Journey",
+    videoUrl: "",
+    videoPlatform: "auto",
+    embedUrl: "",
+    thumbnailUrl: "",
+    displayOrder: 1,
+    isPublished: true,
+    isFeatured: false,
+    createdAt: "2026-01-01T00:00:00.000Z",
+    updatedAt: "2026-01-01T00:00:00.000Z"
+  },
+  {
+    id: "jvid-2019-2025",
+    title: {
+      en: "Infinity Bangladesh Journey",
+      bn: "ইনফিনিটি বাংলাদেশ পরিক্রমা"
+    },
+    timelineLabel: {
+      en: "2019–2025",
+      bn: "২০১৯–২০২৫"
+    },
+    description: {
+      en: "Our continued growth, humanitarian activities, and journey over the years.",
+      bn: "অগ্রযাত্রার দশক, বহুমুখী সেবা কর্মসূচি ও সমন্বিত মানবিক প্রচেষ্টা।"
+    },
+    category: "Organizational Journey",
+    videoUrl: "",
+    videoPlatform: "auto",
+    embedUrl: "",
+    thumbnailUrl: "",
+    displayOrder: 2,
+    isPublished: true,
+    isFeatured: true,
+    createdAt: "2026-01-02T00:00:00.000Z",
+    updatedAt: "2026-01-02T00:00:00.000Z"
+  }
+];
+

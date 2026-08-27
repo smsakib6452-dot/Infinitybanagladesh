@@ -4,6 +4,7 @@ import { useRouter, Link } from '../context/RouterContext';
 import { useData } from '../context/DataContext';
 import { SectionHeading } from '../components/SectionHeading';
 import { OfficialInfoBadge, VerifiedOrganizationPledge } from '../components/OfficialInfoBadge';
+import { JourneyVideoArchive } from '../components/JourneyVideoArchive';
 import { getAssetUrl } from '../lib/utils/assetHelper';
 import {
   Heart,
@@ -123,17 +124,8 @@ export const AboutPage: React.FC<AboutPageProps> = ({ initialTab = 'overview' })
               </div>
             </div>
 
-            <div className="lg:col-span-6 relative">
-              <div className="rounded-3xl overflow-hidden shadow-warm-xl border-4 border-white aspect-4/3 bg-slate-100">
-                <img
-                  src={getAssetUrl(aboutSettings.heroImageUrl || '/images/infinity-cover-hero.jpg')}
-                  alt={`${teamId} Field Service`}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="absolute -bottom-4 -left-4 bg-[#006A4E] text-white p-4 rounded-2xl shadow-warm-md text-xs font-bold border border-emerald-400">
-                <span>{headLocation.split(',')[0]} &bull; Est. {estYear}</span>
-              </div>
+            <div className="lg:col-span-6">
+              <JourneyVideoArchive headLocation={headLocation} estYear={estYear} />
             </div>
           </div>
 

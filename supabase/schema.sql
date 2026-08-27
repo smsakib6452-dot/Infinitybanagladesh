@@ -446,6 +446,24 @@ CREATE TABLE IF NOT EXISTS public.video_items (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- Journey Video Archive (About Page)
+CREATE TABLE IF NOT EXISTS public.journey_videos (
+  id TEXT PRIMARY KEY,
+  title JSONB NOT NULL,
+  timeline_label JSONB NOT NULL,
+  description JSONB NOT NULL DEFAULT '{"en": "", "bn": ""}'::jsonb,
+  category TEXT NOT NULL DEFAULT 'Organizational Journey',
+  video_url TEXT NOT NULL DEFAULT '',
+  video_platform TEXT NOT NULL DEFAULT 'auto',
+  embed_url TEXT DEFAULT '',
+  thumbnail_url TEXT DEFAULT '',
+  display_order INT NOT NULL DEFAULT 0,
+  is_published BOOLEAN NOT NULL DEFAULT TRUE,
+  is_featured BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 -- Transparency Reports
 CREATE TABLE IF NOT EXISTS public.transparency_reports (
   id TEXT PRIMARY KEY,

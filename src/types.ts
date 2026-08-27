@@ -858,3 +858,24 @@ export interface CommitteeMember {
   position?: Position;
   committee?: Committee;
 }
+
+// ----------------------------------------------------
+// JOURNEY VIDEO ARCHIVE (ABOUT PAGE)
+// ----------------------------------------------------
+export interface JourneyVideo {
+  id: string;
+  title: BilingualText;
+  timelineLabel: BilingualText;
+  description: BilingualText;
+  category: string;
+  videoUrl: string;
+  videoPlatform: 'auto' | 'youtube' | 'facebook' | 'direct' | string;
+  embedUrl?: string;
+  thumbnailUrl?: string;
+  displayOrder: number;
+  isPublished: boolean;
+  isFeatured: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+

@@ -68,7 +68,8 @@ import {
   Smartphone,
   Newspaper,
   Edit3,
-  Link as LinkIcon
+  Link as LinkIcon,
+  Film
 } from 'lucide-react';
 import {
   Campaign,
@@ -99,7 +100,8 @@ import {
   PageRoute,
   FAQItem,
   PressCoverage,
-  ExecutiveTierBar
+  ExecutiveTierBar,
+  JourneyVideo
 } from '../types';
 import { DEFAULT_EXECUTIVE_TIER_BARS } from '../data/initialData';
 import { getAssetUrl, handleImageError } from '../lib/utils/assetHelper';
@@ -119,6 +121,7 @@ import { AlbumPhotoManagerModal } from '../components/AlbumPhotoManagerModal';
 import { ImagePublishModal } from '../components/ImagePublishModal';
 import { PressCoverageModal } from '../components/PressCoverageModal';
 import { NavigationModal } from '../components/NavigationModal';
+import { JourneyVideoModal } from '../components/JourneyVideoModal';
 import { AdminErrorBoundary } from '../components/AdminErrorBoundary';
 import { isSupabaseConfigured, signInWithEmail, signOutAdmin } from '../lib/supabase';
 import { detectAndNormalizeMedia, DEFAULT_VIDEO_THUMBNAIL, isPortraitVideo } from '../lib/utils/mediaHelper';
@@ -129,6 +132,7 @@ type AdminTab =
   | 'brand_settings'
   | 'homepage'
   | 'about_cms'
+  | 'journey_videos'
   | 'campaigns'
   | 'programs'
   | 'impact'
@@ -168,6 +172,7 @@ export const AdminPage: React.FC = () => {
     events, addEvent, updateEvent, deleteEvent,
     gallery, addGalleryPhoto, updateGalleryPhoto, deleteGalleryPhoto,
     videos, addVideo, updateVideo, deleteVideo,
+    journeyVideos, addJourneyVideo, updateJourneyVideo, deleteJourneyVideo, reorderJourneyVideos, setFeaturedJourneyVideo,
     reports, addReport, updateReport, deleteReport,
     volunteers, updateVolunteerStatus, deleteVolunteerApplication,
     donations, addDonationRecord, updateDonationStatus,
@@ -250,6 +255,13 @@ export const AdminPage: React.FC = () => {
 
   const [editingVideo, setEditingVideo] = useState<VideoItem | null>(null);
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+
+  // Journey Video Archive States
+  const [editingJourneyVideo, setEditingJourneyVideo] = useState<JourneyVideo | null>(null);
+  const [isJourneyVideoModalOpen, setIsJourneyVideoModalOpen] = useState(false);
+  const [journeyVideoSearch, setJourneyVideoSearch] = useState('');
+  const [journeyVideoCategory, setJourneyVideoCategory] = useState('All');
+  const [aboutSubTab, setAboutSubTab] = useState<'info' | 'journey_videos'>('info');
 
   // Unified Media Library States
   const [mediaLibraryFilter, setMediaLibraryFilter] = useState<'all' | 'image' | 'video' | 'youtube' | 'facebook' | 'featured'>('all');
@@ -335,6 +347,43 @@ export const AdminPage: React.FC = () => {
   const openMediaPicker = (onSelect: (url: string) => void) => {
     setMediaPickerCallback(() => onSelect);
     setMediaPickerOpen(true);
+  };
+
+  // Journey Video Save & Action Handlers
+  const handleSaveJourneyVideo = (data: Omit<JourneyVideo, 'id' | 'createdAt' | 'updatedAt'> | JourneyVideo) => {
+    if ('id' in data && data.id) {
+      updateJourneyVideo(data.id, data);
+      showToast(isBn ? 'জার্নি ভিডিও আপডেট করা হয়েছে' : 'Journey video updated successfully');
+    } else {
+      addJourneyVideo(data);
+      showToast(isBn ? 'নতুন জার্নি ভিডিও যোগ করা হয়েছে' : 'New journey video published successfully');
+    }
+    setIsJourneyVideoModalOpen(false);
+    setEditingJourneyVideo(null);
+  };
+
+  const handleDeleteJourneyVideo = (id: string, title: string) => {
+    if (confirm(isBn ? `আপনি কি "${title}" ভিডিওটি স্থায়ীভাবে মুছে ফেলতে চান?` : `Are you sure you want to delete "${title}"?`)) {
+      deleteJourneyVideo(id);
+      showToast(isBn ? 'ভিডিওটি মুছে ফেলা হয়েছে' : 'Journey video deleted');
+    }
+  };
+
+  const handleMoveJourneyVideo = (id: string, direction: 'up' | 'down') => {
+    const list = [...journeyVideos].sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+    const idx = list.findIndex(v => v.id === id);
+    if (idx === -1) return;
+    if (direction === 'up' && idx === 0) return;
+    if (direction === 'down' && idx === list.length - 1) return;
+
+    const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
+    const reordered = [...list];
+    const temp = reordered[idx];
+    reordered[idx] = reordered[targetIdx];
+    reordered[targetIdx] = temp;
+
+    reorderJourneyVideos(reordered.map(v => v.id));
+    showToast(isBn ? 'ক্রম পরিবর্তন করা হয়েছে' : 'Display order updated');
   };
 
   // Committee Member Save Handler
@@ -563,6 +612,7 @@ export const AdminPage: React.FC = () => {
         { id: 'brand_settings' as AdminTab, label: isBn ? 'ব্র্যান্ড ও স্লোগান CMS' : 'Brand & Slogans CMS', icon: Sparkles },
         { id: 'homepage' as AdminTab, label: isBn ? 'হোমপেজ এডিটর' : 'Homepage Editor', icon: Sliders },
         { id: 'about_cms' as AdminTab, label: isBn ? 'আমাদের সম্পর্কে' : 'About Organization', icon: BookOpen },
+        { id: 'journey_videos' as AdminTab, label: isBn ? 'জার্নি ভিডিও আর্কাইভ' : 'About Journey Videos', icon: Film },
         { id: 'navigation' as AdminTab, label: isBn ? 'মেনু ও নেভিগেশন' : 'Navigation & Menus', icon: Compass },
         { id: 'header_footer' as AdminTab, label: isBn ? 'হেডার ও ফুটার' : 'Header & Footer', icon: Layers }
       ]
@@ -2499,111 +2549,479 @@ export const AdminPage: React.FC = () => {
             )}
 
             {/* -------------------------------------------------------- */}
-            {/* TAB: ABOUT CMS */}
+            {/* TAB: ABOUT CMS & JOURNEY VIDEOS */}
             {/* -------------------------------------------------------- */}
-            {activeTab === 'about_cms' && (
-              <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-                  <div>
-                    <h2 className="text-xl font-extrabold text-slate-900 font-display">
-                      {isBn ? 'আমাদের পরিচয়, লক্ষ্য ও দর্শন' : 'About Organization CMS'}
-                    </h2>
-                    <p className="text-xs text-slate-500">
-                      {isBn ? 'মিশন, ভিশন, ইতিহাস ও সাংগঠনিক পটভূমি পরিবর্তন করুন।' : 'Edit organization mission, vision, history, established year, and locations.'}
-                    </p>
-                  </div>
+            {(activeTab === 'about_cms' || activeTab === 'journey_videos') && (
+              <div className="space-y-6">
+                {/* Sub Tab Navigation Switcher */}
+                <div className="flex items-center gap-2 p-1.5 bg-white rounded-2xl border border-[#EAE3D9] w-fit shadow-warm-xs">
                   <button
                     type="button"
-                    onClick={() => showToast('About settings saved')}
-                    className="px-5 py-2 rounded-xl bg-[#006A4E] text-white font-bold text-xs shadow-warm-sm"
+                    onClick={() => {
+                      if (activeTab === 'journey_videos') setActiveTab('about_cms');
+                      setAboutSubTab('info');
+                    }}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+                      (activeTab === 'about_cms' && aboutSubTab === 'info')
+                        ? 'bg-[#006A4E] text-white shadow-warm-sm'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-[#FAF7F2]'
+                    }`}
                   >
-                    Save Changes
+                    <BookOpen className="w-4 h-4" />
+                    <span>{isBn ? 'সাংগঠনিক পরিচিতি ও বিবরণ' : 'About Overview & Mission'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (activeTab === 'about_cms') setAboutSubTab('journey_videos');
+                    }}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+                      activeTab === 'journey_videos' || (activeTab === 'about_cms' && aboutSubTab === 'journey_videos')
+                        ? 'bg-[#006A4E] text-white shadow-warm-sm'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-[#FAF7F2]'
+                    }`}
+                  >
+                    <Film className="w-4 h-4" />
+                    <span>{isBn ? 'জার্নি ভিডিও আর্কাইভ' : 'Journey Videos Archive'}</span>
+                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-extrabold ml-1 ${
+                      activeTab === 'journey_videos' || (activeTab === 'about_cms' && aboutSubTab === 'journey_videos')
+                        ? 'bg-white/20 text-white'
+                        : 'bg-emerald-100 text-emerald-800'
+                    }`}>
+                      {journeyVideos.length}
+                    </span>
                   </button>
                 </div>
 
-                <div className="space-y-4">
-                  <h3 className="text-sm font-bold text-slate-900 font-display">Mission Statement</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-700">Mission (English)</label>
-                      <textarea
-                        rows={3}
-                        value={aboutSettings.mission.en}
-                        onChange={(e) => updateAboutSettings({
-                          mission: { ...aboutSettings.mission, en: e.target.value }
-                        })}
-                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
-                      />
+                {/* Sub Tab 1: Organization Overview & Mission */}
+                {(activeTab === 'about_cms' && aboutSubTab === 'info') && (
+                  <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                      <div>
+                        <h2 className="text-xl font-extrabold text-slate-900 font-display">
+                          {isBn ? 'আমাদের পরিচয়, লক্ষ্য ও দর্শন' : 'About Organization CMS'}
+                        </h2>
+                        <p className="text-xs text-slate-500">
+                          {isBn ? 'মিশন, ভিশন, ইতিহাস ও সাংগঠনিক পটভূমি পরিবর্তন করুন।' : 'Edit organization mission, vision, history, established year, and locations.'}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => showToast('About settings saved')}
+                        className="px-5 py-2 rounded-xl bg-[#006A4E] text-white font-bold text-xs shadow-warm-sm"
+                      >
+                        Save Changes
+                      </button>
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-700">Mission (বাংলা)</label>
-                      <textarea
-                        rows={3}
-                        value={aboutSettings.mission.bn}
-                        onChange={(e) => updateAboutSettings({
-                          mission: { ...aboutSettings.mission, bn: e.target.value }
-                        })}
-                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
-                      />
-                    </div>
-                  </div>
-                </div>
 
-                <div className="space-y-4 pt-4 border-t border-slate-100">
-                  <h3 className="text-sm font-bold text-slate-900 font-display">Vision Statement</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-700">Vision (English)</label>
-                      <textarea
-                        rows={3}
-                        value={aboutSettings.vision.en}
-                        onChange={(e) => updateAboutSettings({
-                          vision: { ...aboutSettings.vision, en: e.target.value }
-                        })}
-                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
-                      />
+                    <div className="space-y-4">
+                      <h3 className="text-sm font-bold text-slate-900 font-display">Mission Statement</h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-slate-700">Mission (English)</label>
+                          <textarea
+                            rows={3}
+                            value={aboutSettings.mission.en}
+                            onChange={(e) => updateAboutSettings({
+                              mission: { ...aboutSettings.mission, en: e.target.value }
+                            })}
+                            className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-slate-700">Mission (বাংলা)</label>
+                          <textarea
+                            rows={3}
+                            value={aboutSettings.mission.bn}
+                            onChange={(e) => updateAboutSettings({
+                              mission: { ...aboutSettings.mission, bn: e.target.value }
+                            })}
+                            className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                          />
+                        </div>
+                      </div>
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-700">Vision (বাংলা)</label>
-                      <textarea
-                        rows={3}
-                        value={aboutSettings.vision.bn}
-                        onChange={(e) => updateAboutSettings({
-                          vision: { ...aboutSettings.vision, bn: e.target.value }
-                        })}
-                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
-                      />
-                    </div>
-                  </div>
-                </div>
 
-                <div className="space-y-4 pt-4 border-t border-slate-100">
-                  <h3 className="text-sm font-bold text-slate-900 font-display">Historical Background</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-700">History & Genesis (English)</label>
-                      <textarea
-                        rows={4}
-                        value={aboutSettings.history.en}
-                        onChange={(e) => updateAboutSettings({
-                          history: { ...aboutSettings.history, en: e.target.value }
-                        })}
-                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
-                      />
+                    <div className="space-y-4 pt-4 border-t border-slate-100">
+                      <h3 className="text-sm font-bold text-slate-900 font-display">Vision Statement</h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-slate-700">Vision (English)</label>
+                          <textarea
+                            rows={3}
+                            value={aboutSettings.vision.en}
+                            onChange={(e) => updateAboutSettings({
+                              vision: { ...aboutSettings.vision, en: e.target.value }
+                            })}
+                            className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-slate-700">Vision (বাংলা)</label>
+                          <textarea
+                            rows={3}
+                            value={aboutSettings.vision.bn}
+                            onChange={(e) => updateAboutSettings({
+                              vision: { ...aboutSettings.vision, bn: e.target.value }
+                            })}
+                            className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                          />
+                        </div>
+                      </div>
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-700">History & Genesis (বাংলা)</label>
-                      <textarea
-                        rows={4}
-                        value={aboutSettings.history.bn}
-                        onChange={(e) => updateAboutSettings({
-                          history: { ...aboutSettings.history, bn: e.target.value }
-                        })}
-                        className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
-                      />
+
+                    <div className="space-y-4 pt-4 border-t border-slate-100">
+                      <h3 className="text-sm font-bold text-slate-900 font-display">Historical Background</h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-slate-700">History & Genesis (English)</label>
+                          <textarea
+                            rows={4}
+                            value={aboutSettings.history.en}
+                            onChange={(e) => updateAboutSettings({
+                              history: { ...aboutSettings.history, en: e.target.value }
+                            })}
+                            className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-slate-700">History & Genesis (বাংলা)</label>
+                          <textarea
+                            rows={4}
+                            value={aboutSettings.history.bn}
+                            onChange={(e) => updateAboutSettings({
+                              history: { ...aboutSettings.history, bn: e.target.value }
+                            })}
+                            className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
+
+                {/* Sub Tab 2: Journey Videos Archive Manager */}
+                {(activeTab === 'journey_videos' || (activeTab === 'about_cms' && aboutSubTab === 'journey_videos')) && (
+                  <div className="space-y-6">
+                    <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+                      {/* Section Header with Stats & Actions */}
+                      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <h2 className="text-xl font-extrabold text-slate-900 font-display">
+                              {isBn ? 'জার্নি ভিডিও আর্কাইভ ব্যবস্থাপনা' : 'Journey Videos Archive Manager'}
+                            </h2>
+                            <span className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-[#E6F3EF] text-[#00523C]">
+                              {journeyVideos.length} {isBn ? 'ভিডিও' : 'Videos'}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-500 max-w-2xl">
+                            {isBn
+                              ? 'আবাউট পেইজের "আমাদের গল্প ও পরিচিতি" সেকশনের ডানপাশে প্রদর্শিত পরিক্রমা ভিডিও ও টাইমলাইন নিয়ন্ত্রণ করুন।'
+                              : 'Add and organize humanitarian journey milestone documentaries displayed dynamically in About → Overview & Story.'}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingJourneyVideo(null);
+                              setIsJourneyVideoModalOpen(true);
+                            }}
+                            className="px-4 py-2.5 rounded-2xl bg-[#006A4E] hover:bg-[#00523C] text-white font-extrabold text-xs shadow-warm-sm flex items-center gap-2 cursor-pointer transition-all transform hover:-translate-y-0.5"
+                          >
+                            <Plus className="w-4 h-4" />
+                            <span>{isBn ? '+ নতুন জার্নি ভিডিও যুক্ত করুন' : '+ Add New Journey Video'}</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Stat summary cards */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div className="p-3.5 bg-[#FAF7F2] rounded-2xl border border-[#EAE3D9]">
+                          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Total Videos</span>
+                          <span className="text-lg font-extrabold text-slate-900">{journeyVideos.length}</span>
+                        </div>
+
+                        <div className="p-3.5 bg-[#FAF7F2] rounded-2xl border border-[#EAE3D9]">
+                          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Published Live</span>
+                          <span className="text-lg font-extrabold text-emerald-700">
+                            {journeyVideos.filter(v => v.isPublished !== false).length}
+                          </span>
+                        </div>
+
+                        <div className="p-3.5 bg-[#FAF7F2] rounded-2xl border border-[#EAE3D9]">
+                          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Drafts / Hidden</span>
+                          <span className="text-lg font-extrabold text-amber-700">
+                            {journeyVideos.filter(v => v.isPublished === false).length}
+                          </span>
+                        </div>
+
+                        <div className="p-3.5 bg-[#FAF7F2] rounded-2xl border border-[#EAE3D9]">
+                          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Featured Journey</span>
+                          <span className="text-xs font-extrabold text-slate-800 truncate block mt-1">
+                            {journeyVideos.find(v => v.isFeatured)?.timelineLabel?.en || journeyVideos.find(v => v.isFeatured)?.title?.en || 'Auto-Default'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Search and Category Filter */}
+                      <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                        <div className="relative flex-1">
+                          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                          <input
+                            type="text"
+                            value={journeyVideoSearch}
+                            onChange={(e) => setJourneyVideoSearch(e.target.value)}
+                            placeholder={isBn ? 'টাইমলাইন বা শিরোনাম দিয়ে খুঁজুন (যেমন: 2015–2019)...' : 'Search by timeline, title, or category...'}
+                            className="w-full pl-10 pr-4 py-2.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-2xl text-xs focus:outline-none focus:bg-white transition-colors"
+                          />
+                        </div>
+
+                        <select
+                          value={journeyVideoCategory}
+                          onChange={(e) => setJourneyVideoCategory(e.target.value)}
+                          className="px-3.5 py-2.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-2xl text-xs focus:outline-none focus:bg-white font-medium cursor-pointer shrink-0"
+                        >
+                          <option value="All">All Categories</option>
+                          <option value="Organizational Journey">Organizational Journey</option>
+                          <option value="Eid Distribution Program">Eid Distribution Program</option>
+                          <option value="Winter Clothing Distribution">Winter Clothing Distribution</option>
+                          <option value="Flood Relief Activities">Flood Relief Activities</option>
+                          <option value="Educational Support">Educational Support</option>
+                          <option value="Emergency Humanitarian Response">Emergency Humanitarian Response</option>
+                          <option value="Anniversary Documentary">Anniversary Documentary</option>
+                        </select>
+                      </div>
+
+                      {/* Journey Video List */}
+                      <div className="space-y-3.5">
+                        {journeyVideos
+                          .filter(v => {
+                            const matchesCat = journeyVideoCategory === 'All' || v.category === journeyVideoCategory;
+                            if (!matchesCat) return false;
+                            if (!journeyVideoSearch.trim()) return true;
+                            const q = journeyVideoSearch.toLowerCase();
+                            const titleEn = (v.title?.en || '').toLowerCase();
+                            const titleBn = (v.title?.bn || '').toLowerCase();
+                            const timeEn = (v.timelineLabel?.en || '').toLowerCase();
+                            const timeBn = (v.timelineLabel?.bn || '').toLowerCase();
+                            const descEn = (v.description?.en || '').toLowerCase();
+                            return titleEn.includes(q) || titleBn.includes(q) || timeEn.includes(q) || timeBn.includes(q) || descEn.includes(q);
+                          })
+                          .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
+                          .map((video, index, arr) => {
+                            const det = detectAndNormalizeMedia(video.videoUrl || '');
+                            const rawThumb = video.thumbnailUrl || det.thumbnailUrl || '';
+                            const effectiveThumb = getAssetUrl(rawThumb);
+                            const hasUrl = Boolean(video.videoUrl && video.videoUrl.trim());
+
+                            return (
+                              <div
+                                key={video.id}
+                                className="p-4 sm:p-5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] hover:border-[#006A4E]/40 transition-all flex flex-col lg:flex-row lg:items-center justify-between gap-4 shadow-warm-xs"
+                              >
+                                {/* Left: Media Thumbnail + Badge */}
+                                <div className="flex items-center gap-4">
+                                  <div className="w-24 sm:w-28 h-16 sm:h-18 rounded-2xl overflow-hidden bg-slate-900 border border-slate-300 relative shrink-0">
+                                    {effectiveThumb ? (
+                                      <img
+                                        src={effectiveThumb}
+                                        alt={tText(video.title)}
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                          const target = e.currentTarget as HTMLImageElement;
+                                          target.onerror = null;
+                                          target.src = DEFAULT_VIDEO_THUMBNAIL;
+                                        }}
+                                      />
+                                    ) : (
+                                      <div className="w-full h-full flex flex-col items-center justify-center text-slate-500 gap-1 bg-slate-900">
+                                        <Film className="w-5 h-5 text-emerald-400" />
+                                        <span className="text-[9px] text-slate-400">No URL</span>
+                                      </div>
+                                    )}
+                                    <div className="absolute inset-0 bg-black/25 flex items-center justify-center">
+                                      <Play className="w-4 h-4 text-white" />
+                                    </div>
+                                    <span className="absolute bottom-1 right-1 text-[9px] font-mono font-extrabold bg-black/70 text-white px-1.5 py-0.2 rounded">
+                                      #{video.displayOrder ?? (index + 1)}
+                                    </span>
+                                  </div>
+
+                                  {/* Center: Metadata */}
+                                  <div className="space-y-1 min-w-0">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                      <span className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-[#006A4E] text-white">
+                                        {tText(video.timelineLabel)}
+                                      </span>
+
+                                      {video.isFeatured && (
+                                        <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-900 border border-amber-300 flex items-center gap-1">
+                                          <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
+                                          <span>Featured</span>
+                                        </span>
+                                      )}
+
+                                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-700">
+                                        {video.category || 'Organizational Journey'}
+                                      </span>
+
+                                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                        video.isPublished !== false
+                                          ? 'bg-emerald-100 text-emerald-800'
+                                          : 'bg-rose-100 text-rose-800'
+                                      }`}>
+                                        {video.isPublished !== false ? 'Published' : 'Draft'}
+                                      </span>
+                                    </div>
+
+                                    <h4 className="font-extrabold text-sm text-slate-900 font-display">
+                                      {tText(video.title)}
+                                    </h4>
+
+                                    {tText(video.description) && (
+                                      <p className="text-xs text-slate-600 line-clamp-1 max-w-xl">
+                                        {tText(video.description)}
+                                      </p>
+                                    )}
+
+                                    <div className="flex items-center gap-2 pt-0.5 text-[11px]">
+                                      {hasUrl ? (
+                                        <a
+                                          href={video.videoUrl}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="text-[#006A4E] font-medium hover:underline flex items-center gap-1 font-mono truncate max-w-xs"
+                                        >
+                                          <LinkIcon className="w-3 h-3 shrink-0" />
+                                          <span className="truncate">{video.videoUrl}</span>
+                                        </a>
+                                      ) : (
+                                        <span className="text-amber-700 font-medium flex items-center gap-1">
+                                          <Clock className="w-3 h-3 shrink-0" />
+                                          <span>Video Coming Soon State</span>
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Right: Action Controls */}
+                                <div className="flex flex-wrap items-center gap-2 shrink-0 justify-end pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-200">
+                                  {/* Featured Toggle Button */}
+                                  <button
+                                    type="button"
+                                    onClick={() => setFeaturedJourneyVideo(video.id)}
+                                    className={`p-2 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all ${
+                                      video.isFeatured
+                                        ? 'bg-amber-100 text-amber-900 border border-amber-300 shadow-warm-xs'
+                                        : 'bg-white hover:bg-slate-100 text-slate-600 border border-slate-200'
+                                    }`}
+                                    title={video.isFeatured ? 'Currently Featured' : 'Click to make this the primary Featured Video'}
+                                  >
+                                    <Star className={`w-3.5 h-3.5 ${video.isFeatured ? 'fill-amber-500 text-amber-500' : 'text-slate-400'}`} />
+                                    <span className="hidden sm:inline">{video.isFeatured ? 'Featured' : 'Set Featured'}</span>
+                                  </button>
+
+                                  {/* Publish Status Toggle */}
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      updateJourneyVideo(video.id, { isPublished: !video.isPublished });
+                                      showToast(video.isPublished ? 'ভিডিওটি ড্রাফটে নেওয়া হয়েছে' : 'ভিডিওটি প্রকাশ করা হয়েছে');
+                                    }}
+                                    className={`p-2 rounded-xl text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors ${
+                                      video.isPublished !== false
+                                        ? 'bg-[#E6F3EF] text-[#00523C] hover:bg-emerald-100'
+                                        : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+                                    }`}
+                                    title="Toggle publication status"
+                                  >
+                                    {video.isPublished !== false ? <Check className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                                    <span className="hidden sm:inline">{video.isPublished !== false ? 'Live' : 'Hidden'}</span>
+                                  </button>
+
+                                  {/* Reorder Up / Down */}
+                                  <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200">
+                                    <button
+                                      type="button"
+                                      disabled={index === 0}
+                                      onClick={() => handleMoveJourneyVideo(video.id, 'up')}
+                                      className="p-1 rounded-lg hover:bg-slate-100 text-slate-600 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
+                                      title="Move Up"
+                                    >
+                                      <ArrowUp className="w-3.5 h-3.5" />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      disabled={index === arr.length - 1}
+                                      onClick={() => handleMoveJourneyVideo(video.id, 'down')}
+                                      className="p-1 rounded-lg hover:bg-slate-100 text-slate-600 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
+                                      title="Move Down"
+                                    >
+                                      <ArrowDown className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
+
+                                  {/* Edit Button */}
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setEditingJourneyVideo(video);
+                                      setIsJourneyVideoModalOpen(true);
+                                    }}
+                                    className="p-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-warm-xs"
+                                  >
+                                    <Edit2 className="w-3.5 h-3.5 text-[#006A4E]" />
+                                    <span>Edit</span>
+                                  </button>
+
+                                  {/* Delete Button */}
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteJourneyVideo(video.id, tText(video.title))}
+                                    className="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors"
+                                    title="Delete video"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
+
+                        {journeyVideos.length === 0 && (
+                          <div className="p-10 bg-[#FAF7F2] rounded-3xl border border-[#EAE3D9] text-center space-y-3">
+                            <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-[#006A4E] mx-auto flex items-center justify-center">
+                              <Film className="w-6 h-6" />
+                            </div>
+                            <h4 className="font-extrabold text-sm text-slate-800">
+                              {isBn ? 'কোনো জার্নি ভিডিও পাওয়া যায়নি' : 'No Journey Videos Found'}
+                            </h4>
+                            <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                              {isBn
+                                ? 'নতুন ভিডিও যুক্ত করতে উপরের বাটনে ক্লিক করুন।'
+                                : 'Click the button below to add your first milestone journey video.'}
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingJourneyVideo(null);
+                                setIsJourneyVideoModalOpen(true);
+                              }}
+                              className="px-4 py-2 rounded-xl bg-[#006A4E] text-white text-xs font-bold cursor-pointer"
+                            >
+                              + Add Journey Video
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -7314,6 +7732,20 @@ export const AdminPage: React.FC = () => {
             showToast(isBn ? 'নতুন মেনু লিঙ্ক তৈরি হয়েছে' : 'New navigation link created');
           }
         }}
+      />
+
+      {/* ======================================================== */}
+      {/* JOURNEY VIDEO MODAL */}
+      {/* ======================================================== */}
+      <JourneyVideoModal
+        isOpen={isJourneyVideoModalOpen}
+        onClose={() => {
+          setIsJourneyVideoModalOpen(false);
+          setEditingJourneyVideo(null);
+        }}
+        videoToEdit={editingJourneyVideo}
+        onSave={handleSaveJourneyVideo}
+        existingVideosCount={journeyVideos.length}
       />
 
       {/* Toast Notification */}

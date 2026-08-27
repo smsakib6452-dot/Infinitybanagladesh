@@ -10,14 +10,15 @@ import {
   Heart,
   FileText,
   Calendar,
-  ArrowRight
+  ArrowRight,
+  Droplet
 } from 'lucide-react';
 import { PageRoute } from '../types';
 
 export const GlobalSearchModal: React.FC = () => {
   const { isSearchOpen, setIsSearchOpen } = useRouter();
   const { isBn, tText } = useLanguage();
-  const { campaigns, programs, news, stories, events, reports } = useData();
+  const { campaigns, programs, news, stories, events, reports, bloodDonors } = useData();
 
   const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -96,13 +97,27 @@ export const GlobalSearchModal: React.FC = () => {
       )
     : [];
 
+  const matchingDonors = cleanQuery
+    ? bloodDonors.filter(
+        d =>
+          d.approvalStatus === 'APPROVED' &&
+          (d.fullName.toLowerCase().includes(cleanQuery) ||
+            d.bloodGroup.toLowerCase().includes(cleanQuery) ||
+            d.district.toLowerCase().includes(cleanQuery) ||
+            d.upazila.toLowerCase().includes(cleanQuery) ||
+            d.area.toLowerCase().includes(cleanQuery) ||
+            d.orgCategory.toLowerCase().includes(cleanQuery))
+      )
+    : [];
+
   const totalResults =
     matchingCampaigns.length +
     matchingPrograms.length +
     matchingStories.length +
     matchingNews.length +
     matchingEvents.length +
-    matchingReports.length;
+    matchingReports.length +
+    matchingDonors.length;
 
   return (
     <div
@@ -222,6 +237,35 @@ export const GlobalSearchModal: React.FC = () => {
                         {tText(p.title)}
                       </div>
                       <div className="text-xs text-slate-500 line-clamp-1">{tText(p.shortDescription)}</div>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#006A4E] opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Blood Donors */}
+          {matchingDonors.length > 0 && (
+            <div className="pt-3">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#006A4E] flex items-center gap-1.5 mb-2">
+                <Droplet className="w-3.5 h-3.5 text-rose-600 fill-current" />
+                {isBn ? 'রক্তদাতা' : 'Blood Donors'} ({matchingDonors.length})
+              </span>
+              <div className="space-y-1.5">
+                {matchingDonors.map(d => (
+                  <Link
+                    key={d.id}
+                    to="blood-donation/find-donor"
+                    onClick={() => setIsSearchOpen(false)}
+                    className="w-full text-left p-2.5 rounded-2xl hover:bg-[#E6F3EF] transition-colors flex items-center justify-between group cursor-pointer"
+                  >
+                    <div>
+                      <div className="text-sm font-bold text-slate-900 group-hover:text-[#006A4E] flex items-center gap-2">
+                        <span>{d.fullName}</span>
+                        <span className="px-2 py-0.2 rounded-md bg-rose-600 text-white text-[10px] font-black">{d.bloodGroup}</span>
+                      </div>
+                      <div className="text-xs text-slate-500 line-clamp-1">{d.area}, {d.upazila}, {d.district} &bull; {d.orgCategory}</div>
                     </div>
                     <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#006A4E] opacity-0 group-hover:opacity-100 transition-opacity" />
                   </Link>

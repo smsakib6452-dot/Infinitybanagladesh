@@ -684,6 +684,98 @@ CREATE TABLE IF NOT EXISTS public.audit_logs (
 );
 
 -- ==============================================================================
+-- BLOOD DONATION NETWORK TABLES
+-- ==============================================================================
+
+-- 1. Blood Donors
+CREATE TABLE IF NOT EXISTS public.blood_donors (
+  id TEXT PRIMARY KEY,
+  full_name TEXT NOT NULL,
+  blood_group TEXT NOT NULL,
+  phone TEXT NOT NULL,
+  email TEXT,
+  photo_url TEXT,
+  district TEXT NOT NULL,
+  upazila TEXT NOT NULL,
+  area TEXT NOT NULL,
+  detailed_address TEXT,
+  org_category TEXT NOT NULL DEFAULT 'Infinity Bangladesh Volunteer',
+  committee_position TEXT,
+  availability_status TEXT NOT NULL DEFAULT 'AVAILABLE_EMERGENCY',
+  first_donation_date TEXT,
+  last_donation_date TEXT,
+  total_donations INT NOT NULL DEFAULT 0,
+  experience_notes TEXT,
+  is_verified BOOLEAN NOT NULL DEFAULT FALSE,
+  approval_status TEXT NOT NULL DEFAULT 'PENDING',
+  privacy_consent BOOLEAN NOT NULL DEFAULT TRUE,
+  show_phone_publicly BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_blood_donors_group ON public.blood_donors (blood_group);
+CREATE INDEX IF NOT EXISTS idx_blood_donors_district ON public.blood_donors (district);
+CREATE INDEX IF NOT EXISTS idx_blood_donors_upazila ON public.blood_donors (upazila);
+CREATE INDEX IF NOT EXISTS idx_blood_donors_status ON public.blood_donors (availability_status);
+CREATE INDEX IF NOT EXISTS idx_blood_donors_approval ON public.blood_donors (approval_status);
+
+-- 2. Blood Donation History
+CREATE TABLE IF NOT EXISTS public.blood_donation_history (
+  id TEXT PRIMARY KEY,
+  donor_id TEXT NOT NULL REFERENCES public.blood_donors(id) ON DELETE CASCADE,
+  donation_date TEXT NOT NULL,
+  hospital TEXT NOT NULL,
+  district TEXT NOT NULL,
+  donation_type TEXT NOT NULL DEFAULT 'VOLUNTARY',
+  recipient_reference TEXT,
+  notes TEXT,
+  is_verified BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_blood_history_donor ON public.blood_donation_history (donor_id);
+CREATE INDEX IF NOT EXISTS idx_blood_history_date ON public.blood_donation_history (donation_date);
+
+-- 3. Emergency Blood Requests
+CREATE TABLE IF NOT EXISTS public.emergency_blood_requests (
+  id TEXT PRIMARY KEY,
+  requester_name TEXT NOT NULL,
+  contact_number TEXT NOT NULL,
+  patient_name TEXT NOT NULL,
+  blood_group TEXT NOT NULL,
+  units_needed INT NOT NULL DEFAULT 1,
+  hospital_name TEXT NOT NULL,
+  district TEXT NOT NULL,
+  upazila TEXT NOT NULL,
+  emergency_level TEXT NOT NULL DEFAULT 'URGENT',
+  required_date TEXT NOT NULL,
+  additional_notes TEXT,
+  status TEXT NOT NULL DEFAULT 'PENDING',
+  matched_donor_ids JSONB DEFAULT '[]'::jsonb,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_emergency_requests_group ON public.emergency_blood_requests (blood_group);
+CREATE INDEX IF NOT EXISTS idx_emergency_requests_district ON public.emergency_blood_requests (district);
+CREATE INDEX IF NOT EXISTS idx_emergency_requests_status ON public.emergency_blood_requests (status);
+
+-- 4. Blood Donation Settings
+CREATE TABLE IF NOT EXISTS public.blood_donation_settings (
+  id TEXT PRIMARY KEY DEFAULT 'default_blood_settings',
+  hero_title JSONB NOT NULL DEFAULT '{"en": "Infinity Blood Donation Network", "bn": "ইনফিনিটি বাংলাদেশ রক্তদান নেটওয়ার্ক"}'::jsonb,
+  hero_subtitle JSONB NOT NULL DEFAULT '{"en": "Donate Blood, Save Lives – Be a Hero", "bn": "রক্ত দিন, জীবন বাঁচান — মানবতার সেবায় এগিয়ে আসুন"}'::jsonb,
+  emergency_helpline TEXT NOT NULL DEFAULT '+880 1839-008339',
+  coordination_email TEXT NOT NULL DEFAULT 'blood@infinitybangladesh.org',
+  guidelines_title JSONB NOT NULL DEFAULT '{"en": "Blood Donation Guidelines & Eligibility", "bn": "রক্তদানের নীতিমালা ও আবশ্যিক নির্দেশিকা"}'::jsonb,
+  guidelines_text JSONB NOT NULL DEFAULT '{"en": "Age: 18-60 years. Minimum Weight: 45kg for females, 50kg for males. Interval: At least 3-4 months between donations.", "bn": "বয়স: ১৮-৬০ বছর। সর্বনিম্ন ওজন: মহিলাদের ৪৫ কেজি, পুরুষদের ৫০ কেজি। ব্যবধান: প্রতি ৩-৪ মাস পর পর রক্তদান করা নিরাপদ।"}'::jsonb,
+  consent_statement JSONB NOT NULL DEFAULT '{"en": "I hereby confirm my willingness to be a voluntary blood donor and consent to Infinity Bangladesh coordinating blood requests.", "bn": "আমি স্বেচ্ছায় রক্তদাতা হিসেবে নিবন্ধিত হতে সম্মত এবং ইনফিনিটি বাংলাদেশ কর্তৃক রক্তদানের সমন্বয়ে তথ্য ব্যবহারে সম্মতি দিচ্ছি।"}'::jsonb,
+  enable_public_direct_contact BOOLEAN NOT NULL DEFAULT TRUE,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- ==============================================================================
 -- 6. ROW LEVEL SECURITY (RLS) POLICIES — FULL READ & WRITE ACCESS FOR ALL CMS TABLES
 -- ==============================================================================
 
@@ -711,3 +803,5 @@ INSERT INTO public.volunteer_settings (id) VALUES ('default') ON CONFLICT (id) D
 INSERT INTO public.support_settings (id) VALUES ('default') ON CONFLICT (id) DO NOTHING;
 INSERT INTO public.contact_settings (id) VALUES ('default') ON CONFLICT (id) DO NOTHING;
 INSERT INTO public.seo_settings (id) VALUES ('default') ON CONFLICT (id) DO NOTHING;
+INSERT INTO public.blood_donation_settings (id) VALUES ('default_blood_settings') ON CONFLICT (id) DO NOTHING;
+

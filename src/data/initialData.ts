@@ -33,8 +33,18 @@ import {
   FAQItem,
   PressCoverage,
   ExecutiveTierBar,
-  JourneyVideo
+  JourneyVideo,
+  BloodDonor,
+  EmergencyBloodRequest,
+  BloodDonationSettings,
+  DonorCategoryOption
 } from '../types';
+export {
+  INITIAL_BLOOD_DONORS,
+  INITIAL_EMERGENCY_REQUESTS,
+  INITIAL_BLOOD_SETTINGS,
+  DEFAULT_DONOR_CATEGORIES
+} from './bloodDonationData';
 
 export const DEFAULT_EXECUTIVE_TIER_BARS: ExecutiveTierBar[] = [
   {
@@ -707,13 +717,62 @@ export const INITIAL_NAVIGATION_ITEMS: NavigationItem[] = [
     "active": true
   },
   {
+    "id": "nav-blood",
+    "label": {
+      "en": "Blood Donation",
+      "bn": "রক্তদান নেটওয়ার্ক"
+    },
+    "path": "blood-donation",
+    "isDropdown": true,
+    "children": [
+      {
+        "id": "sub-blood-find",
+        "label": {
+          "en": "Find a Donor",
+          "bn": "রক্তদাতা খুঁজুন"
+        },
+        "path": "blood-donation/find-donor",
+        "active": true
+      },
+      {
+        "id": "sub-blood-become",
+        "label": {
+          "en": "Become a Donor",
+          "bn": "রক্তদাতা হতে আবেদন"
+        },
+        "path": "blood-donation/become-donor",
+        "active": true
+      },
+      {
+        "id": "sub-blood-emergency",
+        "label": {
+          "en": "Emergency Request",
+          "bn": "জরুরি রক্তের আবেদন"
+        },
+        "path": "blood-donation/emergency-request",
+        "active": true
+      },
+      {
+        "id": "sub-blood-stats",
+        "label": {
+          "en": "Blood Statistics",
+          "bn": "রক্তদান পরিসংখ্যান"
+        },
+        "path": "blood-donation/statistics",
+        "active": true
+      }
+    ],
+    "displayOrder": 6,
+    "active": true
+  },
+  {
     "id": "nav-6",
     "label": {
       "en": "Contact",
       "bn": "যোগাযোগ"
     },
     "path": "contact",
-    "displayOrder": 6,
+    "displayOrder": 7,
     "active": true
   }
 ];

@@ -568,4 +568,101 @@ model JourneyVideo {
   @@index([isFeatured])
 }
 
+// ----------------------------------------------------
+// BLOOD DONATION NETWORK MODELS
+// ----------------------------------------------------
+model BloodDonor {
+  id                 String                 @id @default(cuid())
+  fullName           String
+  bloodGroup         String                 // A+, A-, B+, B-, O+, O-, AB+, AB-
+  phone              String
+  email              String?
+  photoUrl           String?
+  district           String
+  upazila            String
+  area               String
+  detailedAddress    String?                // Restricted to Admin
+  orgCategory        String                 @default("Infinity Bangladesh Volunteer")
+  committeePosition  String?
+  availabilityStatus String                 @default("AVAILABLE_EMERGENCY") // AVAILABLE_EMERGENCY, AVAILABLE_NOTICE, UNAVAILABLE
+  firstDonationDate  String?
+  lastDonationDate   String?
+  totalDonations     Int                    @default(0)
+  experienceNotes    String?                @db.Text
+  isVerified         Boolean                @default(false)
+  approvalStatus     String                 @default("PENDING") // PENDING, APPROVED, REJECTED
+  privacyConsent     Boolean                @default(true)
+  showPhonePublicly  Boolean                @default(false)
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+  donationHistory    BloodDonationHistory[]
+
+  @@index([bloodGroup])
+  @@index([district])
+  @@index([upazila])
+  @@index([availabilityStatus])
+  @@index([approvalStatus])
+  @@index([isVerified])
+}
+
+model BloodDonationHistory {
+  id                 String      @id @default(cuid())
+  donorId            String
+  donor              BloodDonor  @relation(fields: [donorId], references: [id], onDelete: Cascade)
+  donationDate       String
+  hospital           String
+  district           String
+  donationType       String      @default("VOLUNTARY") // VOLUNTARY, EMERGENCY, CAMPAIGN
+  recipientReference String?
+  notes              String?     @db.Text
+  isVerified         Boolean     @default(true)
+  createdAt          DateTime    @default(now())
+
+  @@index([donorId])
+  @@index([donationDate])
+}
+
+model EmergencyBloodRequest {
+  id              String   @id @default(cuid())
+  requesterName   String
+  contactNumber   String
+  patientName     String
+  bloodGroup      String
+  unitsNeeded     Int      @default(1)
+  hospitalName    String
+  district        String
+  upazila         String
+  emergencyLevel  String   @default("URGENT") // CRITICAL, URGENT, NORMAL
+  requiredDate    String
+  additionalNotes String?  @db.Text
+  status          String   @default("PENDING") // PENDING, PROCESSING, FULFILLED, CANCELLED
+  matchedDonorIds Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([bloodGroup])
+  @@index([district])
+  @@index([status])
+  @@index([emergencyLevel])
+}
+
+model BloodDonationSettings {
+  id                        String   @id @default("default_blood_settings")
+  heroTitleEn               String   @default("Infinity Blood Donation Network")
+  heroTitleBn               String   @default("ইনফিনিটি বাংলাদেশ রক্তদান নেটওয়ার্ক")
+  heroSubtitleEn            String   @default("Donate Blood, Save Lives – Be a Hero")
+  heroSubtitleBn            String   @default("রক্ত দিন, জীবন বাঁচান — মানবতার সেবায় এগিয়ে আসুন")
+  emergencyHelpline         String   @default("+880 1839-008339")
+  coordinationEmail         String   @default("blood@infinitybangladesh.org")
+  guidelinesTitleEn         String   @default("Blood Donation Guidelines & Eligibility")
+  guidelinesTitleBn         String   @default("রক্তদানের নীতিমালা ও আবশ্যিক নির্দেশিকা")
+  guidelinesTextEn          String   @db.Text
+  guidelinesTextBn          String   @db.Text
+  consentStatementEn        String   @db.Text
+  consentStatementBn        String   @db.Text
+  enablePublicDirectContact Boolean  @default(true)
+  updatedAt                 DateTime @updatedAt
+}
+
+
 

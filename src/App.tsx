@@ -33,6 +33,7 @@ import { NewsPage, NewsDetailPage } from './pages/NewsPage';
 import { EventsPage, EventDetailPage } from './pages/EventsPage';
 import { ContactPage } from './pages/ContactPage';
 import { FAQPage } from './pages/FAQPage';
+import { BloodDonationPage } from './pages/BloodDonationPage';
 import { AdminPage } from './pages/AdminPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 
@@ -82,6 +83,15 @@ const AppContent: React.FC = () => {
         return <StoryDetailPage />;
       case 'volunteer':
         return <VolunteerPage />;
+      case 'blood-donation':
+      case 'blood-donation/find-donor':
+        return <BloodDonationPage initialTab="find-donor" />;
+      case 'blood-donation/become-donor':
+        return <BloodDonationPage initialTab="become-donor" />;
+      case 'blood-donation/emergency-request':
+        return <BloodDonationPage initialTab="emergency-request" />;
+      case 'blood-donation/statistics':
+        return <BloodDonationPage initialTab="statistics" />;
       case 'donate':
         return <DonatePage />;
       case 'transparency':

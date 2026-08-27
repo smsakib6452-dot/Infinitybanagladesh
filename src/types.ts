@@ -33,6 +33,11 @@ export type PageRoute =
   | 'transparency'
   | 'reports'
   | 'contact'
+  | 'blood-donation'
+  | 'blood-donation/find-donor'
+  | 'blood-donation/become-donor'
+  | 'blood-donation/emergency-request'
+  | 'blood-donation/statistics'
   | 'privacy'
   | 'terms'
   | 'faq'
@@ -878,4 +883,96 @@ export interface JourneyVideo {
   createdAt?: string;
   updatedAt?: string;
 }
+
+// ----------------------------------------------------
+// BLOOD DONATION NETWORK TYPES
+// ----------------------------------------------------
+export type BloodGroup = 'A+' | 'A-' | 'B+' | 'B-' | 'O+' | 'O-' | 'AB+' | 'AB-';
+
+export type DonorAvailabilityStatus = 'AVAILABLE_EMERGENCY' | 'AVAILABLE_NOTICE' | 'UNAVAILABLE';
+
+export type DonorApprovalStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+
+export type EmergencyLevel = 'CRITICAL' | 'URGENT' | 'NORMAL';
+
+export type EmergencyRequestStatus = 'PENDING' | 'PROCESSING' | 'FULFILLED' | 'CANCELLED';
+
+export interface BloodDonationHistoryEntry {
+  id: string;
+  donorId: string;
+  donationDate: string; // YYYY-MM-DD
+  hospital: string;
+  district: string;
+  donationType: 'VOLUNTARY' | 'EMERGENCY' | 'CAMPAIGN';
+  recipientReference?: string;
+  notes?: string;
+  isVerified: boolean;
+  createdAt?: string;
+}
+
+export interface BloodDonor {
+  id: string;
+  fullName: string;
+  bloodGroup: BloodGroup;
+  phone: string;
+  email?: string;
+  photoUrl?: string;
+  district: string;
+  upazila: string;
+  area: string;
+  detailedAddress?: string; // Private / Admin only
+  orgCategory: string; // 'Infinity Bangladesh Volunteer' | 'Executive Committee' | 'Working Committee' | 'Permanent Committee' | 'Former Member' | 'External Blood Donor' | custom
+  committeePosition?: string;
+  availabilityStatus: DonorAvailabilityStatus;
+  firstDonationDate?: string;
+  lastDonationDate?: string;
+  totalDonations: number;
+  experienceNotes?: string;
+  isVerified: boolean;
+  approvalStatus: DonorApprovalStatus;
+  privacyConsent: boolean;
+  showPhonePublicly: boolean;
+  donationHistory?: BloodDonationHistoryEntry[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface EmergencyBloodRequest {
+  id: string;
+  requesterName: string;
+  contactNumber: string;
+  patientName: string;
+  bloodGroup: BloodGroup;
+  unitsNeeded: number;
+  hospitalName: string;
+  district: string;
+  upazila: string;
+  emergencyLevel: EmergencyLevel;
+  requiredDate: string;
+  additionalNotes?: string;
+  status: EmergencyRequestStatus;
+  matchedDonorIds?: string[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface BloodDonationSettings {
+  heroTitle: BilingualText;
+  heroSubtitle: BilingualText;
+  emergencyHelpline: string;
+  coordinationEmail: string;
+  guidelinesTitle: BilingualText;
+  guidelinesText: BilingualText;
+  consentStatement: BilingualText;
+  enablePublicDirectContact: boolean;
+}
+
+export interface DonorCategoryOption {
+  id: string;
+  name: BilingualText;
+  badgeColor?: string;
+  displayOrder: number;
+  isDefault?: boolean;
+}
+
 

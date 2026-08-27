@@ -35,7 +35,14 @@ import {
   AdminProfile,
   FAQItem,
   PressCoverage,
-  JourneyVideo
+  JourneyVideo,
+  BloodDonor,
+  BloodDonationHistoryEntry,
+  EmergencyBloodRequest,
+  BloodDonationSettings,
+  DonorCategoryOption,
+  EmergencyRequestStatus,
+  BloodGroup
 } from '../types';
 import {
   INITIAL_CAMPAIGNS,
@@ -72,7 +79,11 @@ import {
   INITIAL_FAQS,
   INITIAL_PRESS_COVERAGE,
   INITIAL_JOURNEY_VIDEOS,
-  DEFAULT_EXECUTIVE_TIER_BARS
+  DEFAULT_EXECUTIVE_TIER_BARS,
+  INITIAL_BLOOD_DONORS,
+  INITIAL_EMERGENCY_REQUESTS,
+  INITIAL_BLOOD_SETTINGS,
+  DEFAULT_DONOR_CATEGORIES
 } from '../data/initialData';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { getFreshImageUrl } from '../lib/cloudinary';
@@ -89,6 +100,10 @@ interface DataContextType {
   gallery: GalleryPhoto[];
   videos: VideoItem[];
   journeyVideos: JourneyVideo[];
+  bloodDonors: BloodDonor[];
+  emergencyBloodRequests: EmergencyBloodRequest[];
+  bloodDonationSettings: BloodDonationSettings;
+  donorCategories: DonorCategoryOption[];
   reports: TransparencyReport[];
   partners: Partner[];
   volunteers: VolunteerApplication[];
@@ -211,6 +226,23 @@ interface DataContextType {
   deleteJourneyVideo: (id: string) => void;
   reorderJourneyVideos: (orderedIds: string[]) => void;
   setFeaturedJourneyVideo: (id: string) => void;
+
+  // Blood Donation Network
+  addBloodDonor: (donor: Omit<BloodDonor, 'id' | 'createdAt' | 'updatedAt'>) => BloodDonor;
+  updateBloodDonor: (id: string, updates: Partial<BloodDonor>) => void;
+  deleteBloodDonor: (id: string) => void;
+  approveBloodDonor: (id: string) => void;
+  rejectBloodDonor: (id: string) => void;
+  verifyBloodDonor: (id: string, isVerified?: boolean) => void;
+  addDonationHistoryEntry: (donorId: string, entry: Omit<BloodDonationHistoryEntry, 'id' | 'donorId' | 'createdAt'>) => BloodDonationHistoryEntry;
+  deleteDonationHistoryEntry: (donorId: string, entryId: string) => void;
+  addEmergencyBloodRequest: (req: Omit<EmergencyBloodRequest, 'id' | 'status' | 'createdAt' | 'updatedAt'>) => EmergencyBloodRequest;
+  updateEmergencyBloodRequestStatus: (id: string, status: EmergencyRequestStatus) => void;
+  deleteEmergencyBloodRequest: (id: string) => void;
+  updateBloodDonationSettings: (settings: Partial<BloodDonationSettings>) => void;
+  addDonorCategory: (category: Omit<DonorCategoryOption, 'id'>) => DonorCategoryOption;
+  updateDonorCategory: (id: string, updates: Partial<DonorCategoryOption>) => void;
+  deleteDonorCategory: (id: string) => void;
 
   addReport: (report: Omit<TransparencyReport, 'id'>) => TransparencyReport;
   updateReport: (id: string, report: Partial<TransparencyReport>) => void;
@@ -435,6 +467,22 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
     }
     return INITIAL_JOURNEY_VIDEOS;
+  });
+  const [bloodDonors, setBloodDonors] = useState<BloodDonor[]>(() => {
+    const stored = getStoredOrDefault<BloodDonor[]>('bloodDonors', INITIAL_BLOOD_DONORS);
+    return Array.isArray(stored) && stored.length > 0 ? stored : INITIAL_BLOOD_DONORS;
+  });
+  const [emergencyBloodRequests, setEmergencyBloodRequests] = useState<EmergencyBloodRequest[]>(() => {
+    const stored = getStoredOrDefault<EmergencyBloodRequest[]>('emergencyRequests', INITIAL_EMERGENCY_REQUESTS);
+    return Array.isArray(stored) && stored.length > 0 ? stored : INITIAL_EMERGENCY_REQUESTS;
+  });
+  const [bloodDonationSettings, setBloodDonationSettings] = useState<BloodDonationSettings>(() => {
+    const stored = getStoredOrDefault<BloodDonationSettings>('bloodDonationSettings', INITIAL_BLOOD_SETTINGS);
+    return stored?.heroTitle ? stored : INITIAL_BLOOD_SETTINGS;
+  });
+  const [donorCategories, setDonorCategories] = useState<DonorCategoryOption[]>(() => {
+    const stored = getStoredOrDefault<DonorCategoryOption[]>('donorCategories', DEFAULT_DONOR_CATEGORIES);
+    return Array.isArray(stored) && stored.length > 0 ? stored : DEFAULT_DONOR_CATEGORIES;
   });
   const [reports, setReports] = useState<TransparencyReport[]>(() => getStoredOrDefault('reports', INITIAL_REPORTS));
   const [pressCoverages, setPressCoverages] = useState<PressCoverage[]>(() => getStoredOrDefault('pressCoverages', INITIAL_PRESS_COVERAGE));
@@ -1163,6 +1211,101 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
           return prevLocal;
         });
+      }
+
+      // 17.6. Blood Donation Network (Donors, History, Emergency Requests, Settings)
+      const { data: bloodDonorsData } = await supabase.from('blood_donors').select('*, blood_donation_history(*)').order('created_at', { ascending: false });
+      if (bloodDonorsData && Array.isArray(bloodDonorsData) && bloodDonorsData.length > 0) {
+        const remoteDonors: BloodDonor[] = bloodDonorsData.map(d => ({
+          id: d.id,
+          fullName: d.full_name,
+          bloodGroup: d.blood_group,
+          phone: d.phone,
+          email: d.email || undefined,
+          photoUrl: getFreshImageUrl(d.photo_url) || undefined,
+          district: d.district,
+          upazila: d.upazila,
+          area: d.area,
+          detailedAddress: d.detailed_address || undefined,
+          orgCategory: d.org_category || 'Infinity Bangladesh Volunteer',
+          committeePosition: d.committee_position || undefined,
+          availabilityStatus: d.availability_status || 'AVAILABLE_EMERGENCY',
+          firstDonationDate: d.first_donation_date || undefined,
+          lastDonationDate: d.last_donation_date || undefined,
+          totalDonations: d.total_donations ?? 0,
+          experienceNotes: d.experience_notes || undefined,
+          isVerified: d.is_verified ?? false,
+          approvalStatus: d.approval_status ?? 'PENDING',
+          privacyConsent: d.privacy_consent ?? true,
+          showPhonePublicly: d.show_phone_publicly ?? false,
+          donationHistory: Array.isArray(d.blood_donation_history) ? d.blood_donation_history.map((h: any) => ({
+            id: h.id,
+            donorId: h.donor_id,
+            donationDate: h.donation_date,
+            hospital: h.hospital,
+            district: h.district,
+            donationType: h.donation_type,
+            recipientReference: h.recipient_reference || undefined,
+            notes: h.notes || undefined,
+            isVerified: h.is_verified ?? true,
+            createdAt: h.created_at
+          })) : [],
+          createdAt: d.created_at,
+          updatedAt: d.updated_at
+        }));
+        setBloodDonors(prevLocal => {
+          const remoteIds = new Set(remoteDonors.map(r => r.id));
+          const localOnly = prevLocal.filter(l => !remoteIds.has(l.id));
+          const merged = [...localOnly, ...remoteDonors];
+          try {
+            localStorage.setItem(`${STORAGE_PREFIX}bloodDonors`, JSON.stringify(merged));
+          } catch {}
+          return merged;
+        });
+      }
+
+      const { data: emgData } = await supabase.from('emergency_blood_requests').select('*').order('created_at', { ascending: false });
+      if (emgData && Array.isArray(emgData) && emgData.length > 0) {
+        const remoteReqs: EmergencyBloodRequest[] = emgData.map(r => ({
+          id: r.id,
+          requesterName: r.requester_name,
+          contactNumber: r.contact_number,
+          patientName: r.patient_name,
+          bloodGroup: r.blood_group,
+          unitsNeeded: r.units_needed ?? 1,
+          hospitalName: r.hospital_name,
+          district: r.district,
+          upazila: r.upazila,
+          emergencyLevel: r.emergency_level || 'URGENT',
+          requiredDate: r.required_date,
+          additionalNotes: r.additional_notes || undefined,
+          status: r.status || 'PENDING',
+          matchedDonorIds: Array.isArray(r.matched_donor_ids) ? r.matched_donor_ids : [],
+          createdAt: r.created_at,
+          updatedAt: r.updated_at
+        }));
+        setEmergencyBloodRequests(remoteReqs);
+        try {
+          localStorage.setItem(`${STORAGE_PREFIX}emergencyRequests`, JSON.stringify(remoteReqs));
+        } catch {}
+      }
+
+      const { data: bSettingsData } = await supabase.from('blood_donation_settings').select('*').single();
+      if (bSettingsData) {
+        const remoteBSettings: BloodDonationSettings = {
+          heroTitle: bSettingsData.hero_title || INITIAL_BLOOD_SETTINGS.heroTitle,
+          heroSubtitle: bSettingsData.hero_subtitle || INITIAL_BLOOD_SETTINGS.heroSubtitle,
+          emergencyHelpline: bSettingsData.emergency_helpline || INITIAL_BLOOD_SETTINGS.emergencyHelpline,
+          coordinationEmail: bSettingsData.coordination_email || INITIAL_BLOOD_SETTINGS.coordinationEmail,
+          guidelinesTitle: bSettingsData.guidelines_title || INITIAL_BLOOD_SETTINGS.guidelinesTitle,
+          guidelinesText: bSettingsData.guidelines_text || INITIAL_BLOOD_SETTINGS.guidelinesText,
+          consentStatement: bSettingsData.consent_statement || INITIAL_BLOOD_SETTINGS.consentStatement,
+          enablePublicDirectContact: bSettingsData.enable_public_direct_contact ?? true
+        };
+        setBloodDonationSettings(remoteBSettings);
+        try {
+          localStorage.setItem(`${STORAGE_PREFIX}bloodDonationSettings`, JSON.stringify(remoteBSettings));
+        } catch {}
       }
 
       // 18. Press & Media Coverage
@@ -3044,6 +3187,396 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     logAudit('UPDATE', 'JourneyVideo', id, 'Set as primary featured journey video');
   }, [logAudit]);
 
+  // ----------------------------------------------------
+  // BLOOD DONATION NETWORK MUTATIONS
+  // ----------------------------------------------------
+  const calculateDonorStats = (history: BloodDonationHistoryEntry[] = [], currentFirst?: string, currentLast?: string, currentTotal: number = 0) => {
+    if (!history || history.length === 0) {
+      return {
+        totalDonations: currentTotal,
+        firstDonationDate: currentFirst,
+        lastDonationDate: currentLast
+      };
+    }
+    const sorted = [...history].sort((a, b) => new Date(a.donationDate).getTime() - new Date(b.donationDate).getTime());
+    return {
+      totalDonations: history.length,
+      firstDonationDate: sorted[0].donationDate,
+      lastDonationDate: sorted[sorted.length - 1].donationDate
+    };
+  };
+
+  const addBloodDonor = useCallback((donor: Omit<BloodDonor, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const id = `donor-${Date.now()}`;
+    const stats = calculateDonorStats(donor.donationHistory || [], donor.firstDonationDate, donor.lastDonationDate, donor.totalDonations || 0);
+    const newDonor: BloodDonor = {
+      ...donor,
+      id,
+      photoUrl: donor.photoUrl ? getFreshImageUrl(donor.photoUrl) : undefined,
+      totalDonations: stats.totalDonations,
+      firstDonationDate: stats.firstDonationDate,
+      lastDonationDate: stats.lastDonationDate,
+      isVerified: donor.isVerified ?? false,
+      approvalStatus: donor.approvalStatus || 'APPROVED',
+      privacyConsent: donor.privacyConsent ?? true,
+      showPhonePublicly: donor.showPhonePublicly ?? false,
+      donationHistory: donor.donationHistory || [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    setBloodDonors(prev => {
+      const updated = [newDonor, ...prev];
+      try {
+        localStorage.setItem(`${STORAGE_PREFIX}bloodDonors`, JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+
+    safeDbUpsert('blood_donors', {
+      id: newDonor.id,
+      full_name: newDonor.fullName,
+      blood_group: newDonor.bloodGroup,
+      phone: newDonor.phone,
+      email: newDonor.email || null,
+      photo_url: newDonor.photoUrl || null,
+      district: newDonor.district,
+      upazila: newDonor.upazila,
+      area: newDonor.area,
+      detailed_address: newDonor.detailedAddress || null,
+      org_category: newDonor.orgCategory,
+      committee_position: newDonor.committeePosition || null,
+      availability_status: newDonor.availabilityStatus,
+      first_donation_date: newDonor.firstDonationDate || null,
+      last_donation_date: newDonor.lastDonationDate || null,
+      total_donations: newDonor.totalDonations,
+      experience_notes: newDonor.experienceNotes || null,
+      is_verified: newDonor.isVerified,
+      approval_status: newDonor.approvalStatus,
+      privacy_consent: newDonor.privacyConsent,
+      show_phone_publicly: newDonor.showPhonePublicly,
+      created_at: newDonor.createdAt,
+      updated_at: newDonor.updatedAt
+    });
+
+    logAudit('CREATE', 'BloodDonor', id, `Registered blood donor: ${donor.fullName} (${donor.bloodGroup})`);
+    return newDonor;
+  }, [logAudit, safeDbUpsert]);
+
+  const updateBloodDonor = useCallback((id: string, updates: Partial<BloodDonor>) => {
+    setBloodDonors(prev => {
+      const updated = prev.map(d => {
+        if (d.id !== id) return d;
+        const mergedHistory = updates.donationHistory !== undefined ? updates.donationHistory : (d.donationHistory || []);
+        const stats = calculateDonorStats(mergedHistory, updates.firstDonationDate || d.firstDonationDate, updates.lastDonationDate || d.lastDonationDate, updates.totalDonations !== undefined ? updates.totalDonations : d.totalDonations);
+
+        return {
+          ...d,
+          ...updates,
+          photoUrl: updates.photoUrl !== undefined ? (updates.photoUrl ? getFreshImageUrl(updates.photoUrl) : undefined) : d.photoUrl,
+          totalDonations: stats.totalDonations,
+          firstDonationDate: stats.firstDonationDate,
+          lastDonationDate: stats.lastDonationDate,
+          donationHistory: mergedHistory,
+          updatedAt: new Date().toISOString()
+        };
+      });
+
+      const match = updated.find(d => d.id === id);
+      if (match) {
+        safeDbUpsert('blood_donors', {
+          id: match.id,
+          full_name: match.fullName,
+          blood_group: match.bloodGroup,
+          phone: match.phone,
+          email: match.email || null,
+          photo_url: match.photoUrl || null,
+          district: match.district,
+          upazila: match.upazila,
+          area: match.area,
+          detailed_address: match.detailedAddress || null,
+          org_category: match.orgCategory,
+          committee_position: match.committeePosition || null,
+          availability_status: match.availabilityStatus,
+          first_donation_date: match.firstDonationDate || null,
+          last_donation_date: match.lastDonationDate || null,
+          total_donations: match.totalDonations,
+          experience_notes: match.experienceNotes || null,
+          is_verified: match.isVerified,
+          approval_status: match.approvalStatus,
+          privacy_consent: match.privacyConsent,
+          show_phone_publicly: match.showPhonePublicly,
+          created_at: match.createdAt || new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        });
+      }
+
+      try {
+        localStorage.setItem(`${STORAGE_PREFIX}bloodDonors`, JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+
+    logAudit('UPDATE', 'BloodDonor', id, 'Updated blood donor record');
+  }, [logAudit, safeDbUpsert]);
+
+  const deleteBloodDonor = useCallback((id: string) => {
+    setBloodDonors(prev => {
+      const filtered = prev.filter(d => d.id !== id);
+      try {
+        localStorage.setItem(`${STORAGE_PREFIX}bloodDonors`, JSON.stringify(filtered));
+      } catch {}
+      return filtered;
+    });
+    logAudit('DELETE', 'BloodDonor', id, 'Deleted blood donor');
+    safeDbDelete('blood_donors', 'id', id);
+  }, [logAudit, safeDbDelete]);
+
+  const approveBloodDonor = useCallback((id: string) => {
+    updateBloodDonor(id, { approvalStatus: 'APPROVED' });
+    logAudit('APPROVE', 'BloodDonor', id, 'Approved blood donor application');
+  }, [updateBloodDonor, logAudit]);
+
+  const rejectBloodDonor = useCallback((id: string) => {
+    updateBloodDonor(id, { approvalStatus: 'REJECTED' });
+    logAudit('REJECT', 'BloodDonor', id, 'Rejected blood donor application');
+  }, [updateBloodDonor, logAudit]);
+
+  const verifyBloodDonor = useCallback((id: string, isVerified: boolean = true) => {
+    updateBloodDonor(id, { isVerified });
+    logAudit('VERIFY', 'BloodDonor', id, `Updated verification status to: ${isVerified}`);
+  }, [updateBloodDonor, logAudit]);
+
+  const addDonationHistoryEntry = useCallback((donorId: string, entry: Omit<BloodDonationHistoryEntry, 'id' | 'donorId' | 'createdAt'>) => {
+    const histId = `hist-${Date.now()}`;
+    const newEntry: BloodDonationHistoryEntry = {
+      ...entry,
+      id: histId,
+      donorId,
+      createdAt: new Date().toISOString()
+    };
+
+    setBloodDonors(prev => {
+      const updated = prev.map(d => {
+        if (d.id !== donorId) return d;
+        const currentHist = d.donationHistory || [];
+        const nextHist = [newEntry, ...currentHist];
+        const stats = calculateDonorStats(nextHist, d.firstDonationDate, d.lastDonationDate, d.totalDonations);
+        return {
+          ...d,
+          totalDonations: stats.totalDonations,
+          firstDonationDate: stats.firstDonationDate,
+          lastDonationDate: stats.lastDonationDate,
+          donationHistory: nextHist,
+          updatedAt: new Date().toISOString()
+        };
+      });
+
+      try {
+        localStorage.setItem(`${STORAGE_PREFIX}bloodDonors`, JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+
+    safeDbUpsert('blood_donation_history', {
+      id: newEntry.id,
+      donor_id: donorId,
+      donation_date: newEntry.donationDate,
+      hospital: newEntry.hospital,
+      district: newEntry.district,
+      donation_type: newEntry.donationType,
+      recipient_reference: newEntry.recipientReference || null,
+      notes: newEntry.notes || null,
+      is_verified: newEntry.isVerified,
+      created_at: newEntry.createdAt
+    });
+
+    logAudit('CREATE', 'BloodDonationHistory', histId, `Added donation history for donor ${donorId}`);
+    return newEntry;
+  }, [logAudit, safeDbUpsert]);
+
+  const deleteDonationHistoryEntry = useCallback((donorId: string, entryId: string) => {
+    setBloodDonors(prev => {
+      const updated = prev.map(d => {
+        if (d.id !== donorId) return d;
+        const currentHist = d.donationHistory || [];
+        const nextHist = currentHist.filter(h => h.id !== entryId);
+        const stats = calculateDonorStats(nextHist, d.firstDonationDate, d.lastDonationDate, Math.max(0, d.totalDonations - 1));
+        return {
+          ...d,
+          totalDonations: stats.totalDonations,
+          firstDonationDate: stats.firstDonationDate,
+          lastDonationDate: stats.lastDonationDate,
+          donationHistory: nextHist,
+          updatedAt: new Date().toISOString()
+        };
+      });
+
+      try {
+        localStorage.setItem(`${STORAGE_PREFIX}bloodDonors`, JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+
+    safeDbDelete('blood_donation_history', 'id', entryId);
+    logAudit('DELETE', 'BloodDonationHistory', entryId, `Deleted donation history record`);
+  }, [logAudit, safeDbDelete]);
+
+  const addEmergencyBloodRequest = useCallback((req: Omit<EmergencyBloodRequest, 'id' | 'status' | 'createdAt' | 'updatedAt'>) => {
+    const id = `req-${Date.now()}`;
+    const newReq: EmergencyBloodRequest = {
+      ...req,
+      id,
+      status: 'PENDING',
+      matchedDonorIds: req.matchedDonorIds || [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    setEmergencyBloodRequests(prev => {
+      const updated = [newReq, ...prev];
+      try {
+        localStorage.setItem(`${STORAGE_PREFIX}emergencyRequests`, JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+
+    safeDbUpsert('emergency_blood_requests', {
+      id: newReq.id,
+      requester_name: newReq.requesterName,
+      contact_number: newReq.contactNumber,
+      patient_name: newReq.patientName,
+      blood_group: newReq.bloodGroup,
+      units_needed: newReq.unitsNeeded,
+      hospital_name: newReq.hospitalName,
+      district: newReq.district,
+      upazila: newReq.upazila,
+      emergency_level: newReq.emergencyLevel,
+      required_date: newReq.requiredDate,
+      additional_notes: newReq.additionalNotes || null,
+      status: newReq.status,
+      matched_donor_ids: newReq.matchedDonorIds,
+      created_at: newReq.createdAt,
+      updated_at: newReq.updatedAt
+    });
+
+    logAudit('CREATE', 'EmergencyBloodRequest', id, `Created emergency request for ${newReq.patientName} (${newReq.bloodGroup})`);
+    return newReq;
+  }, [logAudit, safeDbUpsert]);
+
+  const updateEmergencyBloodRequestStatus = useCallback((id: string, status: EmergencyRequestStatus) => {
+    setEmergencyBloodRequests(prev => {
+      const updated = prev.map(r => {
+        if (r.id !== id) return r;
+        return {
+          ...r,
+          status,
+          updatedAt: new Date().toISOString()
+        };
+      });
+
+      const match = updated.find(r => r.id === id);
+      if (match) {
+        safeDbUpsert('emergency_blood_requests', {
+          id: match.id,
+          requester_name: match.requesterName,
+          contact_number: match.contactNumber,
+          patient_name: match.patientName,
+          blood_group: match.bloodGroup,
+          units_needed: match.unitsNeeded,
+          hospital_name: match.hospitalName,
+          district: match.district,
+          upazila: match.upazila,
+          emergency_level: match.emergencyLevel,
+          required_date: match.requiredDate,
+          additional_notes: match.additionalNotes || null,
+          status: match.status,
+          matched_donor_ids: match.matchedDonorIds,
+          created_at: match.createdAt || new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        });
+      }
+
+      try {
+        localStorage.setItem(`${STORAGE_PREFIX}emergencyRequests`, JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+
+    logAudit('UPDATE', 'EmergencyBloodRequest', id, `Updated emergency request status to: ${status}`);
+  }, [logAudit, safeDbUpsert]);
+
+  const deleteEmergencyBloodRequest = useCallback((id: string) => {
+    setEmergencyBloodRequests(prev => {
+      const filtered = prev.filter(r => r.id !== id);
+      try {
+        localStorage.setItem(`${STORAGE_PREFIX}emergencyRequests`, JSON.stringify(filtered));
+      } catch {}
+      return filtered;
+    });
+    safeDbDelete('emergency_blood_requests', 'id', id);
+    logAudit('DELETE', 'EmergencyBloodRequest', id, 'Deleted emergency blood request');
+  }, [logAudit, safeDbDelete]);
+
+  const updateBloodDonationSettings = useCallback((newSettings: Partial<BloodDonationSettings>) => {
+    setBloodDonationSettings(prev => {
+      const updated = { ...prev, ...newSettings };
+      safeDbUpsert('blood_donation_settings', {
+        id: 'default_blood_settings',
+        hero_title: updated.heroTitle,
+        hero_subtitle: updated.heroSubtitle,
+        emergency_helpline: updated.emergencyHelpline,
+        coordination_email: updated.coordinationEmail,
+        guidelines_title: updated.guidelinesTitle,
+        guidelines_text: updated.guidelinesText,
+        consent_statement: updated.consentStatement,
+        enable_public_direct_contact: updated.enablePublicDirectContact,
+        updated_at: new Date().toISOString()
+      });
+      try {
+        localStorage.setItem(`${STORAGE_PREFIX}bloodDonationSettings`, JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+    logAudit('UPDATE', 'BloodDonationSettings', 'default_blood_settings', 'Updated blood donation settings');
+  }, [logAudit, safeDbUpsert]);
+
+  const addDonorCategory = useCallback((cat: Omit<DonorCategoryOption, 'id'>) => {
+    const id = `cat-${Date.now()}`;
+    const newCat: DonorCategoryOption = { ...cat, id };
+    setDonorCategories(prev => {
+      const updated = [...prev, newCat];
+      try {
+        localStorage.setItem(`${STORAGE_PREFIX}donorCategories`, JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+    logAudit('CREATE', 'DonorCategory', id, `Added donor category: ${cat.name.en}`);
+    return newCat;
+  }, [logAudit]);
+
+  const updateDonorCategory = useCallback((id: string, updates: Partial<DonorCategoryOption>) => {
+    setDonorCategories(prev => {
+      const updated = prev.map(c => c.id === id ? { ...c, ...updates } : c);
+      try {
+        localStorage.setItem(`${STORAGE_PREFIX}donorCategories`, JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+    logAudit('UPDATE', 'DonorCategory', id, `Updated donor category`);
+  }, [logAudit]);
+
+  const deleteDonorCategory = useCallback((id: string) => {
+    setDonorCategories(prev => {
+      const filtered = prev.filter(c => c.id !== id);
+      try {
+        localStorage.setItem(`${STORAGE_PREFIX}donorCategories`, JSON.stringify(filtered));
+      } catch {}
+      return filtered;
+    });
+    logAudit('DELETE', 'DonorCategory', id, `Deleted donor category`);
+  }, [logAudit]);
+
   const addReport = useCallback((report: Omit<TransparencyReport, 'id'>) => {
     const id = `rep-${Date.now()}`;
     const newRep: TransparencyReport = { ...report, id };
@@ -3749,6 +4282,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setGallery(INITIAL_GALLERY);
     setVideos(INITIAL_VIDEOS);
     setJourneyVideos(INITIAL_JOURNEY_VIDEOS);
+    setBloodDonors(INITIAL_BLOOD_DONORS);
+    setEmergencyBloodRequests(INITIAL_EMERGENCY_REQUESTS);
+    setBloodDonationSettings(INITIAL_BLOOD_SETTINGS);
+    setDonorCategories(DEFAULT_DONOR_CATEGORIES);
     setReports(INITIAL_REPORTS);
     setPartners(INITIAL_PARTNERS);
     setVolunteers(INITIAL_VOLUNTEER_APPLICATIONS);
@@ -3893,6 +4430,27 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         deleteJourneyVideo,
         reorderJourneyVideos,
         setFeaturedJourneyVideo,
+
+        bloodDonors,
+        emergencyBloodRequests,
+        bloodDonationSettings,
+        donorCategories,
+
+        addBloodDonor,
+        updateBloodDonor,
+        deleteBloodDonor,
+        approveBloodDonor,
+        rejectBloodDonor,
+        verifyBloodDonor,
+        addDonationHistoryEntry,
+        deleteDonationHistoryEntry,
+        addEmergencyBloodRequest,
+        updateEmergencyBloodRequestStatus,
+        deleteEmergencyBloodRequest,
+        updateBloodDonationSettings,
+        addDonorCategory,
+        updateDonorCategory,
+        deleteDonorCategory,
 
         addReport,
         updateReport,

@@ -18,7 +18,12 @@ import {
   DonationRecord,
   ContactMessage,
   SiteSettings,
-  JourneyVideo
+  JourneyVideo,
+  BloodDonor,
+  BloodDonationHistoryEntry,
+  EmergencyBloodRequest,
+  EmergencyRequestStatus,
+  BloodGroup
 } from '../../types';
 
 export class ApiService {
@@ -325,4 +330,196 @@ export class ApiService {
       message: 'Message delivered to Infinity Bangladesh desk.'
     };
   }
+
+  // ==============================================================================
+  // BLOOD DONATION NETWORK API (CENTRAL BACKEND & MOBILE APP READY)
+  // ==============================================================================
+
+  /**
+   * Fetch approved blood donors for public directory with privacy safe fields
+   */
+  static async getBloodDonors(includePending: boolean = false): Promise<BloodDonor[]> {
+    try {
+      const { supabase, isSupabaseConfigured } = await import('../supabase');
+      if (supabase && isSupabaseConfigured) {
+        let query = supabase.from('blood_donors').select('*, blood_donation_history(*)').order('created_at', { ascending: false });
+        if (!includePending) {
+          query = query.eq('approval_status', 'APPROVED');
+        }
+        const { data, error } = await query;
+        if (!error && data) {
+          return data.map(d => ({
+            id: d.id,
+            fullName: d.full_name,
+            bloodGroup: d.blood_group,
+            phone: d.phone,
+            email: d.email,
+            photoUrl: d.photo_url,
+            district: d.district,
+            upazila: d.upazila,
+            area: d.area,
+            detailedAddress: d.detailed_address,
+            orgCategory: d.org_category,
+            committeePosition: d.committee_position,
+            availabilityStatus: d.availability_status,
+            firstDonationDate: d.first_donation_date,
+            lastDonationDate: d.last_donation_date,
+            totalDonations: d.total_donations ?? 0,
+            experienceNotes: d.experience_notes,
+            isVerified: d.is_verified ?? false,
+            approvalStatus: d.approval_status ?? 'PENDING',
+            privacyConsent: d.privacy_consent ?? true,
+            showPhonePublicly: d.show_phone_publicly ?? false,
+            donationHistory: Array.isArray(d.blood_donation_history) ? d.blood_donation_history.map((h: any) => ({
+              id: h.id,
+              donorId: h.donor_id,
+              donationDate: h.donation_date,
+              hospital: h.hospital,
+              district: h.district,
+              donationType: h.donation_type,
+              recipientReference: h.recipient_reference,
+              notes: h.notes,
+              isVerified: h.is_verified ?? true,
+              createdAt: h.created_at
+            })) : [],
+            createdAt: d.created_at,
+            updatedAt: d.updated_at
+          }));
+        }
+      }
+    } catch (err) {
+      console.warn('ApiService getBloodDonors error:', err);
+    }
+    return [];
+  }
+
+  /**
+   * Search donors by blood group, district, upazila, and availability
+   */
+  static async searchBloodDonors(filters: {
+    bloodGroup?: string;
+    district?: string;
+    upazila?: string;
+    area?: string;
+    availability?: string;
+    orgCategory?: string;
+  }): Promise<BloodDonor[]> {
+    const all = await this.getBloodDonors(false);
+    return all.filter(d => {
+      if (filters.bloodGroup && filters.bloodGroup !== 'ALL' && d.bloodGroup !== filters.bloodGroup) return false;
+      if (filters.district && filters.district !== 'ALL' && d.district.toLowerCase() !== filters.district.toLowerCase()) return false;
+      if (filters.upazila && filters.upazila !== 'ALL' && d.upazila.toLowerCase() !== filters.upazila.toLowerCase()) return false;
+      if (filters.area && !d.area.toLowerCase().includes(filters.area.toLowerCase())) return false;
+      if (filters.availability && filters.availability !== 'ALL' && d.availabilityStatus !== filters.availability) return false;
+      if (filters.orgCategory && filters.orgCategory !== 'ALL' && d.orgCategory !== filters.orgCategory) return false;
+      return true;
+    });
+  }
+
+  /**
+   * Submit new blood donor registration (enters PENDING approval)
+   */
+  static async registerBloodDonor(donorData: Omit<BloodDonor, 'id' | 'createdAt' | 'updatedAt'>): Promise<{ success: boolean; id: string; message: string }> {
+    if (!donorData.fullName || !donorData.bloodGroup || !donorData.phone || !donorData.district || !donorData.upazila) {
+      throw new Error('Please provide Full Name, Blood Group, Phone, District, and Upazila.');
+    }
+
+    const id = `donor_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
+    try {
+      const { supabase, isSupabaseConfigured } = await import('../supabase');
+      if (supabase && isSupabaseConfigured) {
+        await supabase.from('blood_donors').insert([{
+          id,
+          full_name: donorData.fullName,
+          blood_group: donorData.bloodGroup,
+          phone: donorData.phone,
+          email: donorData.email || null,
+          photo_url: donorData.photoUrl || null,
+          district: donorData.district,
+          upazila: donorData.upazila,
+          area: donorData.area,
+          detailed_address: donorData.detailedAddress || null,
+          org_category: donorData.orgCategory || 'Infinity Bangladesh Volunteer',
+          committee_position: donorData.committeePosition || null,
+          availability_status: donorData.availabilityStatus || 'AVAILABLE_EMERGENCY',
+          first_donation_date: donorData.firstDonationDate || null,
+          last_donation_date: donorData.lastDonationDate || null,
+          total_donations: donorData.totalDonations ?? 0,
+          experience_notes: donorData.experienceNotes || null,
+          is_verified: false,
+          approval_status: 'PENDING',
+          privacy_consent: donorData.privacyConsent ?? true,
+          show_phone_publicly: donorData.showPhonePublicly ?? false
+        }]);
+      }
+    } catch (err) {
+      console.warn('ApiService registerBloodDonor db error:', err);
+    }
+
+    return {
+      success: true,
+      id,
+      message: 'Your registration has been submitted successfully and is awaiting review.'
+    };
+  }
+
+  /**
+   * Submit an emergency blood request
+   */
+  static async submitEmergencyBloodRequest(reqData: Omit<EmergencyBloodRequest, 'id' | 'status' | 'createdAt' | 'updatedAt'>): Promise<{ success: boolean; id: string; message: string }> {
+    if (!reqData.requesterName || !reqData.contactNumber || !reqData.patientName || !reqData.bloodGroup || !reqData.hospitalName || !reqData.district) {
+      throw new Error('Please fill in all mandatory fields (Requester, Contact Phone, Patient, Blood Group, Hospital, District).');
+    }
+
+    const id = `emg_${Date.now().toString(36)}`;
+    try {
+      const { supabase, isSupabaseConfigured } = await import('../supabase');
+      if (supabase && isSupabaseConfigured) {
+        await supabase.from('emergency_blood_requests').insert([{
+          id,
+          requester_name: reqData.requesterName,
+          contact_number: reqData.contactNumber,
+          patient_name: reqData.patientName,
+          blood_group: reqData.bloodGroup,
+          units_needed: reqData.unitsNeeded || 1,
+          hospital_name: reqData.hospitalName,
+          district: reqData.district,
+          upazila: reqData.upazila,
+          emergency_level: reqData.emergencyLevel || 'URGENT',
+          required_date: reqData.requiredDate,
+          additional_notes: reqData.additionalNotes || null,
+          status: 'PENDING',
+          matched_donor_ids: reqData.matchedDonorIds || []
+        }]);
+      }
+    } catch (err) {
+      console.warn('ApiService submitEmergencyBloodRequest db error:', err);
+    }
+
+    return {
+      success: true,
+      id,
+      message: 'Emergency request registered. Team Infinity blood coordinators will review matching donors.'
+    };
+  }
+
+  /**
+   * Match active available donors for an emergency request
+   */
+  static async matchDonorsForRequest(bloodGroup: BloodGroup, district: string, upazila?: string): Promise<BloodDonor[]> {
+    const donors = await this.getBloodDonors(false);
+    return donors.filter(d => {
+      if (d.bloodGroup !== bloodGroup) return false;
+      if (d.availabilityStatus === 'UNAVAILABLE') return false;
+      if (district && d.district.toLowerCase() !== district.toLowerCase()) return false;
+      if (upazila && upazila !== 'ALL' && d.upazila.toLowerCase() === upazila.toLowerCase()) return true;
+      return true;
+    }).sort((a, b) => {
+      // Prioritize AVAILABLE_EMERGENCY over AVAILABLE_NOTICE
+      if (a.availabilityStatus === 'AVAILABLE_EMERGENCY' && b.availabilityStatus !== 'AVAILABLE_EMERGENCY') return -1;
+      if (b.availabilityStatus === 'AVAILABLE_EMERGENCY' && a.availabilityStatus !== 'AVAILABLE_EMERGENCY') return 1;
+      return (b.totalDonations ?? 0) - (a.totalDonations ?? 0);
+    });
+  }
 }
+

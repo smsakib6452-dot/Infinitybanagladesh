@@ -69,7 +69,8 @@ import {
   Newspaper,
   Edit3,
   Link as LinkIcon,
-  Film
+  Film,
+  Droplet
 } from 'lucide-react';
 import {
   Campaign,
@@ -101,7 +102,13 @@ import {
   FAQItem,
   PressCoverage,
   ExecutiveTierBar,
-  JourneyVideo
+  JourneyVideo,
+  BloodDonor,
+  EmergencyBloodRequest,
+  BloodDonationSettings,
+  DonorCategoryOption,
+  EmergencyRequestStatus,
+  BloodGroup
 } from '../types';
 import { DEFAULT_EXECUTIVE_TIER_BARS } from '../data/initialData';
 import { getAssetUrl, handleImageError } from '../lib/utils/assetHelper';
@@ -122,6 +129,8 @@ import { ImagePublishModal } from '../components/ImagePublishModal';
 import { PressCoverageModal } from '../components/PressCoverageModal';
 import { NavigationModal } from '../components/NavigationModal';
 import { JourneyVideoModal } from '../components/JourneyVideoModal';
+import { BloodDonorModal } from '../components/BloodDonorModal';
+import { EmergencyRequestAdminModal } from '../components/EmergencyRequestAdminModal';
 import { AdminErrorBoundary } from '../components/AdminErrorBoundary';
 import { isSupabaseConfigured, signInWithEmail, signOutAdmin } from '../lib/supabase';
 import { detectAndNormalizeMedia, DEFAULT_VIDEO_THUMBNAIL, isPortraitVideo } from '../lib/utils/mediaHelper';
@@ -133,6 +142,7 @@ type AdminTab =
   | 'homepage'
   | 'about_cms'
   | 'journey_videos'
+  | 'blood_donation'
   | 'campaigns'
   | 'programs'
   | 'impact'
@@ -198,6 +208,11 @@ export const AdminPage: React.FC = () => {
     persons, addPerson, updatePerson, deletePerson,
     positions, addPosition, updatePosition, deletePosition,
     committeeMembers, addCommitteeMember, updateCommitteeMember, deleteCommitteeMember, reorderCommitteeMembers, getMembersWithDetails,
+    bloodDonors, emergencyBloodRequests, bloodDonationSettings, donorCategories,
+    addBloodDonor, updateBloodDonor, deleteBloodDonor, approveBloodDonor, rejectBloodDonor, verifyBloodDonor,
+    addDonationHistoryEntry, deleteDonationHistoryEntry,
+    addEmergencyBloodRequest, updateEmergencyBloodRequestStatus, deleteEmergencyBloodRequest,
+    updateBloodDonationSettings, addDonorCategory, updateDonorCategory, deleteDonorCategory,
     isLiveSupabase, isSyncing, lastSyncedAt, syncWithSupabase, pushAllToSupabase, resetToDefaultData, exportDatabaseJSON, importDatabaseJSON
   } = useData();
 
@@ -262,6 +277,17 @@ export const AdminPage: React.FC = () => {
   const [journeyVideoSearch, setJourneyVideoSearch] = useState('');
   const [journeyVideoCategory, setJourneyVideoCategory] = useState('All');
   const [aboutSubTab, setAboutSubTab] = useState<'info' | 'journey_videos'>('info');
+
+  // Blood Donation Network States
+  const [editingBloodDonor, setEditingBloodDonor] = useState<BloodDonor | null>(null);
+  const [isBloodDonorModalOpen, setIsBloodDonorModalOpen] = useState(false);
+  const [editingEmergencyRequest, setEditingEmergencyRequest] = useState<EmergencyBloodRequest | null>(null);
+  const [isEmergencyRequestModalOpen, setIsEmergencyRequestModalOpen] = useState(false);
+  const [bloodSubTab, setBloodSubTab] = useState<'overview' | 'donors' | 'emergency' | 'settings'>('overview');
+  const [bloodDonorSearch, setBloodDonorSearch] = useState('');
+  const [bloodDonorGroupFilter, setBloodDonorGroupFilter] = useState('ALL');
+  const [bloodDonorStatusFilter, setBloodDonorStatusFilter] = useState('ALL');
+  const [bloodDonorDistrictFilter, setBloodDonorDistrictFilter] = useState('ALL');
 
   // Unified Media Library States
   const [mediaLibraryFilter, setMediaLibraryFilter] = useState<'all' | 'image' | 'video' | 'youtube' | 'facebook' | 'featured'>('all');
@@ -480,6 +506,50 @@ export const AdminPage: React.FC = () => {
     showToast(isBn ? 'সদস্যের ক্রম পরিবর্তন হয়েছে' : 'Member order updated');
   };
 
+  const handleSaveBloodDonor = (donorData: Omit<BloodDonor, 'id' | 'createdAt' | 'updatedAt'>, editId?: string) => {
+    if (editId) {
+      updateBloodDonor(editId, donorData);
+      showToast(isBn ? 'রক্তদাতার তথ্য সফলভাবে আপডেট হয়েছে' : 'Donor record updated successfully');
+    } else {
+      addBloodDonor(donorData);
+      showToast(isBn ? 'নতুন রক্তদাতা সফলভাবে তৈরি হয়েছে' : 'New blood donor record created');
+    }
+  };
+
+  const handleExportDonorsCSV = () => {
+    const headers = ['ID', 'Full Name', 'Blood Group', 'Phone', 'Email', 'District', 'Upazila', 'Area', 'Detailed Address', 'Organization Category', 'Availability Status', 'Approval Status', 'Verified', 'Total Donations', 'First Donation Date', 'Last Donation Date', 'Created At'];
+    const rows = bloodDonors.map(d => [
+      d.id,
+      `"${(d.fullName || '').replace(/"/g, '""')}"`,
+      d.bloodGroup,
+      `"${d.phone || ''}"`,
+      `"${d.email || ''}"`,
+      `"${d.district || ''}"`,
+      `"${d.upazila || ''}"`,
+      `"${d.area || ''}"`,
+      `"${(d.detailedAddress || '').replace(/"/g, '""')}"`,
+      `"${d.orgCategory || ''}"`,
+      d.availabilityStatus,
+      d.approvalStatus,
+      d.isVerified ? 'YES' : 'NO',
+      d.totalDonations || 0,
+      d.firstDonationDate || '',
+      d.lastDonationDate || '',
+      d.createdAt || ''
+    ]);
+
+    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `infinity_bd_blood_donors_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast(isBn ? 'রক্তদাতাদের CSV ফাইল ডাউনলোড হয়েছে' : 'Blood Donors CSV exported successfully');
+  };
+
   const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError(null);
@@ -620,6 +690,7 @@ export const AdminPage: React.FC = () => {
     {
       group: isBn ? 'মানবিক কার্যক্রম' : 'Humanitarian CMS',
       items: [
+        { id: 'blood_donation' as AdminTab, label: isBn ? 'রক্তদান ব্যবস্থাপনা (ব্লাড ব্যাংক)' : 'Blood Donation Network', icon: Droplet },
         { id: 'campaigns' as AdminTab, label: isBn ? 'ক্যাম্পেইনসমূহ' : 'Campaigns', icon: Flag },
         { id: 'programs' as AdminTab, label: isBn ? 'সেবামূলক প্রোগ্রাম' : 'Programs', icon: Handshake },
         { id: 'impact' as AdminTab, label: isBn ? 'ইমপ্যাক্ট মেট্রিক্স' : 'Impact Metrics', icon: Activity },
@@ -5019,6 +5090,510 @@ export const AdminPage: React.FC = () => {
             )}
 
             {/* -------------------------------------------------------- */}
+            {/* TAB: BLOOD DONATION MANAGEMENT */}
+            {/* -------------------------------------------------------- */}
+            {activeTab === 'blood_donation' && (
+              <div className="space-y-6">
+                {/* Blood Donation Header */}
+                <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold">
+                        <Droplet className="w-6 h-6 fill-current" />
+                      </div>
+                      <div>
+                        <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 font-display">
+                          {isBn ? 'রক্তদান নেটওয়ার্ক ও ব্লাড ব্যাংক সিএমএস' : 'Blood Donation Network Management'}
+                        </h2>
+                        <p className="text-xs sm:text-sm text-slate-500">
+                          {isBn ? 'স্বেচ্ছাসেবী রক্তদাতা, জরুরি রক্তের আবেদন ও সাংগঠনিক ব্লাড সমন্বয় পোর্টাল।' : 'Manage voluntary donors, verify pending applications, match emergency requests, and configure settings.'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingBloodDonor(null);
+                          setIsBloodDonorModalOpen(true);
+                        }}
+                        className="px-4 py-2.5 rounded-2xl bg-[#006A4E] hover:bg-[#00523C] text-white font-extrabold text-xs shadow-warm-sm transition-all flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>{isBn ? 'নতুন রক্তদাতা যোগ করুন' : 'Add New Donor'}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handleExportDonorsCSV}
+                        className="px-4 py-2.5 rounded-2xl bg-white border border-[#EAE3D9] hover:bg-[#FAF7F2] text-slate-700 font-bold text-xs shadow-warm-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <FileSpreadsheet className="w-4 h-4 text-emerald-700" />
+                        <span>{isBn ? 'CSV এক্সপোর্ট' : 'Export CSV'}</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Subtabs Bar */}
+                  <div className="flex items-center gap-2 border-b border-slate-100 pb-2 overflow-x-auto no-scrollbar">
+                    {[
+                      { id: 'overview', label: isBn ? 'ড্যাশবোর্ড ওভারভিউ' : 'Overview Dashboard', icon: LayoutDashboard },
+                      { id: 'donors', label: isBn ? `রক্তদাতাবৃন্দ (${bloodDonors.length})` : `All Donors (${bloodDonors.length})`, icon: Users },
+                      { id: 'emergency', label: isBn ? `জরুরি আবেদন (${emergencyBloodRequests.length})` : `Emergency Requests (${emergencyBloodRequests.length})`, icon: AlertTriangle },
+                      { id: 'settings', label: isBn ? 'সেটিংস ও ক্যাটাগরি' : 'Settings & Categories', icon: Sliders }
+                    ].map(st => {
+                      const Icon = st.icon;
+                      const isSelected = bloodSubTab === st.id;
+                      return (
+                        <button
+                          key={st.id}
+                          type="button"
+                          onClick={() => setBloodSubTab(st.id as any)}
+                          className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 ${
+                            isSelected
+                              ? 'bg-[#006A4E] text-white shadow-xs'
+                              : 'bg-[#FAF7F2] hover:bg-[#EAE3D9] text-slate-700'
+                          }`}
+                        >
+                          <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-emerald-200' : 'text-slate-500'}`} />
+                          <span>{st.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* SUBTAB 1: OVERVIEW DASHBOARD */}
+                {bloodSubTab === 'overview' && (
+                  <div className="space-y-6">
+                    {/* Summary Metrics */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                      <div className="p-5 rounded-3xl bg-white border border-[#EAE3D9] shadow-warm-xs space-y-1">
+                        <p className="text-xs font-bold text-slate-500 uppercase">{isBn ? 'মোট নিবন্ধিত রক্তদাতা' : 'Total Donors'}</p>
+                        <p className="text-2xl sm:text-3xl font-extrabold text-[#006A4E] font-display">{bloodDonors.length}</p>
+                      </div>
+
+                      <div className="p-5 rounded-3xl bg-amber-50 border border-amber-200 shadow-warm-xs space-y-1">
+                        <p className="text-xs font-bold text-amber-800 uppercase">{isBn ? 'অনুমোদন অপেক্ষায় (Pending)' : 'Pending Approval'}</p>
+                        <p className="text-2xl sm:text-3xl font-extrabold text-amber-700 font-display">
+                          {bloodDonors.filter(d => d.approvalStatus === 'PENDING').length}
+                        </p>
+                      </div>
+
+                      <div className="p-5 rounded-3xl bg-emerald-50 border border-emerald-200 shadow-warm-xs space-y-1">
+                        <p className="text-xs font-bold text-emerald-800 uppercase">{isBn ? 'যাচাইকৃত রক্তদাতা (Verified)' : 'Verified Donors'}</p>
+                        <p className="text-2xl sm:text-3xl font-extrabold text-emerald-700 font-display">
+                          {bloodDonors.filter(d => d.isVerified).length}
+                        </p>
+                      </div>
+
+                      <div className="p-5 rounded-3xl bg-rose-50 border border-rose-200 shadow-warm-xs space-y-1">
+                        <p className="text-xs font-bold text-rose-800 uppercase">{isBn ? 'জরুরি রক্তের আবেদন' : 'Emergency Requests'}</p>
+                        <p className="text-2xl sm:text-3xl font-extrabold text-rose-700 font-display">
+                          {emergencyBloodRequests.length}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Pending Approvals Queue */}
+                    {bloodDonors.filter(d => d.approvalStatus === 'PENDING').length > 0 && (
+                      <div className="bg-amber-50/70 rounded-3xl border border-amber-200 p-6 space-y-4 shadow-warm-xs">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-sm font-extrabold text-amber-950 uppercase tracking-wider flex items-center gap-2">
+                            <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
+                            <span>{isBn ? 'নতুন রক্তদাতা আবেদন (পর্যালোচনা ও অনুমোদন প্রয়োজন)' : 'Pending Donor Approvals Queue'}</span>
+                          </h3>
+                        </div>
+
+                        <div className="space-y-3">
+                          {bloodDonors.filter(d => d.approvalStatus === 'PENDING').map(donor => (
+                            <div
+                              key={donor.id}
+                              className="p-4 rounded-2xl bg-white border border-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs"
+                            >
+                              <div className="space-y-1">
+                                <div className="flex items-center gap-2">
+                                  <span className="px-2.5 py-0.5 rounded-lg bg-rose-600 text-white font-black text-xs font-display">
+                                    {donor.bloodGroup}
+                                  </span>
+                                  <span className="text-sm font-extrabold text-slate-900">{donor.fullName}</span>
+                                  <span className="text-xs text-emerald-700 font-bold">&bull; {donor.orgCategory}</span>
+                                </div>
+                                <p className="text-xs text-slate-500">
+                                  Phone: {donor.phone} &bull; Location: {donor.area}, {donor.upazila}, {donor.district}
+                                </p>
+                              </div>
+
+                              <div className="flex items-center gap-2 w-full sm:w-auto">
+                                <button
+                                  type="button"
+                                  onClick={() => approveBloodDonor(donor.id)}
+                                  className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs cursor-pointer"
+                                >
+                                  {isBn ? 'অনুমোদন করুন' : 'Approve'}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => rejectBloodDonor(donor.id)}
+                                  className="px-3.5 py-1.5 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-800 font-bold text-xs cursor-pointer"
+                                >
+                                  {isBn ? 'বাতিল' : 'Reject'}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setEditingBloodDonor(donor);
+                                    setIsBloodDonorModalOpen(true);
+                                  }}
+                                  className="px-3 py-1.5 rounded-xl bg-[#FAF7F2] hover:bg-[#EAE3D9] text-slate-700 font-bold text-xs cursor-pointer"
+                                >
+                                  {isBn ? 'সম্পাদনা' : 'Edit'}
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* SUBTAB 2: ALL DONORS TABLE */}
+                {bloodSubTab === 'donors' && (
+                  <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 space-y-5 shadow-warm-sm">
+                    {/* Filters Bar */}
+                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                      <div className="relative">
+                        <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                        <input
+                          type="text"
+                          value={bloodDonorSearch}
+                          onChange={(e) => setBloodDonorSearch(e.target.value)}
+                          placeholder={isBn ? 'নাম, ফোন বা এলাকা দিয়ে খুঁজুন...' : 'Search name, phone, area...'}
+                          className="w-full pl-9 pr-3 py-2 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                        />
+                      </div>
+
+                      <select
+                        value={bloodDonorGroupFilter}
+                        onChange={(e) => setBloodDonorGroupFilter(e.target.value)}
+                        className="px-3 py-2 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs font-bold focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                      >
+                        <option value="ALL">All Blood Groups</option>
+                        {(['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'] as BloodGroup[]).map(bg => (
+                          <option key={bg} value={bg}>{bg}</option>
+                        ))}
+                      </select>
+
+                      <select
+                        value={bloodDonorStatusFilter}
+                        onChange={(e) => setBloodDonorStatusFilter(e.target.value)}
+                        className="px-3 py-2 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs font-bold focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                      >
+                        <option value="ALL">All Status</option>
+                        <option value="APPROVED">Approved</option>
+                        <option value="PENDING">Pending</option>
+                        <option value="REJECTED">Rejected</option>
+                      </select>
+
+                      <select
+                        value={bloodDonorDistrictFilter}
+                        onChange={(e) => setBloodDonorDistrictFilter(e.target.value)}
+                        className="px-3 py-2 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                      >
+                        <option value="ALL">All Districts</option>
+                        <option value="Chattogram">Chattogram</option>
+                        <option value="Dhaka">Dhaka</option>
+                        <option value="Cox's Bazar">Cox's Bazar</option>
+                      </select>
+                    </div>
+
+                    {/* Donors Table */}
+                    <div className="overflow-x-auto no-scrollbar border border-slate-100 rounded-2xl">
+                      <table className="w-full text-left text-xs">
+                        <thead className="bg-[#FAF7F2] text-slate-600 font-bold uppercase text-[10px] tracking-wider border-b border-[#EAE3D9]">
+                          <tr>
+                            <th className="p-3.5">Donor</th>
+                            <th className="p-3.5">Blood</th>
+                            <th className="p-3.5">Contact</th>
+                            <th className="p-3.5">Location</th>
+                            <th className="p-3.5">Org Category</th>
+                            <th className="p-3.5">Availability</th>
+                            <th className="p-3.5">Status</th>
+                            <th className="p-3.5 text-center">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {bloodDonors
+                            .filter(d => {
+                              if (bloodDonorGroupFilter !== 'ALL' && d.bloodGroup !== bloodDonorGroupFilter) return false;
+                              if (bloodDonorStatusFilter !== 'ALL' && d.approvalStatus !== bloodDonorStatusFilter) return false;
+                              if (bloodDonorDistrictFilter !== 'ALL' && d.district !== bloodDonorDistrictFilter) return false;
+                              if (bloodDonorSearch.trim()) {
+                                const q = bloodDonorSearch.toLowerCase();
+                                const match = d.fullName.toLowerCase().includes(q) ||
+                                  d.phone.includes(q) ||
+                                  d.area.toLowerCase().includes(q) ||
+                                  d.upazila.toLowerCase().includes(q);
+                                if (!match) return false;
+                              }
+                              return true;
+                            })
+                            .map(donor => (
+                              <tr key={donor.id} className="hover:bg-slate-50 transition-colors">
+                                <td className="p-3.5">
+                                  <div className="flex items-center gap-2.5">
+                                    <div className="w-9 h-9 rounded-xl bg-emerald-950 text-white font-bold flex items-center justify-center shrink-0 overflow-hidden">
+                                      {donor.photoUrl ? (
+                                        <img src={getAssetUrl(donor.photoUrl)} alt={donor.fullName} className="w-full h-full object-cover" />
+                                      ) : (
+                                        donor.fullName.charAt(0)
+                                      )}
+                                    </div>
+                                    <div>
+                                      <p className="font-extrabold text-slate-900 flex items-center gap-1">
+                                        <span>{donor.fullName}</span>
+                                        {donor.isVerified && (
+                                          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" title="Verified" />
+                                        )}
+                                      </p>
+                                      <p className="text-[10px] text-slate-400 font-mono">ID: {donor.id}</p>
+                                    </div>
+                                  </div>
+                                </td>
+
+                                <td className="p-3.5">
+                                  <span className="px-2 py-0.5 rounded-lg bg-rose-600 text-white font-black text-xs font-display">
+                                    {donor.bloodGroup}
+                                  </span>
+                                </td>
+
+                                <td className="p-3.5 text-slate-700">
+                                  <p className="font-bold">{donor.phone}</p>
+                                  {donor.email && <p className="text-[10px] text-slate-400">{donor.email}</p>}
+                                </td>
+
+                                <td className="p-3.5 text-slate-600">
+                                  <p className="font-medium">{donor.area}, {donor.upazila}</p>
+                                  <p className="text-[10px] text-slate-400">{donor.district}</p>
+                                </td>
+
+                                <td className="p-3.5 text-slate-700 font-medium">
+                                  {donor.orgCategory}
+                                </td>
+
+                                <td className="p-3.5">
+                                  <span
+                                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                      donor.availabilityStatus === 'AVAILABLE_EMERGENCY'
+                                        ? 'bg-emerald-50 text-emerald-800'
+                                        : donor.availabilityStatus === 'AVAILABLE_NOTICE'
+                                        ? 'bg-amber-50 text-amber-800'
+                                        : 'bg-rose-50 text-rose-800'
+                                    }`}
+                                  >
+                                    {donor.availabilityStatus}
+                                  </span>
+                                </td>
+
+                                <td className="p-3.5">
+                                  <span
+                                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                      donor.approvalStatus === 'APPROVED'
+                                        ? 'bg-emerald-100 text-emerald-800'
+                                        : donor.approvalStatus === 'PENDING'
+                                        ? 'bg-amber-100 text-amber-800'
+                                        : 'bg-rose-100 text-rose-800'
+                                    }`}
+                                  >
+                                    {donor.approvalStatus}
+                                  </span>
+                                </td>
+
+                                <td className="p-3.5 text-center">
+                                  <div className="flex items-center justify-center gap-1.5">
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setEditingBloodDonor(donor);
+                                        setIsBloodDonorModalOpen(true);
+                                      }}
+                                      className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-100 cursor-pointer"
+                                      title="Edit Donor"
+                                    >
+                                      <Edit3 className="w-3.5 h-3.5" />
+                                    </button>
+
+                                    <button
+                                      type="button"
+                                      onClick={() => verifyBloodDonor(donor.id, !donor.isVerified)}
+                                      className={`p-1.5 rounded-lg cursor-pointer ${
+                                        donor.isVerified ? 'text-emerald-600 hover:bg-emerald-50' : 'text-slate-400 hover:bg-slate-100'
+                                      }`}
+                                      title={donor.isVerified ? 'Unverify' : 'Verify'}
+                                    >
+                                      <ShieldCheck className="w-3.5 h-3.5" />
+                                    </button>
+
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        if (confirm(`Delete donor ${donor.fullName}?`)) {
+                                          deleteBloodDonor(donor.id);
+                                          showToast('Donor record deleted');
+                                        }
+                                      }}
+                                      className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 cursor-pointer"
+                                      title="Delete Donor"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                {/* SUBTAB 3: EMERGENCY REQUESTS */}
+                {bloodSubTab === 'emergency' && (
+                  <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 space-y-4 shadow-warm-sm">
+                    <div className="border-b border-slate-100 pb-3">
+                      <h3 className="text-lg font-extrabold text-slate-900 font-display">
+                        {isBn ? 'জরুরি রক্তের আবেদনসমূহ' : 'Emergency Blood Requests Roster'}
+                      </h3>
+                    </div>
+
+                    <div className="space-y-3">
+                      {emergencyBloodRequests.map(req => (
+                        <div
+                          key={req.id}
+                          className="p-4 sm:p-5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                        >
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <span className="px-2.5 py-0.5 rounded-lg bg-rose-600 text-white font-black text-xs font-display">
+                                {req.bloodGroup}
+                              </span>
+                              <span className="text-sm font-extrabold text-slate-900">{req.patientName}</span>
+                              <span className="text-xs font-bold text-slate-500">({req.unitsNeeded} Units Needed)</span>
+                              <span
+                                className={`px-2 py-0.2 rounded-md text-[10px] font-bold ${
+                                  req.emergencyLevel === 'CRITICAL' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'
+                                }`}
+                              >
+                                {req.emergencyLevel}
+                              </span>
+                            </div>
+
+                            <p className="text-xs text-slate-600">
+                              Hospital: <span className="font-bold">{req.hospitalName}</span> ({req.upazila}, {req.district}) &bull; Requester: {req.requesterName} ({req.contactNumber})
+                            </p>
+                          </div>
+
+                          <div className="flex items-center gap-2 w-full sm:w-auto">
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-bold ${
+                                req.status === 'FULFILLED'
+                                  ? 'bg-emerald-100 text-emerald-800'
+                                  : req.status === 'PROCESSING'
+                                  ? 'bg-amber-100 text-amber-800'
+                                  : 'bg-rose-100 text-rose-800'
+                              }`}
+                            >
+                              {req.status}
+                            </span>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingEmergencyRequest(req);
+                                setIsEmergencyRequestModalOpen(true);
+                              }}
+                              className="px-3.5 py-1.5 rounded-xl bg-[#006A4E] hover:bg-[#00523C] text-white font-bold text-xs cursor-pointer"
+                            >
+                              {isBn ? 'ম্যাচিং ও স্ট্যাটাস' : 'Match & Update'}
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (confirm('Delete this emergency request?')) {
+                                  deleteEmergencyBloodRequest(req.id);
+                                  showToast('Request deleted');
+                                }
+                              }}
+                              className="p-1.5 rounded-xl text-rose-600 hover:bg-rose-50 cursor-pointer"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* SUBTAB 4: SETTINGS & CATEGORIES */}
+                {bloodSubTab === 'settings' && (
+                  <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+                    <div className="border-b border-slate-100 pb-3">
+                      <h3 className="text-lg font-extrabold text-slate-900 font-display">
+                        {isBn ? 'রক্তদান সেটিংস ও হেল্পলাইন কনফিগারেশন' : 'Blood Donation Settings & Helpline Configuration'}
+                      </h3>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-bold text-slate-800">24/7 Emergency Helpline</label>
+                        <input
+                          type="text"
+                          value={bloodDonationSettings.emergencyHelpline}
+                          onChange={(e) => updateBloodDonationSettings({ emergencyHelpline: e.target.value })}
+                          className="w-full px-3.5 py-2 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs focus:bg-white focus:outline-none"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-bold text-slate-800">Coordination Email</label>
+                        <input
+                          type="email"
+                          value={bloodDonationSettings.coordinationEmail}
+                          onChange={(e) => updateBloodDonationSettings({ coordinationEmail: e.target.value })}
+                          className="w-full px-3.5 py-2 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs focus:bg-white focus:outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-3 pt-3 border-t border-slate-100">
+                      <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                        Donor Organization Categories
+                      </h4>
+                      <div className="space-y-2">
+                        {donorCategories.map(cat => (
+                          <div key={cat.id} className="p-3 rounded-xl bg-[#FAF7F2] border border-[#EAE3D9] flex items-center justify-between text-xs">
+                            <span className="font-bold text-slate-800">{cat.name.en} ({cat.name.bn})</span>
+                            <button
+                              type="button"
+                              onClick={() => deleteDonorCategory(cat.id)}
+                              className="text-rose-600 hover:text-rose-800 font-bold"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* -------------------------------------------------------- */}
             {/* TAB: ADMIN USERS */}
             {/* -------------------------------------------------------- */}
             {activeTab === 'admin_users' && (
@@ -7746,6 +8321,35 @@ export const AdminPage: React.FC = () => {
         videoToEdit={editingJourneyVideo}
         onSave={handleSaveJourneyVideo}
         existingVideosCount={journeyVideos.length}
+      />
+
+      {/* ======================================================== */}
+      {/* BLOOD DONOR ADMIN MODAL */}
+      {/* ======================================================== */}
+      <BloodDonorModal
+        isOpen={isBloodDonorModalOpen}
+        onClose={() => {
+          setIsBloodDonorModalOpen(false);
+          setEditingBloodDonor(null);
+        }}
+        donorToEdit={editingBloodDonor}
+        onSave={handleSaveBloodDonor}
+      />
+
+      {/* ======================================================== */}
+      {/* EMERGENCY BLOOD REQUEST ADMIN MODAL */}
+      {/* ======================================================== */}
+      <EmergencyRequestAdminModal
+        isOpen={isEmergencyRequestModalOpen}
+        onClose={() => {
+          setIsEmergencyRequestModalOpen(false);
+          setEditingEmergencyRequest(null);
+        }}
+        request={editingEmergencyRequest}
+        onUpdateStatus={(id, status) => {
+          updateEmergencyBloodRequestStatus(id, status);
+          showToast('Emergency request status updated');
+        }}
       />
 
       {/* Toast Notification */}

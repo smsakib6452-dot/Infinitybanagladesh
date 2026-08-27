@@ -496,10 +496,13 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
   const [bloodDonationSettings, setBloodDonationSettings] = useState<BloodDonationSettings>(() => {
     const stored = getStoredOrDefault<any>('bloodDonationSettings', INITIAL_BLOOD_SETTINGS);
+    const resolvedWingLogo = (stored?.wingLogoUrl && !stored.wingLogoUrl.includes('.png'))
+      ? stored.wingLogoUrl
+      : '/brand/Infinitylifeline-logo.svg';
     return {
       ...INITIAL_BLOOD_SETTINGS,
       ...(stored || {}),
-      wingLogoUrl: stored?.wingLogoUrl || INITIAL_BLOOD_SETTINGS.wingLogoUrl,
+      wingLogoUrl: resolvedWingLogo,
       heroBadge: { ...INITIAL_BLOOD_SETTINGS.heroBadge, ...(stored?.heroBadge || {}) },
       heroTitle: { ...INITIAL_BLOOD_SETTINGS.heroTitle, ...(stored?.heroTitle || {}) },
       heroSubtitle: { ...INITIAL_BLOOD_SETTINGS.heroSubtitle, ...(stored?.heroSubtitle || {}) },

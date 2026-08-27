@@ -67,6 +67,7 @@
       }
 
       .cls-17 {
+        fill: #fff;
         font-family: AdobeCleanSerif-Regular, 'Adobe Clean Serif';
         font-size: 52.13px;
       }

@@ -5623,7 +5623,7 @@ export const AdminPage: React.FC = () => {
                           </div>
                           <button
                             type="button"
-                            onClick={() => updateBloodDonationSettings({ wingLogoUrl: '/brand/Infinitylifeline-logo.png' })}
+                            onClick={() => updateBloodDonationSettings({ wingLogoUrl: '/brand/Infinitylifeline-logo.svg' })}
                             className="text-[11px] font-bold text-[#006A4E] hover:underline cursor-pointer"
                           >
                             {isBn ? 'ডিফল্ট লোগো রিসেট করুন' : 'Reset to Default Logo'}
@@ -5631,9 +5631,9 @@ export const AdminPage: React.FC = () => {
                         </div>
 
                         <div className="flex flex-col sm:flex-row items-center gap-4">
-                          <div className="w-36 h-16 rounded-xl bg-white border border-slate-200 p-2 flex items-center justify-center shrink-0 shadow-2xs">
+                          <div className="w-36 h-16 rounded-xl bg-slate-900 border border-slate-700 p-2 flex items-center justify-center shrink-0 shadow-2xs">
                             <img
-                              src={getAssetUrl(bloodDonationSettings.wingLogoUrl || '/brand/Infinitylifeline-logo.png')}
+                              src={getAssetUrl(bloodDonationSettings.wingLogoUrl || '/brand/Infinitylifeline-logo.svg')}
                               alt="Infinity LifeLine Logo Preview"
                               className="w-full h-full object-contain"
                             />
@@ -5642,9 +5642,9 @@ export const AdminPage: React.FC = () => {
                           <div className="flex-1 w-full space-y-1">
                             <input
                               type="text"
-                              value={bloodDonationSettings.wingLogoUrl || '/brand/Infinitylifeline-logo.png'}
+                              value={bloodDonationSettings.wingLogoUrl || '/brand/Infinitylifeline-logo.svg'}
                               onChange={(e) => updateBloodDonationSettings({ wingLogoUrl: e.target.value })}
-                              placeholder="/brand/Infinitylifeline-logo.png"
+                              placeholder="/brand/Infinitylifeline-logo.svg"
                               className="w-full px-3.5 py-2 rounded-xl border border-[#EAE3D9] bg-white text-xs font-mono focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
                             />
                           </div>

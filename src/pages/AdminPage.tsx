@@ -114,6 +114,7 @@ import {
   BloodGroup
 } from '../types';
 import { DEFAULT_EXECUTIVE_TIER_BARS } from '../data/initialData';
+import { calculateAge } from '../data/bloodDonationData';
 import { getAssetUrl, handleImageError } from '../lib/utils/assetHelper';
 import { formatBDT } from '../lib/utils/formatters';
 import { Toast } from '../components/Toast';
@@ -523,11 +524,14 @@ export const AdminPage: React.FC = () => {
   };
 
   const handleExportDonorsCSV = () => {
-    const headers = ['ID', 'Full Name', 'Blood Group', 'Phone', 'Email', 'District', 'Upazila', 'Area', 'Detailed Address', 'Organization Category', 'Availability Status', 'Approval Status', 'Verified', 'Total Donations', 'Last Donation Date', 'Created At'];
+    const headers = ['ID', 'Full Name', 'Blood Group', 'Gender', 'Date of Birth', 'Age', 'Phone', 'Email', 'District', 'Upazila', 'Area', 'Detailed Address', 'Organization Category', 'Availability Status', 'Approval Status', 'Verified', 'Total Donations', 'Last Donation Date', 'Created At'];
     const rows = bloodDonors.map(d => [
       d.id,
       `"${(d.fullName || '').replace(/"/g, '""')}"`,
       d.bloodGroup,
+      `"${d.gender || 'Male'}"`,
+      `"${d.dateOfBirth || d.dob || ''}"`,
+      calculateAge(d.dateOfBirth || d.dob) ?? '',
       `"${d.phone || ''}"`,
       `"${d.email || ''}"`,
       `"${d.district || ''}"`,
@@ -5356,7 +5360,8 @@ export const AdminPage: React.FC = () => {
                                 const match = d.fullName.toLowerCase().includes(q) ||
                                   d.phone.includes(q) ||
                                   d.area.toLowerCase().includes(q) ||
-                                  d.upazila.toLowerCase().includes(q);
+                                  d.upazila.toLowerCase().includes(q) ||
+                                  (d.gender && d.gender.toLowerCase().includes(q));
                                 if (!match) return false;
                               }
                               return true;
@@ -5381,7 +5386,16 @@ export const AdminPage: React.FC = () => {
                                           </span>
                                         )}
                                       </p>
-                                      <p className="text-[10px] text-slate-400 font-mono">ID: {donor.id}</p>
+                                      <div className="flex items-center gap-1.5 flex-wrap text-[10px] text-slate-500 font-medium">
+                                        <span className="font-mono text-slate-400">ID: {donor.id}</span>
+                                        {(donor.gender || calculateAge(donor.dateOfBirth || donor.dob) !== null) && (
+                                          <span>
+                                            &bull; {donor.gender ? (donor.gender === 'Female' ? (isBn ? 'নারী' : 'Female') : donor.gender === 'Other' ? (isBn ? 'অন্যান্য' : 'Other') : (isBn ? 'পুরুষ' : 'Male')) : ''}
+                                            {donor.gender && calculateAge(donor.dateOfBirth || donor.dob) !== null ? ', ' : ''}
+                                            {calculateAge(donor.dateOfBirth || donor.dob) !== null ? (isBn ? `${calculateAge(donor.dateOfBirth || donor.dob)} বছর` : `${calculateAge(donor.dateOfBirth || donor.dob)} yrs`) : ''}
+                                          </span>
+                                        )}
+                                      </div>
                                     </div>
                                   </div>
                                 </td>

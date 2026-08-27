@@ -74,6 +74,22 @@ export function getUpazilasForDistrict(districtName: string): string[] {
 }
 
 /**
+ * Calculate age in years from a Date of Birth string (YYYY-MM-DD)
+ */
+export function calculateAge(dobString?: string): number | null {
+  if (!dobString) return null;
+  const birthDate = new Date(dobString);
+  if (isNaN(birthDate.getTime())) return null;
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age >= 0 ? age : null;
+}
+
+/**
  * Predefined Organization Categories for Blood Donors
  */
 export const DEFAULT_DONOR_CATEGORIES: DonorCategoryOption[] = [

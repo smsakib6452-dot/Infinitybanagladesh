@@ -2,6 +2,7 @@ import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { BloodDonor } from '../types';
 import { getAssetUrl } from '../lib/utils/assetHelper';
+import { calculateAge } from '../data/bloodDonationData';
 import {
   X,
   ShieldCheck,
@@ -10,7 +11,9 @@ import {
   Phone,
   Clock,
   Award,
-  AlertCircle
+  AlertCircle,
+  Calendar,
+  User
 } from 'lucide-react';
 
 interface BloodDonorProfileModalProps {
@@ -29,6 +32,9 @@ export const BloodDonorProfileModal: React.FC<BloodDonorProfileModalProps> = ({
   const { isBn } = useLanguage();
 
   if (!isOpen || !donor) return null;
+
+  const age = calculateAge(donor.dateOfBirth || donor.dob);
+  const genderLabel = donor.gender === 'Female' ? (isBn ? 'নারী (Female)' : 'Female') : donor.gender === 'Other' ? (isBn ? 'অন্যান্য (Other)' : 'Other') : (isBn ? 'পুরুষ (Male)' : 'Male');
 
   const getAvailabilityBadge = () => {
     switch (donor.availabilityStatus) {
@@ -128,7 +134,7 @@ export const BloodDonorProfileModal: React.FC<BloodDonorProfileModalProps> = ({
         </div>
 
         {/* Scrollable Content Body */}
-        <div className="p-6 sm:p-7 space-y-6 overflow-y-auto flex-1">
+        <div className="p-6 sm:p-7 space-y-5 overflow-y-auto flex-1">
           {/* Status & Metrics Bar */}
           <div className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9]">
             <div>
@@ -145,6 +151,36 @@ export const BloodDonorProfileModal: React.FC<BloodDonorProfileModalProps> = ({
                 </p>
                 <p className="text-lg sm:text-xl font-extrabold text-[#006A4E] font-display">
                   {donor.totalDonations} {isBn ? 'বার' : 'Times'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Gender & Age / Date of Birth Info */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div className="p-3.5 rounded-2xl bg-white border border-[#EAE3D9] flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center shrink-0">
+                <User className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{isBn ? 'লিঙ্গ' : 'Gender'}</p>
+                <p className="text-xs sm:text-sm font-extrabold text-slate-800 truncate">{genderLabel}</p>
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-2xl bg-white border border-[#EAE3D9] flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#006A4E] flex items-center justify-center shrink-0">
+                <Calendar className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{isBn ? 'বয়স ও জন্ম তারিখ' : 'Age & Birth Date'}</p>
+                <p className="text-xs sm:text-sm font-extrabold text-slate-800 truncate">
+                  {age !== null ? (isBn ? `${age} বছর` : `${age} years`) : (isBn ? 'নির্দিষ্ট নয়' : 'Not specified')}
+                  {(donor.dateOfBirth || donor.dob) ? (
+                    <span className="text-[11px] font-normal text-slate-400 ml-1">
+                      ({donor.dateOfBirth || donor.dob})
+                    </span>
+                  ) : null}
                 </p>
               </div>
             </div>

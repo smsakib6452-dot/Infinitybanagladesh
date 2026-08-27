@@ -352,6 +352,9 @@ export class ApiService {
             id: d.id,
             fullName: d.full_name,
             bloodGroup: d.blood_group,
+            gender: d.gender || 'Male',
+            dateOfBirth: d.date_of_birth || d.dob,
+            dob: d.dob || d.date_of_birth,
             phone: d.phone,
             email: d.email,
             photoUrl: d.photo_url,
@@ -394,10 +397,11 @@ export class ApiService {
   }
 
   /**
-   * Search donors by blood group, district, upazila, and availability
+   * Search donors by blood group, district, upazila, gender, and availability
    */
   static async searchBloodDonors(filters: {
     bloodGroup?: string;
+    gender?: string;
     district?: string;
     upazila?: string;
     area?: string;
@@ -407,6 +411,7 @@ export class ApiService {
     const all = await this.getBloodDonors(false);
     return all.filter(d => {
       if (filters.bloodGroup && filters.bloodGroup !== 'ALL' && d.bloodGroup !== filters.bloodGroup) return false;
+      if (filters.gender && filters.gender !== 'ALL' && d.gender !== filters.gender) return false;
       if (filters.district && filters.district !== 'ALL' && d.district.toLowerCase() !== filters.district.toLowerCase()) return false;
       if (filters.upazila && filters.upazila !== 'ALL' && d.upazila.toLowerCase() !== filters.upazila.toLowerCase()) return false;
       if (filters.area && !d.area.toLowerCase().includes(filters.area.toLowerCase())) return false;
@@ -432,6 +437,8 @@ export class ApiService {
           id,
           full_name: donorData.fullName,
           blood_group: donorData.bloodGroup,
+          gender: donorData.gender || 'Male',
+          date_of_birth: donorData.dateOfBirth || donorData.dob || null,
           phone: donorData.phone,
           email: donorData.email || null,
           photo_url: donorData.photoUrl || null,

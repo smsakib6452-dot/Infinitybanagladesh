@@ -10,7 +10,7 @@ import {
   EmergencyLevel
 } from '../types';
 import { BANGLADESH_DISTRICTS } from '../data/bangladeshData';
-import { getUpazilasForDistrict } from '../data/bloodDonationData';
+import { getUpazilasForDistrict, calculateAge } from '../data/bloodDonationData';
 import { getAssetUrl } from '../lib/utils/assetHelper';
 import { SectionHeading } from '../components/SectionHeading';
 import { BloodDonorProfileModal } from '../components/BloodDonorProfileModal';
@@ -85,6 +85,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
   // SEARCH & FILTER STATE (FIND A DONOR)
   // ----------------------------------------------------
   const [searchBloodGroup, setSearchBloodGroup] = useState<string>('ALL');
+  const [searchGender, setSearchGender] = useState<string>('ALL');
   const [searchDistrict, setSearchDistrict] = useState<string>('ALL');
   const [searchUpazila, setSearchUpazila] = useState<string>('ALL');
   const [searchArea, setSearchArea] = useState<string>('');
@@ -105,6 +106,8 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
   // ----------------------------------------------------
   const [regFullName, setRegFullName] = useState('');
   const [regBloodGroup, setRegBloodGroup] = useState<BloodGroup>('O+');
+  const [regGender, setRegGender] = useState<'Male' | 'Female' | 'Other' | string>('Male');
+  const [regDateOfBirth, setRegDateOfBirth] = useState('');
   const [regPhone, setRegPhone] = useState('');
   const [regEmail, setRegEmail] = useState('');
   const [regPhotoUrl, setRegPhotoUrl] = useState('');
@@ -209,6 +212,8 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
   const resetDonorRegistrationForm = () => {
     setRegFullName('');
     setRegBloodGroup('O+');
+    setRegGender('Male');
+    setRegDateOfBirth('');
     setRegPhone('');
     setRegEmail('');
     setRegPhotoUrl('');
@@ -290,6 +295,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
     return bloodDonors.filter(d => {
       if (d.approvalStatus !== 'APPROVED') return false;
       if (searchBloodGroup !== 'ALL' && d.bloodGroup !== searchBloodGroup) return false;
+      if (searchGender !== 'ALL' && (d.gender || 'Male') !== searchGender) return false;
       if (searchDistrict !== 'ALL' && d.district.toLowerCase() !== searchDistrict.toLowerCase()) return false;
       if (searchUpazila !== 'ALL' && d.upazila.toLowerCase() !== searchUpazila.toLowerCase()) return false;
       if (searchArea.trim() && !d.area.toLowerCase().includes(searchArea.toLowerCase())) return false;
@@ -300,6 +306,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
   }, [
     bloodDonors,
     searchBloodGroup,
+    searchGender,
     searchDistrict,
     searchUpazila,
     searchArea,
@@ -314,8 +321,25 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
     e.preventDefault();
     setRegFormError(null);
 
-    if (!regFullName.trim() || !regPhone.trim() || !regDistrict || !regUpazila) {
-      setRegFormError(isBn ? 'অনুগ্রহ করে সকল আবশ্যকীয় তথ্য পূরণ করুন।' : 'Please fill in all required fields.');
+    if (!regFullName.trim() || !regPhone.trim() || !regDistrict || !regUpazila || !regDateOfBirth) {
+      setRegFormError(isBn ? 'অনুগ্রহ করে সকল আবশ্যকীয় তথ্য পূরণ করুন (জন্ম তারিখসহ)।' : 'Please fill in all required fields including Date of Birth.');
+      return;
+    }
+
+    // Validate Date of Birth
+    const todayStr = new Date().toISOString().split('T')[0];
+    if (regDateOfBirth > todayStr) {
+      setRegFormError(isBn ? 'জন্ম তারিখ আজকের বা অতীতের তারিখ হতে হবে।' : 'Date of birth cannot be in the future.');
+      return;
+    }
+
+    const calculatedAge = calculateAge(regDateOfBirth);
+    if (calculatedAge !== null && calculatedAge < 18) {
+      setRegFormError(
+        isBn
+          ? `স্বেচ্ছায় রক্তদানের জন্য প্রার্থীর বয়স কমপক্ষে ১৮ বছর হতে হবে (আপনার বর্তমান বয়স ${calculatedAge} বছর)।`
+          : `Minimum age required for voluntary blood donation is 18 years (current calculated age is ${calculatedAge} years).`
+      );
       return;
     }
 
@@ -331,7 +355,6 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
     }
 
     // Validate No Future Dates for Blood Donation
-    const todayStr = new Date().toISOString().split('T')[0];
     if (regLastDonationDate && regLastDonationDate > todayStr) {
       setRegFormError(
         isBn
@@ -344,6 +367,9 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
     const newDonor = addBloodDonor({
       fullName: regFullName.trim(),
       bloodGroup: regBloodGroup,
+      gender: regGender,
+      dateOfBirth: regDateOfBirth,
+      dob: regDateOfBirth,
       phone: cleanPhone,
       email: regEmail.trim() || undefined,
       photoUrl: regPhotoUrl.trim() || undefined,
@@ -688,7 +714,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
               </div>
 
               {/* Filter Selectors Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
                 {/* District */}
                 <div className="space-y-1">
                   <label className="block text-xs font-bold text-slate-700">{isBn ? 'জেলা' : 'District'}</label>
@@ -722,6 +748,21 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                     {availableUpazilas.map(u => (
                       <option key={u} value={u}>{u}</option>
                     ))}
+                  </select>
+                </div>
+
+                {/* Gender */}
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-slate-700">{isBn ? 'লিঙ্গ' : 'Gender'}</label>
+                  <select
+                    value={searchGender}
+                    onChange={(e) => setSearchGender(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs font-medium focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                  >
+                    <option value="ALL">{isBn ? 'সকল লিঙ্গ' : 'All Genders'}</option>
+                    <option value="Male">{isBn ? 'পুরুষ (Male)' : 'Male'}</option>
+                    <option value="Female">{isBn ? 'নারী (Female)' : 'Female'}</option>
+                    <option value="Other">{isBn ? 'অন্যান্য (Other)' : 'Other'}</option>
                   </select>
                 </div>
 
@@ -794,6 +835,9 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                   {filteredDonors.slice(0, displayCount).map(donor => {
                     const isAvailEmg = donor.availabilityStatus === 'AVAILABLE_EMERGENCY';
+                    const donorAge = calculateAge(donor.dateOfBirth || donor.dob);
+                    const genderLabel = donor.gender === 'Female' ? (isBn ? 'নারী' : 'Female') : donor.gender === 'Other' ? (isBn ? 'অন্যান্য' : 'Other') : (isBn ? 'পুরুষ' : 'Male');
+
                     return (
                       <div
                         key={donor.id}
@@ -828,9 +872,16 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                                     </span>
                                   )}
                                 </div>
-                                <span className="inline-block text-[11px] text-[#006A4E] font-bold truncate">
-                                  {donor.orgCategory}
-                                </span>
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span className="inline-block text-[11px] text-[#006A4E] font-bold truncate">
+                                    {donor.orgCategory}
+                                  </span>
+                                  {(donor.gender || donorAge !== null) && (
+                                    <span className="text-[10px] text-slate-400 font-medium">
+                                      &bull; {donor.gender ? genderLabel : ''}{donor.gender && donorAge !== null ? ', ' : ''}{donorAge !== null ? (isBn ? `${donorAge} বছর` : `${donorAge} yrs`) : ''}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                             </div>
 
@@ -1067,6 +1118,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                       </div>
                     </div>
 
+                    {/* Name & Blood Group */}
                     <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
                       <div className="sm:col-span-8 space-y-1.5">
                         <label className="block text-xs font-bold text-slate-800">{isBn ? 'পূর্ণ নাম *' : 'Full Name *'}</label>
@@ -1076,7 +1128,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                           value={regFullName}
                           onChange={(e) => setRegFullName(e.target.value)}
                           placeholder="e.g. Tanvir Hossain"
-                          className="w-full px-4 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                          className="w-full px-4 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none font-medium"
                         />
                       </div>
 
@@ -1096,6 +1148,79 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                           <option value="AB+">AB+ (Positive)</option>
                           <option value="AB-">AB- (Negative)</option>
                         </select>
+                      </div>
+                    </div>
+
+                    {/* Gender & Date of Birth (with Age Indicator) */}
+                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
+                      <div className="sm:col-span-4 space-y-1.5">
+                        <label className="block text-xs font-bold text-slate-800">{isBn ? 'লিঙ্গ (Gender) *' : 'Gender *'}</label>
+                        <select
+                          value={regGender}
+                          onChange={(e) => setRegGender(e.target.value)}
+                          className="w-full px-4 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                        >
+                          <option value="Male">{isBn ? 'পুরুষ (Male)' : 'Male'}</option>
+                          <option value="Female">{isBn ? 'নারী (Female)' : 'Female'}</option>
+                          <option value="Other">{isBn ? 'অন্যান্য (Other)' : 'Other'}</option>
+                        </select>
+                      </div>
+
+                      <div className="sm:col-span-8 space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <label className="block text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                            <Calendar className="w-3.5 h-3.5 text-[#006A4E]" />
+                            <span>{isBn ? 'জন্ম তারিখ (Date of Birth) *' : 'Date of Birth *'}</span>
+                          </label>
+                          {regDateOfBirth && (() => {
+                            const age = calculateAge(regDateOfBirth);
+                            if (age === null) return null;
+                            const isEligible = age >= 18;
+                            return (
+                              <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border flex items-center gap-1 ${
+                                isEligible
+                                  ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                                  : 'bg-rose-50 text-rose-800 border-rose-300 animate-pulse'
+                              }`}>
+                                <span>{isBn ? `বয়স: ${age} বছর` : `Age: ${age} yrs`}</span>
+                                <span>{isEligible ? (isBn ? '✓ (১৮+ যোগ্য)' : '✓ (Eligible)') : (isBn ? '⚠️ (১৮ এর কম)' : '⚠️ (< 18 yrs)')}</span>
+                              </span>
+                            );
+                          })()}
+                        </div>
+
+                        <input
+                          type="date"
+                          required
+                          max={new Date().toISOString().split('T')[0]}
+                          value={regDateOfBirth}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setRegDateOfBirth(val);
+                            const age = calculateAge(val);
+                            if (age !== null && age < 18) {
+                              setRegFormError(
+                                isBn
+                                  ? `সতর্কতা: স্বেচ্ছায় রক্তদানের জন্য প্রার্থীর বয়স কমপক্ষে ১৮ বছর হতে হবে (আপনার বর্তমান বয়স ${age} বছর)।`
+                                  : `Warning: Minimum age for voluntary blood donation is 18 years (current calculated age is ${age} years).`
+                              );
+                            } else if (regFormError?.includes('১৮') || regFormError?.includes('18')) {
+                              setRegFormError(null);
+                            }
+                          }}
+                          className="w-full px-4 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none font-medium"
+                        />
+
+                        {regDateOfBirth && calculateAge(regDateOfBirth) !== null && calculateAge(regDateOfBirth)! < 18 ? (
+                          <p className="text-[11px] font-bold text-rose-600 flex items-center gap-1">
+                            <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                            <span>{isBn ? 'রক্তদানের জন্য সর্বনিম্ন বয়স ১৮ বছর হতে হবে।' : 'Minimum age required for donating blood is 18 years.'}</span>
+                          </p>
+                        ) : (
+                          <p className="text-[10px] text-slate-400 font-medium">
+                            {isBn ? 'সঠিক জন্ম তারিখ দিন (রক্তদানের বয়স যাচাইয়ের জন্য আবশ্যক)' : 'Required to verify donor age eligibility (18+)'}
+                          </p>
+                        )}
                       </div>
                     </div>
 

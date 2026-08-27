@@ -915,6 +915,9 @@ export interface BloodDonor {
   id: string;
   fullName: string;
   bloodGroup: BloodGroup;
+  gender?: 'Male' | 'Female' | 'Other' | string;
+  dateOfBirth?: string;
+  dob?: string;
   phone: string;
   email?: string;
   photoUrl?: string;

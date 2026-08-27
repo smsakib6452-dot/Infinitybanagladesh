@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
 import { EmergencyBloodRequest, EmergencyRequestStatus, BloodDonor } from '../types';
+import { calculateAge } from '../data/bloodDonationData';
 import {
   X,
   Droplet,
@@ -188,6 +189,13 @@ export const EmergencyRequestAdminModal: React.FC<EmergencyRequestAdminModalProp
                         </span>
                         {donor.isVerified && (
                           <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                        )}
+                        {(donor.gender || calculateAge(donor.dateOfBirth || donor.dob) !== null) && (
+                          <span className="text-[10px] text-slate-400 font-medium">
+                            &bull; {donor.gender ? (donor.gender === 'Female' ? (isBn ? 'নারী' : 'Female') : donor.gender === 'Other' ? (isBn ? 'অন্যান্য' : 'Other') : (isBn ? 'পুরুষ' : 'Male')) : ''}
+                            {donor.gender && calculateAge(donor.dateOfBirth || donor.dob) !== null ? ', ' : ''}
+                            {calculateAge(donor.dateOfBirth || donor.dob) !== null ? (isBn ? `${calculateAge(donor.dateOfBirth || donor.dob)} বছর` : `${calculateAge(donor.dateOfBirth || donor.dob)} yrs`) : ''}
+                          </span>
                         )}
                       </div>
                       <p className="text-[11px] text-slate-500 flex items-center gap-1 truncate">

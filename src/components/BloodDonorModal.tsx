@@ -3,7 +3,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
 import { BloodDonor, BloodGroup, DonorAvailabilityStatus, DonorApprovalStatus, BloodDonationHistoryEntry } from '../types';
 import { BANGLADESH_DISTRICTS } from '../data/bangladeshData';
-import { getUpazilasForDistrict } from '../data/bloodDonationData';
+import { getUpazilasForDistrict, calculateAge } from '../data/bloodDonationData';
 import { getAssetUrl } from '../lib/utils/assetHelper';
 import {
   X,
@@ -47,6 +47,8 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
   const [customId, setCustomId] = useState('');
   const [fullName, setFullName] = useState('');
   const [bloodGroup, setBloodGroup] = useState<BloodGroup>('O+');
+  const [gender, setGender] = useState<'Male' | 'Female' | 'Other' | string>('Male');
+  const [dateOfBirth, setDateOfBirth] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [photoUrl, setPhotoUrl] = useState('');
@@ -134,6 +136,8 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
       setCustomId(donorToEdit.id || '');
       setFullName(donorToEdit.fullName || '');
       setBloodGroup(donorToEdit.bloodGroup || 'O+');
+      setGender(donorToEdit.gender || 'Male');
+      setDateOfBirth(donorToEdit.dateOfBirth || donorToEdit.dob || '');
       setPhone(donorToEdit.phone || '');
       setEmail(donorToEdit.email || '');
       setPhotoUrl(donorToEdit.photoUrl || '');
@@ -155,6 +159,8 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
       setCustomId('');
       setFullName('');
       setBloodGroup('O+');
+      setGender('Male');
+      setDateOfBirth('');
       setPhone('');
       setEmail('');
       setPhotoUrl('');
@@ -178,7 +184,7 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
   const availableUpazilas = getUpazilasForDistrict(district);
 
   const handleAddHistoryEntry = () => {
-    if (!newHistHospital.trim() || !newHistDate) return;
+    if (!newHistDate || !newHistHospital.trim() || !newHistDistrict) return;
 
     const todayStr = new Date().toISOString().split('T')[0];
     if (newHistDate > todayStr) {
@@ -191,8 +197,8 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
     }
 
     const newEntry: BloodDonationHistoryEntry = {
-      id: `hist-local-${Date.now()}`,
-      donorId: customId.trim() || donorToEdit?.id || 'temp',
+      id: `hist_${Date.now()}`,
+      donorId: donorToEdit?.id || customId || 'temp',
       donationDate: newHistDate,
       hospital: newHistHospital.trim(),
       district: newHistDistrict,
@@ -258,6 +264,9 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
       id: customId.trim() || (donorToEdit ? donorToEdit.id : undefined),
       fullName: fullName.trim(),
       bloodGroup,
+      gender,
+      dateOfBirth: dateOfBirth || undefined,
+      dob: dateOfBirth || undefined,
       phone: cleanPhone,
       email: email.trim() || undefined,
       photoUrl: photoUrl.trim() || undefined,
@@ -370,6 +379,49 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
                     <option value="AB+">AB+ (AB Positive)</option>
                     <option value="AB-">AB- (AB Negative)</option>
                   </select>
+                </div>
+              </div>
+
+              {/* Gender & Date of Birth */}
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
+                <div className="sm:col-span-5 space-y-1.5">
+                  <label className="block text-xs font-bold text-slate-800">
+                    {isBn ? 'লিঙ্গ (Gender)' : 'Gender'}
+                  </label>
+                  <select
+                    value={gender}
+                    onChange={(e) => setGender(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                  >
+                    <option value="Male">{isBn ? 'পুরুষ (Male)' : 'Male'}</option>
+                    <option value="Female">{isBn ? 'নারী (Female)' : 'Female'}</option>
+                    <option value="Other">{isBn ? 'অন্যান্য (Other)' : 'Other'}</option>
+                  </select>
+                </div>
+
+                <div className="sm:col-span-7 space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5 text-[#006A4E]" />
+                      <span>{isBn ? 'জন্ম তারিখ (Date of Birth)' : 'Date of Birth'}</span>
+                    </label>
+                    {dateOfBirth && (() => {
+                      const calculatedAge = calculateAge(dateOfBirth);
+                      if (calculatedAge === null) return null;
+                      return (
+                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300">
+                          {isBn ? `বয়স: ${calculatedAge} বছর` : `Age: ${calculatedAge} yrs`}
+                        </span>
+                      );
+                    })()}
+                  </div>
+                  <input
+                    type="date"
+                    max={new Date().toISOString().split('T')[0]}
+                    value={dateOfBirth}
+                    onChange={(e) => setDateOfBirth(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none font-medium"
+                  />
                 </div>
               </div>
 

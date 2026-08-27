@@ -692,6 +692,8 @@ CREATE TABLE IF NOT EXISTS public.blood_donors (
   id TEXT PRIMARY KEY,
   full_name TEXT NOT NULL,
   blood_group TEXT NOT NULL,
+  gender TEXT DEFAULT 'Male',
+  date_of_birth TEXT,
   phone TEXT NOT NULL,
   email TEXT,
   photo_url TEXT,

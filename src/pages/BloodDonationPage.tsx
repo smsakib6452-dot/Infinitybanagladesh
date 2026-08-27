@@ -36,6 +36,7 @@ import {
   Award,
   Activity,
   UserPlus,
+  UserCheck,
   HelpCircle,
   Check,
   Building2,
@@ -428,118 +429,131 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
   return (
     <div className="min-h-screen bg-[#FCFBF8] pb-16 sm:pb-24">
       {/* 1. HERO SECTION & LIVE STATISTICS */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#0F221D] via-[#152E27] to-[#1B3B32] text-white pt-12 sm:pt-16 pb-16 sm:pb-20 border-b border-emerald-900/50">
-        <div className="absolute inset-0 bg-[radial-gradient(#006A4E_1px,transparent_1px)] [background-size:24px_24px] opacity-15 pointer-events-none" />
+      <section className="relative overflow-hidden bg-[#062119] bg-gradient-to-b from-[#041E16] via-[#08281F] to-[#051C14] text-white pt-10 sm:pt-14 pb-14 sm:pb-16 border-b border-emerald-950/60">
+        <div className="absolute inset-0 bg-[radial-gradient(#006A4E_1px,transparent_1px)] [background-size:28px_28px] opacity-10 pointer-events-none" />
         <div className="absolute top-1/4 -left-20 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 -right-20 w-96 h-96 bg-rose-600/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
             {/* Left Column: Hero Brand Hierarchy & Live Stats */}
             <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-              {/* Parent Organization Tie-in Badge */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-white/10 text-emerald-200 border border-white/20 backdrop-blur-md">
+              {/* Top Badge: Emergency Blood Donation & Coordination */}
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold bg-[#0D2E24]/90 text-emerald-200 border border-emerald-700/30 backdrop-blur-md shadow-xs">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 <span>
-                  {tText(bloodDonationSettings.heroBadge) || (isBn ? 'ইনফিনিটি বাংলাদেশ-এর একটি মানবিক উদ্যোগ' : 'An Initiative by Infinity Bangladesh')}
+                  {tText(bloodDonationSettings.heroBadge) || (isBn ? 'জরুরি রক্তদান ও সমন্বয় নেটওয়ার্ক' : 'Emergency Blood Donation & Coordination')}
                 </span>
               </div>
 
-              {/* Sub-brand Main Logo Card */}
+              {/* Sub-brand Main Logo (Infinity LifeLine SVG - Transparent on Dark) */}
               <div className="pt-1">
-                <div className="inline-block p-4 sm:p-5 rounded-3xl bg-white text-slate-900 shadow-2xl border-2 border-white/40 max-w-md">
-                  <img
-                    src={getAssetUrl(bloodDonationSettings.wingLogoUrl || '/brand/Infinitylifeline-logo.png')}
-                    alt="Infinity LifeLine - One Drop, Infinite Hope"
-                    className="h-14 sm:h-16 w-auto object-contain mx-auto lg:mx-0"
-                  />
-                </div>
+                <img
+                  src={getAssetUrl(bloodDonationSettings.wingLogoUrl || '/brand/Infinitylifeline-logo.svg')}
+                  alt="Infinity LifeLine - One Drop, Infinite Hope"
+                  className="w-full max-w-[440px] sm:max-w-[500px] h-auto object-contain mx-auto lg:mx-0 drop-shadow-md"
+                />
               </div>
 
-              {/* Platform / Service Title & Humanitarian Subtitle */}
-              <div>
-                <h1 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight font-display text-white leading-tight">
-                  {tText(bloodDonationSettings.heroTitle) || (isBn ? 'রক্তদান নেটওয়ার্ক' : 'Blood Donation Network')}
-                </h1>
-                <p className="text-xs sm:text-sm text-emerald-100/90 max-w-2xl leading-relaxed mt-2">
-                  {tText(bloodDonationSettings.heroSubtitle) || (isBn
-                    ? 'জরুরি রোগীদের পাশে দ্রুত, বিশ্বস্ত ও মানবিক সহায়তায় সারা বাংলাদেশের স্বেচ্ছাসেবী রক্তদাতাদের মেলবন্ধন।'
-                    : 'Connecting voluntary blood donors across Bangladesh to serve emergency patients with speed, verified trust, and compassion.')}
-                </p>
-              </div>
+              {/* Subtitle: A blood donation initiative by Infinity Bangladesh */}
+              <p className="text-sm sm:text-base text-emerald-100/90 font-medium max-w-xl leading-relaxed">
+                {isBn ? (
+                  <span>
+                    {tText(bloodDonationSettings.heroSubtitle) || 'ইনফিনিটি বাংলাদেশ-এর একটি মানবিক রক্তদান উদ্যোগ'}
+                  </span>
+                ) : (
+                  <span>
+                    A blood donation initiative by <strong className="text-emerald-400 font-bold">Infinity Bangladesh</strong>
+                  </span>
+                )}
+              </p>
 
-              {/* 4 Dynamic Statistics Counters */}
+              {/* 4 Dynamic Statistics Counters (matching screenshot exactly) */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-                <div className="p-3.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 text-center">
+                {/* 1. Total Donors */}
+                <div className="p-4 sm:p-5 rounded-2xl bg-[#0B2A21]/90 backdrop-blur-md border border-emerald-800/30 text-center flex flex-col items-center justify-center gap-1.5 shadow-sm hover:border-emerald-500/40 transition-all">
+                  <div className="w-9 h-9 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center">
+                    <Users className="w-4 h-4" />
+                  </div>
                   <p className="text-2xl sm:text-3xl font-extrabold text-white font-display">
                     {bloodDonationSettings.statTotalDonorsOverride ?? stats.totalDonors}
                   </p>
-                  <p className="text-[11px] font-bold text-emerald-200 mt-0.5">
+                  <p className="text-[11px] font-medium text-slate-300">
                     {tText(bloodDonationSettings.statTotalDonorsLabel) || (isBn ? 'নিবন্ধিত রক্তদাতা' : 'Total Donors')}
                   </p>
                 </div>
 
-                <div className="p-3.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 text-center">
-                  <p className="text-2xl sm:text-3xl font-extrabold text-emerald-300 font-display">
+                {/* 2. Active Donors */}
+                <div className="p-4 sm:p-5 rounded-2xl bg-[#0B2A21]/90 backdrop-blur-md border border-emerald-800/30 text-center flex flex-col items-center justify-center gap-1.5 shadow-sm hover:border-emerald-500/40 transition-all">
+                  <div className="w-9 h-9 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center">
+                    <UserCheck className="w-4 h-4" />
+                  </div>
+                  <p className="text-2xl sm:text-3xl font-extrabold text-white font-display">
                     {bloodDonationSettings.statActiveDonorsOverride ?? stats.activeDonors}
                   </p>
-                  <p className="text-[11px] font-bold text-emerald-200 mt-0.5">
+                  <p className="text-[11px] font-medium text-slate-300">
                     {tText(bloodDonationSettings.statActiveDonorsLabel) || (isBn ? 'জরুরিতে প্রস্তুত' : 'Active Donors')}
                   </p>
                 </div>
 
-                <div className="p-3.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 text-center">
-                  <p className="text-2xl sm:text-3xl font-extrabold text-rose-300 font-display">
+                {/* 3. Blood Groups */}
+                <div className="p-4 sm:p-5 rounded-2xl bg-[#0B2A21]/90 backdrop-blur-md border border-emerald-800/30 text-center flex flex-col items-center justify-center gap-1.5 shadow-sm hover:border-rose-500/40 transition-all">
+                  <div className="w-9 h-9 rounded-full bg-rose-500/20 text-rose-300 flex items-center justify-center">
+                    <Droplet className="w-4 h-4 fill-current" />
+                  </div>
+                  <p className="text-2xl sm:text-3xl font-extrabold text-white font-display">
                     {bloodDonationSettings.statGroupsValue || '8/8'}
                   </p>
-                  <p className="text-[11px] font-bold text-emerald-200 mt-0.5">
+                  <p className="text-[11px] font-medium text-slate-300">
                     {tText(bloodDonationSettings.statGroupsLabel) || (isBn ? 'সকল ব্লাড গ্রুপ' : 'Blood Groups')}
                   </p>
                 </div>
 
-                <div className="p-3.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 text-center">
+                {/* 4. Lives Impacted */}
+                <div className="p-4 sm:p-5 rounded-2xl bg-[#0B2A21]/90 backdrop-blur-md border border-emerald-800/30 text-center flex flex-col items-center justify-center gap-1.5 shadow-sm hover:border-amber-500/40 transition-all">
+                  <div className="w-9 h-9 rounded-full bg-amber-500/20 text-amber-300 flex items-center justify-center">
+                    <Heart className="w-4 h-4 fill-current" />
+                  </div>
                   <p className="text-2xl sm:text-3xl font-extrabold text-amber-300 font-display">
                     {bloodDonationSettings.statImpactOverride !== null && bloodDonationSettings.statImpactOverride !== undefined
                       ? `${bloodDonationSettings.statImpactOverride}+`
                       : `${stats.totalDonations}+`}
                   </p>
-                  <p className="text-[11px] font-bold text-emerald-200 mt-0.5">
+                  <p className="text-[11px] font-medium text-slate-300">
                     {tText(bloodDonationSettings.statImpactLabel) || (isBn ? 'মোট রক্তদান সম্পন্ন' : 'Lives Impacted')}
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Right Column: Hero CTA Card */}
+            {/* Right Column: Hero CTA Card (matching screenshot) */}
             <div className="lg:col-span-5 relative">
-              <div className="relative rounded-3xl bg-white p-7 sm:p-8 text-slate-900 shadow-2xl border-4 border-white/40 space-y-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold">
-                      <Droplet className="w-6 h-6 fill-current" />
-                    </div>
-                    <div>
-                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-rose-700 bg-rose-50 px-2 py-0.5 rounded-md">
-                        {tText(bloodDonationSettings.heroCtaBadge) || (isBn ? 'মানবতার আহ্বান' : 'JOIN THE CAUSE')}
-                      </span>
-                      <h3 className="text-xl font-extrabold text-slate-900 font-display">
-                        {tText(bloodDonationSettings.heroCtaTitle) || (isBn ? 'জীবন বাঁচাতে এগিয়ে আসুন' : 'Be a Lifesaver')}
-                      </h3>
-                    </div>
+              <div className="relative rounded-[32px] bg-white p-7 sm:p-8 text-slate-900 shadow-2xl space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
+                    <Droplet className="w-6 h-6 fill-current" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded-md">
+                      {tText(bloodDonationSettings.heroCtaBadge) || (isBn ? 'মানবতার আহ্বান' : 'JOIN THE CAUSE')}
+                    </span>
+                    <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 font-display mt-0.5">
+                      {tText(bloodDonationSettings.heroCtaTitle) || (isBn ? 'রক্তদাতা হোন, জীবন বাঁচান' : 'Be a Donor, Be a Hero')}
+                    </h3>
                   </div>
                 </div>
 
                 <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                   {tText(bloodDonationSettings.heroCtaDescription) || (isBn
-                    ? 'আপনার এক ব্যাগ রক্ত বাঁচাতে পারে একটি মূল্যবান প্রাণ। ইনফিনিটি লাইফলাইন নেটওয়ার্কে রক্তদাতা হিসেবে যুক্ত হতে এখনই রেজিস্ট্রেশন করুন।'
-                    : 'Every drop counts. Register as a voluntary blood donor with Infinity LifeLine and become someone’s lifeline in moments of crisis.')}
+                    ? 'আপনার এক ব্যাগ রক্ত বাঁচাতে পারে একটি মূল্যবান প্রাণ। টিম ইনফিনিটির সাথে রক্তদাতা হিসেবে যুক্ত হতে এখনই রেজিস্ট্রেশন করুন।'
+                    : 'Every drop counts. Register as a voluntary blood donor with Team Infinity and become someone’s lifeline in moments of crisis.')}
                 </p>
 
                 <div className="space-y-3 pt-1">
                   <button
                     type="button"
                     onClick={() => setActiveTab('become-donor')}
-                    className="w-full py-3.5 rounded-2xl bg-[#006A4E] hover:bg-[#00523C] text-white font-extrabold text-sm shadow-warm-md transition-all flex items-center justify-center gap-2 cursor-pointer transform hover:-translate-y-0.5"
+                    className="w-full py-3.5 sm:py-4 rounded-2xl bg-[#006A4E] hover:bg-[#00553E] text-white font-extrabold text-sm shadow-warm-md transition-all flex items-center justify-center gap-2.5 cursor-pointer transform hover:-translate-y-0.5"
                   >
                     <UserPlus className="w-4 h-4" />
                     <span>
@@ -550,7 +564,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                   <button
                     type="button"
                     onClick={() => setActiveTab('emergency-request')}
-                    className="w-full py-3.5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-sm shadow-warm-md transition-all flex items-center justify-center gap-2 cursor-pointer transform hover:-translate-y-0.5"
+                    className="w-full py-3.5 sm:py-4 rounded-2xl bg-[#E11D48] hover:bg-[#BE123C] text-white font-extrabold text-sm shadow-warm-md transition-all flex items-center justify-center gap-2.5 cursor-pointer transform hover:-translate-y-0.5"
                   >
                     <AlertTriangle className="w-4 h-4" />
                     <span>
@@ -560,9 +574,9 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                 </div>
 
                 {/* 24/7 Helpline Badge */}
-                <div className="p-3 bg-[#FAF7F2] rounded-2xl border border-[#EAE3D9] flex items-center justify-between text-xs">
+                <div className="p-3.5 bg-[#FAF7F2] rounded-2xl border border-[#EAE3D9] flex items-center justify-between text-xs sm:text-sm">
                   <div className="flex items-center gap-2 text-slate-700 font-bold">
-                    <Phone className="w-3.5 h-3.5 text-[#006A4E]" />
+                    <Phone className="w-4 h-4 text-[#006A4E]" />
                     <span>
                       {tText(bloodDonationSettings.helplineLabel) || (isBn ? '২৪/৭ ব্লাড হেল্পলাইন:' : '24/7 Helpline:')}
                     </span>

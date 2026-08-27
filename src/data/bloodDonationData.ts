@@ -143,30 +143,30 @@ export const DEFAULT_DONOR_CATEGORIES: DonorCategoryOption[] = [
  * Initial Default Blood Donation Settings
  */
 export const INITIAL_BLOOD_SETTINGS: BloodDonationSettings = {
-  wingLogoUrl: '/brand/Infinitylifeline-logo.png',
+  wingLogoUrl: '/brand/Infinitylifeline-logo.svg',
   heroBadge: {
-    en: 'An Initiative by Infinity Bangladesh',
-    bn: 'ইনফিনিটি বাংলাদেশ-এর একটি মানবিক উদ্যোগ'
+    en: 'Emergency Blood Donation & Coordination',
+    bn: 'জরুরি রক্তদান ও সমন্বয় নেটওয়ার্ক'
   },
   heroTitle: {
     en: 'Blood Donation Network',
     bn: 'রক্তদান নেটওয়ার্ক'
   },
   heroSubtitle: {
-    en: 'Connecting voluntary blood donors across Bangladesh to serve emergency patients with speed, verified trust, and compassion.',
-    bn: 'জরুরি রোগীদের পাশে দ্রুত, বিশ্বস্ত ও মানবিক সহায়তায় সারা বাংলাদেশের স্বেচ্ছাসেবী রক্তদাতাদের মেলবন্ধন।'
+    en: 'A blood donation initiative by Infinity Bangladesh',
+    bn: 'ইনফিনিটি বাংলাদেশ-এর একটি মানবিক রক্তদান উদ্যোগ'
   },
   heroCtaBadge: {
     en: 'JOIN THE CAUSE',
     bn: 'মানবতার আহ্বান'
   },
   heroCtaTitle: {
-    en: 'Be a Lifesaver',
-    bn: 'জীবন বাঁচাতে এগিয়ে আসুন'
+    en: 'Be a Donor, Be a Hero',
+    bn: 'রক্তদাতা হোন, জীবন বাঁচান'
   },
   heroCtaDescription: {
-    en: 'Every drop counts. Register as a voluntary blood donor with Infinity LifeLine and become someone’s lifeline in moments of crisis.',
-    bn: 'আপনার এক ব্যাগ রক্ত বাঁচাতে পারে একটি মূল্যবান প্রাণ। ইনফিনিটি লাইফলাইন নেটওয়ার্কে রক্তদাতা হিসেবে যুক্ত হতে এখনই রেজিস্ট্রেশন করুন।'
+    en: 'Every drop counts. Register as a voluntary blood donor with Team Infinity and become someone’s lifeline in moments of crisis.',
+    bn: 'আপনার এক ব্যাগ রক্ত বাঁচাতে পারে একটি মূল্যবান প্রাণ। টিম ইনফিনিটির সাথে রক্তদাতা হিসেবে যুক্ত হতে এখনই রেজিস্ট্রেশন করুন।'
   },
   heroCtaBtn1Text: {
     en: 'Become a Donor',

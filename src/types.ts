@@ -960,6 +960,8 @@ export interface EmergencyBloodRequest {
 export interface BloodDonationSettings {
   wingLogoUrl?: string;
   wingLogoSize?: number;
+  wingLogoZoom?: number;
+  wingLogoCrop?: 'contain' | 'cover' | 'fill' | 'none';
   heroBadge?: BilingualText;
   heroTitle: BilingualText;
   heroSubtitle: BilingualText;

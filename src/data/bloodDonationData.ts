@@ -145,6 +145,8 @@ export const DEFAULT_DONOR_CATEGORIES: DonorCategoryOption[] = [
 export const INITIAL_BLOOD_SETTINGS: BloodDonationSettings = {
   wingLogoUrl: '/brand/Infinitylifeline-logo.svg',
   wingLogoSize: 480,
+  wingLogoZoom: 1,
+  wingLogoCrop: 'contain',
   heroBadge: {
     en: 'Emergency Blood Donation & Coordination',
     bn: 'জরুরি রক্তদান ও সমন্বয় নেটওয়ার্ক'

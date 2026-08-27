@@ -5610,7 +5610,7 @@ export const AdminPage: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* Wing Logo & Size Configuration */}
+                      {/* Wing Logo & Size, Zoom, Crop Configuration */}
                       <div className="p-5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-5">
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-[#EAE3D9] pb-3">
                           <div>
@@ -5624,11 +5624,16 @@ export const AdminPage: React.FC = () => {
                           </div>
                           <button
                             type="button"
-                            onClick={() => updateBloodDonationSettings({ wingLogoUrl: '/brand/Infinitylifeline-logo.svg', wingLogoSize: 480 })}
+                            onClick={() => updateBloodDonationSettings({
+                              wingLogoUrl: '/brand/Infinitylifeline-logo.svg',
+                              wingLogoSize: 480,
+                              wingLogoZoom: 1,
+                              wingLogoCrop: 'contain'
+                            })}
                             className="text-xs font-bold text-[#006A4E] hover:underline cursor-pointer flex items-center gap-1.5"
                           >
                             <Sparkles className="w-3.5 h-3.5" />
-                            <span>{isBn ? 'অফিসিয়াল SVG রিসেট করুন' : 'Reset to Official SVG'}</span>
+                            <span>{isBn ? 'অফিসিয়াল ডিফল্ট রিসেট করুন' : 'Reset to Official Default'}</span>
                           </button>
                         </div>
 
@@ -5636,18 +5641,34 @@ export const AdminPage: React.FC = () => {
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
                           {/* Live Preview Box (Dark Theme like Hero) */}
                           <div className="lg:col-span-5 space-y-2">
-                            <label className="block text-[11px] font-bold text-slate-700">
-                              {isBn ? 'লাইভ ডার্ক প্রিভিউ (হিরো ব্যাকগ্রাউন্ড):' : 'Live Dark Preview (Hero Background):'}
-                            </label>
-                            <div className="w-full h-32 rounded-2xl bg-[#062119] border border-emerald-800/40 p-4 flex items-center justify-center overflow-hidden shadow-inner relative">
-                              <img
-                                src={getAssetUrl(bloodDonationSettings.wingLogoUrl || '/brand/Infinitylifeline-logo.svg')}
-                                alt="Infinity LifeLine Logo Preview"
-                                style={{ maxWidth: `${Math.min(bloodDonationSettings.wingLogoSize || 480, 280)}px` }}
-                                className="w-full h-auto max-h-24 object-contain transition-all duration-200"
-                              />
+                            <div className="flex items-center justify-between">
+                              <label className="block text-[11px] font-bold text-slate-700">
+                                {isBn ? 'লাইভ ডার্ক প্রিভিউ (হিরো ব্যাকগ্রাউন্ড):' : 'Live Dark Preview (Hero Background):'}
+                              </label>
+                              <span className="text-[10px] font-bold text-[#006A4E] bg-emerald-50 px-2 py-0.5 rounded">
+                                {bloodDonationSettings.wingLogoSize || 480}px • {bloodDonationSettings.wingLogoZoom || 1}x
+                              </span>
                             </div>
-                            <p className="text-[10px] text-slate-400 text-center font-mono">
+                            <div className="w-full h-36 rounded-2xl bg-[#062119] border border-emerald-800/40 p-4 flex items-center justify-center overflow-hidden shadow-inner relative">
+                              <div
+                                className="flex items-center justify-center transition-all duration-200"
+                                style={{
+                                  width: `${Math.min(bloodDonationSettings.wingLogoSize || 480, 320)}px`,
+                                  maxWidth: '100%'
+                                }}
+                              >
+                                <img
+                                  src={getAssetUrl(bloodDonationSettings.wingLogoUrl || '/brand/Infinitylifeline-logo.svg')}
+                                  alt="Infinity LifeLine Logo Preview"
+                                  style={{
+                                    transform: `scale(${bloodDonationSettings.wingLogoZoom || 1})`,
+                                    objectFit: bloodDonationSettings.wingLogoCrop || 'contain'
+                                  }}
+                                  className="w-full h-auto max-h-28 object-contain transition-all duration-200"
+                                />
+                              </div>
+                            </div>
+                            <p className="text-[10px] text-slate-400 text-center font-mono truncate">
                               {bloodDonationSettings.wingLogoUrl || '/brand/Infinitylifeline-logo.svg'}
                             </p>
                           </div>
@@ -5700,49 +5721,126 @@ export const AdminPage: React.FC = () => {
                               </button>
                             </div>
 
-                            {/* Logo Size Control (Slider & Presets) */}
-                            <div className="pt-2 border-t border-[#EAE3D9]/80 space-y-2.5">
-                              <div className="flex items-center justify-between text-xs">
-                                <label className="font-bold text-slate-800">
-                                  {isBn ? 'লোগোর সাইজ / প্রস্থ (Logo Size Width):' : 'Logo Display Width:'}
-                                </label>
-                                <span className="font-extrabold text-[#006A4E] bg-emerald-50 px-2.5 py-0.5 rounded-md text-xs font-mono">
-                                  {bloodDonationSettings.wingLogoSize || 480}px
-                                </span>
+                            {/* Logo Controls Grid: Width, Zoom, Crop */}
+                            <div className="pt-3 border-t border-[#EAE3D9]/80 space-y-4">
+                              {/* 1. Logo Size Width Slider & Presets */}
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between text-xs">
+                                  <label className="font-bold text-slate-800">
+                                    {isBn ? 'লোগোর সাইজ / প্রস্থ (Logo Width):' : 'Logo Display Width:'}
+                                  </label>
+                                  <span className="font-extrabold text-[#006A4E] bg-emerald-50 px-2.5 py-0.5 rounded-md text-xs font-mono">
+                                    {bloodDonationSettings.wingLogoSize || 480}px
+                                  </span>
+                                </div>
+
+                                <input
+                                  type="range"
+                                  min="200"
+                                  max="800"
+                                  step="10"
+                                  value={bloodDonationSettings.wingLogoSize || 480}
+                                  onChange={(e) => updateBloodDonationSettings({ wingLogoSize: Number(e.target.value) })}
+                                  className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#006A4E]"
+                                />
+
+                                {/* Size Presets */}
+                                <div className="flex flex-wrap items-center gap-1.5">
+                                  {[
+                                    { label: isBn ? 'ছোট (320px)' : 'Small (320px)', val: 320 },
+                                    { label: isBn ? 'মাঝারি (440px)' : 'Medium (440px)', val: 440 },
+                                    { label: isBn ? 'ডিফল্ট (480px)' : 'Default (480px)', val: 480 },
+                                    { label: isBn ? 'বড় (560px)' : 'Large (560px)', val: 560 },
+                                    { label: isBn ? 'খুব বড় (650px)' : 'X-Large (650px)', val: 650 }
+                                  ].map(p => (
+                                    <button
+                                      key={p.val}
+                                      type="button"
+                                      onClick={() => updateBloodDonationSettings({ wingLogoSize: p.val })}
+                                      className={`px-2 py-0.5 rounded-md text-[11px] font-bold transition-all cursor-pointer ${
+                                        (bloodDonationSettings.wingLogoSize || 480) === p.val
+                                          ? 'bg-[#006A4E] text-white shadow-2xs'
+                                          : 'bg-white text-slate-600 border border-[#EAE3D9] hover:bg-slate-50'
+                                      }`}
+                                    >
+                                      {p.label}
+                                    </button>
+                                  ))}
+                                </div>
                               </div>
 
-                              <input
-                                type="range"
-                                min="240"
-                                max="700"
-                                step="10"
-                                value={bloodDonationSettings.wingLogoSize || 480}
-                                onChange={(e) => updateBloodDonationSettings({ wingLogoSize: Number(e.target.value) })}
-                                className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#006A4E]"
-                              />
+                              {/* 2. Logo Zoom & Scale Slider */}
+                              <div className="space-y-2 pt-2 border-t border-slate-100">
+                                <div className="flex items-center justify-between text-xs">
+                                  <label className="font-bold text-slate-800">
+                                    {isBn ? 'লোগো জুম / স্কেল (Logo Zoom & Scale):' : 'Logo Zoom & Scale:'}
+                                  </label>
+                                  <span className="font-extrabold text-[#006A4E] bg-emerald-50 px-2.5 py-0.5 rounded-md text-xs font-mono">
+                                    {bloodDonationSettings.wingLogoZoom || 1}x
+                                  </span>
+                                </div>
 
-                              {/* Size Presets */}
-                              <div className="flex items-center gap-2 pt-1">
-                                {[
-                                  { label: isBn ? 'ছোট (320px)' : 'Small (320px)', val: 320 },
-                                  { label: isBn ? 'মাঝারি (440px)' : 'Medium (440px)', val: 440 },
-                                  { label: isBn ? 'ডিফল্ট (480px)' : 'Default (480px)', val: 480 },
-                                  { label: isBn ? 'বড় (540px)' : 'Large (540px)', val: 540 },
-                                  { label: isBn ? 'খুব বড় (620px)' : 'X-Large (620px)', val: 620 }
-                                ].map(p => (
-                                  <button
-                                    key={p.val}
-                                    type="button"
-                                    onClick={() => updateBloodDonationSettings({ wingLogoSize: p.val })}
-                                    className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
-                                      (bloodDonationSettings.wingLogoSize || 480) === p.val
-                                        ? 'bg-[#006A4E] text-white shadow-2xs'
-                                        : 'bg-white text-slate-600 border border-[#EAE3D9] hover:bg-slate-50'
-                                    }`}
-                                  >
-                                    {p.label}
-                                  </button>
-                                ))}
+                                <input
+                                  type="range"
+                                  min="0.5"
+                                  max="2.0"
+                                  step="0.05"
+                                  value={bloodDonationSettings.wingLogoZoom || 1}
+                                  onChange={(e) => updateBloodDonationSettings({ wingLogoZoom: parseFloat(e.target.value) })}
+                                  className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#006A4E]"
+                                />
+
+                                {/* Zoom Presets */}
+                                <div className="flex flex-wrap items-center gap-1.5">
+                                  {[
+                                    { label: '0.8x', val: 0.8 },
+                                    { label: '1.0x (Original)', val: 1.0 },
+                                    { label: '1.2x', val: 1.2 },
+                                    { label: '1.4x', val: 1.4 },
+                                    { label: '1.6x', val: 1.6 }
+                                  ].map(p => (
+                                    <button
+                                      key={p.val}
+                                      type="button"
+                                      onClick={() => updateBloodDonationSettings({ wingLogoZoom: p.val })}
+                                      className={`px-2 py-0.5 rounded-md text-[11px] font-bold transition-all cursor-pointer ${
+                                        (bloodDonationSettings.wingLogoZoom || 1) === p.val
+                                          ? 'bg-[#006A4E] text-white shadow-2xs'
+                                          : 'bg-white text-slate-600 border border-[#EAE3D9] hover:bg-slate-50'
+                                      }`}
+                                    >
+                                      {p.label}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+
+                              {/* 3. Crop / Object Fit Mode */}
+                              <div className="space-y-1.5 pt-2 border-t border-slate-100">
+                                <label className="block text-xs font-bold text-slate-800">
+                                  {isBn ? 'ক্রপ ও ফিট মোড (Crop / Fit Mode):' : 'Crop / Object Fit Mode:'}
+                                </label>
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                  {[
+                                    { id: 'contain', labelEn: 'Contain (Fit)', labelBn: 'কনটেইন (সম্পূর্ণ)' },
+                                    { id: 'cover', labelEn: 'Cover (Crop)', labelBn: 'কভার (ক্রপ)' },
+                                    { id: 'fill', labelEn: 'Fill (Stretch)', labelBn: 'ফিল (টেনে বাড়ানো)' },
+                                    { id: 'none', labelEn: 'Original', labelBn: 'অরিজিনাল' }
+                                  ].map(crop => (
+                                    <button
+                                      key={crop.id}
+                                      type="button"
+                                      onClick={() => updateBloodDonationSettings({ wingLogoCrop: crop.id as any })}
+                                      className={`px-2.5 py-1.5 rounded-xl text-xs font-bold text-center border transition-all cursor-pointer ${
+                                        (bloodDonationSettings.wingLogoCrop || 'contain') === crop.id
+                                          ? 'bg-[#006A4E] text-white border-[#006A4E] shadow-2xs'
+                                          : 'bg-white text-slate-700 border-[#EAE3D9] hover:bg-slate-50'
+                                      }`}
+                                    >
+                                      {isBn ? crop.labelBn : crop.labelEn}
+                                    </button>
+                                  ))}
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -5785,9 +5883,14 @@ export const AdminPage: React.FC = () => {
                       {/* Hero Subtitle / Initiative Description */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-1.5">
-                          <label className="block text-xs font-bold text-slate-800">
-                            {isBn ? 'উদ্যোগ সাবটাইটেল / বিবরণ (ইংরেজি)' : 'Initiative Subtitle / Description (English)'}
-                          </label>
+                          <div className="flex items-center justify-between">
+                            <label className="block text-xs font-bold text-slate-800">
+                              {isBn ? 'উদ্যোগ বিবরণ / সাবটাইটেল (ইংরেজি) *' : 'Initiative Subtitle / Description (English) *'}
+                            </label>
+                            <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-medium">
+                              {isBn ? 'লোগোর নিচের লাইন' : 'Line below logo'}
+                            </span>
+                          </div>
                           <textarea
                             rows={3}
                             value={bloodDonationSettings.heroSubtitle?.en || ''}
@@ -5795,14 +5898,22 @@ export const AdminPage: React.FC = () => {
                               heroSubtitle: { ...bloodDonationSettings.heroSubtitle, en: e.target.value, bn: bloodDonationSettings.heroSubtitle?.bn || '' }
                             })}
                             placeholder="A blood donation initiative by Infinity Bangladesh"
-                            className="w-full px-3.5 py-2 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                            className="w-full px-3.5 py-2 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
                           />
+                          <p className="text-[11px] text-slate-500">
+                            {isBn ? 'উদাহরণ: A blood donation initiative by Infinity Bangladesh' : 'Example: A blood donation initiative by Infinity Bangladesh'}
+                          </p>
                         </div>
 
                         <div className="space-y-1.5">
-                          <label className="block text-xs font-bold text-slate-800">
-                            {isBn ? 'উদ্যোগ সাবটাইটেল / বিবরণ (বাংলা)' : 'Initiative Subtitle / Description (Bangla)'}
-                          </label>
+                          <div className="flex items-center justify-between">
+                            <label className="block text-xs font-bold text-slate-800">
+                              {isBn ? 'উদ্যোগ বিবরণ / সাবটাইটেল (বাংলা) *' : 'Initiative Subtitle / Description (Bangla) *'}
+                            </label>
+                            <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-medium">
+                              {isBn ? 'লোগোর নিচের লাইন' : 'Line below logo'}
+                            </span>
+                          </div>
                           <textarea
                             rows={3}
                             value={bloodDonationSettings.heroSubtitle?.bn || ''}
@@ -5810,8 +5921,11 @@ export const AdminPage: React.FC = () => {
                               heroSubtitle: { ...bloodDonationSettings.heroSubtitle, bn: e.target.value, en: bloodDonationSettings.heroSubtitle?.en || '' }
                             })}
                             placeholder="ইনফিনিটি বাংলাদেশ-এর একটি মানবিক রক্তদান উদ্যোগ"
-                            className="w-full px-3.5 py-2 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                            className="w-full px-3.5 py-2 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
                           />
+                          <p className="text-[11px] text-slate-500">
+                            {isBn ? 'উদাহরণ: ইনফিনিটি বাংলাদেশ-এর একটি মানবিক রক্তদান উদ্যোগ' : 'Example: ইনফিনিটি বাংলাদেশ-এর একটি মানবিক রক্তদান উদ্যোগ'}
+                          </p>
                         </div>
                       </div>
                     </div>

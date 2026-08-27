@@ -447,25 +447,33 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
               </div>
 
               {/* Sub-brand Main Logo (Infinity LifeLine SVG - Transparent on Dark) */}
-              <div className="pt-1">
-                <img
-                  src={getAssetUrl(bloodDonationSettings.wingLogoUrl || '/brand/Infinitylifeline-logo.svg')}
-                  alt="Infinity LifeLine - One Drop, Infinite Hope"
-                  style={{ maxWidth: `${bloodDonationSettings.wingLogoSize || 480}px` }}
-                  className="w-full h-auto object-contain mx-auto lg:mx-0 drop-shadow-md transition-all duration-200"
-                />
+              <div className="pt-1 flex items-center justify-center lg:justify-start">
+                <div
+                  className="transition-all duration-200"
+                  style={{
+                    width: `${bloodDonationSettings.wingLogoSize || 480}px`,
+                    maxWidth: '100%'
+                  }}
+                >
+                  <img
+                    src={getAssetUrl(bloodDonationSettings.wingLogoUrl || '/brand/Infinitylifeline-logo.svg')}
+                    alt="Infinity LifeLine - One Drop, Infinite Hope"
+                    style={{
+                      transform: `scale(${bloodDonationSettings.wingLogoZoom || 1})`,
+                      transformOrigin: 'left center',
+                      objectFit: bloodDonationSettings.wingLogoCrop || 'contain'
+                    }}
+                    className="w-full h-auto object-contain mx-auto lg:mx-0 drop-shadow-md transition-all duration-200"
+                  />
+                </div>
               </div>
 
-              {/* Subtitle: A blood donation initiative by Infinity Bangladesh */}
+              {/* Subtitle / Initiative Line (Fully editable from Admin) */}
               <p className="text-sm sm:text-base text-emerald-100/90 font-medium max-w-xl leading-relaxed">
-                {isBn ? (
-                  <span>
-                    {tText(bloodDonationSettings.heroSubtitle) || 'ইনফিনিটি বাংলাদেশ-এর একটি মানবিক রক্তদান উদ্যোগ'}
-                  </span>
-                ) : (
-                  <span>
-                    A blood donation initiative by <strong className="text-emerald-400 font-bold">Infinity Bangladesh</strong>
-                  </span>
+                {tText(bloodDonationSettings.heroSubtitle) || (
+                  isBn
+                    ? 'ইনফিনিটি বাংলাদেশ-এর একটি মানবিক রক্তদান উদ্যোগ'
+                    : 'A blood donation initiative by Infinity Bangladesh'
                 )}
               </p>
 

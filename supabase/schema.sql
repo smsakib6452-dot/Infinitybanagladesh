@@ -766,6 +766,8 @@ CREATE TABLE IF NOT EXISTS public.blood_donation_settings (
   id TEXT PRIMARY KEY DEFAULT 'default_blood_settings',
   wing_logo_url TEXT DEFAULT '/brand/Infinitylifeline-logo.svg',
   wing_logo_size INTEGER DEFAULT 480,
+  wing_logo_zoom NUMERIC DEFAULT 1.0,
+  wing_logo_crop TEXT DEFAULT 'contain',
   hero_badge JSONB NOT NULL DEFAULT '{"en": "Emergency Blood Donation & Coordination", "bn": "জরুরি রক্তদান ও সমন্বয় নেটওয়ার্ক"}'::jsonb,
   hero_title JSONB NOT NULL DEFAULT '{"en": "Blood Donation Network", "bn": "রক্তদান নেটওয়ার্ক"}'::jsonb,
   hero_subtitle JSONB NOT NULL DEFAULT '{"en": "A blood donation initiative by Infinity Bangladesh", "bn": "ইনফিনিটি বাংলাদেশ-এর একটি মানবিক রক্তদান উদ্যোগ"}'::jsonb,
@@ -795,6 +797,8 @@ CREATE TABLE IF NOT EXISTS public.blood_donation_settings (
 -- Ensure all new columns exist on existing table instances
 ALTER TABLE public.blood_donation_settings ADD COLUMN IF NOT EXISTS wing_logo_url TEXT DEFAULT '/brand/Infinitylifeline-logo.svg';
 ALTER TABLE public.blood_donation_settings ADD COLUMN IF NOT EXISTS wing_logo_size INTEGER DEFAULT 480;
+ALTER TABLE public.blood_donation_settings ADD COLUMN IF NOT EXISTS wing_logo_zoom NUMERIC DEFAULT 1.0;
+ALTER TABLE public.blood_donation_settings ADD COLUMN IF NOT EXISTS wing_logo_crop TEXT DEFAULT 'contain';
 ALTER TABLE public.blood_donation_settings ADD COLUMN IF NOT EXISTS hero_badge JSONB DEFAULT '{"en": "An Initiative by Infinity Bangladesh", "bn": "ইনফিনিটি বাংলাদেশ-এর একটি মানবিক উদ্যোগ"}'::jsonb;
 ALTER TABLE public.blood_donation_settings ADD COLUMN IF NOT EXISTS hero_cta_badge JSONB DEFAULT '{"en": "JOIN THE CAUSE", "bn": "মানবতার আহ্বান"}'::jsonb;
 ALTER TABLE public.blood_donation_settings ADD COLUMN IF NOT EXISTS hero_cta_title JSONB DEFAULT '{"en": "Be a Donor, Be a Hero", "bn": "রক্তদাতা হোন, জীবন বাঁচান"}'::jsonb;

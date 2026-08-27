@@ -48,46 +48,67 @@ export {
 
 export const DEFAULT_EXECUTIVE_TIER_BARS: ExecutiveTierBar[] = [
   {
-    id: 'presidential',
-    title: { en: 'Presidential Leadership', bn: 'সভাপতি পরিষদ' },
-    visible: true,
-    rangeLabel: 'Member #01'
+    "id": "presidential",
+    "title": {
+      "en": "Presidential Leadership",
+      "bn": "সভাপতি পরিষদ"
+    },
+    "visible": true,
+    "rangeLabel": "Member #01"
   },
   {
-    id: 'vicePresidential',
-    title: { en: 'Vice Presidential Leadership', bn: 'সহ-সভাপতি পরিষদ' },
-    visible: true,
-    rangeLabel: 'Members #02–#04'
+    "id": "vicePresidential",
+    "title": {
+      "en": "Vice Presidential Leadership",
+      "bn": "সহ-সভাপতি পরিষদ"
+    },
+    "visible": true,
+    "rangeLabel": "Members #02–#04"
   },
   {
-    id: 'secretariat',
-    title: { en: 'Secretariat Leadership', bn: 'সাধারণ সম্পাদক' },
-    visible: true,
-    rangeLabel: 'Member #05'
+    "id": "secretariat",
+    "title": {
+      "en": "Secretariat Leadership",
+      "bn": "সাধারণ সম্পাদক"
+    },
+    "visible": true,
+    "rangeLabel": "Member #05"
   },
   {
-    id: 'jointSecretariat',
-    title: { en: 'Joint General Secretariat', bn: 'যুগ্ম সাধারণ সম্পাদক পরিষদ' },
-    visible: false,
-    rangeLabel: 'Members #06–#10'
+    "id": "jointSecretariat",
+    "title": {
+      "en": "Joint General Secretariat",
+      "bn": "যুগ্ম সাধারণ সম্পাদক পরিষদ"
+    },
+    "visible": false,
+    "rangeLabel": "Members #06–#10"
   },
   {
-    id: 'organizingFinance',
-    title: { en: 'Other Executive Committee Members', bn: 'অন্যান্য কার্যনির্বাহী কমিটির সদস্যবৃন্দ' },
-    visible: true,
-    rangeLabel: 'Members #11–#16'
+    "id": "organizingFinance",
+    "title": {
+      "en": "Other Executive Committee Members",
+      "bn": "অন্যান্য কার্যনির্বাহী কমিটির সদস্যবৃন্দ"
+    },
+    "visible": true,
+    "rangeLabel": "Members #11–#16"
   },
   {
-    id: 'publicityMediaIt',
-    title: { en: 'Publicity, Media & IT Secretariat', bn: 'প্রচার, তথ্য ও প্রযুক্তি বিভাগ' },
-    visible: false,
-    rangeLabel: 'Members #17–#22'
+    "id": "publicityMediaIt",
+    "title": {
+      "en": "Publicity, Media & IT Secretariat",
+      "bn": "প্রচার, তথ্য ও প্রযুক্তি বিভাগ"
+    },
+    "visible": false,
+    "rangeLabel": "Members #17–#22"
   },
   {
-    id: 'departmentalExecutive',
-    title: { en: 'Other Executive Committee Members', bn: 'অন্যান্য কার্যনির্বাহী কমিটির সদস্যবৃন্দ' },
-    visible: false,
-    rangeLabel: 'Members #23+'
+    "id": "departmentalExecutive",
+    "title": {
+      "en": "Other Executive Committee Members",
+      "bn": "অন্যান্য কার্যনির্বাহী কমিটির সদস্যবৃন্দ"
+    },
+    "visible": false,
+    "rangeLabel": "Members #23+"
   }
 ];
 
@@ -130,7 +151,71 @@ export const INITIAL_SITE_SETTINGS: SiteSettings = {
   },
   "showAnnouncementBanner": true,
   "registrationNumber": "Hathazari, Chattogram • Established 2015",
-  "executiveTierBars": DEFAULT_EXECUTIVE_TIER_BARS
+  "executiveTierBars": [
+    {
+      "id": "presidential",
+      "title": {
+        "en": "Presidential Leadership",
+        "bn": "সভাপতি পরিষদ"
+      },
+      "visible": true,
+      "rangeLabel": "Member #01"
+    },
+    {
+      "id": "vicePresidential",
+      "title": {
+        "en": "Vice Presidential Leadership",
+        "bn": "সহ-সভাপতি পরিষদ"
+      },
+      "visible": true,
+      "rangeLabel": "Members #02–#04"
+    },
+    {
+      "id": "secretariat",
+      "title": {
+        "en": "Secretariat Leadership",
+        "bn": "সাধারণ সম্পাদক"
+      },
+      "visible": true,
+      "rangeLabel": "Member #05"
+    },
+    {
+      "id": "jointSecretariat",
+      "title": {
+        "en": "Joint General Secretariat",
+        "bn": "যুগ্ম সাধারণ সম্পাদক পরিষদ"
+      },
+      "visible": false,
+      "rangeLabel": "Members #06–#10"
+    },
+    {
+      "id": "organizingFinance",
+      "title": {
+        "en": "Other Executive Committee Members",
+        "bn": "অন্যান্য কার্যনির্বাহী কমিটির সদস্যবৃন্দ"
+      },
+      "visible": true,
+      "rangeLabel": "Members #11–#16"
+    },
+    {
+      "id": "publicityMediaIt",
+      "title": {
+        "en": "Publicity, Media & IT Secretariat",
+        "bn": "প্রচার, তথ্য ও প্রযুক্তি বিভাগ"
+      },
+      "visible": false,
+      "rangeLabel": "Members #17–#22"
+    },
+    {
+      "id": "departmentalExecutive",
+      "title": {
+        "en": "Other Executive Committee Members",
+        "bn": "অন্যান্য কার্যনির্বাহী কমিটির সদস্যবৃন্দ"
+      },
+      "visible": false,
+      "rangeLabel": "Members #23+"
+    }
+  ]
 };
 
 export const INITIAL_HOMEPAGE_CONFIG: HomepageConfig = {
@@ -326,8 +411,8 @@ export const INITIAL_ABOUT_SETTINGS: AboutSettings = {
     "en": "A compassionate society where every underprivileged individual receives dignity, nourishment, warmth, and educational opportunity without discrimination."
   },
   "history": {
-    "bn": "২০১৫ সালে চট্টগ্রামের হাটহাজারীতে একদল নিবেদিতপ্রাণ তরুণ শিক্ষার্থীদের উদ্যোগে যাত্রা শুরু করে ইনফিনিটি বাংলাদেশ। বিগত এক দশকে এটি ৩৫০+ নিবেদিতপ্রাণ স্বেচ্ছাসেবকের এক সুসংগঠিত পরিবারে পরিণত হয়েছে।",
-    "en": "Infinity Bangladesh began its humble journey in Hathazari, Chattogram in 2015 when a small circle of passionate students united to share festival joy with street children. Over the past decade, it has evolved into a disciplined, ethical youth network with 350+ volunteers serving tens of thousands of beneficiaries."
+    "bn": "২০১৫ সালে চট্টগ্রামের হাটহাজারীতে একদল নিবেদিতপ্রাণ তরুণ শিক্ষার্থীদের উদ্যোগে যাত্রা শুরু করে ইনফিনিটি বাংলাদেশ। বিগত এক দশকে এটি ২০০+ নিবেদিতপ্রাণ স্বেচ্ছাসেবকের এক সুসংগঠিত পরিবারে পরিণত হয়েছে।",
+    "en": "Infinity Bangladesh began its humble journey in Hathazari, Chattogram in 2015 when a small circle of passionate students united to share festival joy with street children. Over the past decade, it has evolved into a disciplined, ethical youth network with 200+ volunteers serving tens of thousands of beneficiaries."
   },
   "establishedYear": "2015",
   "location": "Hathazari, Chattogram, Bangladesh",
@@ -337,7 +422,8 @@ export const INITIAL_ABOUT_SETTINGS: AboutSettings = {
     "en": "Join Our Volunteer Mission",
     "bn": "আমাদের স্বেচ্ছাসেবী অভিযানে যোগ দিন"
   },
-  "ctaUrl": "volunteer"
+  "ctaUrl": "volunteer",
+  "journeyVideoArchiveEnabled": true
 };
 
 export const INITIAL_HEADER_SETTINGS: HeaderSettings = {
@@ -831,7 +917,7 @@ export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
     "category": "Events",
     "altText": "C-Plus TV তে সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৫ (২০১৯)",
     "caption": "",
-    "uploadedAt": "2026-08-26T14:50:03.96+00:00",
+    "uploadedAt": "2026-08-27T15:15:49.346+00:00",
     "usageTags": [
       "External Media URL"
     ]
@@ -845,7 +931,7 @@ export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
     "category": "General",
     "altText": "Hathazari Darpan এ সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৬ (২০২১)",
     "caption": "",
-    "uploadedAt": "2026-08-26T14:50:04.144+00:00",
+    "uploadedAt": "2026-08-27T15:15:49.539+00:00",
     "usageTags": [
       "External Media URL"
     ]
@@ -859,7 +945,7 @@ export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
     "category": "Events",
     "altText": "সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-১১ (২০২৬)",
     "caption": "",
-    "uploadedAt": "2026-08-26T14:50:04.313+00:00",
+    "uploadedAt": "2026-08-27T15:15:49.711+00:00",
     "usageTags": [
       "External Media URL"
     ]
@@ -870,10 +956,10 @@ export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
     "url": "https://youtu.be/cg8zkgv_EAs?si=bpNgowCaAQ6yCPE7",
     "fileSize": "External Stream",
     "mimeType": "video/embed",
-    "category": "Campaigns",
+    "category": "Relief Campaigns",
     "altText": "Hathazari Darpan এ সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৬ (২০২১)",
     "caption": "Team Infinity official field drive video footage.",
-    "uploadedAt": "2026-08-26T14:50:04.495+00:00",
+    "uploadedAt": "2026-08-27T15:15:49.884+00:00",
     "usageTags": [
       "Video Gallery",
       "Field Footage"
@@ -888,7 +974,7 @@ export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
     "category": "Volunteers",
     "altText": "Standing Committee Official Declaration Poster",
     "caption": "Official roster of 9 standing committee members",
-    "uploadedAt": "2026-08-26T14:50:04.666+00:00",
+    "uploadedAt": "2026-08-27T15:15:50.048+00:00",
     "usageTags": [
       "Standing Committee Page"
     ]
@@ -902,7 +988,7 @@ export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
     "category": "Volunteers",
     "altText": "Executive Committee 2026 Official Declaration Poster",
     "caption": "Official roster of 27 executive leaders",
-    "uploadedAt": "2026-08-26T14:50:04.834+00:00",
+    "uploadedAt": "2026-08-27T15:15:50.216+00:00",
     "usageTags": [
       "Executive Committee Page"
     ]
@@ -916,7 +1002,7 @@ export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
     "category": "Events",
     "altText": "Team Infinity Volunteers during Winter Blanket Distribution",
     "caption": "Direct ground-level delivery to cold-affected communities",
-    "uploadedAt": "2026-08-26T14:50:05.002+00:00",
+    "uploadedAt": "2026-08-27T15:15:50.383+00:00",
     "usageTags": [
       "About Section Preview",
       "Winter Relief Campaign"
@@ -931,7 +1017,7 @@ export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
     "category": "Logos",
     "altText": "Infinity Bangladesh Official Authoritative Logo",
     "caption": "United for Humanity Brand Mark with Infinity Wings",
-    "uploadedAt": "2026-08-26T14:50:05.177+00:00",
+    "uploadedAt": "2026-08-27T15:15:50.567+00:00",
     "usageTags": [
       "Header Logo",
       "Footer Logo",
@@ -947,7 +1033,7 @@ export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
     "category": "Hero",
     "altText": "Infinity Bangladesh Official Group Photo with Children in Hathazari",
     "caption": "Official Team Infinity Field Gathering with Eid Joy Banner",
-    "uploadedAt": "2026-08-26T14:50:05.346+00:00",
+    "uploadedAt": "2026-08-27T15:15:50.746+00:00",
     "usageTags": [
       "Homepage Hero",
       "About Hero"
@@ -2032,6 +2118,59 @@ export const INITIAL_VIDEOS: VideoItem[] = [
     "isShorts": false,
     "createdAt": "2026-08-24T05:19:38.49+00:00",
     "updatedAt": "2026-08-24T05:20:53.352+00:00"
+  }
+];
+
+export const INITIAL_JOURNEY_VIDEOS: JourneyVideo[] = [
+  {
+    "id": "jvid-2015-2019",
+    "title": {
+      "bn": "ইনফিনিটি বাংলাদেশ পরিক্রমা",
+      "en": "Infinity Bangladesh Journey"
+    },
+    "timelineLabel": {
+      "bn": "২০১৫–২০১৯",
+      "en": "2015–2019"
+    },
+    "description": {
+      "bn": "আমাদের সূচনা পর্ব, প্রাথমিক মানবিক কার্যক্রম ও অনুপ্রেরণার গল্প।",
+      "en": "Our early journey, beginnings, and humanitarian activities."
+    },
+    "category": "Organizational Journey",
+    "videoUrl": "https://www.facebook.com/reel/2180583382747395",
+    "videoPlatform": "facebook",
+    "embedUrl": "https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Freel%2F2180583382747395&show_text=false&width=1280&allowfullscreen=true",
+    "thumbnailUrl": "https://res.cloudinary.com/evj6fhsf/image/upload/v1787806819/Screenshot_2026-08-27_105905.png",
+    "displayOrder": 1,
+    "isPublished": true,
+    "isFeatured": true,
+    "createdAt": "2026-01-01T00:00:00+00:00",
+    "updatedAt": "2026-08-27T15:15:52.268+00:00"
+  },
+  {
+    "id": "jvid-2019-2025",
+    "title": {
+      "bn": "ইনফিনিটি বাংলাদেশ পরিক্রমা",
+      "en": "Infinity Bangladesh Journey"
+    },
+    "timelineLabel": {
+      "bn": "২০১৯–২০২৫",
+      "en": "2019–2025"
+    },
+    "description": {
+      "bn": "অগ্রযাত্রার দশক, বহুমুখী সেবা কর্মসূচি ও সমন্বিত মানবিক প্রচেষ্টা।",
+      "en": "Our continued growth, humanitarian activities, and journey over the years."
+    },
+    "category": "Organizational Journey",
+    "videoUrl": "https://www.facebook.com/reel/1606255444034690",
+    "videoPlatform": "facebook",
+    "embedUrl": "https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Freel%2F1606255444034690&show_text=false&width=1280&allowfullscreen=true",
+    "thumbnailUrl": "https://res.cloudinary.com/evj6fhsf/image/upload/v1787807091/Screenshot_2026-08-27_110433.png",
+    "displayOrder": 2,
+    "isPublished": true,
+    "isFeatured": false,
+    "createdAt": "2026-01-02T00:00:00+00:00",
+    "updatedAt": "2026-08-27T15:15:52.456+00:00"
   }
 ];
 
@@ -3442,8 +3581,8 @@ export const INITIAL_POSITIONS: Position[] = [
 
 export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
   {
-    "id": "cm-1",
-    "committeeId": "comm-exec-2026",
+    "id": "cm-past-24-1",
+    "committeeId": "comm-exec-2024",
     "personId": "person-1",
     "positionId": "pos-1",
     "serialNumber": 1,
@@ -3451,7 +3590,7 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "isFeaturedLeader": true,
     "startDate": "",
     "endDate": "",
-    "status": "ACTIVE"
+    "status": "ARCHIVED"
   },
   {
     "id": "cm-sc-1",
@@ -3466,8 +3605,8 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "status": "ACTIVE"
   },
   {
-    "id": "cm-past-24-1",
-    "committeeId": "comm-exec-2024",
+    "id": "cm-1",
+    "committeeId": "comm-exec-2026",
     "personId": "person-1",
     "positionId": "pos-1",
     "serialNumber": 1,
@@ -3475,13 +3614,13 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "isFeaturedLeader": true,
     "startDate": "",
     "endDate": "",
-    "status": "ARCHIVED"
+    "status": "ACTIVE"
   },
   {
-    "id": "cm-sc-2",
-    "committeeId": "comm-stand-central",
-    "personId": "person-sc-2",
-    "positionId": "pos-vice-chairman",
+    "id": "cm-2",
+    "committeeId": "comm-exec-2026",
+    "personId": "person-2",
+    "positionId": "pos-2",
     "serialNumber": 2,
     "sortOrder": 2,
     "isFeaturedLeader": true,
@@ -3502,12 +3641,24 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "status": "ARCHIVED"
   },
   {
-    "id": "cm-2",
-    "committeeId": "comm-exec-2026",
-    "personId": "person-2",
-    "positionId": "pos-2",
+    "id": "cm-sc-2",
+    "committeeId": "comm-stand-central",
+    "personId": "person-sc-2",
+    "positionId": "pos-vice-chairman",
     "serialNumber": 2,
     "sortOrder": 2,
+    "isFeaturedLeader": true,
+    "startDate": "",
+    "endDate": "",
+    "status": "ACTIVE"
+  },
+  {
+    "id": "cm-sc-3",
+    "committeeId": "comm-stand-central",
+    "personId": "person-sc-3",
+    "positionId": "pos-vice-chairman",
+    "serialNumber": 3,
+    "sortOrder": 3,
     "isFeaturedLeader": true,
     "startDate": "",
     "endDate": "",
@@ -3526,18 +3677,6 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "status": "ARCHIVED"
   },
   {
-    "id": "cm-sc-3",
-    "committeeId": "comm-stand-central",
-    "personId": "person-sc-3",
-    "positionId": "pos-vice-chairman",
-    "serialNumber": 3,
-    "sortOrder": 3,
-    "isFeaturedLeader": true,
-    "startDate": "",
-    "endDate": "",
-    "status": "ACTIVE"
-  },
-  {
     "id": "cm-3",
     "committeeId": "comm-exec-2026",
     "personId": "person-3",
@@ -3548,54 +3687,6 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "startDate": "",
     "endDate": "",
     "status": "ACTIVE"
-  },
-  {
-    "id": "cm-sc-4",
-    "committeeId": "comm-stand-central",
-    "personId": "person-sc-4",
-    "positionId": "pos-member",
-    "serialNumber": 4,
-    "sortOrder": 4,
-    "isFeaturedLeader": false,
-    "startDate": "",
-    "endDate": "",
-    "status": "ACTIVE"
-  },
-  {
-    "id": "cm-past-25-4",
-    "committeeId": "comm-exec-2025",
-    "personId": "person-5",
-    "positionId": "pos-4",
-    "serialNumber": 4,
-    "sortOrder": 4,
-    "isFeaturedLeader": false,
-    "startDate": "",
-    "endDate": "",
-    "status": "ARCHIVED"
-  },
-  {
-    "id": "cm-past-23-4",
-    "committeeId": "comm-exec-2023",
-    "personId": "person-12",
-    "positionId": "pos-7",
-    "serialNumber": 4,
-    "sortOrder": 4,
-    "isFeaturedLeader": false,
-    "startDate": "",
-    "endDate": "",
-    "status": "ARCHIVED"
-  },
-  {
-    "id": "cm-past-24-4",
-    "committeeId": "comm-exec-2024",
-    "personId": "person-8",
-    "positionId": "pos-8",
-    "serialNumber": 4,
-    "sortOrder": 4,
-    "isFeaturedLeader": false,
-    "startDate": "",
-    "endDate": "",
-    "status": "ARCHIVED"
   },
   {
     "id": "cm-4",
@@ -3610,16 +3701,52 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "status": "ACTIVE"
   },
   {
-    "id": "cm-5",
-    "committeeId": "comm-exec-2026",
-    "personId": "person-5",
-    "positionId": "pos-4",
-    "serialNumber": 5,
-    "sortOrder": 5,
-    "isFeaturedLeader": true,
+    "id": "cm-past-24-4",
+    "committeeId": "comm-exec-2024",
+    "personId": "person-8",
+    "positionId": "pos-8",
+    "serialNumber": 4,
+    "sortOrder": 4,
+    "isFeaturedLeader": false,
+    "startDate": "",
+    "endDate": "",
+    "status": "ARCHIVED"
+  },
+  {
+    "id": "cm-sc-4",
+    "committeeId": "comm-stand-central",
+    "personId": "person-sc-4",
+    "positionId": "pos-member",
+    "serialNumber": 4,
+    "sortOrder": 4,
+    "isFeaturedLeader": false,
     "startDate": "",
     "endDate": "",
     "status": "ACTIVE"
+  },
+  {
+    "id": "cm-past-23-4",
+    "committeeId": "comm-exec-2023",
+    "personId": "person-12",
+    "positionId": "pos-7",
+    "serialNumber": 4,
+    "sortOrder": 4,
+    "isFeaturedLeader": false,
+    "startDate": "",
+    "endDate": "",
+    "status": "ARCHIVED"
+  },
+  {
+    "id": "cm-past-25-4",
+    "committeeId": "comm-exec-2025",
+    "personId": "person-5",
+    "positionId": "pos-4",
+    "serialNumber": 4,
+    "sortOrder": 4,
+    "isFeaturedLeader": false,
+    "startDate": "",
+    "endDate": "",
+    "status": "ARCHIVED"
   },
   {
     "id": "cm-sc-5",
@@ -3629,6 +3756,18 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "serialNumber": 5,
     "sortOrder": 5,
     "isFeaturedLeader": false,
+    "startDate": "",
+    "endDate": "",
+    "status": "ACTIVE"
+  },
+  {
+    "id": "cm-5",
+    "committeeId": "comm-exec-2026",
+    "personId": "person-5",
+    "positionId": "pos-4",
+    "serialNumber": 5,
+    "sortOrder": 5,
+    "isFeaturedLeader": true,
     "startDate": "",
     "endDate": "",
     "status": "ACTIVE"
@@ -3682,18 +3821,6 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "status": "ACTIVE"
   },
   {
-    "id": "cm-sc-8",
-    "committeeId": "comm-stand-central",
-    "personId": "person-sc-8",
-    "positionId": "pos-member",
-    "serialNumber": 8,
-    "sortOrder": 8,
-    "isFeaturedLeader": false,
-    "startDate": "",
-    "endDate": "",
-    "status": "ACTIVE"
-  },
-  {
     "id": "cm-8",
     "committeeId": "comm-exec-2026",
     "personId": "person-8",
@@ -3706,12 +3833,12 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "status": "ACTIVE"
   },
   {
-    "id": "cm-sc-9",
+    "id": "cm-sc-8",
     "committeeId": "comm-stand-central",
-    "personId": "person-sc-9",
+    "personId": "person-sc-8",
     "positionId": "pos-member",
-    "serialNumber": 9,
-    "sortOrder": 9,
+    "serialNumber": 8,
+    "sortOrder": 8,
     "isFeaturedLeader": false,
     "startDate": "",
     "endDate": "",
@@ -3722,6 +3849,18 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "committeeId": "comm-exec-2026",
     "personId": "person-9",
     "positionId": "pos-5",
+    "serialNumber": 9,
+    "sortOrder": 9,
+    "isFeaturedLeader": false,
+    "startDate": "",
+    "endDate": "",
+    "status": "ACTIVE"
+  },
+  {
+    "id": "cm-sc-9",
+    "committeeId": "comm-stand-central",
+    "personId": "person-sc-9",
+    "positionId": "pos-member",
     "serialNumber": 9,
     "sortOrder": 9,
     "isFeaturedLeader": false,
@@ -3946,57 +4085,3 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "status": "ACTIVE"
   }
 ];
-
-export const INITIAL_JOURNEY_VIDEOS: JourneyVideo[] = [
-  {
-    id: "jvid-2015-2019",
-    title: {
-      en: "Infinity Bangladesh Journey",
-      bn: "ইনফিনিটি বাংলাদেশ পরিক্রমা"
-    },
-    timelineLabel: {
-      en: "2015–2019",
-      bn: "২০১৫–২০১৯"
-    },
-    description: {
-      en: "Our early journey, beginnings, and humanitarian activities.",
-      bn: "আমাদের সূচনা পর্ব, প্রাথমিক মানবিক কার্যক্রম ও অনুপ্রেরণার গল্প।"
-    },
-    category: "Organizational Journey",
-    videoUrl: "https://www.facebook.com/reel/2180583382747395",
-    videoPlatform: "facebook",
-    embedUrl: "https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Freel%2F2180583382747395&show_text=false&width=1280&allowfullscreen=true",
-    thumbnailUrl: "https://res.cloudinary.com/evj6fhsf/image/upload/v1787806819/Screenshot_2026-08-27_105905.png",
-    displayOrder: 1,
-    isPublished: true,
-    isFeatured: true,
-    createdAt: "2026-01-01T00:00:00.000Z",
-    updatedAt: "2026-08-27T05:01:22.545Z"
-  },
-  {
-    id: "jvid-2019-2025",
-    title: {
-      en: "Infinity Bangladesh Journey",
-      bn: "ইনফিনিটি বাংলাদেশ পরিক্রমা"
-    },
-    timelineLabel: {
-      en: "2019–2025",
-      bn: "২০১৯–২০২৫"
-    },
-    description: {
-      en: "Our continued growth, humanitarian activities, and journey over the years.",
-      bn: "অগ্রযাত্রার দশক, বহুমুখী সেবা কর্মসূচি ও সমন্বিত মানবিক প্রচেষ্টা।"
-    },
-    category: "Organizational Journey",
-    videoUrl: "https://www.facebook.com/reel/1606255444034690",
-    videoPlatform: "facebook",
-    embedUrl: "https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Freel%2F1606255444034690&show_text=false&width=1280&allowfullscreen=true",
-    thumbnailUrl: "https://res.cloudinary.com/evj6fhsf/image/upload/v1787807091/Screenshot_2026-08-27_110433.png",
-    displayOrder: 2,
-    isPublished: true,
-    isFeatured: false,
-    createdAt: "2026-01-02T00:00:00.000Z",
-    updatedAt: "2026-08-27T05:05:37.196Z"
-  }
-];
-

@@ -764,13 +764,14 @@ CREATE INDEX IF NOT EXISTS idx_emergency_requests_status ON public.emergency_blo
 -- 4. Blood Donation Settings
 CREATE TABLE IF NOT EXISTS public.blood_donation_settings (
   id TEXT PRIMARY KEY DEFAULT 'default_blood_settings',
-  wing_logo_url TEXT DEFAULT '/brand/Infinitylifeline-logo.png',
-  hero_badge JSONB NOT NULL DEFAULT '{"en": "An Initiative by Infinity Bangladesh", "bn": "ইনফিনিটি বাংলাদেশ-এর একটি মানবিক উদ্যোগ"}'::jsonb,
+  wing_logo_url TEXT DEFAULT '/brand/Infinitylifeline-logo.svg',
+  wing_logo_size INTEGER DEFAULT 480,
+  hero_badge JSONB NOT NULL DEFAULT '{"en": "Emergency Blood Donation & Coordination", "bn": "জরুরি রক্তদান ও সমন্বয় নেটওয়ার্ক"}'::jsonb,
   hero_title JSONB NOT NULL DEFAULT '{"en": "Blood Donation Network", "bn": "রক্তদান নেটওয়ার্ক"}'::jsonb,
-  hero_subtitle JSONB NOT NULL DEFAULT '{"en": "Connecting voluntary blood donors across Bangladesh to serve emergency patients with speed, verified trust, and compassion.", "bn": "জরুরি রোগীদের পাশে দ্রুত, বিশ্বস্ত ও মানবিক সহায়তায় সারা বাংলাদেশের স্বেচ্ছাসেবী রক্তদাতাদের মেলবন্ধন।"}'::jsonb,
+  hero_subtitle JSONB NOT NULL DEFAULT '{"en": "A blood donation initiative by Infinity Bangladesh", "bn": "ইনফিনিটি বাংলাদেশ-এর একটি মানবিক রক্তদান উদ্যোগ"}'::jsonb,
   hero_cta_badge JSONB NOT NULL DEFAULT '{"en": "JOIN THE CAUSE", "bn": "মানবতার আহ্বান"}'::jsonb,
-  hero_cta_title JSONB NOT NULL DEFAULT '{"en": "Be a Lifesaver", "bn": "জীবন বাঁচাতে এগিয়ে আসুন"}'::jsonb,
-  hero_cta_description JSONB NOT NULL DEFAULT '{"en": "Every drop counts. Register as a voluntary blood donor with Infinity LifeLine and become someone’s lifeline in moments of crisis.", "bn": "আপনার এক ব্যাগ রক্ত বাঁচাতে পারে একটি মূল্যবান প্রাণ। ইনফিনিটি লাইফলাইন নেটওয়ার্কে রক্তদাতা হিসেবে যুক্ত হতে এখনই রেজিস্ট্রেশন করুন।"}'::jsonb,
+  hero_cta_title JSONB NOT NULL DEFAULT '{"en": "Be a Donor, Be a Hero", "bn": "রক্তদাতা হোন, জীবন বাঁচান"}'::jsonb,
+  hero_cta_description JSONB NOT NULL DEFAULT '{"en": "Every drop counts. Register as a voluntary blood donor with Team Infinity and become someone’s lifeline in moments of crisis.", "bn": "আপনার এক ব্যাগ রক্ত বাঁচাতে পারে একটি মূল্যবান প্রাণ। টিম ইনফিনিটির সাথে রক্তদাতা হিসেবে যুক্ত হতে এখনই রেজিস্ট্রেশন করুন।"}'::jsonb,
   hero_cta_btn1_text JSONB NOT NULL DEFAULT '{"en": "Become a Donor", "bn": "রক্তদাতা হতে রেজিস্ট্রেশন করুন"}'::jsonb,
   hero_cta_btn2_text JSONB NOT NULL DEFAULT '{"en": "Emergency Blood Request", "bn": "জরুরি রক্তের আবেদন করুন"}'::jsonb,
   stat_total_donors_label JSONB NOT NULL DEFAULT '{"en": "Total Donors", "bn": "নিবন্ধিত রক্তদাতা"}'::jsonb,
@@ -792,7 +793,8 @@ CREATE TABLE IF NOT EXISTS public.blood_donation_settings (
 );
 
 -- Ensure all new columns exist on existing table instances
-ALTER TABLE public.blood_donation_settings ADD COLUMN IF NOT EXISTS wing_logo_url TEXT DEFAULT '/brand/Infinitylifeline-logo.png';
+ALTER TABLE public.blood_donation_settings ADD COLUMN IF NOT EXISTS wing_logo_url TEXT DEFAULT '/brand/Infinitylifeline-logo.svg';
+ALTER TABLE public.blood_donation_settings ADD COLUMN IF NOT EXISTS wing_logo_size INTEGER DEFAULT 480;
 ALTER TABLE public.blood_donation_settings ADD COLUMN IF NOT EXISTS hero_badge JSONB DEFAULT '{"en": "An Initiative by Infinity Bangladesh", "bn": "ইনফিনিটি বাংলাদেশ-এর একটি মানবিক উদ্যোগ"}'::jsonb;
 ALTER TABLE public.blood_donation_settings ADD COLUMN IF NOT EXISTS hero_cta_badge JSONB DEFAULT '{"en": "JOIN THE CAUSE", "bn": "মানবতার আহ্বান"}'::jsonb;
 ALTER TABLE public.blood_donation_settings ADD COLUMN IF NOT EXISTS hero_cta_title JSONB DEFAULT '{"en": "Be a Donor, Be a Hero", "bn": "রক্তদাতা হোন, জীবন বাঁচান"}'::jsonb;

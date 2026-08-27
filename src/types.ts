@@ -959,6 +959,7 @@ export interface EmergencyBloodRequest {
 
 export interface BloodDonationSettings {
   wingLogoUrl?: string;
+  wingLogoSize?: number;
   heroBadge?: BilingualText;
   heroTitle: BilingualText;
   heroSubtitle: BilingualText;

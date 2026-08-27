@@ -451,7 +451,8 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                 <img
                   src={getAssetUrl(bloodDonationSettings.wingLogoUrl || '/brand/Infinitylifeline-logo.svg')}
                   alt="Infinity LifeLine - One Drop, Infinite Hope"
-                  className="w-full max-w-[440px] sm:max-w-[500px] h-auto object-contain mx-auto lg:mx-0 drop-shadow-md"
+                  style={{ maxWidth: `${bloodDonationSettings.wingLogoSize || 480}px` }}
+                  className="w-full h-auto object-contain mx-auto lg:mx-0 drop-shadow-md transition-all duration-200"
                 />
               </div>
 

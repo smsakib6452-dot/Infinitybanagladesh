@@ -5597,61 +5597,159 @@ export const AdminPage: React.FC = () => {
                 {bloodSubTab === 'settings' && (
                   <div className="space-y-6">
                     {/* 1. Hero Content & Heading Configuration */}
-                    <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-5 shadow-warm-sm">
+                    <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
                       <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
                         <div>
                           <h3 className="text-base sm:text-lg font-extrabold text-slate-900 font-display flex items-center gap-2">
                             <Sparkles className="w-5 h-5 text-[#006A4E]" />
-                            <span>{isBn ? '১. হিরো সেকশন ও প্রধান ব্যানার কনফিগারেশন' : '1. Hero Section & Main Banner Settings'}</span>
+                            <span>{isBn ? '১. হিরো সেকশন ও লোগো কনফিগারেশন' : '1. Hero Section & Sub-brand Logo Settings'}</span>
                           </h3>
                           <p className="text-xs text-slate-500 mt-0.5">
-                            {isBn ? 'রক্তদান পেজের শীর্ষ ব্যানার, ব্যাজ ও শিরোনাম কাস্টমাইজ করুন।' : 'Customize the top hero banner title, subtitle, and badge.'}
+                            {isBn ? 'রক্তদান সেকশনের লোগো, সাইজ, ক্লাউডিনারি লিংক, ব্যাজ ও সাবটাইটেল কাস্টমাইজ করুন।' : 'Customize the sub-brand logo, logo size, Cloudinary/upload URL, top badge, and initiative subtitle.'}
                           </p>
                         </div>
                       </div>
 
-                      {/* Wing Logo Configuration */}
-                      <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-3">
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                      {/* Wing Logo & Size Configuration */}
+                      <div className="p-5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-5">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-[#EAE3D9] pb-3">
                           <div>
-                            <label className="block text-xs font-bold text-slate-800">
-                              {isBn ? 'ইনফিনিটি লাইফলাইন উইং লোগো (Infinity LifeLine Logo)' : 'Infinity LifeLine Sub-brand Logo'}
+                            <label className="block text-xs font-extrabold text-slate-800 flex items-center gap-2">
+                              <ImageIcon className="w-4 h-4 text-[#006A4E]" />
+                              <span>{isBn ? 'ইনফিনিটি লাইফলাইন লোগো (Infinity LifeLine Logo)' : 'Infinity LifeLine Sub-brand Logo'}</span>
                             </label>
-                            <p className="text-[11px] text-slate-500">
-                              {isBn ? 'রক্তদান সেকশনের অফিশিয়াল সাব-ব্র্যান্ড লোগো (PNG বা SVG)' : 'Official sub-brand logo displayed in the blood donation portal'}
+                            <p className="text-[11px] text-slate-500 mt-0.5">
+                              {isBn ? 'Cloudinary URL, ইমেজ লিঙ্ক বা সরাসরি কম্পিউটার থেকে যেকোনো SVG/PNG আপলোড করুন।' : 'Upload from device, paste a Cloudinary URL, or use local SVG/PNG.'}
                             </p>
                           </div>
                           <button
                             type="button"
-                            onClick={() => updateBloodDonationSettings({ wingLogoUrl: '/brand/Infinitylifeline-logo.svg' })}
-                            className="text-[11px] font-bold text-[#006A4E] hover:underline cursor-pointer"
+                            onClick={() => updateBloodDonationSettings({ wingLogoUrl: '/brand/Infinitylifeline-logo.svg', wingLogoSize: 480 })}
+                            className="text-xs font-bold text-[#006A4E] hover:underline cursor-pointer flex items-center gap-1.5"
                           >
-                            {isBn ? 'ডিফল্ট লোগো রিসেট করুন' : 'Reset to Default Logo'}
+                            <Sparkles className="w-3.5 h-3.5" />
+                            <span>{isBn ? 'অফিসিয়াল SVG রিসেট করুন' : 'Reset to Official SVG'}</span>
                           </button>
                         </div>
 
-                        <div className="flex flex-col sm:flex-row items-center gap-4">
-                          <div className="w-36 h-16 rounded-xl bg-slate-900 border border-slate-700 p-2 flex items-center justify-center shrink-0 shadow-2xs">
-                            <img
-                              src={getAssetUrl(bloodDonationSettings.wingLogoUrl || '/brand/Infinitylifeline-logo.svg')}
-                              alt="Infinity LifeLine Logo Preview"
-                              className="w-full h-full object-contain"
-                            />
+                        {/* Logo Upload & URL Input Row */}
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+                          {/* Live Preview Box (Dark Theme like Hero) */}
+                          <div className="lg:col-span-5 space-y-2">
+                            <label className="block text-[11px] font-bold text-slate-700">
+                              {isBn ? 'লাইভ ডার্ক প্রিভিউ (হিরো ব্যাকগ্রাউন্ড):' : 'Live Dark Preview (Hero Background):'}
+                            </label>
+                            <div className="w-full h-32 rounded-2xl bg-[#062119] border border-emerald-800/40 p-4 flex items-center justify-center overflow-hidden shadow-inner relative">
+                              <img
+                                src={getAssetUrl(bloodDonationSettings.wingLogoUrl || '/brand/Infinitylifeline-logo.svg')}
+                                alt="Infinity LifeLine Logo Preview"
+                                style={{ maxWidth: `${Math.min(bloodDonationSettings.wingLogoSize || 480, 280)}px` }}
+                                className="w-full h-auto max-h-24 object-contain transition-all duration-200"
+                              />
+                            </div>
+                            <p className="text-[10px] text-slate-400 text-center font-mono">
+                              {bloodDonationSettings.wingLogoUrl || '/brand/Infinitylifeline-logo.svg'}
+                            </p>
                           </div>
 
-                          <div className="flex-1 w-full space-y-1">
-                            <input
-                              type="text"
-                              value={bloodDonationSettings.wingLogoUrl || '/brand/Infinitylifeline-logo.svg'}
-                              onChange={(e) => updateBloodDonationSettings({ wingLogoUrl: e.target.value })}
-                              placeholder="/brand/Infinitylifeline-logo.svg"
-                              className="w-full px-3.5 py-2 rounded-xl border border-[#EAE3D9] bg-white text-xs font-mono focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
-                            />
+                          {/* URL Input & Direct Upload Buttons */}
+                          <div className="lg:col-span-7 space-y-4">
+                            <div className="space-y-1.5">
+                              <label className="block text-xs font-bold text-slate-800">
+                                {isBn ? 'লোগো ইমেজ / ক্লাউডিনারি লিংক (URL)' : 'Logo Image / Cloudinary URL'}
+                              </label>
+                              <input
+                                type="text"
+                                value={bloodDonationSettings.wingLogoUrl || ''}
+                                onChange={(e) => updateBloodDonationSettings({ wingLogoUrl: e.target.value })}
+                                placeholder="https://res.cloudinary.com/... or /brand/Infinitylifeline-logo.svg"
+                                className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-white text-xs font-mono focus:ring-2 focus:ring-[#006A4E] focus:outline-none shadow-2xs"
+                              />
+                            </div>
+
+                            {/* Direct File Upload & Media Helper */}
+                            <div className="flex flex-wrap items-center gap-2">
+                              <label className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-[#EAE3D9] hover:bg-[#FAF7F2] text-xs font-bold text-slate-800 cursor-pointer shadow-2xs transition-all">
+                                <Upload className="w-4 h-4 text-[#006A4E]" />
+                                <span>{isBn ? 'ডিভাইস থেকে আপলোড করুন' : 'Upload from Device'}</span>
+                                <input
+                                  type="file"
+                                  accept="image/*,.svg"
+                                  className="hidden"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) {
+                                      const reader = new FileReader();
+                                      reader.onload = (event) => {
+                                        if (event.target?.result) {
+                                          updateBloodDonationSettings({ wingLogoUrl: event.target.result as string });
+                                        }
+                                      };
+                                      reader.readAsDataURL(file);
+                                    }
+                                  }}
+                                />
+                              </label>
+
+                              <button
+                                type="button"
+                                onClick={() => updateBloodDonationSettings({ wingLogoUrl: '/brand/Infinitylifeline-logo.svg' })}
+                                className="px-3.5 py-2 rounded-xl bg-emerald-50 text-[#006A4E] border border-emerald-200 text-xs font-bold hover:bg-emerald-100 transition-all cursor-pointer"
+                              >
+                                {isBn ? 'মূল SVG ফাইল ব্যবহার করুন' : 'Use Official SVG'}
+                              </button>
+                            </div>
+
+                            {/* Logo Size Control (Slider & Presets) */}
+                            <div className="pt-2 border-t border-[#EAE3D9]/80 space-y-2.5">
+                              <div className="flex items-center justify-between text-xs">
+                                <label className="font-bold text-slate-800">
+                                  {isBn ? 'লোগোর সাইজ / প্রস্থ (Logo Size Width):' : 'Logo Display Width:'}
+                                </label>
+                                <span className="font-extrabold text-[#006A4E] bg-emerald-50 px-2.5 py-0.5 rounded-md text-xs font-mono">
+                                  {bloodDonationSettings.wingLogoSize || 480}px
+                                </span>
+                              </div>
+
+                              <input
+                                type="range"
+                                min="240"
+                                max="700"
+                                step="10"
+                                value={bloodDonationSettings.wingLogoSize || 480}
+                                onChange={(e) => updateBloodDonationSettings({ wingLogoSize: Number(e.target.value) })}
+                                className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#006A4E]"
+                              />
+
+                              {/* Size Presets */}
+                              <div className="flex items-center gap-2 pt-1">
+                                {[
+                                  { label: isBn ? 'ছোট (320px)' : 'Small (320px)', val: 320 },
+                                  { label: isBn ? 'মাঝারি (440px)' : 'Medium (440px)', val: 440 },
+                                  { label: isBn ? 'ডিফল্ট (480px)' : 'Default (480px)', val: 480 },
+                                  { label: isBn ? 'বড় (540px)' : 'Large (540px)', val: 540 },
+                                  { label: isBn ? 'খুব বড় (620px)' : 'X-Large (620px)', val: 620 }
+                                ].map(p => (
+                                  <button
+                                    key={p.val}
+                                    type="button"
+                                    onClick={() => updateBloodDonationSettings({ wingLogoSize: p.val })}
+                                    className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                                      (bloodDonationSettings.wingLogoSize || 480) === p.val
+                                        ? 'bg-[#006A4E] text-white shadow-2xs'
+                                        : 'bg-white text-slate-600 border border-[#EAE3D9] hover:bg-slate-50'
+                                    }`}
+                                  >
+                                    {p.label}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
 
-                      {/* Hero Badge */}
+                      {/* Hero Top Badge */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-1.5">
                           <label className="block text-xs font-bold text-slate-800">
@@ -5684,44 +5782,11 @@ export const AdminPage: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* Hero Main Title */}
+                      {/* Hero Subtitle / Initiative Description */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-1.5">
                           <label className="block text-xs font-bold text-slate-800">
-                            {isBn ? 'প্রধান শিরোনাম (ইংরেজি) *' : 'Hero Main Title (English) *'}
-                          </label>
-                          <input
-                            type="text"
-                            value={bloodDonationSettings.heroTitle?.en || ''}
-                            onChange={(e) => updateBloodDonationSettings({
-                              heroTitle: { ...bloodDonationSettings.heroTitle, en: e.target.value, bn: bloodDonationSettings.heroTitle?.bn || '' }
-                            })}
-                            placeholder="Infinity Blood Donation Network"
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm font-extrabold focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
-                          />
-                        </div>
-
-                        <div className="space-y-1.5">
-                          <label className="block text-xs font-bold text-slate-800">
-                            {isBn ? 'প্রধান শিরোনাম (বাংলা) *' : 'Hero Main Title (Bangla) *'}
-                          </label>
-                          <input
-                            type="text"
-                            value={bloodDonationSettings.heroTitle?.bn || ''}
-                            onChange={(e) => updateBloodDonationSettings({
-                              heroTitle: { ...bloodDonationSettings.heroTitle, bn: e.target.value, en: bloodDonationSettings.heroTitle?.en || '' }
-                            })}
-                            placeholder="ইনফিনিটি বাংলাদেশ রক্তদান নেটওয়ার্ক"
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm font-extrabold focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Hero Subtitle */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="space-y-1.5">
-                          <label className="block text-xs font-bold text-slate-800">
-                            {isBn ? 'উপশিরোনাম / বিবরণ (ইংরেজি)' : 'Hero Subtitle / Description (English)'}
+                            {isBn ? 'উদ্যোগ সাবটাইটেল / বিবরণ (ইংরেজি)' : 'Initiative Subtitle / Description (English)'}
                           </label>
                           <textarea
                             rows={3}
@@ -5729,14 +5794,14 @@ export const AdminPage: React.FC = () => {
                             onChange={(e) => updateBloodDonationSettings({
                               heroSubtitle: { ...bloodDonationSettings.heroSubtitle, en: e.target.value, bn: bloodDonationSettings.heroSubtitle?.bn || '' }
                             })}
-                            placeholder="Donate Blood, Save Lives – Connecting compassionate voluntary donors..."
+                            placeholder="A blood donation initiative by Infinity Bangladesh"
                             className="w-full px-3.5 py-2 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
                           />
                         </div>
 
                         <div className="space-y-1.5">
                           <label className="block text-xs font-bold text-slate-800">
-                            {isBn ? 'উপশিরোনাম / বিবরণ (বাংলা)' : 'Hero Subtitle / Description (Bangla)'}
+                            {isBn ? 'উদ্যোগ সাবটাইটেল / বিবরণ (বাংলা)' : 'Initiative Subtitle / Description (Bangla)'}
                           </label>
                           <textarea
                             rows={3}
@@ -5744,7 +5809,7 @@ export const AdminPage: React.FC = () => {
                             onChange={(e) => updateBloodDonationSettings({
                               heroSubtitle: { ...bloodDonationSettings.heroSubtitle, bn: e.target.value, en: bloodDonationSettings.heroSubtitle?.en || '' }
                             })}
-                            placeholder="রক্ত দিন, জীবন বাঁচান — চট্টগ্রামের হাটহাজারী থেকে শুরু করে..."
+                            placeholder="ইনফিনিটি বাংলাদেশ-এর একটি মানবিক রক্তদান উদ্যোগ"
                             className="w-full px-3.5 py-2 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
                           />
                         </div>

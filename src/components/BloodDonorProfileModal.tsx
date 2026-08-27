@@ -6,16 +6,11 @@ import {
   X,
   ShieldCheck,
   MapPin,
-  Calendar,
-  Heart,
   Droplet,
   Phone,
   Clock,
   Award,
-  CheckCircle2,
-  Building2,
-  AlertCircle,
-  FileText
+  AlertCircle
 } from 'lucide-react';
 
 interface BloodDonorProfileModalProps {
@@ -31,7 +26,7 @@ export const BloodDonorProfileModal: React.FC<BloodDonorProfileModalProps> = ({
   onClose,
   onContactClick
 }) => {
-  const { isBn, tText } = useLanguage();
+  const { isBn } = useLanguage();
 
   if (!isOpen || !donor) return null;
 
@@ -61,8 +56,6 @@ export const BloodDonorProfileModal: React.FC<BloodDonorProfileModalProps> = ({
         );
     }
   };
-
-  const history = donor.donationHistory || [];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto bg-slate-950/70 backdrop-blur-sm animate-in fade-in">
@@ -157,27 +150,30 @@ export const BloodDonorProfileModal: React.FC<BloodDonorProfileModalProps> = ({
             </div>
           </div>
 
-          {/* Key Milestones */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            <div className="p-4 rounded-2xl bg-white border border-[#EAE3D9] space-y-1">
-              <div className="flex items-center gap-2 text-slate-500 text-xs font-bold">
-                <Calendar className="w-4 h-4 text-emerald-600" />
-                <span>{isBn ? 'প্রথম রক্তদান' : 'First Blood Donation'}</span>
-              </div>
-              <p className="text-sm font-extrabold text-slate-800">
-                {donor.firstDonationDate || (isBn ? 'অনুল্লিখিত' : 'Not Specified')}
-              </p>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-white border border-[#EAE3D9] space-y-1">
+          {/* Key Milestones (Last Blood Donation) */}
+          <div className="p-4 rounded-2xl bg-white border border-[#EAE3D9] flex items-center justify-between gap-3">
+            <div className="space-y-1">
               <div className="flex items-center gap-2 text-slate-500 text-xs font-bold">
                 <Clock className="w-4 h-4 text-amber-600" />
-                <span>{isBn ? 'সর্বশেষ রক্তদান' : 'Last Blood Donation'}</span>
+                <span>{isBn ? 'সর্বশেষ রক্তদানের তারিখ' : 'Last Blood Donation'}</span>
               </div>
               <p className="text-sm font-extrabold text-slate-800">
-                {donor.lastDonationDate || (isBn ? 'রেকর্ড সংরক্ষিত নেই' : 'No Record')}
+                {donor.lastDonationDate ? (
+                  new Date(donor.lastDonationDate).toLocaleDateString(isBn ? 'bn-BD' : 'en-US', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                  })
+                ) : (
+                  (isBn ? 'রেকর্ড সংরক্ষিত নেই' : 'No Record')
+                )}
               </p>
             </div>
+            {donor.lastDonationDate && (
+              <span className="px-3 py-1 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold font-mono">
+                {donor.lastDonationDate}
+              </span>
+            )}
           </div>
 
           {/* Donation Experience Notes */}
@@ -192,73 +188,6 @@ export const BloodDonorProfileModal: React.FC<BloodDonorProfileModalProps> = ({
               </p>
             </div>
           )}
-
-          {/* Donation History Timeline */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-extrabold text-slate-900 font-display flex items-center gap-2">
-                <Heart className="w-4 h-4 text-rose-600 fill-current" />
-                <span>{isBn ? 'রক্তদানের ইতিহাস ও রেকর্ড' : 'Verified Donation History'}</span>
-              </h3>
-              <span className="text-xs font-bold text-slate-500">
-                {history.length} {isBn ? 'টি রেকর্ড সংরক্ষিত' : 'Records Logged'}
-              </span>
-            </div>
-
-            {history.length === 0 ? (
-              <div className="p-5 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-xs text-slate-500 space-y-1">
-                <FileText className="w-5 h-5 mx-auto text-slate-400 mb-1" />
-                <p>{isBn ? 'বিস্তারিত রক্তদানের হিস্টোরি এন্ট্রি শীঘ্রই যুক্ত হবে।' : 'Individual hospital donation records will be updated here.'}</p>
-                <p className="text-[11px] text-slate-400">
-                  {isBn ? `স্বীকৃত সর্বমোট রক্তদান: ${donor.totalDonations} বার` : `Recognized Total Donations: ${donor.totalDonations} times`}
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-2.5 max-h-48 overflow-y-auto pr-1">
-                {history.map((entry, idx) => (
-                  <div
-                    key={entry.id || idx}
-                    className="p-3.5 rounded-2xl bg-white border border-[#EAE3D9] flex items-start justify-between gap-3 shadow-xs"
-                  >
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase bg-rose-50 text-rose-800 border border-rose-200">
-                          {entry.donationType}
-                        </span>
-                        <span className="text-xs font-extrabold text-slate-800">
-                          {entry.hospital}
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-slate-500 flex items-center gap-1">
-                        <MapPin className="w-3 h-3 text-slate-400" />
-                        <span>{entry.district}</span>
-                        {entry.recipientReference && (
-                          <span className="text-slate-400">&bull; Ref: {entry.recipientReference}</span>
-                        )}
-                      </p>
-                      {entry.notes && (
-                        <p className="text-[11px] text-slate-600 italic">
-                          "{entry.notes}"
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="text-right shrink-0">
-                      <span className="text-xs font-bold text-slate-700 block">
-                        {entry.donationDate}
-                      </span>
-                      {entry.isVerified && (
-                        <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-emerald-700">
-                          <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                          <span>{isBn ? 'যাচাইকৃত' : 'Verified'}</span>
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
 
           {/* Privacy Note */}
           <div className="p-3.5 bg-amber-50/70 border border-amber-200 rounded-2xl flex items-start gap-2.5 text-[11px] text-amber-900 leading-relaxed">

@@ -30,18 +30,21 @@ interface BloodDonorModalProps {
   isOpen: boolean;
   onClose: () => void;
   donorToEdit?: BloodDonor | null;
-  onSave: (donorData: Omit<BloodDonor, 'id' | 'createdAt' | 'updatedAt'>, editId?: string) => void;
+  onSave: (donorData: Omit<BloodDonor, 'createdAt' | 'updatedAt'> & { id?: string }, editId?: string) => void;
+  onDelete?: (id: string) => void;
 }
 
 export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
   isOpen,
   onClose,
   donorToEdit,
-  onSave
+  onSave,
+  onDelete
 }) => {
   const { isBn } = useLanguage();
   const { donorCategories } = useData();
 
+  const [customId, setCustomId] = useState('');
   const [fullName, setFullName] = useState('');
   const [bloodGroup, setBloodGroup] = useState<BloodGroup>('O+');
   const [phone, setPhone] = useState('');
@@ -57,7 +60,6 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
   const [approvalStatus, setApprovalStatus] = useState<DonorApprovalStatus>('APPROVED');
   const [isVerified, setIsVerified] = useState<boolean>(true);
   const [showPhonePublicly, setShowPhonePublicly] = useState<boolean>(false);
-  const [firstDonationDate, setFirstDonationDate] = useState('');
   const [lastDonationDate, setLastDonationDate] = useState('');
   const [totalDonations, setTotalDonations] = useState<number>(0);
   const [experienceNotes, setExperienceNotes] = useState('');
@@ -129,6 +131,7 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
 
   useEffect(() => {
     if (donorToEdit) {
+      setCustomId(donorToEdit.id || '');
       setFullName(donorToEdit.fullName || '');
       setBloodGroup(donorToEdit.bloodGroup || 'O+');
       setPhone(donorToEdit.phone || '');
@@ -144,12 +147,12 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
       setApprovalStatus(donorToEdit.approvalStatus || 'APPROVED');
       setIsVerified(donorToEdit.isVerified ?? true);
       setShowPhonePublicly(donorToEdit.showPhonePublicly ?? false);
-      setFirstDonationDate(donorToEdit.firstDonationDate || '');
       setLastDonationDate(donorToEdit.lastDonationDate || '');
       setTotalDonations(donorToEdit.totalDonations ?? 0);
       setExperienceNotes(donorToEdit.experienceNotes || '');
       setDonationHistory(donorToEdit.donationHistory || []);
     } else {
+      setCustomId('');
       setFullName('');
       setBloodGroup('O+');
       setPhone('');
@@ -165,7 +168,6 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
       setApprovalStatus('APPROVED');
       setIsVerified(true);
       setShowPhonePublicly(false);
-      setFirstDonationDate('');
       setLastDonationDate('');
       setTotalDonations(0);
       setExperienceNotes('');
@@ -190,7 +192,7 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
 
     const newEntry: BloodDonationHistoryEntry = {
       id: `hist-local-${Date.now()}`,
-      donorId: donorToEdit?.id || 'temp',
+      donorId: customId.trim() || donorToEdit?.id || 'temp',
       donationDate: newHistDate,
       hospital: newHistHospital.trim(),
       district: newHistDistrict,
@@ -207,9 +209,6 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
     const dates = updated.map(h => h.donationDate).filter(Boolean).sort();
     if (dates.length > 0) {
       setLastDonationDate(dates[dates.length - 1]);
-      if (!firstDonationDate) {
-        setFirstDonationDate(dates[0]);
-      }
     }
 
     setNewHistHospital('');
@@ -246,14 +245,6 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
 
     // Validate No Future Dates
     const todayStr = new Date().toISOString().split('T')[0];
-    if (firstDonationDate && firstDonationDate > todayStr) {
-      setModalError(
-        isBn
-          ? 'প্রথম রক্তদানের তারিখ আজকের বা অতীতের তারিখ হতে হবে, ভবিষ্যতের নয়।'
-          : 'First donation date cannot be in the future.'
-      );
-      return;
-    }
     if (lastDonationDate && lastDonationDate > todayStr) {
       setModalError(
         isBn
@@ -262,16 +253,9 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
       );
       return;
     }
-    if (firstDonationDate && lastDonationDate && firstDonationDate > lastDonationDate) {
-      setModalError(
-        isBn
-          ? 'প্রথম রক্তদানের তারিখ শেষ রক্তদানের তারিখের চেয়ে পরের হতে পারে না।'
-          : 'First donation date cannot be after the last donation date.'
-      );
-      return;
-    }
 
     onSave({
+      id: customId.trim() || (donorToEdit ? donorToEdit.id : undefined),
       fullName: fullName.trim(),
       bloodGroup,
       phone: cleanPhone,
@@ -287,7 +271,6 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
       approvalStatus,
       isVerified,
       showPhonePublicly,
-      firstDonationDate: firstDonationDate || undefined,
       lastDonationDate: lastDonationDate || undefined,
       totalDonations: Number(totalDonations) || donationHistory.length || 0,
       experienceNotes: experienceNotes.trim() || undefined,
@@ -339,7 +322,23 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
               </h4>
 
               <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
-                <div className="sm:col-span-8 space-y-1.5">
+                <div className="sm:col-span-4 space-y-1.5">
+                  <label className="block text-xs font-bold text-slate-800 flex items-center justify-between">
+                    <span>{isBn ? 'ডোনার আইডি *' : 'Donor ID *'}</span>
+                    <span className="text-[10px] text-slate-400 font-normal">
+                      {isBn ? '(ফাঁকা রাখলে অটো আইডি)' : '(Auto if left blank)'}
+                    </span>
+                  </label>
+                  <input
+                    type="text"
+                    value={customId}
+                    onChange={(e) => setCustomId(e.target.value)}
+                    placeholder={isBn ? 'যেমন: IBD-001 বা DONOR-101' : 'e.g. IBD-001 or DONOR-101'}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm font-mono font-bold text-[#006A4E] focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                  />
+                </div>
+
+                <div className="sm:col-span-5 space-y-1.5">
                   <label className="block text-xs font-bold text-slate-800">
                     {isBn ? 'পূর্ণ নাম *' : 'Full Name *'}
                   </label>
@@ -353,7 +352,7 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
                   />
                 </div>
 
-                <div className="sm:col-span-4 space-y-1.5">
+                <div className="sm:col-span-3 space-y-1.5">
                   <label className="block text-xs font-bold text-slate-800">
                     {isBn ? 'রক্তের গ্রুপ *' : 'Blood Group *'}
                   </label>
@@ -680,83 +679,45 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
                 </button>
               </div>
 
-              {/* First & Last Donation Dates */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-800 flex items-center justify-between">
-                    <span>{isBn ? 'সর্বপ্রথম রক্তদানের তারিখ' : 'First Donation Date'}</span>
-                    {firstDonationDate && firstDonationDate > new Date().toISOString().split('T')[0] && (
-                      <span className="text-[10px] font-bold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200">
-                        {isBn ? 'ভুল তারিখ' : 'Invalid Date'}
-                      </span>
-                    )}
-                  </label>
-                  <input
-                    type="date"
-                    max={new Date().toISOString().split('T')[0]}
-                    value={firstDonationDate}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setFirstDonationDate(val);
-                      if (val > new Date().toISOString().split('T')[0]) {
-                        setModalError(isBn ? 'প্রথম রক্তদানের তারিখ ভবিষ্যতের হতে পারে না।' : 'First donation date cannot be in the future.');
-                      } else {
-                        setModalError(null);
-                      }
-                    }}
-                    className={`w-full px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm focus:outline-none transition-all ${
-                      firstDonationDate && firstDonationDate > new Date().toISOString().split('T')[0]
-                        ? 'border-rose-500 bg-rose-50 text-rose-900 ring-2 ring-rose-300'
-                        : 'border-[#EAE3D9] bg-[#FAF7F2] focus:bg-white focus:ring-2 focus:ring-[#006A4E]'
-                    }`}
-                  />
-                  {firstDonationDate && firstDonationDate > new Date().toISOString().split('T')[0] && (
-                    <p className="text-[11px] text-rose-700 font-bold flex items-center gap-1">
-                      <AlertTriangle className="w-3.5 h-3.5" />
-                      <span>{isBn ? 'ভবিষ্যতের তারিখ প্রযোজ্য নয়' : 'Future dates not allowed'}</span>
-                    </p>
+              {/* Last Donation Date */}
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-slate-800 flex items-center justify-between">
+                  <span>{isBn ? 'সর্বশেষ রক্তদানের তারিখ *' : 'Last Donation Date *'}</span>
+                  {lastDonationDate && lastDonationDate > new Date().toISOString().split('T')[0] && (
+                    <span className="text-[10px] font-bold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200">
+                      {isBn ? 'ভুল তারিখ' : 'Invalid Date'}
+                    </span>
                   )}
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-800 flex items-center justify-between">
-                    <span>{isBn ? 'সর্বশেষ রক্তদানের তারিখ *' : 'Last Donation Date *'}</span>
-                    {lastDonationDate && lastDonationDate > new Date().toISOString().split('T')[0] && (
-                      <span className="text-[10px] font-bold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200">
-                        {isBn ? 'ভুল তারিখ' : 'Invalid Date'}
-                      </span>
-                    )}
-                  </label>
-                  <input
-                    type="date"
-                    max={new Date().toISOString().split('T')[0]}
-                    value={lastDonationDate}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setLastDonationDate(val);
-                      if (val > new Date().toISOString().split('T')[0]) {
-                        setModalError(isBn ? 'সর্বশেষ রক্তদানের তারিখ ভবিষ্যতের হতে পারে না।' : 'Last donation date cannot be in the future.');
-                      } else {
-                        setModalError(null);
-                      }
-                    }}
-                    className={`w-full px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm focus:outline-none transition-all ${
-                      lastDonationDate && lastDonationDate > new Date().toISOString().split('T')[0]
-                        ? 'border-rose-500 bg-rose-50 text-rose-900 ring-2 ring-rose-300'
-                        : 'border-[#EAE3D9] bg-[#FAF7F2] focus:bg-white focus:ring-2 focus:ring-[#006A4E]'
-                    }`}
-                  />
-                  {lastDonationDate && lastDonationDate > new Date().toISOString().split('T')[0] ? (
-                    <p className="text-[11px] text-rose-700 font-bold flex items-center gap-1">
-                      <AlertTriangle className="w-3.5 h-3.5" />
-                      <span>{isBn ? 'ভবিষ্যতের তারিখ গ্রহণযোগ্য নয়' : 'Future dates not allowed'}</span>
-                    </p>
-                  ) : (
-                    <p className="text-[10px] text-slate-400">
-                      {isBn ? 'ভবিষ্যতের কোনো তারিখ প্রযোজ্য নয়' : 'Future dates not allowed'}
-                    </p>
-                  )}
-                </div>
+                </label>
+                <input
+                  type="date"
+                  max={new Date().toISOString().split('T')[0]}
+                  value={lastDonationDate}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setLastDonationDate(val);
+                    if (val > new Date().toISOString().split('T')[0]) {
+                      setModalError(isBn ? 'সর্বশেষ রক্তদানের তারিখ ভবিষ্যতের হতে পারে না।' : 'Last donation date cannot be in the future.');
+                    } else {
+                      setModalError(null);
+                    }
+                  }}
+                  className={`w-full px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm focus:outline-none transition-all ${
+                    lastDonationDate && lastDonationDate > new Date().toISOString().split('T')[0]
+                      ? 'border-rose-500 bg-rose-50 text-rose-900 ring-2 ring-rose-300'
+                      : 'border-[#EAE3D9] bg-[#FAF7F2] focus:bg-white focus:ring-2 focus:ring-[#006A4E]'
+                  }`}
+                />
+                {lastDonationDate && lastDonationDate > new Date().toISOString().split('T')[0] ? (
+                  <p className="text-[11px] text-rose-700 font-bold flex items-center gap-1">
+                    <AlertTriangle className="w-3.5 h-3.5" />
+                    <span>{isBn ? 'ভবিষ্যতের তারিখ গ্রহণযোগ্য নয়' : 'Future dates not allowed'}</span>
+                  </p>
+                ) : (
+                  <p className="text-[10px] text-slate-400">
+                    {isBn ? 'ভবিষ্যতের কোনো তারিখ প্রযোজ্য নয়' : 'Future dates not allowed'}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-1.5">
@@ -863,38 +824,51 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
             )}
 
             {/* Modal Actions */}
-            <div className="pt-4 border-t border-[#EAE3D9] flex items-center justify-end gap-3 shrink-0">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-5 py-2.5 rounded-2xl bg-white border border-[#EAE3D9] text-slate-700 font-bold text-xs hover:bg-[#FAF7F2] transition-all cursor-pointer"
-              >
-                {isBn ? 'বাতিল' : 'Cancel'}
-              </button>
+            <div className="pt-4 border-t border-[#EAE3D9] flex items-center justify-between gap-3 shrink-0">
+              {donorToEdit && onDelete ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (confirm(isBn ? `আপনি কি নিশ্চিত যে রক্তদাতা "${donorToEdit.fullName}" মুছে ফেলতে চান?` : `Are you sure you want to delete donor "${donorToEdit.fullName}"?`)) {
+                      onDelete(donorToEdit.id);
+                      onClose();
+                    }
+                  }}
+                  className="px-4 py-2.5 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <Trash2 className="w-4 h-4 text-rose-600" />
+                  <span>{isBn ? 'রক্তদাতা মুছুন' : 'Delete Donor'}</span>
+                </button>
+              ) : <div />}
 
-              <button
-                type="submit"
-                disabled={Boolean(
-                  (lastDonationDate && lastDonationDate > new Date().toISOString().split('T')[0]) ||
-                  (firstDonationDate && firstDonationDate > new Date().toISOString().split('T')[0])
-                )}
-                className={`px-6 py-2.5 rounded-2xl font-extrabold text-xs shadow-warm-sm transition-all flex items-center gap-1.5 ${
-                  (lastDonationDate && lastDonationDate > new Date().toISOString().split('T')[0]) ||
-                  (firstDonationDate && firstDonationDate > new Date().toISOString().split('T')[0])
-                    ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
-                    : 'bg-[#006A4E] hover:bg-[#00523C] text-white cursor-pointer transform hover:-translate-y-0.5'
-                }`}
-              >
-                <Save className="w-4 h-4" />
-                <span>
-                  {(lastDonationDate && lastDonationDate > new Date().toISOString().split('T')[0]) ||
-                  (firstDonationDate && firstDonationDate > new Date().toISOString().split('T')[0])
-                    ? (isBn ? 'তারিখ সংশোধন করুন' : 'Correct Future Date')
-                    : donorToEdit
-                    ? (isBn ? 'আপডেট সংরক্ষণ করুন' : 'Save Changes')
-                    : (isBn ? 'রক্তদাতা তৈরি করুন' : 'Create Donor')}
-                </span>
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="px-5 py-2.5 rounded-2xl bg-white border border-[#EAE3D9] text-slate-700 font-bold text-xs hover:bg-[#FAF7F2] transition-all cursor-pointer"
+                >
+                  {isBn ? 'বাতিল' : 'Cancel'}
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={Boolean(lastDonationDate && lastDonationDate > new Date().toISOString().split('T')[0])}
+                  className={`px-6 py-2.5 rounded-2xl font-extrabold text-xs shadow-warm-sm transition-all flex items-center gap-1.5 ${
+                    lastDonationDate && lastDonationDate > new Date().toISOString().split('T')[0]
+                      ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
+                      : 'bg-[#006A4E] hover:bg-[#00523C] text-white cursor-pointer transform hover:-translate-y-0.5'
+                  }`}
+                >
+                  <Save className="w-4 h-4" />
+                  <span>
+                    {lastDonationDate && lastDonationDate > new Date().toISOString().split('T')[0]
+                      ? (isBn ? 'তারিখ সংশোধন করুন' : 'Correct Future Date')
+                      : donorToEdit
+                      ? (isBn ? 'আপডেট সংরক্ষণ করুন' : 'Save Changes')
+                      : (isBn ? 'রক্তদাতা তৈরি করুন' : 'Create Donor')}
+                  </span>
+                </button>
+              </div>
             </div>
           </form>
         </div>

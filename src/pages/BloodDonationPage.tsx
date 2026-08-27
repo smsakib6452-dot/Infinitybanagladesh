@@ -118,7 +118,6 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
   const [regOrgCategory, setRegOrgCategory] = useState('Infinity Bangladesh Volunteer');
   const [regCommitteePosition, setRegCommitteePosition] = useState('');
   const [regAvailability, setRegAvailability] = useState<DonorAvailabilityStatus>('AVAILABLE_EMERGENCY');
-  const [regFirstDonationDate, setRegFirstDonationDate] = useState('');
   const [regLastDonationDate, setRegLastDonationDate] = useState('');
   const [regTotalDonations, setRegTotalDonations] = useState<number>(0);
   const [regExperienceNotes, setRegExperienceNotes] = useState('');
@@ -224,7 +223,6 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
     setRegOrgCategory('Infinity Bangladesh Volunteer');
     setRegCommitteePosition('');
     setRegAvailability('AVAILABLE_EMERGENCY');
-    setRegFirstDonationDate('');
     setRegLastDonationDate('');
     setRegTotalDonations(0);
     setRegExperienceNotes('');
@@ -342,22 +340,6 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
       );
       return;
     }
-    if (regFirstDonationDate && regFirstDonationDate > todayStr) {
-      setRegFormError(
-        isBn
-          ? 'প্রথম রক্তদানের তারিখ আজকের বা অতীতের তারিখ হতে হবে, ভবিষ্যতের তারিখ নয়।'
-          : 'First donation date cannot be in the future.'
-      );
-      return;
-    }
-    if (regFirstDonationDate && regLastDonationDate && regFirstDonationDate > regLastDonationDate) {
-      setRegFormError(
-        isBn
-          ? 'প্রথম রক্তদানের তারিখ শেষ রক্তদানের তারিখের চেয়ে পরের হতে পারে না।'
-          : 'First donation date cannot be after the last donation date.'
-      );
-      return;
-    }
 
     const newDonor = addBloodDonor({
       fullName: regFullName.trim(),
@@ -372,7 +354,6 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
       orgCategory: regOrgCategory,
       committeePosition: regCommitteePosition.trim() || undefined,
       availabilityStatus: regAvailability,
-      firstDonationDate: regFirstDonationDate || undefined,
       lastDonationDate: regLastDonationDate || undefined,
       totalDonations: Number(regTotalDonations) || 0,
       experienceNotes: regExperienceNotes.trim() || undefined,

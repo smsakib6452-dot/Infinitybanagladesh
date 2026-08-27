@@ -284,6 +284,7 @@ export const AdminPage: React.FC = () => {
   // Blood Donation Network States
   const [editingBloodDonor, setEditingBloodDonor] = useState<BloodDonor | null>(null);
   const [isBloodDonorModalOpen, setIsBloodDonorModalOpen] = useState(false);
+  const [donorToDelete, setDonorToDelete] = useState<BloodDonor | null>(null);
   const [editingEmergencyRequest, setEditingEmergencyRequest] = useState<EmergencyBloodRequest | null>(null);
   const [isEmergencyRequestModalOpen, setIsEmergencyRequestModalOpen] = useState(false);
   const [bloodSubTab, setBloodSubTab] = useState<'overview' | 'donors' | 'emergency' | 'settings'>('overview');
@@ -511,7 +512,7 @@ export const AdminPage: React.FC = () => {
     showToast(isBn ? 'সদস্যের ক্রম পরিবর্তন হয়েছে' : 'Member order updated');
   };
 
-  const handleSaveBloodDonor = (donorData: Omit<BloodDonor, 'id' | 'createdAt' | 'updatedAt'>, editId?: string) => {
+  const handleSaveBloodDonor = (donorData: Omit<BloodDonor, 'createdAt' | 'updatedAt'> & { id?: string }, editId?: string) => {
     if (editId) {
       updateBloodDonor(editId, donorData);
       showToast(isBn ? 'রক্তদাতার তথ্য সফলভাবে আপডেট হয়েছে' : 'Donor record updated successfully');
@@ -522,7 +523,7 @@ export const AdminPage: React.FC = () => {
   };
 
   const handleExportDonorsCSV = () => {
-    const headers = ['ID', 'Full Name', 'Blood Group', 'Phone', 'Email', 'District', 'Upazila', 'Area', 'Detailed Address', 'Organization Category', 'Availability Status', 'Approval Status', 'Verified', 'Total Donations', 'First Donation Date', 'Last Donation Date', 'Created At'];
+    const headers = ['ID', 'Full Name', 'Blood Group', 'Phone', 'Email', 'District', 'Upazila', 'Area', 'Detailed Address', 'Organization Category', 'Availability Status', 'Approval Status', 'Verified', 'Total Donations', 'Last Donation Date', 'Created At'];
     const rows = bloodDonors.map(d => [
       d.id,
       `"${(d.fullName || '').replace(/"/g, '""')}"`,
@@ -538,7 +539,6 @@ export const AdminPage: React.FC = () => {
       d.approvalStatus,
       d.isVerified ? 'YES' : 'NO',
       d.totalDonations || 0,
-      d.firstDonationDate || '',
       d.lastDonationDate || '',
       d.createdAt || ''
     ]);
@@ -5493,13 +5493,8 @@ export const AdminPage: React.FC = () => {
 
                                     <button
                                       type="button"
-                                      onClick={() => {
-                                        if (confirm(`Delete donor ${donor.fullName}?`)) {
-                                          deleteBloodDonor(donor.id);
-                                          showToast('Donor record deleted');
-                                        }
-                                      }}
-                                      className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                                      onClick={() => setDonorToDelete(donor)}
+                                      className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 hover:text-rose-700 transition-colors cursor-pointer"
                                       title="Delete Donor"
                                     >
                                       <Trash2 className="w-4 h-4" />
@@ -9274,7 +9269,81 @@ export const AdminPage: React.FC = () => {
         }}
         donorToEdit={editingBloodDonor}
         onSave={handleSaveBloodDonor}
+        onDelete={(id) => {
+          deleteBloodDonor(id);
+          showToast(isBn ? 'রক্তদাতার রেকর্ড মুছে ফেলা হয়েছে' : 'Donor record deleted successfully');
+        }}
       />
+
+      {/* ======================================================== */}
+      {/* DONOR DELETE CONFIRMATION MODAL */}
+      {/* ======================================================== */}
+      {donorToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-3xl p-6 sm:p-7 max-w-md w-full border border-rose-200 shadow-warm-2xl space-y-5 animate-in zoom-in-95">
+            <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
+              <Trash2 className="w-6 h-6" />
+            </div>
+
+            <div className="text-center space-y-1.5">
+              <h3 className="text-lg font-extrabold text-slate-900 font-display">
+                {isBn ? 'রক্তদাতার তথ্য মুছে ফেলতে চান?' : 'Delete Donor Record?'}
+              </h3>
+              <p className="text-xs text-slate-500">
+                {isBn
+                  ? 'আপনি কি নিশ্চিত যে এই রক্তদাতার সম্পূর্ণ রেকর্ড ও তথ্য স্থায়ীভাবে মুছে ফেলতে চান? এই পরিবর্তনটি পুনরুদ্ধার করা যাবে না।'
+                  : 'Are you sure you want to permanently delete this donor record? This action cannot be undone.'}
+              </p>
+            </div>
+
+            {/* Donor Quick Summary Card */}
+            <div className="p-3.5 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-950 text-white font-bold flex items-center justify-center shrink-0 overflow-hidden">
+                {donorToDelete.photoUrl ? (
+                  <img src={getAssetUrl(donorToDelete.photoUrl)} alt={donorToDelete.fullName} className="w-full h-full object-cover" />
+                ) : (
+                  donorToDelete.fullName.charAt(0)
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="px-1.5 py-0.5 rounded bg-rose-600 text-white font-bold text-[10px]">
+                    {donorToDelete.bloodGroup}
+                  </span>
+                  <p className="font-extrabold text-xs text-slate-900 truncate">
+                    {donorToDelete.fullName}
+                  </p>
+                </div>
+                <p className="text-[11px] text-slate-500 font-mono mt-0.5">
+                  {donorToDelete.phone} &bull; {donorToDelete.district}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setDonorToDelete(null)}
+                className="flex-1 px-4 py-2.5 rounded-2xl bg-white border border-[#EAE3D9] text-slate-700 font-bold text-xs hover:bg-[#FAF7F2] transition-colors cursor-pointer"
+              >
+                {isBn ? 'বাতিল' : 'Cancel'}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  deleteBloodDonor(donorToDelete.id);
+                  setDonorToDelete(null);
+                  showToast(isBn ? 'রক্তদাতার রেকর্ড মুছে ফেলা হয়েছে' : 'Donor record deleted successfully');
+                }}
+                className="flex-1 px-4 py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs shadow-warm-sm transition-all cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>{isBn ? 'হ্যাঁ, মুছুন' : 'Yes, Delete'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ======================================================== */}
       {/* EMERGENCY BLOOD REQUEST ADMIN MODAL */}

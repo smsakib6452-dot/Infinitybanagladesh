@@ -228,7 +228,7 @@ interface DataContextType {
   setFeaturedJourneyVideo: (id: string) => void;
 
   // Blood Donation Network
-  addBloodDonor: (donor: Omit<BloodDonor, 'id' | 'createdAt' | 'updatedAt'>) => BloodDonor;
+  addBloodDonor: (donor: Omit<BloodDonor, 'createdAt' | 'updatedAt'> & { id?: string }) => BloodDonor;
   updateBloodDonor: (id: string, updates: Partial<BloodDonor>) => void;
   deleteBloodDonor: (id: string) => void;
   approveBloodDonor: (id: string) => void;
@@ -320,7 +320,8 @@ const STORAGE_PREFIX = 'infinity_bd_v2_';
             key &&
             (key.startsWith('infinity_') || key.startsWith(STORAGE_PREFIX)) &&
             !key.includes('admin_auth') &&
-            !key.includes('admin_user')
+            !key.includes('admin_user') &&
+            !key.includes('deleted_')
           ) {
             keysToRemove.push(key);
           }
@@ -352,6 +353,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Deleted IDs tracker to prevent resurrection across page reloads & sync
   const deletedIdsRef = useRef<Set<string>>(new Set(getStoredOrDefault<string[]>('deleted_video_ids', [])));
+  const deletedDonorIdsRef = useRef<Set<string>>(new Set(getStoredOrDefault<string[]>('deleted_donor_ids', [])));
+  const deletedRequestIdsRef = useRef<Set<string>>(new Set(getStoredOrDefault<string[]>('deleted_emergency_request_ids', [])));
 
   // 1. Site Settings & Global Configurations
   const [settings, setSettings] = useState<SiteSettings>(() => {
@@ -469,30 +472,22 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return INITIAL_JOURNEY_VIDEOS;
   });
   const [bloodDonors, setBloodDonors] = useState<BloodDonor[]>(() => {
+    const deletedSet = new Set(getStoredOrDefault<string[]>('deleted_donor_ids', []));
     const stored = getStoredOrDefault<BloodDonor[]>('bloodDonors', INITIAL_BLOOD_DONORS);
-    if (Array.isArray(stored) && stored.length > 0) {
-      const merged = [...stored];
-      INITIAL_BLOOD_DONORS.forEach(initD => {
-        if (!merged.some(m => m.id === initD.id)) {
-          merged.push(initD);
-        }
-      });
-      return merged;
+    const legacyMockIds = new Set(['donor-1', 'donor-2', 'donor-3', 'donor-4', 'donor-5', 'donor-6', 'donor-7', 'donor-8', 'donor-9', 'donor-10']);
+    if (Array.isArray(stored)) {
+      return stored.filter(d => !deletedSet.has(d.id) && !legacyMockIds.has(d.id));
     }
-    return INITIAL_BLOOD_DONORS;
+    return [];
   });
   const [emergencyBloodRequests, setEmergencyBloodRequests] = useState<EmergencyBloodRequest[]>(() => {
+    const deletedSet = new Set(getStoredOrDefault<string[]>('deleted_emergency_request_ids', []));
     const stored = getStoredOrDefault<EmergencyBloodRequest[]>('emergencyRequests', INITIAL_EMERGENCY_REQUESTS);
-    if (Array.isArray(stored) && stored.length > 0) {
-      const merged = [...stored];
-      INITIAL_EMERGENCY_REQUESTS.forEach(initR => {
-        if (!merged.some(m => m.id === initR.id)) {
-          merged.push(initR);
-        }
-      });
-      return merged;
+    const legacyMockReqIds = new Set(['req-1', 'req-2', 'req-3']);
+    if (Array.isArray(stored)) {
+      return stored.filter(r => !deletedSet.has(r.id) && !legacyMockReqIds.has(r.id));
     }
-    return INITIAL_EMERGENCY_REQUESTS;
+    return [];
   });
   const [bloodDonationSettings, setBloodDonationSettings] = useState<BloodDonationSettings>(() => {
     const stored = getStoredOrDefault<any>('bloodDonationSettings', INITIAL_BLOOD_SETTINGS);
@@ -587,6 +582,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem(`${STORAGE_PREFIX}messages`, JSON.stringify(messages));
     localStorage.setItem(`${STORAGE_PREFIX}faqs`, JSON.stringify(faqs));
     localStorage.setItem(`${STORAGE_PREFIX}auditLogs`, JSON.stringify(auditLogs));
+    localStorage.setItem(`${STORAGE_PREFIX}bloodDonors`, JSON.stringify(bloodDonors));
+    localStorage.setItem(`${STORAGE_PREFIX}emergencyRequests`, JSON.stringify(emergencyBloodRequests));
+    localStorage.setItem(`${STORAGE_PREFIX}bloodDonationSettings`, JSON.stringify(bloodDonationSettings));
+    localStorage.setItem(`${STORAGE_PREFIX}donorCategories`, JSON.stringify(donorCategories));
     localStorage.setItem(`${STORAGE_PREFIX}committees`, JSON.stringify(committees));
     localStorage.setItem(`${STORAGE_PREFIX}persons`, JSON.stringify(persons));
     localStorage.setItem(`${STORAGE_PREFIX}positions`, JSON.stringify(positions));
@@ -596,6 +595,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     socialLinks, volunteerSettings, supportSettings, contactSettings, seoSettings,
     navigationItems, banners, mediaLibrary, galleryAlbums, pressCoverages, adminProfiles,
     campaigns, programs, metrics, stories, news, events, gallery, videos, journeyVideos,
+    bloodDonors, emergencyBloodRequests, bloodDonationSettings, donorCategories,
     reports, partners, volunteers, donations, messages, faqs, auditLogs,
     committees, persons, positions, committeeMembers
   ]);
@@ -609,6 +609,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const parsed = JSON.parse(e.newValue);
         if (entityKey === 'videos' && Array.isArray(parsed)) {
           setVideos(parsed);
+        } else if (entityKey === 'bloodDonors' && Array.isArray(parsed)) {
+          setBloodDonors(parsed);
+        } else if (entityKey === 'emergencyRequests' && Array.isArray(parsed)) {
+          setEmergencyBloodRequests(parsed);
+        } else if (entityKey === 'bloodDonationSettings' && parsed && typeof parsed === 'object') {
+          setBloodDonationSettings(parsed);
+        } else if (entityKey === 'donorCategories' && Array.isArray(parsed)) {
+          setDonorCategories(parsed);
         } else if (entityKey === 'campaigns' && Array.isArray(parsed)) {
           setCampaigns(parsed);
         } else if (entityKey === 'programs' && Array.isArray(parsed)) {
@@ -1259,79 +1267,116 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // 17.6. Blood Donation Network (Donors, History, Emergency Requests, Settings)
       const { data: bloodDonorsData } = await supabase.from('blood_donors').select('*, blood_donation_history(*)').order('created_at', { ascending: false });
-      if (bloodDonorsData && Array.isArray(bloodDonorsData) && bloodDonorsData.length > 0) {
-        const remoteDonors: BloodDonor[] = bloodDonorsData.map(d => ({
-          id: d.id,
-          fullName: d.full_name,
-          bloodGroup: d.blood_group,
-          phone: d.phone,
-          email: d.email || undefined,
-          photoUrl: getFreshImageUrl(d.photo_url) || undefined,
-          district: d.district,
-          upazila: d.upazila,
-          area: d.area,
-          detailedAddress: d.detailed_address || undefined,
-          orgCategory: d.org_category || 'Infinity Bangladesh Volunteer',
-          committeePosition: d.committee_position || undefined,
-          availabilityStatus: d.availability_status || 'AVAILABLE_EMERGENCY',
-          firstDonationDate: d.first_donation_date || undefined,
-          lastDonationDate: d.last_donation_date || undefined,
-          totalDonations: d.total_donations ?? 0,
-          experienceNotes: d.experience_notes || undefined,
-          isVerified: d.is_verified ?? false,
-          approvalStatus: d.approval_status ?? 'PENDING',
-          privacyConsent: d.privacy_consent ?? true,
-          showPhonePublicly: d.show_phone_publicly ?? false,
-          donationHistory: Array.isArray(d.blood_donation_history) ? d.blood_donation_history.map((h: any) => ({
-            id: h.id,
-            donorId: h.donor_id,
-            donationDate: h.donation_date,
-            hospital: h.hospital,
-            district: h.district,
-            donationType: h.donation_type,
-            recipientReference: h.recipient_reference || undefined,
-            notes: h.notes || undefined,
-            isVerified: h.is_verified ?? true,
-            createdAt: h.created_at
-          })) : [],
-          createdAt: d.created_at,
-          updatedAt: d.updated_at
-        }));
+      const legacyMockIds = new Set(['donor-1', 'donor-2', 'donor-3', 'donor-4', 'donor-5', 'donor-6', 'donor-7', 'donor-8', 'donor-9', 'donor-10']);
+      if (bloodDonorsData && Array.isArray(bloodDonorsData)) {
+        // Delete any legacy mock seed donors or user-deleted donors from Supabase table
+        bloodDonorsData.forEach(d => {
+          if (legacyMockIds.has(d.id) || deletedDonorIdsRef.current.has(d.id)) {
+            supabase.from('blood_donation_history').delete().eq('donor_id', d.id).then(() => {});
+            supabase.from('blood_donors').delete().eq('id', d.id).then(() => {});
+          }
+        });
+
+        const remoteDonors: BloodDonor[] = bloodDonorsData
+          .filter(d => !deletedDonorIdsRef.current.has(d.id) && !legacyMockIds.has(d.id))
+          .map(d => ({
+            id: d.id,
+            fullName: d.full_name,
+            bloodGroup: d.blood_group,
+            phone: d.phone,
+            email: d.email || undefined,
+            photoUrl: getFreshImageUrl(d.photo_url) || undefined,
+            district: d.district,
+            upazila: d.upazila,
+            area: d.area,
+            detailedAddress: d.detailed_address || undefined,
+            orgCategory: d.org_category || 'Infinity Bangladesh Volunteer',
+            committeePosition: d.committee_position || undefined,
+            availabilityStatus: d.availability_status || 'AVAILABLE_EMERGENCY',
+            lastDonationDate: d.last_donation_date || undefined,
+            totalDonations: d.total_donations ?? 0,
+            experienceNotes: d.experience_notes || undefined,
+            isVerified: d.is_verified ?? false,
+            approvalStatus: d.approval_status ?? 'PENDING',
+            privacyConsent: d.privacy_consent ?? true,
+            showPhonePublicly: d.show_phone_publicly ?? false,
+            donationHistory: Array.isArray(d.blood_donation_history) ? d.blood_donation_history.map((h: any) => ({
+              id: h.id,
+              donorId: h.donor_id,
+              donationDate: h.donation_date,
+              hospital: h.hospital,
+              district: h.district,
+              donationType: h.donation_type,
+              recipientReference: h.recipient_reference || undefined,
+              notes: h.notes || undefined,
+              isVerified: h.is_verified ?? true,
+              createdAt: h.created_at
+            })) : [],
+            createdAt: d.created_at,
+            updatedAt: d.updated_at
+          }));
         setBloodDonors(prevLocal => {
-          const remoteIds = new Set(remoteDonors.map(r => r.id));
-          const localOnly = prevLocal.filter(l => !remoteIds.has(l.id));
-          const merged = [...localOnly, ...remoteDonors];
+          const localCleaned = prevLocal.filter(l => !deletedDonorIdsRef.current.has(l.id) && !legacyMockIds.has(l.id));
+          const remoteCleaned = remoteDonors.filter(r => !deletedDonorIdsRef.current.has(r.id) && !legacyMockIds.has(r.id));
+          const remoteIds = new Set(remoteCleaned.map(r => r.id));
+          const localOnly = localCleaned.filter(l => !remoteIds.has(l.id));
+          const merged = [...remoteCleaned, ...localOnly];
           try {
             localStorage.setItem(`${STORAGE_PREFIX}bloodDonors`, JSON.stringify(merged));
           } catch {}
           return merged;
         });
+      } else {
+        setBloodDonors(prevLocal => {
+          const cleaned = prevLocal.filter(l => !deletedDonorIdsRef.current.has(l.id) && !legacyMockIds.has(l.id));
+          try {
+            localStorage.setItem(`${STORAGE_PREFIX}bloodDonors`, JSON.stringify(cleaned));
+          } catch {}
+          return cleaned;
+        });
       }
 
       const { data: emgData } = await supabase.from('emergency_blood_requests').select('*').order('created_at', { ascending: false });
-      if (emgData && Array.isArray(emgData) && emgData.length > 0) {
-        const remoteReqs: EmergencyBloodRequest[] = emgData.map(r => ({
-          id: r.id,
-          requesterName: r.requester_name,
-          contactNumber: r.contact_number,
-          patientName: r.patient_name,
-          bloodGroup: r.blood_group,
-          unitsNeeded: r.units_needed ?? 1,
-          hospitalName: r.hospital_name,
-          district: r.district,
-          upazila: r.upazila,
-          emergencyLevel: r.emergency_level || 'URGENT',
-          requiredDate: r.required_date,
-          additionalNotes: r.additional_notes || undefined,
-          status: r.status || 'PENDING',
-          matchedDonorIds: Array.isArray(r.matched_donor_ids) ? r.matched_donor_ids : [],
-          createdAt: r.created_at,
-          updatedAt: r.updated_at
-        }));
+      const legacyMockReqIds = new Set(['req-1', 'req-2', 'req-3']);
+      if (emgData && Array.isArray(emgData)) {
+        emgData.forEach(r => {
+          if (legacyMockReqIds.has(r.id)) {
+            supabase.from('emergency_blood_requests').delete().eq('id', r.id).then(() => {});
+          }
+        });
+
+        const remoteReqs: EmergencyBloodRequest[] = emgData
+          .filter(r => !deletedRequestIdsRef.current.has(r.id) && !legacyMockReqIds.has(r.id))
+          .map(r => ({
+            id: r.id,
+            requesterName: r.requester_name,
+            contactNumber: r.contact_number,
+            patientName: r.patient_name,
+            bloodGroup: r.blood_group,
+            unitsNeeded: r.units_needed ?? 1,
+            hospitalName: r.hospital_name,
+            district: r.district,
+            upazila: r.upazila,
+            emergencyLevel: r.emergency_level || 'URGENT',
+            requiredDate: r.required_date,
+            additionalNotes: r.additional_notes || undefined,
+            status: r.status || 'PENDING',
+            matchedDonorIds: Array.isArray(r.matched_donor_ids) ? r.matched_donor_ids : [],
+            createdAt: r.created_at,
+            updatedAt: r.updated_at
+          }));
         setEmergencyBloodRequests(remoteReqs);
         try {
           localStorage.setItem(`${STORAGE_PREFIX}emergencyRequests`, JSON.stringify(remoteReqs));
         } catch {}
+      } else {
+        setEmergencyBloodRequests(prevLocal => {
+          const cleaned = prevLocal.filter(l => !deletedRequestIdsRef.current.has(l.id) && !legacyMockReqIds.has(l.id));
+          try {
+            localStorage.setItem(`${STORAGE_PREFIX}emergencyRequests`, JSON.stringify(cleaned));
+          } catch {}
+          return cleaned;
+        });
       }
 
       const { data: bSettingsData } = await supabase.from('blood_donation_settings').select('*').single();
@@ -1746,6 +1791,92 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
       }
 
+      // Blood Donors
+      for (const d of bloodDonors) {
+        if (deletedDonorIdsRef.current.has(d.id)) continue;
+        await supabase.from('blood_donors').upsert({
+          id: d.id,
+          full_name: d.fullName,
+          blood_group: d.bloodGroup,
+          phone: d.phone,
+          email: d.email || null,
+          photo_url: d.photoUrl || null,
+          district: d.district,
+          upazila: d.upazila,
+          area: d.area,
+          detailed_address: d.detailedAddress || null,
+          org_category: d.orgCategory,
+          committee_position: d.committeePosition || null,
+          availability_status: d.availabilityStatus,
+          first_donation_date: d.firstDonationDate || null,
+          last_donation_date: d.lastDonationDate || null,
+          total_donations: d.totalDonations,
+          experience_notes: d.experienceNotes || null,
+          is_verified: d.isVerified,
+          approval_status: d.approvalStatus,
+          privacy_consent: d.privacyConsent,
+          show_phone_publicly: d.showPhonePublicly,
+          created_at: d.createdAt || new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        });
+      }
+
+      // Emergency Blood Requests
+      for (const r of emergencyBloodRequests) {
+        if (deletedRequestIdsRef.current.has(r.id)) continue;
+        await supabase.from('emergency_blood_requests').upsert({
+          id: r.id,
+          requester_name: r.requesterName,
+          contact_number: r.contactNumber,
+          patient_name: r.patientName,
+          blood_group: r.bloodGroup,
+          units_needed: r.unitsNeeded,
+          hospital_name: r.hospitalName,
+          district: r.district,
+          upazila: r.upazila,
+          emergency_level: r.emergencyLevel,
+          required_date: r.requiredDate,
+          additional_notes: r.additionalNotes || null,
+          status: r.status,
+          matched_donor_ids: r.matchedDonorIds,
+          created_at: r.createdAt || new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        });
+      }
+
+      // Blood Donation Settings
+      await supabase.from('blood_donation_settings').upsert({
+        id: 'default_blood_settings',
+        wing_logo_url: bloodDonationSettings.wingLogoUrl,
+        wing_logo_size: bloodDonationSettings.wingLogoSize,
+        wing_logo_zoom: bloodDonationSettings.wingLogoZoom,
+        wing_logo_crop: bloodDonationSettings.wingLogoCrop,
+        hero_badge: bloodDonationSettings.heroBadge,
+        hero_title: bloodDonationSettings.heroTitle,
+        hero_subtitle: bloodDonationSettings.heroSubtitle,
+        hero_cta_badge: bloodDonationSettings.heroCtaBadge,
+        hero_cta_title: bloodDonationSettings.heroCtaTitle,
+        hero_cta_description: bloodDonationSettings.heroCtaDescription,
+        hero_cta_btn1_text: bloodDonationSettings.heroCtaBtn1Text,
+        hero_cta_btn2_text: bloodDonationSettings.heroCtaBtn2Text,
+        stat_total_donors_label: bloodDonationSettings.statTotalDonorsLabel,
+        stat_active_donors_label: bloodDonationSettings.statActiveDonorsLabel,
+        stat_groups_label: bloodDonationSettings.statGroupsLabel,
+        stat_groups_value: bloodDonationSettings.statGroupsValue,
+        stat_impact_label: bloodDonationSettings.statImpactLabel,
+        stat_total_donors_override: bloodDonationSettings.statTotalDonorsOverride,
+        stat_active_donors_override: bloodDonationSettings.statActiveDonorsOverride,
+        stat_impact_override: bloodDonationSettings.statImpactOverride,
+        emergency_helpline: bloodDonationSettings.emergencyHelpline,
+        helpline_label: bloodDonationSettings.helplineLabel,
+        coordination_email: bloodDonationSettings.coordinationEmail,
+        guidelines_title: bloodDonationSettings.guidelinesTitle,
+        guidelines_text: bloodDonationSettings.guidelinesText,
+        consent_statement: bloodDonationSettings.consentStatement,
+        enable_public_direct_contact: bloodDonationSettings.enablePublicDirectContact,
+        updated_at: new Date().toISOString()
+      });
+
       setLastSyncedAt(new Date());
       logAudit('SYNC', 'Database', 'full_push', 'Pushed all local CMS entities to Supabase Cloud Database');
       return { success: true, message: 'Successfully synchronized all CMS data and cloud image URLs to Supabase!' };
@@ -1757,7 +1888,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [
     settings, homepageConfig, aboutSettings, headerSettings, footerSettings,
-    programs, campaigns, positions, persons, committees, committeeMembers, mediaLibrary, videos, logAudit
+    programs, campaigns, positions, persons, committees, committeeMembers, mediaLibrary, videos, journeyVideos,
+    bloodDonors, emergencyBloodRequests, bloodDonationSettings, logAudit
   ]);
 
   // MUTATIONS: Global Settings
@@ -3269,8 +3401,15 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   };
 
-  const addBloodDonor = useCallback((donor: Omit<BloodDonor, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const id = `donor-${Date.now()}`;
+  const addBloodDonor = useCallback((donor: Omit<BloodDonor, 'createdAt' | 'updatedAt'> & { id?: string }) => {
+    const id = donor.id?.trim() || `donor-${Date.now()}`;
+    // If ID was in deletedDonorIds, remove it from deleted list since admin explicitly added/re-used this ID
+    if (deletedDonorIdsRef.current.has(id)) {
+      deletedDonorIdsRef.current.delete(id);
+      try {
+        localStorage.setItem(`${STORAGE_PREFIX}deleted_donor_ids`, JSON.stringify(Array.from(deletedDonorIdsRef.current)));
+      } catch {}
+    }
     const stats = calculateDonorStats(donor.donationHistory || [], donor.firstDonationDate, donor.lastDonationDate, donor.totalDonations || 0);
     const newDonor: BloodDonor = {
       ...donor,
@@ -3283,13 +3422,13 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       approvalStatus: donor.approvalStatus || 'APPROVED',
       privacyConsent: donor.privacyConsent ?? true,
       showPhonePublicly: donor.showPhonePublicly ?? false,
-      donationHistory: donor.donationHistory || [],
+      donationHistory: (donor.donationHistory || []).map(h => ({ ...h, donorId: id })),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
 
     setBloodDonors(prev => {
-      const updated = [newDonor, ...prev];
+      const updated = [newDonor, ...prev.filter(d => d.id !== id)];
       try {
         localStorage.setItem(`${STORAGE_PREFIX}bloodDonors`, JSON.stringify(updated));
       } catch {}
@@ -3328,6 +3467,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateBloodDonor = useCallback((id: string, updates: Partial<BloodDonor>) => {
     setBloodDonors(prev => {
+      const newId = updates.id?.trim() || id;
       const updated = prev.map(d => {
         if (d.id !== id) return d;
         const mergedHistory = updates.donationHistory !== undefined ? updates.donationHistory : (d.donationHistory || []);
@@ -3336,17 +3476,21 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return {
           ...d,
           ...updates,
+          id: newId,
           photoUrl: updates.photoUrl !== undefined ? (updates.photoUrl ? getFreshImageUrl(updates.photoUrl) : undefined) : d.photoUrl,
           totalDonations: stats.totalDonations,
           firstDonationDate: stats.firstDonationDate,
           lastDonationDate: stats.lastDonationDate,
-          donationHistory: mergedHistory,
+          donationHistory: mergedHistory.map(h => ({ ...h, donorId: newId })),
           updatedAt: new Date().toISOString()
         };
       });
 
-      const match = updated.find(d => d.id === id);
+      const match = updated.find(d => d.id === newId);
       if (match) {
+        if (newId !== id) {
+          safeDbDelete('blood_donors', 'id', id);
+        }
         safeDbUpsert('blood_donors', {
           id: match.id,
           full_name: match.fullName,
@@ -3381,19 +3525,32 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     logAudit('UPDATE', 'BloodDonor', id, 'Updated blood donor record');
-  }, [logAudit, safeDbUpsert]);
+  }, [logAudit, safeDbDelete, safeDbUpsert]);
 
   const deleteBloodDonor = useCallback((id: string) => {
+    if (!id) return;
+    const cleanId = String(id).trim();
+    deletedDonorIdsRef.current.add(cleanId);
+    try {
+      localStorage.setItem(`${STORAGE_PREFIX}deleted_donor_ids`, JSON.stringify(Array.from(deletedDonorIdsRef.current)));
+    } catch (e) {
+      console.warn('Storage error on deleted_donor_ids:', e);
+    }
+
     setBloodDonors(prev => {
-      const filtered = prev.filter(d => d.id !== id);
+      const filtered = prev.filter(d => d.id !== cleanId && d.id.trim() !== cleanId);
       try {
         localStorage.setItem(`${STORAGE_PREFIX}bloodDonors`, JSON.stringify(filtered));
       } catch {}
       return filtered;
     });
-    logAudit('DELETE', 'BloodDonor', id, 'Deleted blood donor');
-    safeDbDelete('blood_donors', 'id', id);
-  }, [logAudit, safeDbDelete]);
+    logAudit('DELETE', 'BloodDonor', cleanId, 'Deleted blood donor');
+    if (supabase && isSupabaseConfigured) {
+      supabase.from('blood_donation_history').delete().eq('donor_id', cleanId)
+        .then(() => supabase?.from('blood_donors').delete().eq('id', cleanId))
+        .catch(err => console.warn('Supabase donor delete error (handled):', err));
+    }
+  }, [logAudit]);
 
   const approveBloodDonor = useCallback((id: string) => {
     updateBloodDonor(id, { approvalStatus: 'APPROVED' });
@@ -3570,6 +3727,13 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [logAudit, safeDbUpsert]);
 
   const deleteEmergencyBloodRequest = useCallback((id: string) => {
+    deletedRequestIdsRef.current.add(id);
+    try {
+      localStorage.setItem(`${STORAGE_PREFIX}deleted_emergency_request_ids`, JSON.stringify(Array.from(deletedRequestIdsRef.current)));
+    } catch (e) {
+      console.warn('Storage error on deleted_emergency_request_ids:', e);
+    }
+
     setEmergencyBloodRequests(prev => {
       const filtered = prev.filter(r => r.id !== id);
       try {
@@ -4271,6 +4435,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       gallery,
       videos,
       journeyVideos,
+      bloodDonors,
+      emergencyBloodRequests,
+      bloodDonationSettings,
+      donorCategories,
       reports,
       partners,
       volunteers,
@@ -4288,6 +4456,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     socialLinks, volunteerSettings, supportSettings, contactSettings, seoSettings,
     navigationItems, banners, mediaLibrary, galleryAlbums, pressCoverages, adminProfiles,
     campaigns, programs, metrics, stories, news, events, gallery, videos, journeyVideos,
+    bloodDonors, emergencyBloodRequests, bloodDonationSettings, donorCategories,
     reports, partners, volunteers, donations, messages, committees,
     persons, positions, committeeMembers, auditLogs
   ]);
@@ -4320,6 +4489,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (parsed.gallery) setGallery(parsed.gallery);
       if (parsed.videos) setVideos(parsed.videos);
       if (parsed.journeyVideos) setJourneyVideos(parsed.journeyVideos);
+      if (parsed.bloodDonors) setBloodDonors(parsed.bloodDonors);
+      if (parsed.emergencyBloodRequests) setEmergencyBloodRequests(parsed.emergencyBloodRequests);
+      if (parsed.bloodDonationSettings) setBloodDonationSettings(parsed.bloodDonationSettings);
+      if (parsed.donorCategories) setDonorCategories(parsed.donorCategories);
       if (parsed.reports) setReports(parsed.reports);
       if (parsed.partners) setPartners(parsed.partners);
       if (parsed.volunteers) setVolunteers(parsed.volunteers);

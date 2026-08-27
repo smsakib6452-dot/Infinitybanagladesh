@@ -412,7 +412,30 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const deletedSet = new Set(getStoredOrDefault<string[]>('deleted_video_ids', []));
     return stored.filter(v => v.id !== 'vid-1' && !deletedSet.has(v.id) && !(v.videoUrl && v.videoUrl.includes('dQw4w9WgXcQ')));
   });
-  const [journeyVideos, setJourneyVideos] = useState<JourneyVideo[]>(() => getStoredOrDefault('journeyVideos', INITIAL_JOURNEY_VIDEOS));
+  const [journeyVideos, setJourneyVideos] = useState<JourneyVideo[]>(() => {
+    const stored = getStoredOrDefault<JourneyVideo[]>('journeyVideos', INITIAL_JOURNEY_VIDEOS);
+    if (Array.isArray(stored) && stored.length > 0) {
+      return stored.map(s => {
+        const initial = INITIAL_JOURNEY_VIDEOS.find(i => i.id === s.id);
+        if (initial) {
+          const needsUpgrade = !s.videoUrl || !s.thumbnailUrl || s.videoUrl.includes('dQw4w9WgXcQ');
+          if (needsUpgrade) {
+            return {
+              ...s,
+              videoUrl: initial.videoUrl,
+              embedUrl: initial.embedUrl,
+              thumbnailUrl: initial.thumbnailUrl,
+              videoPlatform: initial.videoPlatform,
+              isPublished: true,
+              isFeatured: initial.isFeatured
+            };
+          }
+        }
+        return s;
+      });
+    }
+    return INITIAL_JOURNEY_VIDEOS;
+  });
   const [reports, setReports] = useState<TransparencyReport[]>(() => getStoredOrDefault('reports', INITIAL_REPORTS));
   const [pressCoverages, setPressCoverages] = useState<PressCoverage[]>(() => getStoredOrDefault('pressCoverages', INITIAL_PRESS_COVERAGE));
   const [partners, setPartners] = useState<Partner[]>(() => getStoredOrDefault('partners', INITIAL_PARTNERS));
@@ -1129,6 +1152,16 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             localStorage.setItem(`${STORAGE_PREFIX}journeyVideos`, JSON.stringify(remoteJourneyVideos));
           } catch {}
           return remoteJourneyVideos;
+        });
+      } else {
+        setJourneyVideos(prevLocal => {
+          if (!prevLocal || prevLocal.length === 0 || !prevLocal.some(v => v.videoUrl)) {
+            try {
+              localStorage.setItem(`${STORAGE_PREFIX}journeyVideos`, JSON.stringify(INITIAL_JOURNEY_VIDEOS));
+            } catch {}
+            return INITIAL_JOURNEY_VIDEOS;
+          }
+          return prevLocal;
         });
       }
 

@@ -89,6 +89,12 @@ export const JourneyVideoArchive: React.FC<JourneyVideoArchiveProps> = ({
         embedUrl: getYouTubeEmbedUrl(det.videoId, { autoplay: true, rel: 0 })
       };
     }
+    if (currentVideo.embedUrl && currentVideo.embedUrl.trim()) {
+      return {
+        ...det,
+        embedUrl: currentVideo.embedUrl
+      };
+    }
     return det;
   }, [currentVideo]);
 
@@ -206,7 +212,7 @@ export const JourneyVideoArchive: React.FC<JourneyVideoArchiveProps> = ({
         <div className="rounded-3xl overflow-hidden shadow-warm-xl border-4 border-white aspect-4/3 bg-slate-950 relative flex items-center justify-center">
           {/* STATE A: ACTIVE EMBEDDED PLAYER */}
           {isPlaying && hasValidVideoUrl && mediaInfo?.embedUrl && !embedError ? (
-            <div className="w-full h-full relative bg-black">
+            <div className="w-full h-full relative bg-black flex flex-col justify-between">
               <iframe
                 src={mediaInfo.embedUrl}
                 title={tText(currentVideo.title) || 'Infinity Bangladesh Journey Video'}
@@ -215,15 +221,32 @@ export const JourneyVideoArchive: React.FC<JourneyVideoArchiveProps> = ({
                 allowFullScreen
                 onError={() => setEmbedError(true)}
               />
-              <button
-                type="button"
-                onClick={() => setIsPlaying(false)}
-                className="absolute top-3 right-3 p-1.5 rounded-full bg-black/70 hover:bg-black text-white text-xs backdrop-blur-sm transition-all cursor-pointer z-10 flex items-center gap-1 px-2.5"
-                title="Return to Preview"
-              >
-                <RotateCcw className="w-3 h-3" />
-                <span className="text-[10px] font-bold">{isBn ? 'সংক্ষিপ্ত রূপ' : 'Preview'}</span>
-              </button>
+
+              {/* Floating Top Control Bar */}
+              <div className="absolute top-3 inset-x-3 flex items-center justify-between pointer-events-none z-20">
+                {currentVideo.videoUrl && (
+                  <a
+                    href={currentVideo.videoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="pointer-events-auto p-1.5 px-3 rounded-full bg-black/75 hover:bg-black text-white text-[11px] font-bold backdrop-blur-sm transition-all flex items-center gap-1.5 shadow-md border border-white/20"
+                    title="Open on Source Platform"
+                  >
+                    <span>{mediaInfo?.platform === 'facebook' ? (isBn ? 'ফেসবুকে খুলুন' : 'Open on Facebook') : (isBn ? 'সরাসরি ভিডিও' : 'Open Video')}</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setIsPlaying(false)}
+                  className="pointer-events-auto p-1.5 px-3 rounded-full bg-black/75 hover:bg-black text-white text-[11px] font-bold backdrop-blur-sm transition-all cursor-pointer flex items-center gap-1.5 shadow-md border border-white/20 ml-auto"
+                  title="Return to Preview"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                  <span>{isBn ? 'সংক্ষিপ্ত রূপ' : 'Preview'}</span>
+                </button>
+              </div>
             </div>
           ) : isPlaying && hasValidVideoUrl && embedError ? (
             /* STATE B: EMBED ERROR / BLOCKED IFRAME FALLBACK */
@@ -317,6 +340,26 @@ export const JourneyVideoArchive: React.FC<JourneyVideoArchiveProps> = ({
                     {tText(currentVideo.description)}
                   </p>
                 )}
+
+                <div className="pt-1.5 flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-600/90 text-white text-[11px] font-bold backdrop-blur-sm transition-all shadow-sm">
+                    <Play className="w-3 h-3 fill-current" />
+                    <span>{isBn ? 'ভিডিও চালান' : 'Play Video'}</span>
+                  </span>
+
+                  {currentVideo.videoUrl && (
+                    <a
+                      href={currentVideo.videoUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="inline-flex items-center gap-1 px-3 py-1 rounded-xl bg-black/50 hover:bg-black text-slate-200 hover:text-white text-[11px] font-bold backdrop-blur-sm transition-all border border-white/20"
+                    >
+                      <span>{mediaInfo?.platform === 'facebook' ? (isBn ? 'ফেসবুকে দেখুন' : 'Watch on Facebook') : (isBn ? 'সরাসরি লিঙ্ক' : 'Source Link')}</span>
+                      <ExternalLink className="w-2.5 h-2.5" />
+                    </a>
+                  )}
+                </div>
               </div>
             </div>
           ) : (

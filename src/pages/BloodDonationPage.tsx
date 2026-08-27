@@ -118,6 +118,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
   const [regShowPhone, setRegShowPhone] = useState(false);
   const [regSubmitted, setRegSubmitted] = useState(false);
   const [regRefId, setRegRefId] = useState('');
+  const [regFormError, setRegFormError] = useState<string | null>(null);
 
   // ----------------------------------------------------
   // EMERGENCY BLOOD REQUEST FORM STATE
@@ -135,6 +136,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
   const [emgNotes, setEmgNotes] = useState('');
   const [emgSubmitted, setEmgSubmitted] = useState(false);
   const [emgRefId, setEmgRefId] = useState('');
+  const [emgFormError, setEmgFormError] = useState<string | null>(null);
 
   // ----------------------------------------------------
   // LIVE COMPUTED STATISTICS
@@ -198,12 +200,17 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
   // ----------------------------------------------------
   const handleDonorRegisterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!regFullName.trim() || !regPhone.trim() || !regDistrict || !regUpazila) return;
+    setRegFormError(null);
+
+    if (!regFullName.trim() || !regPhone.trim() || !regDistrict || !regUpazila) {
+      setRegFormError(isBn ? 'অনুগ্রহ করে সকল আবশ্যকীয় তথ্য পূরণ করুন।' : 'Please fill in all required fields.');
+      return;
+    }
 
     // Validate 11-digit BD Phone Number (e.g. 01XXXXXXXXX)
     const cleanPhone = regPhone.replace(/\D/g, '');
     if (!/^01[3-9]\d{8}$/.test(cleanPhone)) {
-      alert(
+      setRegFormError(
         isBn
           ? 'অনুগ্রহ করে সঠিক ১১ ডিজিটের বাংলাদেশি মোবাইল নম্বর প্রদান করুন (যেমন: 018XXXXXXXX)'
           : 'Please enter a valid 11-digit Bangladeshi mobile number starting with 01 (e.g. 018XXXXXXXX)'
@@ -213,24 +220,24 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
 
     // Validate No Future Dates for Blood Donation
     const todayStr = new Date().toISOString().split('T')[0];
+    if (regLastDonationDate && regLastDonationDate > todayStr) {
+      setRegFormError(
+        isBn
+          ? 'সর্বশেষ রক্তদানের তারিখ আজকের বা অতীতের তারিখ হতে হবে, ভবিষ্যতের তারিখ নির্বাচন করা যাবে না।'
+          : 'Last donation date cannot be in the future. Please select today or a past date.'
+      );
+      return;
+    }
     if (regFirstDonationDate && regFirstDonationDate > todayStr) {
-      alert(
+      setRegFormError(
         isBn
           ? 'প্রথম রক্তদানের তারিখ আজকের বা অতীতের তারিখ হতে হবে, ভবিষ্যতের তারিখ নয়।'
           : 'First donation date cannot be in the future.'
       );
       return;
     }
-    if (regLastDonationDate && regLastDonationDate > todayStr) {
-      alert(
-        isBn
-          ? 'সর্বশেষ রক্তদানের তারিখ আজকের বা অতীতের তারিখ হতে হবে, ভবিষ্যতের তারিখ নয়।'
-          : 'Last donation date cannot be in the future.'
-      );
-      return;
-    }
     if (regFirstDonationDate && regLastDonationDate && regFirstDonationDate > regLastDonationDate) {
-      alert(
+      setRegFormError(
         isBn
           ? 'প্রথম রক্তদানের তারিখ শেষ রক্তদানের তারিখের চেয়ে পরের হতে পারে না।'
           : 'First donation date cannot be after the last donation date.'
@@ -1004,17 +1011,52 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="block text-xs font-bold text-slate-800">{isBn ? 'সর্বশেষ রক্তদানের তারিখ' : 'Last Donation Date'}</label>
+                        <label className="block text-xs font-bold text-slate-800 flex items-center justify-between">
+                          <span>{isBn ? 'সর্বশেষ রক্তদানের তারিখ' : 'Last Donation Date'}</span>
+                          {regLastDonationDate && regLastDonationDate > new Date().toISOString().split('T')[0] && (
+                            <span className="text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-200">
+                              {isBn ? 'ভুল তারিখ' : 'Invalid Future Date'}
+                            </span>
+                          )}
+                        </label>
                         <input
                           type="date"
                           max={new Date().toISOString().split('T')[0]}
                           value={regLastDonationDate}
-                          onChange={(e) => setRegLastDonationDate(e.target.value)}
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setRegLastDonationDate(val);
+                            const today = new Date().toISOString().split('T')[0];
+                            if (val > today) {
+                              setRegFormError(
+                                isBn
+                                  ? 'সর্বশেষ রক্তদানের তারিখ আজকের বা অতীতের তারিখ হতে হবে, ভবিষ্যতের নয়।'
+                                  : 'Last donation date cannot be in the future.'
+                              );
+                            } else if (regFormError?.includes('তারিখ') || regFormError?.includes('date')) {
+                              setRegFormError(null);
+                            }
+                          }}
+                          className={`w-full px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm transition-all focus:outline-none ${
+                            regLastDonationDate && regLastDonationDate > new Date().toISOString().split('T')[0]
+                              ? 'border-rose-500 bg-rose-50/60 text-rose-900 ring-2 ring-rose-300'
+                              : 'border-[#EAE3D9] bg-[#FAF7F2] focus:bg-white focus:ring-2 focus:ring-[#006A4E]'
+                          }`}
                         />
-                        <p className="text-[10px] text-slate-400 font-medium">
-                          {isBn ? 'ভবিষ্যতের কোনো তারিখ গ্রহণযোগ্য নয়' : 'Future dates not allowed'}
-                        </p>
+                        {regLastDonationDate && regLastDonationDate > new Date().toISOString().split('T')[0] ? (
+                          <div className="p-2 rounded-xl bg-rose-100/90 border border-rose-300 text-rose-900 text-[11px] font-bold flex items-center gap-1.5 animate-in fade-in">
+                            <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+                            <span>
+                              {isBn
+                                ? 'ভবিষ্যতের কোনো তারিখ রক্তদানের তারিখ হতে পারে না। অনুগ্রহ করে অতীতের বা আজকের সঠিক তারিখ দিন।'
+                                : 'Future date cannot be a past blood donation date. Please select today or a past date.'}
+                            </span>
+                          </div>
+                        ) : (
+                          <p className="text-[10px] text-slate-400 font-medium">
+                            {isBn ? 'অতীতের যেকোনো রক্তদানের তারিখ দিন (ভবিষ্যতের তারিখ গ্রহণযোগ্য নয়)' : 'Must be today or a past date'}
+                          </p>
+                        )}
                       </div>
                     </div>
 
@@ -1062,13 +1104,33 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                     </label>
                   </div>
 
+                  {/* Prominent Error Banner */}
+                  {regFormError && (
+                    <div className="p-4 rounded-2xl bg-rose-50 border-2 border-rose-300 text-rose-900 text-xs sm:text-sm font-bold flex items-start gap-2.5 shadow-warm-xs animate-in fade-in">
+                      <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-extrabold text-rose-950">{isBn ? 'আবেদন জমাদানে ত্রুটি:' : 'Submission Error:'}</p>
+                        <p className="font-medium text-rose-800 mt-0.5 leading-relaxed">{regFormError}</p>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Submit Button */}
                   <button
                     type="submit"
-                    className="w-full py-3.5 rounded-2xl bg-[#006A4E] hover:bg-[#00523C] text-white font-extrabold text-sm shadow-warm-md transition-all flex items-center justify-center gap-2 cursor-pointer transform hover:-translate-y-0.5"
+                    disabled={Boolean(regLastDonationDate && regLastDonationDate > new Date().toISOString().split('T')[0])}
+                    className={`w-full py-3.5 rounded-2xl font-extrabold text-sm shadow-warm-md transition-all flex items-center justify-center gap-2 ${
+                      regLastDonationDate && regLastDonationDate > new Date().toISOString().split('T')[0]
+                        ? 'bg-slate-300 text-slate-500 cursor-not-allowed opacity-80'
+                        : 'bg-[#006A4E] hover:bg-[#00523C] text-white cursor-pointer transform hover:-translate-y-0.5'
+                    }`}
                   >
                     <CheckCircle2 className="w-4 h-4" />
-                    <span>{isBn ? 'রক্তদাতা আবেদন জমা দিন' : 'Submit Donor Registration'}</span>
+                    <span>
+                      {regLastDonationDate && regLastDonationDate > new Date().toISOString().split('T')[0]
+                        ? (isBn ? 'ভবিষ্যতের তারিখ সংশোধন করুন' : 'Correct Future Date')
+                        : (isBn ? 'রক্তদাতা আবেদন জমা দিন' : 'Submit Donor Registration')}
+                    </span>
                   </button>
                 </form>
               </div>

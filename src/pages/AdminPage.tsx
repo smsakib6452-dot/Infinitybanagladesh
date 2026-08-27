@@ -71,7 +71,9 @@ import {
   Link as LinkIcon,
   Film,
   Droplet,
-  AlertTriangle
+  AlertTriangle,
+  Building2,
+  Phone
 } from 'lucide-react';
 import {
   Campaign,

@@ -92,6 +92,15 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
     return initialTab;
   });
 
+  useEffect(() => {
+    if (currentPage === 'blood-donation/find-donor') setActiveTab('find-donor');
+    else if (currentPage === 'blood-donation/become-donor') setActiveTab('become-donor');
+    else if (currentPage === 'blood-donation/update-donor') setActiveTab('update-donor');
+    else if (currentPage === 'blood-donation/emergency-request') setActiveTab('emergency-request');
+    else if (currentPage === 'blood-donation/statistics') setActiveTab('statistics');
+    else if (initialTab) setActiveTab(initialTab);
+  }, [currentPage, initialTab]);
+
   // Modals state
   const [selectedDonorForProfile, setSelectedDonorForProfile] = useState<BloodDonor | null>(null);
   const [selectedDonorForContact, setSelectedDonorForContact] = useState<BloodDonor | null>(null);
@@ -1641,11 +1650,23 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                       <div className="space-y-1.5">
                         <label className="block text-xs font-bold text-slate-800 flex items-center justify-between">
                           <span>{isBn ? 'সর্বশেষ রক্তদানের তারিখ' : 'Last Donation Date'}</span>
-                          {regLastDonationDate && regLastDonationDate > new Date().toISOString().split('T')[0] && (
-                            <span className="text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-200">
-                              {isBn ? 'ভুল তারিখ' : 'Invalid Future Date'}
-                            </span>
-                          )}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const today = new Date().toISOString().split('T')[0];
+                              setRegLastDonationDate(today);
+                              setRegTotalDonations(prev => (Number(prev) || 0) + 1);
+                              setRegAvailability('UNAVAILABLE');
+                              if (regFormError?.includes('তারিখ') || regFormError?.includes('date')) {
+                                setRegFormError(null);
+                              }
+                            }}
+                            className="text-[10px] font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 px-2 py-0.5 rounded-lg border border-rose-200 cursor-pointer flex items-center gap-1"
+                            title={isBn ? 'আজকে রক্তদান করেছেন হিসেবে সেট করুন' : 'Mark as Donated Today'}
+                          >
+                            <Droplet className="w-3 h-3 fill-current text-rose-600" />
+                            <span>{isBn ? 'আজকে রক্তদান করেছি' : 'Donated Today'}</span>
+                          </button>
                         </label>
                         <input
                           type="date"
@@ -1680,9 +1701,27 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                                 : 'Future date cannot be a past blood donation date. Please select today or a past date.'}
                             </span>
                           </div>
-                        ) : (
+                        ) : regLastDonationDate ? (() => {
+                          const cooldown = getCooldownStatusInfo(regLastDonationDate, isBn);
+                          return (
+                            <div className={`p-3 rounded-2xl border text-xs flex items-start gap-2.5 shadow-2xs ${cooldown.badgeColorClass} animate-in fade-in`}>
+                              <HeartPulse className="w-4 h-4 shrink-0 mt-0.5" />
+                              <div className="space-y-0.5 flex-1 min-w-0">
+                                <div className="flex items-center justify-between gap-1">
+                                  <p className="font-extrabold text-[11.5px]">{cooldown.badgeText}</p>
+                                  {cooldown.daysPassed !== null && (
+                                    <span className="text-[9.5px] font-bold opacity-80 font-mono">
+                                      {isBn ? `${cooldown.daysPassed} দিন পার` : `${cooldown.daysPassed}d`}
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-[10.5px] opacity-90 leading-tight">{cooldown.description}</p>
+                              </div>
+                            </div>
+                          );
+                        })() : (
                           <p className="text-[10px] text-slate-400 font-medium">
-                            {isBn ? 'অতীতের যেকোনো রক্তদানের তারিখ দিন (ভবিষ্যতের তারিখ গ্রহণযোগ্য নয়)' : 'Must be today or a past date'}
+                            {isBn ? 'রক্তদানের তারিখ দিলে ১২০ দিনের (৪ মাস) কুলডাউন হিসাব স্বয়ংক্রিয়ভাবে দেখাবে' : 'Cooldown status calculated on 120-day interval rule'}
                           </p>
                         )}
                       </div>

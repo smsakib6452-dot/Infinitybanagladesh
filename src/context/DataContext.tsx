@@ -460,10 +460,20 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const deletedSet = new Set(getStoredOrDefault<string[]>('deleted_donor_ids', []));
     const stored = getStoredOrDefault<BloodDonor[]>('bloodDonors', INITIAL_BLOOD_DONORS);
     const legacyMockIds = new Set(['donor-1', 'donor-2', 'donor-3', 'donor-4', 'donor-5', 'donor-6', 'donor-7', 'donor-8', 'donor-9', 'donor-10']);
+    const donorMap = new Map<string, BloodDonor>();
+    INITIAL_BLOOD_DONORS.forEach(d => {
+      if (!deletedSet.has(d.id) && !legacyMockIds.has(d.id)) {
+        donorMap.set(d.id, d);
+      }
+    });
     if (Array.isArray(stored)) {
-      return stored.filter(d => !deletedSet.has(d.id) && !legacyMockIds.has(d.id));
+      stored.forEach(d => {
+        if (!deletedSet.has(d.id) && !legacyMockIds.has(d.id)) {
+          donorMap.set(d.id, d);
+        }
+      });
     }
-    return [];
+    return Array.from(donorMap.values());
   });
   const [emergencyBloodRequests, setEmergencyBloodRequests] = useState<EmergencyBloodRequest[]>(() => {
     const deletedSet = new Set(getStoredOrDefault<string[]>('deleted_emergency_request_ids', []));

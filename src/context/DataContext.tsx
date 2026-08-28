@@ -693,16 +693,16 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (siteData) {
         setSettings(prev => ({
           ...prev,
-          organizationName: siteData.organization_name || prev.organizationName,
-          teamIdentity: siteData.team_identity || prev.teamIdentity,
-          tagline: siteData.tagline || prev.tagline,
-          officialAddress: siteData.official_address || prev.officialAddress,
-          officialPhone: siteData.official_phone || prev.officialPhone,
-          officialEmail: siteData.official_email || prev.officialEmail,
-          establishedYear: siteData.established_year || prev.establishedYear,
-          logoUrl: getFreshImageUrl(siteData.logo_url || prev.logoUrl),
-          faviconUrl: getFreshImageUrl(siteData.favicon_url || prev.faviconUrl),
-          country: siteData.country || prev.country
+          organizationName: prev.organizationName || siteData.organization_name,
+          teamIdentity: prev.teamIdentity || siteData.team_identity,
+          tagline: prev.tagline || siteData.tagline,
+          officialAddress: prev.officialAddress || siteData.official_address,
+          officialPhone: prev.officialPhone || siteData.official_phone,
+          officialEmail: prev.officialEmail || siteData.official_email,
+          establishedYear: prev.establishedYear || siteData.established_year,
+          logoUrl: getFreshImageUrl(prev.logoUrl || siteData.logo_url),
+          faviconUrl: getFreshImageUrl(prev.faviconUrl || siteData.favicon_url),
+          country: prev.country || siteData.country
         }));
       }
 
@@ -712,44 +712,24 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setHomepageConfig(prev => {
           let syncedHero = {
             ...prev.hero,
-            ...(homeData.hero || {}),
-            headlineMain: (homeData.hero?.headlineMain && homeData.hero.headlineMain.bn) ? homeData.hero.headlineMain : prev.hero.headlineMain,
-            headlineHighlight: (homeData.hero?.headlineHighlight && homeData.hero.headlineHighlight.bn) ? homeData.hero.headlineHighlight : prev.hero.headlineHighlight,
-            description: (homeData.hero?.description && homeData.hero.description.bn) ? homeData.hero.description : prev.hero.description,
-            heroImageUrl: getFreshImageUrl(homeData.hero?.heroImageUrl || prev.hero.heroImageUrl)
+            headlineMain: prev.hero?.headlineMain?.bn ? prev.hero.headlineMain : (homeData.hero?.headlineMain || prev.hero.headlineMain),
+            headlineHighlight: prev.hero?.headlineHighlight?.bn ? prev.hero.headlineHighlight : (homeData.hero?.headlineHighlight || prev.hero.headlineHighlight),
+            description: prev.hero?.description?.bn ? prev.hero.description : (homeData.hero?.description || prev.hero.description),
+            heroImageUrl: getFreshImageUrl(prev.hero?.heroImageUrl || homeData.hero?.heroImageUrl)
           };
-          if (
-            !syncedHero.eyebrow ||
-            syncedHero.eyebrow.en === 'TEAM INFINITY — UNITED FOR HUMANITY' ||
-            syncedHero.eyebrow.bn === 'টিম ইনফিনিটি — মানবতার জন্য একতাবদ্ধ' ||
-            syncedHero.eyebrow.bn === 'টিম ইনফিনিটি — ইউনাইটেড ফর হিউম্যানিটি'
-          ) {
-            syncedHero.eyebrow = INITIAL_HOMEPAGE_CONFIG.hero.eyebrow;
-            safeDbUpsert('homepage_config', {
-              id: 'default',
-              hero: syncedHero,
-              about_preview: homeData.about_preview || prev.aboutPreview,
-              volunteer_banner: homeData.volunteer_banner || prev.volunteerBanner,
-              support_banner: homeData.support_banner || prev.supportBanner,
-              section_order: homeData.section_order || prev.sectionOrder,
-              section_visibility: homeData.section_visibility || prev.sectionVisibility,
-              updated_at: new Date().toISOString()
-            });
-          }
           return {
             ...prev,
             hero: syncedHero,
             aboutPreview: {
               ...prev.aboutPreview,
-              ...(homeData.about_preview || {}),
-              titleMain: (homeData.about_preview?.titleMain && homeData.about_preview.titleMain.bn) ? homeData.about_preview.titleMain : prev.aboutPreview.titleMain,
-              description: (homeData.about_preview?.description && homeData.about_preview.description.bn) ? homeData.about_preview.description : prev.aboutPreview.description,
-              imageUrl: getFreshImageUrl(homeData.about_preview?.imageUrl || prev.aboutPreview.imageUrl)
+              titleMain: prev.aboutPreview?.titleMain?.bn ? prev.aboutPreview.titleMain : (homeData.about_preview?.titleMain || prev.aboutPreview.titleMain),
+              description: prev.aboutPreview?.description?.bn ? prev.aboutPreview.description : (homeData.about_preview?.description || prev.aboutPreview.description),
+              imageUrl: getFreshImageUrl(prev.aboutPreview?.imageUrl || homeData.about_preview?.imageUrl)
             },
-            volunteerBanner: { ...prev.volunteerBanner, ...(homeData.volunteer_banner || {}) },
-            supportBanner: { ...prev.supportBanner, ...(homeData.support_banner || {}) },
-            sectionOrder: (Array.isArray(homeData.section_order) && homeData.section_order.length > 0) ? homeData.section_order : prev.sectionOrder,
-            sectionVisibility: (homeData.section_visibility && Object.keys(homeData.section_visibility).length > 0) ? { ...prev.sectionVisibility, ...homeData.section_visibility } : prev.sectionVisibility
+            volunteerBanner: { ...(homeData.volunteer_banner || {}), ...prev.volunteerBanner },
+            supportBanner: { ...(homeData.support_banner || {}), ...prev.supportBanner },
+            sectionOrder: prev.sectionOrder && prev.sectionOrder.length > 0 ? prev.sectionOrder : (homeData.section_order || prev.sectionOrder),
+            sectionVisibility: { ...(homeData.section_visibility || {}), ...prev.sectionVisibility }
           };
         });
       }
@@ -759,55 +739,33 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (aboutData) {
         setAboutSettings(prev => ({
           ...prev,
-          title: (aboutData.title && aboutData.title.bn) ? aboutData.title : prev.title,
-          subtitle: (aboutData.subtitle && aboutData.subtitle.bn) ? aboutData.subtitle : prev.subtitle,
-          mission: (aboutData.mission && aboutData.mission.bn) ? aboutData.mission : prev.mission,
-          vision: (aboutData.vision && aboutData.vision.bn) ? aboutData.vision : prev.vision,
-          history: (aboutData.history && aboutData.history.bn) ? aboutData.history : prev.history,
-          establishedYear: aboutData.established_year || prev.establishedYear,
-          location: aboutData.location || prev.location,
-          heroImageUrl: getFreshImageUrl(aboutData.hero_image_url || prev.heroImageUrl),
-          secondaryImageUrl: getFreshImageUrl(aboutData.secondary_image_url || prev.secondaryImageUrl)
+          title: prev.title?.bn ? prev.title : (aboutData.title || prev.title),
+          subtitle: prev.subtitle?.bn ? prev.subtitle : (aboutData.subtitle || prev.subtitle),
+          mission: prev.mission?.bn ? prev.mission : (aboutData.mission || prev.mission),
+          vision: prev.vision?.bn ? prev.vision : (aboutData.vision || prev.vision),
+          history: prev.history?.bn ? prev.history : (aboutData.history || prev.history),
+          establishedYear: prev.establishedYear || aboutData.established_year,
+          location: prev.location || aboutData.location,
+          heroImageUrl: getFreshImageUrl(prev.heroImageUrl || aboutData.hero_image_url),
+          secondaryImageUrl: getFreshImageUrl(prev.secondaryImageUrl || aboutData.secondary_image_url)
         }));
       }
 
       // 4. Header Settings
       const { data: headerData } = await supabase.from('header_settings').select('*').single();
       if (headerData) {
-        setHeaderSettings(prev => {
-          let syncedNotice = (headerData.notice_bar_text && headerData.notice_bar_text.bn) ? headerData.notice_bar_text : prev.noticeBarText;
-          if (
-            !syncedNotice ||
-            syncedNotice.en?.includes('Team Infinity | United for Humanity') ||
-            syncedNotice.bn?.includes('টিম ইনফিনিটি | মানবতার জন্য একতাবদ্ধ') ||
-            syncedNotice.bn?.includes('টিম ইনফিনিটি | ইউনাইটেড ফর হিউম্যানিটি')
-          ) {
-            syncedNotice = INITIAL_HEADER_SETTINGS.noticeBarText;
-            safeDbUpsert('header_settings', {
-              id: 'default',
-              logo_url: headerData.logo_url || prev.logoUrl,
-              show_notice_bar: headerData.show_notice_bar ?? prev.showNoticeBar,
-              notice_bar_text: syncedNotice,
-              notice_bar_link: headerData.notice_bar_link || prev.noticeBarLink || 'transparency',
-              support_button_text: headerData.support_button_text || prev.supportButtonText,
-              support_button_url: headerData.support_button_url || prev.supportButtonUrl || 'donate',
-              show_support_button: headerData.show_support_button ?? prev.showSupportButton ?? true,
-              updated_at: new Date().toISOString()
-            });
-          }
-          return {
-            ...prev,
-            logoUrl: getFreshImageUrl(headerData.logo_url || prev.logoUrl),
-            showNoticeBar: headerData.show_notice_bar ?? prev.showNoticeBar,
-            noticeBarText: syncedNotice,
-            noticeBarLink: headerData.notice_bar_link || prev.noticeBarLink,
-            noticeBarButtonText: (headerData.notice_bar_button_text && headerData.notice_bar_button_text.bn) ? headerData.notice_bar_button_text : (prev.noticeBarButtonText || INITIAL_HEADER_SETTINGS.noticeBarButtonText),
-            showNoticeBarButton: headerData.show_notice_bar_button ?? prev.showNoticeBarButton ?? true,
-            supportButtonText: (headerData.support_button_text && headerData.support_button_text.bn) ? headerData.support_button_text : prev.supportButtonText,
-            supportButtonUrl: headerData.support_button_url || prev.supportButtonUrl,
-            showSupportButton: headerData.show_support_button ?? prev.showSupportButton
-          };
-        });
+        setHeaderSettings(prev => ({
+          ...prev,
+          logoUrl: getFreshImageUrl(prev.logoUrl || headerData.logo_url),
+          showNoticeBar: prev.showNoticeBar ?? headerData.show_notice_bar,
+          noticeBarText: prev.noticeBarText?.bn ? prev.noticeBarText : (headerData.notice_bar_text || prev.noticeBarText),
+          noticeBarLink: prev.noticeBarLink || headerData.notice_bar_link,
+          noticeBarButtonText: prev.noticeBarButtonText?.bn ? prev.noticeBarButtonText : (headerData.notice_bar_button_text || prev.noticeBarButtonText),
+          showNoticeBarButton: prev.showNoticeBarButton ?? headerData.show_notice_bar_button ?? true,
+          supportButtonText: prev.supportButtonText?.bn ? prev.supportButtonText : (headerData.support_button_text || prev.supportButtonText),
+          supportButtonUrl: prev.supportButtonUrl || headerData.support_button_url,
+          showSupportButton: prev.showSupportButton ?? headerData.show_support_button
+        }));
       }
 
       // 5. Footer Settings
@@ -815,26 +773,26 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (footerData) {
         setFooterSettings(prev => ({
           ...prev,
-          footerLogoUrl: getFreshImageUrl(footerData.footer_logo_url || prev.footerLogoUrl),
-          description: (footerData.description && footerData.description.bn) ? footerData.description : prev.description,
-          address: (footerData.address && footerData.address.bn) ? footerData.address : prev.address,
-          phone: footerData.phone || prev.phone,
-          email: footerData.email || prev.email,
-          copyrightText: (footerData.copyright_text && footerData.copyright_text.bn) ? footerData.copyright_text : prev.copyrightText,
-          calloutEyebrow: footerData.callout_eyebrow || prev.calloutEyebrow,
-          calloutTitle: footerData.callout_title || prev.calloutTitle,
-          calloutSubtitle: footerData.callout_subtitle || prev.calloutSubtitle,
-          volunteerCtaText: footerData.volunteer_cta_text || prev.volunteerCtaText,
-          volunteerCtaUrl: footerData.volunteer_cta_url || prev.volunteerCtaUrl,
-          supportCtaText: footerData.support_cta_text || prev.supportCtaText,
-          supportCtaUrl: footerData.support_cta_url || prev.supportCtaUrl
+          footerLogoUrl: getFreshImageUrl(prev.footerLogoUrl || footerData.footer_logo_url),
+          description: prev.description?.bn ? prev.description : (footerData.description || prev.description),
+          address: prev.address || footerData.address || '',
+          phone: prev.phone || footerData.phone || '',
+          email: prev.email || footerData.email || '',
+          copyrightText: prev.copyrightText?.bn ? prev.copyrightText : (footerData.copyright_text || prev.copyrightText),
+          calloutEyebrow: prev.calloutEyebrow || footerData.callout_eyebrow,
+          calloutTitle: prev.calloutTitle || footerData.callout_title,
+          calloutSubtitle: prev.calloutSubtitle || footerData.callout_subtitle,
+          volunteerCtaText: prev.volunteerCtaText || footerData.volunteer_cta_text,
+          volunteerCtaUrl: prev.volunteerCtaUrl || footerData.volunteer_cta_url,
+          supportCtaText: prev.supportCtaText || footerData.support_cta_text,
+          supportCtaUrl: prev.supportCtaUrl || footerData.support_cta_url
         }));
       }
 
       // 6. Programs
       const { data: progData } = await supabase.from('programs').select('*').order('display_order', { ascending: true });
       if (progData && progData.length > 0) {
-        setPrograms(progData.map(p => ({
+        const remotePrograms: Program[] = progData.map(p => ({
           id: p.id,
           slug: p.slug,
           title: p.title,
@@ -846,13 +804,18 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           iconName: p.icon_name || 'HeartHandshake',
           status: p.status as Program['status'],
           displayOrder: p.display_order
-        })));
+        }));
+        setPrograms(prevLocal => {
+          const remoteIds = new Set(remotePrograms.map(r => r.id));
+          const localOnly = prevLocal.filter(l => !remoteIds.has(l.id));
+          return localOnly.length > 0 ? [...localOnly, ...remotePrograms] : remotePrograms;
+        });
       }
 
       // 7. Campaigns
       const { data: campData } = await supabase.from('campaigns').select('*').order('created_at', { ascending: false });
       if (campData && campData.length > 0) {
-        setCampaigns(campData.map(c => ({
+        const remoteCampaigns: Campaign[] = campData.map(c => ({
           id: c.id,
           slug: c.slug,
           title: c.title,
@@ -876,26 +839,36 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           galleryImages: (c.gallery_images || []).map((img: string) => getFreshImageUrl(img)),
           videoUrl: c.video_url,
           reportUrl: c.report_url
-        })));
+        }));
+        setCampaigns(prevLocal => {
+          const remoteIds = new Set(remoteCampaigns.map(r => r.id));
+          const localOnly = prevLocal.filter(l => !remoteIds.has(l.id));
+          return localOnly.length > 0 ? [...localOnly, ...remoteCampaigns] : remoteCampaigns;
+        });
       }
 
       // 7.5. Impact Metrics
       const { data: metricData } = await supabase.from('impact_metrics').select('*').order('order', { ascending: true });
       if (metricData && metricData.length > 0) {
-        setMetrics(metricData.map(m => ({
+        const remoteMetrics: ImpactMetric[] = metricData.map(m => ({
           id: m.id,
           label: m.label,
           value: m.value,
           description: m.description,
           iconName: m.icon_name || m.iconName || 'HeartHandshake',
           order: m.order
-        })));
+        }));
+        setMetrics(prevLocal => {
+          const remoteIds = new Set(remoteMetrics.map(r => r.id));
+          const localOnly = prevLocal.filter(l => !remoteIds.has(l.id));
+          return localOnly.length > 0 ? [...localOnly, ...remoteMetrics] : remoteMetrics;
+        });
       }
 
       // 8. Stories
       const { data: storyData } = await supabase.from('stories').select('*').order('created_at', { ascending: false });
       if (storyData && storyData.length > 0) {
-        setStories(storyData.map(s => ({
+        const remoteStories: ImpactStory[] = storyData.map(s => ({
           id: s.id,
           slug: s.slug,
           title: s.title,
@@ -909,13 +882,18 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           consentConfirmed: s.consent_confirmed,
           isFeatured: s.is_featured,
           status: s.status
-        })));
+        }));
+        setStories(prevLocal => {
+          const remoteIds = new Set(remoteStories.map(r => r.id));
+          const localOnly = prevLocal.filter(l => !remoteIds.has(l.id));
+          return localOnly.length > 0 ? [...localOnly, ...remoteStories] : remoteStories;
+        });
       }
 
       // 9. Persons & Leadership (Committee Members)
       const { data: personData } = await supabase.from('persons').select('*').order('created_at', { ascending: true });
       if (personData && personData.length > 0) {
-        setPersons(personData.map(p => ({
+        const remotePersons: Person[] = personData.map(p => ({
           id: p.id,
           fullName: p.full_name,
           banglaName: p.bangla_name,
@@ -933,25 +911,35 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           socialLinks: p.social_links,
           joiningYear: p.joining_year,
           active: p.active
-        })));
+        }));
+        setPersons(prevLocal => {
+          const remoteIds = new Set(remotePersons.map(r => r.id));
+          const localOnly = prevLocal.filter(l => !remoteIds.has(l.id));
+          return localOnly.length > 0 ? [...localOnly, ...remotePersons] : remotePersons;
+        });
       }
 
       // 9.5. Positions
       const { data: posData } = await supabase.from('positions').select('*').order('sort_order', { ascending: true });
       if (posData && posData.length > 0) {
-        setPositions(posData.map(p => ({
+        const remotePositions: Position[] = posData.map(p => ({
           id: p.id,
           name: p.name,
           level: Number(p.level) || 5,
           sortOrder: Number(p.sort_order) || 10,
           description: p.description
-        })));
+        }));
+        setPositions(prevLocal => {
+          const remoteIds = new Set(remotePositions.map(r => r.id));
+          const localOnly = prevLocal.filter(l => !remoteIds.has(l.id));
+          return localOnly.length > 0 ? [...localOnly, ...remotePositions] : remotePositions;
+        });
       }
 
       // 10. Committees
       const { data: comData } = await supabase.from('committees').select('*').order('sort_order', { ascending: true });
       if (comData && comData.length > 0) {
-        setCommittees(comData.map(c => ({
+        const remoteCommittees: Committee[] = comData.map(c => ({
           id: c.id,
           slug: c.slug,
           name: c.name,
@@ -962,13 +950,18 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           sortOrder: c.sort_order,
           isFeatured: c.is_featured,
           bannerImageUrl: getFreshImageUrl(c.banner_image_url)
-        })));
+        }));
+        setCommittees(prevLocal => {
+          const remoteIds = new Set(remoteCommittees.map(r => r.id));
+          const localOnly = prevLocal.filter(l => !remoteIds.has(l.id));
+          return localOnly.length > 0 ? [...localOnly, ...remoteCommittees] : remoteCommittees;
+        });
       }
 
       // 11. Committee Members mapping
       const { data: memData } = await supabase.from('committee_members').select('*').order('sort_order', { ascending: true });
       if (memData && memData.length > 0) {
-        setCommitteeMembers(memData.map(m => ({
+        const remoteMembers: CommitteeMember[] = memData.map(m => ({
           id: m.id,
           committeeId: m.committee_id,
           personId: m.person_id,
@@ -979,7 +972,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           startDate: m.start_date,
           endDate: m.end_date,
           status: m.status
-        })));
+        }));
+        setCommitteeMembers(prevLocal => {
+          const remoteIds = new Set(remoteMembers.map(r => r.id));
+          const localOnly = prevLocal.filter(l => !remoteIds.has(l.id));
+          return localOnly.length > 0 ? [...localOnly, ...remoteMembers] : remoteMembers;
+        });
       }
 
       // 12. Media Library
@@ -1048,7 +1046,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // 14. Partners
       const { data: partData } = await supabase.from('partners').select('*').order('partnership_year', { ascending: false });
       if (partData && partData.length > 0) {
-        setPartners(partData.map(p => ({
+        const remotePartners: Partner[] = partData.map(p => ({
           id: p.id,
           name: p.name,
           logoUrl: getFreshImageUrl(p.logo_url),
@@ -1056,13 +1054,18 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           type: p.type,
           description: p.description,
           partnershipYear: p.partnership_year
-        })));
+        }));
+        setPartners(prevLocal => {
+          const remoteIds = new Set(remotePartners.map(r => r.id));
+          const localOnly = prevLocal.filter(l => !remoteIds.has(l.id));
+          return localOnly.length > 0 ? [...localOnly, ...remotePartners] : remotePartners;
+        });
       }
 
       // 15. News & Articles
       const { data: newsData } = await supabase.from('news_articles').select('*').order('created_at', { ascending: false });
       if (newsData && newsData.length > 0) {
-        setNews(newsData.map(n => ({
+        const remoteNews: NewsArticle[] = newsData.map(n => ({
           id: n.id,
           slug: n.slug,
           title: n.title,
@@ -1074,13 +1077,18 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           imageUrl: getFreshImageUrl(n.image_url),
           tags: n.tags || [],
           status: n.status
-        })));
+        }));
+        setNews(prevLocal => {
+          const remoteIds = new Set(remoteNews.map(r => r.id));
+          const localOnly = prevLocal.filter(l => !remoteIds.has(l.id));
+          return localOnly.length > 0 ? [...localOnly, ...remoteNews] : remoteNews;
+        });
       }
 
       // 16. Events
       const { data: evData } = await supabase.from('event_items').select('*').order('created_at', { ascending: false });
       if (evData && evData.length > 0) {
-        setEvents(evData.map(e => ({
+        const remoteEvents: EventItem[] = evData.map(e => ({
           id: e.id,
           slug: e.slug,
           title: e.title,
@@ -1091,7 +1099,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           imageUrl: getFreshImageUrl(e.image_url),
           status: e.status,
           registrationOpen: e.registration_open
-        })));
+        }));
+        setEvents(prevLocal => {
+          const remoteIds = new Set(remoteEvents.map(r => r.id));
+          const localOnly = prevLocal.filter(l => !remoteIds.has(l.id));
+          return localOnly.length > 0 ? [...localOnly, ...remoteEvents] : remoteEvents;
+        });
       }
 
       // 17. Video Documentation & Footage
@@ -1133,129 +1146,44 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             !(l.videoUrl && l.videoUrl.includes('dQw4w9WgXcQ'))
           );
           if (localOnly.length > 0) {
-            // Re-sync local unsynced videos to Supabase in background
             localOnly.forEach(l => {
               safeDbUpsert('video_items', {
                 id: l.id,
                 title: l.title,
                 video_url: l.videoUrl,
-                embed_url: l.embedUrl || '',
+                embed_url: l.embedUrl,
                 thumbnail_url: l.thumbnailUrl,
                 platform: l.platform,
-                duration: l.duration || '',
+                duration: l.duration,
                 date: l.date,
                 description: l.description,
                 category: l.category,
                 status: l.status,
                 is_featured: l.isFeatured,
                 source_type: l.sourceType,
-                aspect_ratio: l.aspectRatio || '16/9',
-                is_shorts: l.isShorts || false,
-                created_at: l.createdAt,
-                updated_at: l.updatedAt
-              });
-            });
-            const merged = [...localOnly, ...remoteVideos];
-            try {
-              localStorage.setItem(`${STORAGE_PREFIX}videos`, JSON.stringify(merged));
-            } catch {}
-            return merged;
-          }
-          try {
-            localStorage.setItem(`${STORAGE_PREFIX}videos`, JSON.stringify(remoteVideos));
-          } catch {}
-          return remoteVideos;
-        });
-      } else {
-        setVideos(prevLocal => {
-          const cleaned = prevLocal.filter(l => 
-            l.id !== 'vid-1' && 
-            !deletedIdsRef.current.has(l.id) && 
-            !(l.videoUrl && l.videoUrl.includes('dQw4w9WgXcQ'))
-          );
-          try {
-            localStorage.setItem(`${STORAGE_PREFIX}videos`, JSON.stringify(cleaned));
-          } catch {}
-          return cleaned;
-        });
-      }
-
-      // 17.5. Journey Videos (About Page Archive)
-      const { data: jvidData } = await supabase.from('journey_videos').select('*').order('display_order', { ascending: true });
-      if (jvidData && Array.isArray(jvidData) && jvidData.length > 0) {
-        const remoteJourneyVideos: JourneyVideo[] = jvidData.map(jv => {
-          const det = detectAndNormalizeMedia(jv.video_url || '');
-          return {
-            id: jv.id,
-            title: jv.title || { en: '', bn: '' },
-            timelineLabel: jv.timeline_label || { en: '', bn: '' },
-            description: jv.description || { en: '', bn: '' },
-            category: jv.category || 'Organizational Journey',
-            videoUrl: jv.video_url || '',
-            videoPlatform: jv.video_platform || det.platform || 'auto',
-            embedUrl: jv.embed_url || det.embedUrl || '',
-            thumbnailUrl: getFreshImageUrl(jv.thumbnail_url || det.thumbnailUrl || ''),
-            displayOrder: jv.display_order ?? 0,
-            isPublished: jv.is_published ?? true,
-            isFeatured: jv.is_featured ?? false,
-            createdAt: jv.created_at,
-            updatedAt: jv.updated_at
-          };
-        });
-
-        setJourneyVideos(prevLocal => {
-          const remoteIds = new Set(remoteJourneyVideos.map(r => r.id));
-          const localOnly = prevLocal.filter(l => !remoteIds.has(l.id));
-          if (localOnly.length > 0) {
-            localOnly.forEach(l => {
-              safeDbUpsert('journey_videos', {
-                id: l.id,
-                title: l.title,
-                timeline_label: l.timelineLabel,
-                description: l.description,
-                category: l.category,
-                video_url: l.videoUrl,
-                video_platform: l.videoPlatform,
-                embed_url: l.embedUrl || '',
-                thumbnail_url: l.thumbnailUrl || '',
-                display_order: l.displayOrder,
-                is_published: l.isPublished,
-                is_featured: l.isFeatured,
+                aspect_ratio: l.aspectRatio,
+                is_shorts: l.isShorts,
                 created_at: l.createdAt || new Date().toISOString(),
                 updated_at: l.updatedAt || new Date().toISOString()
               });
             });
-            const merged = [...localOnly, ...remoteJourneyVideos].sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
-            try {
-              localStorage.setItem(`${STORAGE_PREFIX}journeyVideos`, JSON.stringify(merged));
-            } catch {}
-            return merged;
+            return [...localOnly, ...remoteVideos];
           }
-          try {
-            localStorage.setItem(`${STORAGE_PREFIX}journeyVideos`, JSON.stringify(remoteJourneyVideos));
-          } catch {}
-          return remoteJourneyVideos;
-        });
-      } else {
-        setJourneyVideos(prevLocal => {
-          if (!prevLocal || prevLocal.length === 0 || !prevLocal.some(v => v.videoUrl)) {
-            try {
-              localStorage.setItem(`${STORAGE_PREFIX}journeyVideos`, JSON.stringify(INITIAL_JOURNEY_VIDEOS));
-            } catch {}
-            return INITIAL_JOURNEY_VIDEOS;
-          }
-          return prevLocal;
+          return remoteVideos;
         });
       }
 
-      // 17.6. Blood Donation Network (Donors, History, Emergency Requests, Settings)
-      const { data: bloodDonorsData } = await supabase.from('blood_donors').select('*, blood_donation_history(*)').order('created_at', { ascending: false });
+      // 17.5. Blood Donation Network
+      const { data: bloodDonorsData } = await supabase
+        .from('blood_donors')
+        .select('*, blood_donation_history(*)')
+        .order('created_at', { ascending: false });
+
       const legacyMockIds = new Set(['donor-1', 'donor-2', 'donor-3', 'donor-4', 'donor-5', 'donor-6', 'donor-7', 'donor-8', 'donor-9', 'donor-10']);
+
       if (bloodDonorsData && Array.isArray(bloodDonorsData)) {
-        // Delete any legacy mock seed donors or user-deleted donors from Supabase table
         bloodDonorsData.forEach(d => {
-          if (legacyMockIds.has(d.id) || deletedDonorIdsRef.current.has(d.id)) {
-            supabase.from('blood_donation_history').delete().eq('donor_id', d.id).then(() => {});
+          if (legacyMockIds.has(d.id)) {
             supabase.from('blood_donors').delete().eq('id', d.id).then(() => {});
           }
         });
@@ -1267,135 +1195,86 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             fullName: d.full_name,
             bloodGroup: d.blood_group,
             gender: d.gender || 'Male',
-            dateOfBirth: d.date_of_birth || d.dob || undefined,
-            dob: d.dob || d.date_of_birth || undefined,
+            dateOfBirth: d.date_of_birth || d.dob,
+            dob: d.date_of_birth || d.dob,
             phone: d.phone,
             email: d.email || undefined,
-            photoUrl: getFreshImageUrl(d.photo_url) || undefined,
+            photoUrl: getFreshImageUrl(d.photo_url),
             district: d.district,
             upazila: d.upazila,
             area: d.area,
-            detailedAddress: d.detailed_address || undefined,
-            orgCategory: d.org_category || 'Infinity Bangladesh Volunteer',
-            committeePosition: d.committee_position || undefined,
+            detailedAddress: d.detailed_address,
+            orgCategory: d.org_category || 'General Voluntary Donor',
+            committeePosition: d.committee_position,
             availabilityStatus: d.availability_status || 'AVAILABLE_EMERGENCY',
             lastDonationDate: d.last_donation_date || undefined,
-            totalDonations: d.total_donations ?? 0,
-            experienceNotes: d.experience_notes || undefined,
+            totalDonations: Number(d.total_donations) || 0,
+            experienceNotes: d.experience_notes,
+            privacyConsent: d.privacy_consent ?? d.consent_confirmed ?? true,
+            showPhonePublicly: d.show_phone_publicly ?? d.show_phone_number_publicly ?? false,
+            approvalStatus: d.approval_status || 'PENDING',
             isVerified: d.is_verified ?? false,
-            approvalStatus: d.approval_status ?? 'PENDING',
-            privacyConsent: d.privacy_consent ?? true,
-            showPhonePublicly: d.show_phone_publicly ?? false,
             donationHistory: Array.isArray(d.blood_donation_history) ? d.blood_donation_history.map((h: any) => ({
               id: h.id,
               donorId: h.donor_id,
               donationDate: h.donation_date,
-              hospital: h.hospital,
-              district: h.district,
-              donationType: h.donation_type,
-              recipientReference: h.recipient_reference || undefined,
-              notes: h.notes || undefined,
-              isVerified: h.is_verified ?? true,
-              createdAt: h.created_at
+              patientName: h.patient_name,
+              hospitalName: h.hospital_name,
+              location: h.location,
+              notes: h.notes,
+              recordedAt: h.created_at || h.recorded_at
             })) : [],
             createdAt: d.created_at,
             updatedAt: d.updated_at
           }));
         setBloodDonors(prevLocal => {
-          const localCleaned = prevLocal.filter(l => !deletedDonorIdsRef.current.has(l.id) && !legacyMockIds.has(l.id));
-          const remoteCleaned = remoteDonors.filter(r => !deletedDonorIdsRef.current.has(r.id) && !legacyMockIds.has(r.id));
-          const remoteIds = new Set(remoteCleaned.map(r => r.id));
-          const localOnly = localCleaned.filter(l => !remoteIds.has(l.id));
-          const merged = [...remoteCleaned, ...localOnly];
-          try {
-            localStorage.setItem(`${STORAGE_PREFIX}bloodDonors`, JSON.stringify(merged));
-          } catch {}
-          return merged;
-        });
-      } else {
-        setBloodDonors(prevLocal => {
-          const cleaned = prevLocal.filter(l => !deletedDonorIdsRef.current.has(l.id) && !legacyMockIds.has(l.id));
-          try {
-            localStorage.setItem(`${STORAGE_PREFIX}bloodDonors`, JSON.stringify(cleaned));
-          } catch {}
-          return cleaned;
-        });
-      }
-
-      const { data: emgData } = await supabase.from('emergency_blood_requests').select('*').order('created_at', { ascending: false });
-      const legacyMockReqIds = new Set(['req-1', 'req-2', 'req-3']);
-      if (emgData && Array.isArray(emgData)) {
-        emgData.forEach(r => {
-          if (legacyMockReqIds.has(r.id)) {
-            supabase.from('emergency_blood_requests').delete().eq('id', r.id).then(() => {});
-          }
-        });
-
-        const remoteReqs: EmergencyBloodRequest[] = emgData
-          .filter(r => !deletedRequestIdsRef.current.has(r.id) && !legacyMockReqIds.has(r.id))
-          .map(r => ({
-            id: r.id,
-            requesterName: r.requester_name,
-            contactNumber: r.contact_number,
-            patientName: r.patient_name,
-            bloodGroup: r.blood_group,
-            unitsNeeded: r.units_needed ?? 1,
-            hospitalName: r.hospital_name,
-            district: r.district,
-            upazila: r.upazila,
-            emergencyLevel: r.emergency_level || 'URGENT',
-            requiredDate: r.required_date,
-            additionalNotes: r.additional_notes || undefined,
-            status: r.status || 'PENDING',
-            matchedDonorIds: Array.isArray(r.matched_donor_ids) ? r.matched_donor_ids : [],
-            createdAt: r.created_at,
-            updatedAt: r.updated_at
-          }));
-        setEmergencyBloodRequests(remoteReqs);
-        try {
-          localStorage.setItem(`${STORAGE_PREFIX}emergencyRequests`, JSON.stringify(remoteReqs));
-        } catch {}
-      } else {
-        setEmergencyBloodRequests(prevLocal => {
-          const cleaned = prevLocal.filter(l => !deletedRequestIdsRef.current.has(l.id) && !legacyMockReqIds.has(l.id));
-          try {
-            localStorage.setItem(`${STORAGE_PREFIX}emergencyRequests`, JSON.stringify(cleaned));
-          } catch {}
-          return cleaned;
+          const remoteIds = new Set(remoteDonors.map(r => r.id));
+          const localOnly = prevLocal.filter(l => !remoteIds.has(l.id));
+          return [...remoteDonors, ...localOnly];
         });
       }
 
       const { data: bSettingsData } = await supabase.from('blood_donation_settings').select('*').single();
       if (bSettingsData) {
         setBloodDonationSettings(prevLocal => {
+          // If local has custom logo or settings, do NOT let remote empty/default overwrite it
+          const localHasCustomLogo = prevLocal.wingLogoUrl && prevLocal.wingLogoUrl !== INITIAL_BLOOD_SETTINGS.wingLogoUrl;
+          const remoteLogo = bSettingsData.wing_logo_url;
+          
+          const resolvedLogo = localHasCustomLogo 
+            ? prevLocal.wingLogoUrl 
+            : (remoteLogo || prevLocal.wingLogoUrl || INITIAL_BLOOD_SETTINGS.wingLogoUrl);
+
           const remoteBSettings: BloodDonationSettings = {
-            wingLogoUrl: bSettingsData.wing_logo_url || prevLocal.wingLogoUrl || INITIAL_BLOOD_SETTINGS.wingLogoUrl,
-            wingLogoSize: bSettingsData.wing_logo_size ?? prevLocal.wingLogoSize ?? INITIAL_BLOOD_SETTINGS.wingLogoSize,
-            wingLogoZoom: bSettingsData.wing_logo_zoom ?? prevLocal.wingLogoZoom ?? 1,
-            wingLogoCrop: bSettingsData.wing_logo_crop || prevLocal.wingLogoCrop || 'contain',
-            heroBadge: (bSettingsData.hero_badge && (bSettingsData.hero_badge.en || bSettingsData.hero_badge.bn)) ? bSettingsData.hero_badge : prevLocal.heroBadge,
-            heroTitle: (bSettingsData.hero_title && (bSettingsData.hero_title.en || bSettingsData.hero_title.bn)) ? bSettingsData.hero_title : prevLocal.heroTitle,
-            heroSubtitle: (bSettingsData.hero_subtitle && (bSettingsData.hero_subtitle.en || bSettingsData.hero_subtitle.bn)) ? bSettingsData.hero_subtitle : prevLocal.heroSubtitle,
-            heroCtaBadge: (bSettingsData.hero_cta_badge && (bSettingsData.hero_cta_badge.en || bSettingsData.hero_cta_badge.bn)) ? bSettingsData.hero_cta_badge : prevLocal.heroCtaBadge,
-            heroCtaTitle: (bSettingsData.hero_cta_title && (bSettingsData.hero_cta_title.en || bSettingsData.hero_cta_title.bn)) ? bSettingsData.hero_cta_title : prevLocal.heroCtaTitle,
-            heroCtaDescription: (bSettingsData.hero_cta_description && (bSettingsData.hero_cta_description.en || bSettingsData.hero_cta_description.bn)) ? bSettingsData.hero_cta_description : prevLocal.heroCtaDescription,
-            heroCtaBtn1Text: (bSettingsData.hero_cta_btn1_text && (bSettingsData.hero_cta_btn1_text.en || bSettingsData.hero_cta_btn1_text.bn)) ? bSettingsData.hero_cta_btn1_text : prevLocal.heroCtaBtn1Text,
-            heroCtaBtn2Text: (bSettingsData.hero_cta_btn2_text && (bSettingsData.hero_cta_btn2_text.en || bSettingsData.hero_cta_btn2_text.bn)) ? bSettingsData.hero_cta_btn2_text : prevLocal.heroCtaBtn2Text,
-            statTotalDonorsLabel: (bSettingsData.stat_total_donors_label && (bSettingsData.stat_total_donors_label.en || bSettingsData.stat_total_donors_label.bn)) ? bSettingsData.stat_total_donors_label : prevLocal.statTotalDonorsLabel,
-            statActiveDonorsLabel: (bSettingsData.stat_active_donors_label && (bSettingsData.stat_active_donors_label.en || bSettingsData.stat_active_donors_label.bn)) ? bSettingsData.stat_active_donors_label : prevLocal.statActiveDonorsLabel,
-            statGroupsLabel: (bSettingsData.stat_groups_label && (bSettingsData.stat_groups_label.en || bSettingsData.stat_groups_label.bn)) ? bSettingsData.stat_groups_label : prevLocal.statGroupsLabel,
-            statGroupsValue: bSettingsData.stat_groups_value || prevLocal.statGroupsValue || INITIAL_BLOOD_SETTINGS.statGroupsValue,
-            statImpactLabel: (bSettingsData.stat_impact_label && (bSettingsData.stat_impact_label.en || bSettingsData.stat_impact_label.bn)) ? bSettingsData.stat_impact_label : prevLocal.statImpactLabel,
-            statTotalDonorsOverride: bSettingsData.stat_total_donors_override !== undefined ? bSettingsData.stat_total_donors_override : prevLocal.statTotalDonorsOverride,
-            statActiveDonorsOverride: bSettingsData.stat_active_donors_override !== undefined ? bSettingsData.stat_active_donors_override : prevLocal.statActiveDonorsOverride,
-            statImpactOverride: bSettingsData.stat_impact_override !== undefined ? bSettingsData.stat_impact_override : prevLocal.statImpactOverride,
-            emergencyHelpline: bSettingsData.emergency_helpline || prevLocal.emergencyHelpline || INITIAL_BLOOD_SETTINGS.emergencyHelpline,
-            helplineLabel: (bSettingsData.helpline_label && (bSettingsData.helpline_label.en || bSettingsData.helpline_label.bn)) ? bSettingsData.helpline_label : prevLocal.helplineLabel,
-            coordinationEmail: bSettingsData.coordination_email || prevLocal.coordinationEmail || INITIAL_BLOOD_SETTINGS.coordinationEmail,
-            guidelinesTitle: (bSettingsData.guidelines_title && (bSettingsData.guidelines_title.en || bSettingsData.guidelines_title.bn)) ? bSettingsData.guidelines_title : prevLocal.guidelinesTitle,
-            guidelinesText: (bSettingsData.guidelines_text && (bSettingsData.guidelines_text.en || bSettingsData.guidelines_text.bn)) ? bSettingsData.guidelines_text : prevLocal.guidelinesText,
-            consentStatement: (bSettingsData.consent_statement && (bSettingsData.consent_statement.en || bSettingsData.consent_statement.bn)) ? bSettingsData.consent_statement : prevLocal.consentStatement,
-            enablePublicDirectContact: bSettingsData.enable_public_direct_contact ?? prevLocal.enablePublicDirectContact ?? true
+            ...INITIAL_BLOOD_SETTINGS,
+            ...prevLocal,
+            wingLogoUrl: resolvedLogo,
+            wingLogoSize: prevLocal.wingLogoSize || bSettingsData.wing_logo_size || INITIAL_BLOOD_SETTINGS.wingLogoSize,
+            wingLogoZoom: prevLocal.wingLogoZoom ?? bSettingsData.wing_logo_zoom ?? 1,
+            wingLogoCrop: prevLocal.wingLogoCrop || bSettingsData.wing_logo_crop || 'contain',
+            heroBadge: prevLocal.heroBadge?.bn ? prevLocal.heroBadge : (bSettingsData.hero_badge || prevLocal.heroBadge),
+            heroTitle: prevLocal.heroTitle?.bn ? prevLocal.heroTitle : (bSettingsData.hero_title || prevLocal.heroTitle),
+            heroSubtitle: prevLocal.heroSubtitle?.bn ? prevLocal.heroSubtitle : (bSettingsData.hero_subtitle || prevLocal.heroSubtitle),
+            heroCtaBadge: prevLocal.heroCtaBadge?.bn ? prevLocal.heroCtaBadge : (bSettingsData.hero_cta_badge || prevLocal.heroCtaBadge),
+            heroCtaTitle: prevLocal.heroCtaTitle?.bn ? prevLocal.heroCtaTitle : (bSettingsData.hero_cta_title || prevLocal.heroCtaTitle),
+            heroCtaDescription: prevLocal.heroCtaDescription?.bn ? prevLocal.heroCtaDescription : (bSettingsData.hero_cta_description || prevLocal.heroCtaDescription),
+            heroCtaBtn1Text: prevLocal.heroCtaBtn1Text?.bn ? prevLocal.heroCtaBtn1Text : (bSettingsData.hero_cta_btn1_text || prevLocal.heroCtaBtn1Text),
+            heroCtaBtn2Text: prevLocal.heroCtaBtn2Text?.bn ? prevLocal.heroCtaBtn2Text : (bSettingsData.hero_cta_btn2_text || prevLocal.heroCtaBtn2Text),
+            statTotalDonorsLabel: prevLocal.statTotalDonorsLabel?.bn ? prevLocal.statTotalDonorsLabel : (bSettingsData.stat_total_donors_label || prevLocal.statTotalDonorsLabel),
+            statActiveDonorsLabel: prevLocal.statActiveDonorsLabel?.bn ? prevLocal.statActiveDonorsLabel : (bSettingsData.stat_active_donors_label || prevLocal.statActiveDonorsLabel),
+            statGroupsLabel: prevLocal.statGroupsLabel?.bn ? prevLocal.statGroupsLabel : (bSettingsData.stat_groups_label || prevLocal.statGroupsLabel),
+            statGroupsValue: prevLocal.statGroupsValue || bSettingsData.stat_groups_value || INITIAL_BLOOD_SETTINGS.statGroupsValue,
+            statImpactLabel: prevLocal.statImpactLabel?.bn ? prevLocal.statImpactLabel : (bSettingsData.stat_impact_label || prevLocal.statImpactLabel),
+            statTotalDonorsOverride: prevLocal.statTotalDonorsOverride ?? bSettingsData.stat_total_donors_override ?? null,
+            statActiveDonorsOverride: prevLocal.statActiveDonorsOverride ?? bSettingsData.stat_active_donors_override ?? null,
+            statImpactOverride: prevLocal.statImpactOverride ?? bSettingsData.stat_impact_override ?? null,
+            emergencyHelpline: prevLocal.emergencyHelpline || bSettingsData.emergency_helpline || INITIAL_BLOOD_SETTINGS.emergencyHelpline,
+            helplineLabel: prevLocal.helplineLabel?.bn ? prevLocal.helplineLabel : (bSettingsData.helpline_label || prevLocal.helplineLabel),
+            coordinationEmail: prevLocal.coordinationEmail || bSettingsData.coordination_email || INITIAL_BLOOD_SETTINGS.coordinationEmail,
+            guidelinesTitle: prevLocal.guidelinesTitle?.bn ? prevLocal.guidelinesTitle : (bSettingsData.guidelines_title || prevLocal.guidelinesTitle),
+            guidelinesText: prevLocal.guidelinesText?.bn ? prevLocal.guidelinesText : (bSettingsData.guidelines_text || prevLocal.guidelinesText),
+            consentStatement: prevLocal.consentStatement?.bn ? prevLocal.consentStatement : (bSettingsData.consent_statement || prevLocal.consentStatement),
+            enablePublicDirectContact: prevLocal.enablePublicDirectContact ?? bSettingsData.enable_public_direct_contact ?? true
           };
           try {
             localStorage.setItem(`${STORAGE_PREFIX}bloodDonationSettings`, JSON.stringify(remoteBSettings));

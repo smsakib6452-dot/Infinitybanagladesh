@@ -283,20 +283,6 @@ export const BloodDonorProfileModal: React.FC<BloodDonorProfileModalProps> = ({
           </div>
 
           <div className="flex items-center gap-2.5 w-full sm:w-auto">
-            {onUpdateClick && (
-              <button
-                type="button"
-                onClick={() => {
-                  onClose();
-                  onUpdateClick(donor);
-                }}
-                className="flex-1 sm:flex-initial px-4 py-2.5 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-[#006A4E] border border-emerald-300 font-extrabold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <Edit3 className="w-3.5 h-3.5" />
-                <span>{isBn ? 'তথ্য হালনাগাদ' : 'Update Profile'}</span>
-              </button>
-            )}
-
             <button
               type="button"
               onClick={onClose}

@@ -723,7 +723,14 @@ export const AdminPage: React.FC = () => {
     {
       group: isBn ? 'মানবিক কার্যক্রম' : 'Humanitarian CMS',
       items: [
-        { id: 'blood_donation' as AdminTab, label: isBn ? 'রক্তদান ব্যবস্থাপনা (ব্লাড ব্যাংক)' : 'Blood Donation Network', icon: Droplet },
+        { 
+          id: 'blood_donation' as AdminTab, 
+          label: isBn ? 'রক্তদান ব্যবস্থাপনা (ব্লাড ব্যাংক)' : 'Blood Donation Network', 
+          icon: Droplet,
+          badge: bloodDonors.filter(d => d.approvalStatus === 'PENDING').length > 0
+            ? bloodDonors.filter(d => d.approvalStatus === 'PENDING').length
+            : undefined
+        },
         { id: 'campaigns' as AdminTab, label: isBn ? 'ক্যাম্পেইনসমূহ' : 'Campaigns', icon: Flag },
         { id: 'programs' as AdminTab, label: isBn ? 'সেবামূলক প্রোগ্রাম' : 'Programs', icon: Handshake },
         { id: 'impact' as AdminTab, label: isBn ? 'ইমপ্যাক্ট মেট্রিক্স' : 'Impact Metrics', icon: Activity },
@@ -860,7 +867,7 @@ export const AdminPage: React.FC = () => {
               <optgroup key={gIdx} label={g.group}>
                 {g.items.map(item => (
                   <option key={item.id} value={item.id}>
-                    {item.label}
+                    {item.label} {(item as any).badge ? `(${(item as any).badge} ${isBn ? 'টি পেন্ডিং' : 'Pending'})` : ''}
                   </option>
                 ))}
               </optgroup>
@@ -880,6 +887,7 @@ export const AdminPage: React.FC = () => {
                   {group.items.map(item => {
                     const Icon = item.icon;
                     const isActive = activeTab === item.id;
+                    const badgeCount = (item as any).badge;
                     return (
                       <button
                         key={item.id}
@@ -894,11 +902,16 @@ export const AdminPage: React.FC = () => {
                             : 'text-slate-700 hover:bg-[#FAF7F2] hover:text-[#006A4E]'
                         }`}
                       >
-                        <div className="flex items-center gap-2.5">
-                          <Icon className={`w-4 h-4 ${isActive ? 'text-[#006A4E]' : 'text-slate-400'}`} />
-                          <span>{item.label}</span>
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#006A4E]' : 'text-slate-400'}`} />
+                          <span className="truncate">{item.label}</span>
+                          {badgeCount !== undefined && (
+                            <span className="px-1.5 py-0.5 rounded-full text-[10px] font-mono font-black bg-amber-500 text-white shrink-0 animate-pulse shadow-2xs">
+                              {badgeCount}
+                            </span>
+                          )}
                         </div>
-                        {isActive && <ChevronRight className="w-3.5 h-3.5 text-[#006A4E]" />}
+                        {isActive && <ChevronRight className="w-3.5 h-3.5 text-[#006A4E] shrink-0" />}
                       </button>
                     );
                   })}
@@ -938,21 +951,89 @@ export const AdminPage: React.FC = () => {
                     </div>
                   </div>
 
+                  {/* Pending Approvals Alert Banner */}
+                  {(() => {
+                    const pendingCount = bloodDonors.filter(d => d.approvalStatus === 'PENDING').length;
+                    if (pendingCount === 0) return null;
+                    return (
+                      <div
+                        onClick={() => {
+                          setActiveTab('blood_donation');
+                          setBloodSubTab('pending');
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
+                        className="p-4 sm:p-5 rounded-3xl bg-amber-500 hover:bg-amber-600 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-warm-md cursor-pointer transition-all group animate-in fade-in"
+                      >
+                        <div className="flex items-center gap-3.5">
+                          <div className="w-11 h-11 rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
+                            <Clock className="w-6 h-6 text-white animate-spin" style={{ animationDuration: '6s' }} />
+                          </div>
+                          <div>
+                            <p className="font-black text-sm sm:text-base flex items-center gap-2">
+                              <span>{isBn ? `🔔 ${pendingCount}টি নতুন রক্তদাতার আবেদন অনুমোদনের অপেক্ষায় রয়েছে!` : `🔔 ${pendingCount} New Blood Donor Applications Awaiting Approval!`}</span>
+                              <span className="px-2 py-0.5 rounded-full bg-white text-amber-900 text-xs font-mono font-black">
+                                {pendingCount}
+                              </span>
+                            </p>
+                            <p className="text-xs text-amber-100 mt-0.5 leading-relaxed">
+                              {isBn
+                                ? 'নতুন আবেদনসমূহ পর্যালোচনা, যাচাই এবং পাবলিক ডিরেক্টরিতে অনুমোদন করতে এখানে ক্লিক করুন।'
+                                : 'Click here to review applicant details, contact via WhatsApp, and grant approval.'}
+                            </p>
+                          </div>
+                        </div>
+                        <span className="px-4 py-2 rounded-xl bg-white text-amber-900 font-extrabold text-xs shadow-2xs group-hover:scale-105 transition-transform shrink-0 flex items-center gap-1.5 self-start sm:self-auto">
+                          <span>{isBn ? 'পেন্ডিং তালিকা দেখুন' : 'Open Queue'}</span>
+                          <ChevronRight className="w-3.5 h-3.5 text-amber-900" />
+                        </span>
+                      </div>
+                    );
+                  })()}
+
                   {/* KPI Cards Grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-2">
-                    <div className="p-4 rounded-2xl bg-[#E6F3EF] border border-[#C2E2D7] space-y-1">
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4 pt-2">
+                    <div 
+                      onClick={() => setActiveTab('campaigns')}
+                      className="p-4 rounded-2xl bg-[#E6F3EF] border border-[#C2E2D7] space-y-1 cursor-pointer hover:border-[#006A4E] transition-colors"
+                    >
                       <span className="text-[11px] font-bold text-[#00523C] uppercase">Campaigns</span>
                       <p className="text-2xl font-extrabold text-[#00523C] font-mono">{campaigns.length}</p>
                     </div>
-                    <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 space-y-1">
+                    <div 
+                      onClick={() => setActiveTab('volunteers')}
+                      className="p-4 rounded-2xl bg-amber-50 border border-amber-200 space-y-1 cursor-pointer hover:border-amber-400 transition-colors"
+                    >
                       <span className="text-[11px] font-bold text-amber-800 uppercase">Volunteers</span>
                       <p className="text-2xl font-extrabold text-amber-900 font-mono">{volunteers.length}</p>
                     </div>
-                    <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 space-y-1">
-                      <span className="text-[11px] font-bold text-rose-800 uppercase">Donations Recorded</span>
-                      <p className="text-2xl font-extrabold text-rose-900 font-mono">{donations.length}</p>
+                    <div 
+                      onClick={() => {
+                        setActiveTab('blood_donation');
+                        setBloodSubTab('overview');
+                      }}
+                      className="p-4 rounded-2xl bg-rose-50 border border-rose-200 space-y-1 cursor-pointer hover:border-rose-400 transition-colors relative"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-bold text-rose-800 uppercase">Blood Donors</span>
+                        {bloodDonors.filter(d => d.approvalStatus === 'PENDING').length > 0 && (
+                          <span className="px-1.5 py-0.5 rounded-full text-[9px] font-mono font-black bg-amber-500 text-white animate-pulse">
+                            {bloodDonors.filter(d => d.approvalStatus === 'PENDING').length} Pending
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-2xl font-extrabold text-rose-900 font-mono">{bloodDonors.length}</p>
                     </div>
-                    <div className="p-4 rounded-2xl bg-blue-50 border border-blue-200 space-y-1">
+                    <div 
+                      onClick={() => setActiveTab('donations')}
+                      className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-1 cursor-pointer hover:border-emerald-400 transition-colors"
+                    >
+                      <span className="text-[11px] font-bold text-emerald-800 uppercase">Donations</span>
+                      <p className="text-2xl font-extrabold text-emerald-900 font-mono">{donations.length}</p>
+                    </div>
+                    <div 
+                      onClick={() => setActiveTab('media_library')}
+                      className="p-4 rounded-2xl bg-blue-50 border border-blue-200 space-y-1 cursor-pointer hover:border-blue-400 transition-colors"
+                    >
                       <span className="text-[11px] font-bold text-blue-800 uppercase">Media Assets</span>
                       <p className="text-2xl font-extrabold text-blue-900 font-mono">{mediaLibrary.length}</p>
                     </div>
@@ -960,7 +1041,28 @@ export const AdminPage: React.FC = () => {
                 </div>
 
                 {/* Quick Shortcuts */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                  <div
+                    onClick={() => {
+                      setActiveTab('blood_donation');
+                      setBloodSubTab(bloodDonors.filter(d => d.approvalStatus === 'PENDING').length > 0 ? 'pending' : 'overview');
+                    }}
+                    className="p-5 rounded-3xl bg-white border border-[#EAE3D9] hover:border-rose-500 shadow-warm-xs hover:shadow-warm-sm transition-all cursor-pointer space-y-2 group"
+                  >
+                    <div className="w-10 h-10 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+                      <Droplet className="w-5 h-5 fill-current text-rose-600" />
+                    </div>
+                    <h3 className="font-bold text-sm text-slate-900 font-display flex items-center justify-between">
+                      <span>Blood Donation & Donors</span>
+                      {bloodDonors.filter(d => d.approvalStatus === 'PENDING').length > 0 && (
+                        <span className="px-1.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500 text-white">
+                          {bloodDonors.filter(d => d.approvalStatus === 'PENDING').length}
+                        </span>
+                      )}
+                    </h3>
+                    <p className="text-xs text-slate-500">Review pending donor registrations, verify contacts, and manage database.</p>
+                  </div>
+
                   <div
                     onClick={() => setActiveTab('homepage')}
                     className="p-5 rounded-3xl bg-white border border-[#EAE3D9] hover:border-[#006A4E] shadow-warm-xs hover:shadow-warm-sm transition-all cursor-pointer space-y-2 group"

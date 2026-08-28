@@ -171,6 +171,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
   const [regShowPhone, setRegShowPhone] = useState(false);
   const [regSubmitted, setRegSubmitted] = useState(false);
   const [regRefId, setRegRefId] = useState('');
+  const [regWhatsAppUrl, setRegWhatsAppUrl] = useState('');
   const [regFormError, setRegFormError] = useState<string | null>(null);
 
   // Handle Donor Photo Selection with interactive Crop & Zoom Modal
@@ -266,6 +267,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
     setRegShowPhone(false);
     setRegFormError(null);
     setRegSubmitted(false);
+    setRegWhatsAppUrl('');
   };
 
   // ----------------------------------------------------
@@ -679,6 +681,14 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
       showPhonePublicly: regShowPhone,
       donationHistory: []
     });
+
+    const cleanHelpline = (bloodDonationSettings.emergencyHelpline || '+8801839008339').replace(/[^0-9]/g, '');
+    const lastDonationText = regLastDonationDate ? `${regLastDonationDate}` : 'রেকর্ড নেই';
+    const whatsappMsg = encodeURIComponent(
+      `আসসালামু আলাইকুম অ্যাডমিন,\nআমি ${regFullName.trim()} (রক্তের গ্রুপ: ${regBloodGroup}, মোবাইল: ${cleanPhone})।\nআমি ইনফিনিটি বাংলাদেশ রক্তদান নেটওয়ার্কে নতুন রক্তদাতা হিসেবে রেজিস্ট্রেশন করেছি।\n\n📋 রেজিস্ট্রেশন বিবরণ:\n• রেফারেন্স আইডি: ${newDonor.id}\n• রক্তের গ্রুপ: ${regBloodGroup}\n• অবস্থান: ${regArea ? regArea.trim() + ', ' : ''}${regUpazila}, ${regDistrict}\n• সর্বশেষ রক্তদান: ${lastDonationText}\n\nঅনুগ্রহ করে আমার আবেদনটি যাচাই করে অ্যাডমিন ড্যাশবোর্ড থেকে অনুমোদন (Approve) করুন। ধন্যবাদ।`
+    );
+    const waUrl = `https://wa.me/${cleanHelpline}?text=${whatsappMsg}`;
+    setRegWhatsAppUrl(waUrl);
 
     setRegRefId(newDonor.id);
     setRegSubmitted(true);
@@ -1309,14 +1319,26 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                   Reference ID: <span className="text-[#006A4E]">{regRefId}</span>
                 </div>
 
-                <div className="pt-2">
+                <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+                  {regWhatsAppUrl && (
+                    <a
+                      href={regWhatsAppUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-warm-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      <span>{isBn ? 'হোয়াটসঅ্যাপে অ্যাডমিনকে নিশ্চিত করুন' : 'Notify Admin on WhatsApp'}</span>
+                    </a>
+                  )}
+
                   <button
                     type="button"
                     onClick={() => {
                       resetDonorRegistrationForm();
                       setActiveTab('find-donor');
                     }}
-                    className="px-6 py-3 rounded-2xl bg-[#006A4E] hover:bg-[#00523C] text-white font-extrabold text-xs shadow-warm-sm transition-all cursor-pointer"
+                    className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-[#006A4E] hover:bg-[#00523C] text-white font-extrabold text-xs shadow-warm-sm transition-all cursor-pointer"
                   >
                     {isBn ? 'রক্তদাতা ডিরেক্টরিতে ফিরে যান' : 'Back to Donor Directory'}
                   </button>

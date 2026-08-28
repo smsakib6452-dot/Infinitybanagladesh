@@ -474,12 +474,12 @@ export const HomePage: React.FC = () => {
               }
             />
 
-            <StaggerGroup className="flex flex-wrap justify-center gap-3.5 sm:gap-4">
+            <StaggerGroup className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5 sm:gap-4">
               {gallery.slice(0, 6).map((photo, i) => (
-                <StaggerItem key={photo.id}>
+                <StaggerItem key={photo.id} className="w-full">
                   <div
                     onClick={() => setLightboxIndex(i)}
-                    className="group relative aspect-square w-[calc(50%-0.5rem)] sm:w-[calc(33.333%-0.7rem)] md:w-[calc(25%-0.75rem)] lg:w-[calc(16.666%-0.85rem)] max-w-[190px] rounded-2xl overflow-hidden bg-slate-900 cursor-pointer shadow-warm-xs hover:shadow-warm-md border border-[#EAE3D9] transition-all"
+                    className="group relative aspect-square w-full rounded-2xl overflow-hidden bg-slate-900 cursor-pointer shadow-warm-xs hover:shadow-warm-md border border-[#EAE3D9] transition-all transform hover:-translate-y-1"
                   >
                     <img
                       src={getAssetUrl(photo.imageUrl)}
@@ -496,6 +496,16 @@ export const HomePage: React.FC = () => {
                 </StaggerItem>
               ))}
             </StaggerGroup>
+
+            <div className="text-center pt-8">
+              <Link
+                to="gallery"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-white hover:bg-[#FAF7F2] text-slate-800 font-extrabold text-xs sm:text-sm border border-[#EAE3D9] shadow-warm-xs hover:shadow-warm-sm transition-all cursor-pointer transform hover:-translate-y-0.5"
+              >
+                <span>{isBn ? 'সম্পূর্ণ ফটো গ্যালারি দেখুন' : 'View Full Photo Gallery'}</span>
+                <ArrowRight className="w-4 h-4 text-[#006A4E]" />
+              </Link>
+            </div>
 
             {lightboxIndex !== null && (
               <GalleryLightbox

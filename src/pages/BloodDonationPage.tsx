@@ -15,7 +15,10 @@ import {
   calculateAge,
   isEligibleToDonate,
   getCooldownStatusInfo,
-  BLOOD_DONATION_COOLDOWN_DAYS
+  BLOOD_DONATION_COOLDOWN_DAYS,
+  toSafeString,
+  cleanBloodDonor,
+  cleanEmergencyRequest
 } from '../data/bloodDonationData';
 import { getAssetUrl } from '../lib/utils/assetHelper';
 import { SectionHeading } from '../components/SectionHeading';
@@ -294,31 +297,32 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
     return getUpazilasForDistrict(updDistrict);
   }, [updDistrict]);
 
-  const populateUpdateForm = (donor: BloodDonor) => {
+  const populateUpdateForm = (rawDonor: BloodDonor) => {
+    const donor = cleanBloodDonor(rawDonor);
     setMatchedDonor(donor);
-    setUpdFullName(donor.fullName || '');
+    setUpdFullName(toSafeString(donor.fullName, ''));
     setUpdBloodGroup(donor.bloodGroup || 'O+');
     setUpdGender(donor.gender || 'Male');
-    setUpdDateOfBirth(donor.dateOfBirth || donor.dob || '');
-    setUpdPhone(donor.phone || '');
-    setUpdEmail(donor.email || '');
-    setUpdPhotoUrl(donor.photoUrl || '');
+    setUpdDateOfBirth(toSafeString(donor.dateOfBirth || donor.dob, ''));
+    setUpdPhone(toSafeString(donor.phone, ''));
+    setUpdEmail(toSafeString(donor.email, ''));
+    setUpdPhotoUrl(toSafeString(donor.photoUrl, ''));
     setUpdPhotoFileName('');
-    setUpdDistrict(donor.district || 'Chattogram');
-    setUpdUpazila(donor.upazila || 'Hathazari');
-    setUpdArea(donor.area || '');
-    setUpdDetailedAddress(donor.detailedAddress || '');
-    setUpdOrgCategory(donor.orgCategory || 'Infinity Bangladesh Volunteer');
-    setUpdCommitteePosition(donor.committeePosition || '');
+    setUpdDistrict(toSafeString(donor.district, 'Chattogram'));
+    setUpdUpazila(toSafeString(donor.upazila, 'Hathazari'));
+    setUpdArea(toSafeString(donor.area, ''));
+    setUpdDetailedAddress(toSafeString(donor.detailedAddress, ''));
+    setUpdOrgCategory(toSafeString(donor.orgCategory, 'Infinity Bangladesh Volunteer'));
+    setUpdCommitteePosition(toSafeString(donor.committeePosition, ''));
     setUpdAvailability(donor.availabilityStatus || 'AVAILABLE_EMERGENCY');
-    setUpdLastDonationDate(donor.lastDonationDate || '');
-    setUpdTotalDonations(donor.totalDonations || 0);
-    setUpdExperienceNotes(donor.experienceNotes || '');
+    setUpdLastDonationDate(toSafeString(donor.lastDonationDate, ''));
+    setUpdTotalDonations(Number(donor.totalDonations) || 0);
+    setUpdExperienceNotes(toSafeString(donor.experienceNotes, ''));
     setUpdShowPhone(Boolean(donor.showPhonePublicly));
     setUpdFormError(null);
     setUpdSubmitted(false);
     setUpdSearchError(null);
-    setUpdSearchQuery(donor.phone || donor.id);
+    setUpdSearchQuery(toSafeString(donor.phone || donor.id, ''));
   };
 
   const handleSearchDonorForUpdate = (e?: React.FormEvent) => {

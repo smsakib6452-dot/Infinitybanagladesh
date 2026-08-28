@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { BloodDonor } from '../types';
+import { cleanBloodDonor, toSafeString } from '../data/bloodDonationData';
 import {
   X,
   Phone,
@@ -23,7 +24,7 @@ interface EmergencyBloodContactModalProps {
 }
 
 export const EmergencyBloodContactModal: React.FC<EmergencyBloodContactModalProps> = ({
-  donor,
+  donor: rawDonor,
   isOpen,
   onClose,
   onOpenEmergencyRequest,
@@ -31,8 +32,9 @@ export const EmergencyBloodContactModal: React.FC<EmergencyBloodContactModalProp
 }) => {
   const { isBn } = useLanguage();
 
-  if (!isOpen || !donor) return null;
+  if (!isOpen || !rawDonor) return null;
 
+  const donor = cleanBloodDonor(rawDonor);
   const cleanPhone = donor.phone ? donor.phone.replace(/[^0-9+]/g, '') : '';
   const cleanHelpline = emergencyHelpline.replace(/[^0-9+]/g, '');
   const canDirectContact = donor.showPhonePublicly && Boolean(donor.phone);

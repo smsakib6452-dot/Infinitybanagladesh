@@ -54,10 +54,75 @@ export const DHAKA_UPAZILAS = [
 ];
 
 /**
+ * Safe String Resolver to prevent React Error #31 (Objects are not valid as a React child)
+ */
+export function toSafeString(val: any, fallback = ''): string {
+  if (val === null || val === undefined) return fallback;
+  if (typeof val === 'string') return val;
+  if (typeof val === 'number') return String(val);
+  if (typeof val === 'object') {
+    return val.nameEn || val.nameBn || val.en || val.bn || val.name?.en || val.name?.bn || val.name || fallback;
+  }
+  return fallback;
+}
+
+/**
+ * Sanitizes any BloodDonor object to ensure no nested objects exist in string fields
+ */
+export function cleanBloodDonor(d: any): BloodDonor {
+  if (!d) return d;
+  const district = toSafeString(d.district, 'Chattogram');
+  const upazila = toSafeString(d.upazila, 'Sadar');
+  const area = toSafeString(d.area, '');
+  const detailedAddress = toSafeString(d.detailedAddress, '');
+  const orgCategory = toSafeString(d.orgCategory, 'Infinity Bangladesh Volunteer');
+  const committeePosition = d.committeePosition ? toSafeString(d.committeePosition, '') : undefined;
+  const fullName = toSafeString(d.fullName, '');
+  const phone = toSafeString(d.phone, '');
+  const email = toSafeString(d.email, '');
+
+  return {
+    ...d,
+    fullName,
+    phone,
+    email,
+    district,
+    upazila,
+    area,
+    detailedAddress,
+    orgCategory,
+    committeePosition: committeePosition || undefined
+  };
+}
+
+/**
+ * Sanitizes any EmergencyBloodRequest object
+ */
+export function cleanEmergencyRequest(r: any): EmergencyBloodRequest {
+  if (!r) return r;
+  const district = toSafeString(r.district, 'Chattogram');
+  const upazila = toSafeString(r.upazila, 'Sadar');
+  const requesterName = toSafeString(r.requesterName, '');
+  const patientName = toSafeString(r.patientName, '');
+  const hospitalName = toSafeString(r.hospitalName, '');
+  const contactNumber = toSafeString(r.contactNumber, '');
+
+  return {
+    ...r,
+    district,
+    upazila,
+    requesterName,
+    patientName,
+    hospitalName,
+    contactNumber
+  };
+}
+
+/**
  * Helper to get available upazilas by district
  */
-export function getUpazilasForDistrict(districtName: string): string[] {
-  const norm = (districtName || '').toLowerCase().trim();
+export function getUpazilasForDistrict(districtName: any): string[] {
+  const norm = toSafeString(districtName).toLowerCase().trim();
   if (norm === 'chattogram' || norm === 'chittagong') {
     return CHATTOGRAM_UPAZILAS;
   }

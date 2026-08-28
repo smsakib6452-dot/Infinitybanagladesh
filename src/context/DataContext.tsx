@@ -85,6 +85,7 @@ import {
   INITIAL_BLOOD_SETTINGS,
   DEFAULT_DONOR_CATEGORIES
 } from '../data/initialData';
+import { cleanBloodDonor, cleanEmergencyRequest } from '../data/bloodDonationData';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { getFreshImageUrl } from '../lib/cloudinary';
 import { detectAndNormalizeMedia, DEFAULT_VIDEO_THUMBNAIL } from '../lib/utils/mediaHelper';
@@ -463,13 +464,13 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const donorMap = new Map<string, BloodDonor>();
     INITIAL_BLOOD_DONORS.forEach(d => {
       if (!deletedSet.has(d.id) && !legacyMockIds.has(d.id)) {
-        donorMap.set(d.id, d);
+        donorMap.set(d.id, cleanBloodDonor(d));
       }
     });
     if (Array.isArray(stored)) {
       stored.forEach(d => {
         if (!deletedSet.has(d.id) && !legacyMockIds.has(d.id)) {
-          donorMap.set(d.id, d);
+          donorMap.set(d.id, cleanBloodDonor(d));
         }
       });
     }
@@ -480,7 +481,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const stored = getStoredOrDefault<EmergencyBloodRequest[]>('emergencyRequests', INITIAL_EMERGENCY_REQUESTS);
     const legacyMockReqIds = new Set(['req-1', 'req-2', 'req-3']);
     if (Array.isArray(stored)) {
-      return stored.filter(r => !deletedSet.has(r.id) && !legacyMockReqIds.has(r.id));
+      return stored
+        .filter(r => !deletedSet.has(r.id) && !legacyMockReqIds.has(r.id))
+        .map(r => cleanEmergencyRequest(r));
     }
     return [];
   });
@@ -3282,7 +3285,6 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const addBloodDonor = useCallback((donor: Omit<BloodDonor, 'id' | 'createdAt' | 'updatedAt'> & { id?: string }) => {
     const id = donor.id?.trim() || `donor-${Date.now()}`;
-    // If ID was in deletedDonorIds, remove it from deleted list since admin explicitly added/re-used this ID
     if (deletedDonorIdsRef.current.has(id)) {
       deletedDonorIdsRef.current.delete(id);
       try {
@@ -3290,10 +3292,21 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch {}
     }
     const stats = calculateDonorStats(donor.donationHistory || [], donor.firstDonationDate, donor.lastDonationDate, donor.totalDonations || 0);
-    const newDonor: BloodDonor = {
+    const newDonor: BloodDonor = cleanBloodDonor({
       ...donor,
       id,
+      fullName: donor.fullName.trim(),
+      bloodGroup: donor.bloodGroup,
+      phone: donor.phone.trim(),
+      email: donor.email?.trim() || undefined,
       photoUrl: donor.photoUrl ? getFreshImageUrl(donor.photoUrl) : undefined,
+      district: donor.district,
+      upazila: donor.upazila,
+      area: donor.area.trim(),
+      detailedAddress: donor.detailedAddress?.trim() || undefined,
+      orgCategory: donor.orgCategory,
+      committeePosition: donor.committeePosition?.trim() || undefined,
+      availabilityStatus: donor.availabilityStatus || 'AVAILABLE_EMERGENCY',
       totalDonations: stats.totalDonations,
       firstDonationDate: stats.firstDonationDate,
       lastDonationDate: stats.lastDonationDate,
@@ -3304,7 +3317,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       donationHistory: (donor.donationHistory || []).map(h => ({ ...h, donorId: id })),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
-    };
+    });
 
     setBloodDonors(prev => {
       const updated = [newDonor, ...prev.filter(d => d.id !== id)];
@@ -3359,7 +3372,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           updates.totalDonations ?? d.totalDonations
         );
 
-        return {
+        return cleanBloodDonor({
           ...d,
           ...updates,
           id: newId,
@@ -3369,7 +3382,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           lastDonationDate: stats.lastDonationDate,
           donationHistory: mergedHistory.map(h => ({ ...h, donorId: newId })),
           updatedAt: new Date().toISOString()
-        };
+        });
       });
 
       const match = updated.find(d => d.id === newId);
@@ -3494,7 +3507,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       recipient_reference: newEntry.recipientReference || null,
       notes: newEntry.notes || null,
       is_verified: newEntry.isVerified,
-      created_at: newEntry.createdAt
+      created_at: newEntry.createdAt || new Date().toISOString()
     });
 
     logAudit('CREATE', 'BloodDonationHistory', histId, `Added donation history for donor ${donorId}`);
@@ -3530,14 +3543,21 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const addEmergencyBloodRequest = useCallback((req: Omit<EmergencyBloodRequest, 'id' | 'status' | 'createdAt' | 'updatedAt'>) => {
     const id = `req-${Date.now()}`;
-    const newReq: EmergencyBloodRequest = {
+    const newReq: EmergencyBloodRequest = cleanEmergencyRequest({
       ...req,
       id,
-      status: 'PENDING',
+      requesterName: req.requesterName.trim(),
+      contactNumber: req.contactNumber.trim(),
+      patientName: req.patientName.trim(),
+      hospitalName: req.hospitalName.trim(),
+      district: req.district,
+      upazila: req.upazila,
+      additionalNotes: req.additionalNotes?.trim() || undefined,
+      status: req.status || 'PENDING',
       matchedDonorIds: req.matchedDonorIds || [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
-    };
+    });
 
     setEmergencyBloodRequests(prev => {
       const updated = [newReq, ...prev];

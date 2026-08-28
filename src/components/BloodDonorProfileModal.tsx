@@ -2,7 +2,7 @@ import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { BloodDonor } from '../types';
 import { getAssetUrl } from '../lib/utils/assetHelper';
-import { calculateAge, getCooldownStatusInfo, BLOOD_DONATION_COOLDOWN_DAYS } from '../data/bloodDonationData';
+import { calculateAge, getCooldownStatusInfo, BLOOD_DONATION_COOLDOWN_DAYS, cleanBloodDonor } from '../data/bloodDonationData';
 import {
   X,
   ShieldCheck,
@@ -27,7 +27,7 @@ interface BloodDonorProfileModalProps {
 }
 
 export const BloodDonorProfileModal: React.FC<BloodDonorProfileModalProps> = ({
-  donor,
+  donor: rawDonor,
   isOpen,
   onClose,
   onContactClick,
@@ -35,8 +35,9 @@ export const BloodDonorProfileModal: React.FC<BloodDonorProfileModalProps> = ({
 }) => {
   const { isBn } = useLanguage();
 
-  if (!isOpen || !donor) return null;
+  if (!isOpen || !rawDonor) return null;
 
+  const donor = cleanBloodDonor(rawDonor);
   const age = calculateAge(donor.dateOfBirth || donor.dob);
   const genderLabel = donor.gender === 'Female' ? (isBn ? 'নারী (Female)' : 'Female') : donor.gender === 'Other' ? (isBn ? 'অন্যান্য (Other)' : 'Other') : (isBn ? 'পুরুষ (Male)' : 'Male');
 

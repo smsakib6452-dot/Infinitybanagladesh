@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
 import { useRouter } from '../context/RouterContext';
+import { ScrollReveal } from '../components/motion/ScrollReveal';
+import { StaggerGroup, StaggerItem } from '../components/motion/StaggerGroup';
 import { Handshake, Globe, ExternalLink, ShieldCheck, Building2, GraduationCap, Users2, Sparkles, Send } from 'lucide-react';
 import { Toast } from '../components/Toast';
 
@@ -62,7 +64,7 @@ export const PartnersPage: React.FC = () => {
     <div className="py-10 sm:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 sm:space-y-16">
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-4">
+        <ScrollReveal effect="fade-up" className="text-center max-w-3xl mx-auto space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#E6F3EF] border border-[#C2E2D7] rounded-full text-[#00523C] text-xs font-extrabold uppercase tracking-wider">
             <Handshake className="w-3.5 h-3.5" />
             <span>{isBn ? 'সহযোগী ও অংশীদারিত্ব' : 'Partners & Institutional Alliances'}</span>
@@ -75,10 +77,10 @@ export const PartnersPage: React.FC = () => {
               ? 'টিম ইনফিনিটি বিশ্বাস করে পারস্পরিক সহযোগিতা ও তরুণদের ঐক্যবদ্ধ প্রচেষ্টায় যেকোনো কঠিন মানবিক সংকট মোকাবিলা সম্ভব।'
               : 'Team Infinity partners with youth clubs, academic institutions, and verified social organizations across Bangladesh to amplify community service.'}
           </p>
-        </div>
+        </ScrollReveal>
 
         {/* Category Filters */}
-        <div className="flex flex-wrap items-center justify-center gap-2 max-w-3xl mx-auto">
+        <ScrollReveal effect="fade-up" delay={100} className="flex flex-wrap items-center justify-center gap-2 max-w-3xl mx-auto">
           {categories.map((cat) => (
             <button
               key={cat.key}
@@ -93,14 +95,14 @@ export const PartnersPage: React.FC = () => {
               {isBn ? cat.labelBn : cat.labelEn}
             </button>
           ))}
-        </div>
+        </ScrollReveal>
 
         {/* Partners Grid */}
-        <div className="flex flex-wrap justify-center gap-8">
+        <StaggerGroup className="flex flex-wrap justify-center gap-8">
           {filteredPartners.map((partner) => {
             const Icon = getPartnerIcon(partner.type);
             return (
-              <div
+              <StaggerItem
                 key={partner.id}
                 className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm hover:shadow-warm-md hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.35rem)] max-w-sm"
               >
@@ -144,13 +146,13 @@ export const PartnersPage: React.FC = () => {
                     <span className="text-slate-400 font-medium">{isBn ? 'স্থানীয় সহযোগী সংস্থা' : 'Local Community Partner'}</span>
                   )}
                 </div>
-              </div>
+              </StaggerItem>
             );
           })}
-        </div>
+        </StaggerGroup>
 
         {/* Partnership Proposal Form */}
-        <div className="bg-white rounded-3xl border border-[#EAE3D9] p-8 sm:p-12 shadow-warm-md max-w-4xl mx-auto space-y-8">
+        <ScrollReveal effect="fade-up" delay={200} className="bg-white rounded-3xl border border-[#EAE3D9] p-8 sm:p-12 shadow-warm-md max-w-4xl mx-auto space-y-8">
           <div className="text-center space-y-2">
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-display">
               {isBn ? 'আমাদের সাথে যৌথভাবে কাজ করতে চান?' : 'Interested in Partnering With Us?'}
@@ -229,7 +231,7 @@ export const PartnersPage: React.FC = () => {
               <span>{isBn ? 'পার্টনারশিপ প্রস্তাবনা পাঠান' : 'Submit Partnership Inquiry'}</span>
             </button>
           </form>
-        </div>
+        </ScrollReveal>
 
         {/* Toast */}
         <Toast

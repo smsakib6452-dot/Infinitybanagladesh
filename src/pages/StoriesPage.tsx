@@ -3,6 +3,8 @@ import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
 import { useRouter, Link } from '../context/RouterContext';
 import { SectionHeading } from '../components/SectionHeading';
+import { ScrollReveal } from '../components/motion/ScrollReveal';
+import { StaggerGroup, StaggerItem } from '../components/motion/StaggerGroup';
 import { SocialShareModal } from '../components/SocialShareModal';
 import { Heart, Sparkles, ShieldCheck, Share2, MapPin, Calendar, ArrowRight } from 'lucide-react';
 
@@ -16,7 +18,7 @@ export const StoriesPage: React.FC = () => {
     <div className="py-10 sm:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 sm:space-y-16">
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-4">
+        <ScrollReveal effect="fade-up" className="text-center max-w-3xl mx-auto space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#E6F3EF] border border-[#C2E2D7] rounded-full text-[#00523C] text-xs font-extrabold uppercase tracking-wider">
             <Heart className="w-3.5 h-3.5 text-rose-600" />
             <span>{isBn ? 'মানবিক দলিল ও বাস্তব গল্প' : 'Impact Stories & Human Realities'}</span>
@@ -29,12 +31,12 @@ export const StoriesPage: React.FC = () => {
               ? 'টিম ইনফিনিটির স্বেচ্ছাসেবী কার্যক্রম কীভাবে প্রান্তিক মানুষের জীবনে ইতিবাচক প্রভাব ফেলেছে তার সত্য ও মর্যাদাপূর্ণ বিবরণ।'
               : 'Authentic accounts of change across communities in Bangladesh, documented with strict beneficiary consent and human dignity.'}
           </p>
-        </div>
+        </ScrollReveal>
 
         {/* Stories Grid */}
-        <div className="flex flex-wrap justify-center gap-8">
+        <StaggerGroup className="flex flex-wrap justify-center gap-8">
           {stories.map((story) => (
-            <div
+            <StaggerItem
               key={story.id}
               className="w-full md:w-[calc(50%-1rem)] max-w-lg bg-white rounded-[2.5rem] border border-[#EAE3D9] overflow-hidden shadow-warm-sm hover:shadow-warm-md transition-all duration-300 flex flex-col justify-between group"
             >
@@ -116,9 +118,9 @@ export const StoriesPage: React.FC = () => {
                   <Share2 className="w-4 h-4" />
                 </button>
               </div>
-            </div>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerGroup>
 
         {/* Share Modal */}
         {shareStory && (

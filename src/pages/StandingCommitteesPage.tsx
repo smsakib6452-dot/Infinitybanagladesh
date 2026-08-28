@@ -20,6 +20,8 @@ import {
 } from 'lucide-react';
 import { CommitteeMember, Person, Position } from '../types';
 import { getAssetUrl, handleImageError } from '../lib/utils/assetHelper';
+import { ScrollReveal } from '../components/motion/ScrollReveal';
+import { StaggerGroup, StaggerItem } from '../components/motion/StaggerGroup';
 
 export const StandingCommitteesPage: React.FC = () => {
   const { isBn, tText } = useLanguage();
@@ -63,218 +65,116 @@ export const StandingCommitteesPage: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-10 sm:space-y-14">
       {/* Header Banner */}
-      <div className="text-center space-y-4 max-w-4xl mx-auto">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E6F3EF] text-[#00523C] text-xs font-extrabold uppercase tracking-wider border border-[#C2E2D7]">
-          <Layers className="w-3.5 h-3.5 text-[#006A4E]" />
-          <span>{isBn ? 'স্থায়ী পরিষদ ও দিকনির্দেশনা' : 'Standing Governance Council'}</span>
+      <ScrollReveal effect="fade-up">
+        <div className="text-center space-y-4 max-w-4xl mx-auto">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E6F3EF] text-[#00523C] text-xs font-extrabold uppercase tracking-wider border border-[#C2E2D7]">
+            <Layers className="w-3.5 h-3.5 text-[#006A4E]" />
+            <span>{isBn ? 'স্থায়ী পরিষদ ও দিকনির্দেশনা' : 'Standing Governance Council'}</span>
+          </div>
+
+          <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight font-display">
+            {isBn ? 'ইনফিনিটি বাংলাদেশ স্থায়ী কমিটি' : 'Infinity Bangladesh Standing Committee'}
+          </h1>
+
+          <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-3xl mx-auto">
+            {isBn
+              ? 'টিম ইনফিনিটির প্রাতিষ্ঠানিক নীতি নির্ধারণ, দীর্ঘমেয়াদী কৌশলগত পরিকল্পনা এবং মানবিক কার্যক্রমের ধারাবাহিকতা রক্ষায় নিবেদিত স্থায়ী পরিষদ।'
+              : 'The permanent governance body providing strategic leadership, institutional policy oversight, and ethical guidance for Infinity Bangladesh.'}
+          </p>
+
+          {/* Sub-navigation */}
+          <div className="pt-3 flex flex-wrap justify-center items-center gap-2.5 sm:gap-3">
+            <Link
+              to="team"
+              className="px-4 py-2 rounded-2xl bg-white hover:bg-[#FAF7F2] text-slate-700 text-xs sm:text-sm font-bold border border-[#EAE3D9] transition-all cursor-pointer flex items-center gap-1.5"
+            >
+              <LayoutGrid className="w-4 h-4 text-[#006A4E]" />
+              <span>{isBn ? 'টিম ওভারভিউ' : 'Team Overview'}</span>
+            </Link>
+
+            <Link
+              to="team/executive-committee"
+              className="px-4 py-2 rounded-2xl bg-white hover:bg-[#FAF7F2] text-slate-700 text-xs sm:text-sm font-bold border border-[#EAE3D9] transition-all cursor-pointer"
+            >
+              {isBn ? 'কার্যনির্বাহী পরিষদ (২০২৬)' : 'Executive Committee (2026)'}
+            </Link>
+
+            <Link
+              to="team/standing-committee"
+              className="px-4 py-2 rounded-2xl bg-[#006A4E] text-white text-xs sm:text-sm font-extrabold shadow-warm-sm cursor-pointer"
+            >
+              {isBn ? 'স্থায়ী কমিটি' : 'Standing Committee'}
+            </Link>
+
+            <Link
+              to="team/past-committees"
+              className="px-4 py-2 rounded-2xl bg-white hover:bg-[#FAF7F2] text-slate-700 text-xs sm:text-sm font-bold border border-[#EAE3D9] transition-all cursor-pointer"
+            >
+              {isBn ? 'প্রাক্তন কমিটি আর্কাইভ' : 'Past Committees Archive'}
+            </Link>
+          </div>
         </div>
-
-        <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight font-display">
-          {isBn ? 'ইনফিনিটি বাংলাদেশ স্থায়ী কমিটি' : 'Infinity Bangladesh Standing Committee'}
-        </h1>
-
-        <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-3xl mx-auto">
-          {isBn
-            ? 'টিম ইনফিনিটির প্রাতিষ্ঠানিক নীতি নির্ধারণ, দীর্ঘমেয়াদী কৌশলগত পরিকল্পনা এবং মানবিক কার্যক্রমের ধারাবাহিকতা রক্ষায় নিবেদিত স্থায়ী পরিষদ।'
-            : 'The permanent governance body providing strategic leadership, institutional policy oversight, and ethical guidance for Infinity Bangladesh.'}
-        </p>
-
-        {/* Sub-navigation */}
-        <div className="pt-3 flex flex-wrap justify-center items-center gap-2.5 sm:gap-3">
-          <Link
-            to="team"
-            className="px-4 py-2 rounded-2xl bg-white hover:bg-[#FAF7F2] text-slate-700 text-xs sm:text-sm font-bold border border-[#EAE3D9] transition-all cursor-pointer flex items-center gap-1.5"
-          >
-            <LayoutGrid className="w-4 h-4 text-[#006A4E]" />
-            <span>{isBn ? 'টিম ওভারভিউ' : 'Team Overview'}</span>
-          </Link>
-
-          <Link
-            to="team/executive-committee"
-            className="px-4 py-2 rounded-2xl bg-white hover:bg-[#FAF7F2] text-slate-700 text-xs sm:text-sm font-bold border border-[#EAE3D9] transition-all cursor-pointer"
-          >
-            {isBn ? 'কার্যনির্বাহী পরিষদ (২০২৬)' : 'Executive Committee (2026)'}
-          </Link>
-
-          <Link
-            to="team/standing-committee"
-            className="px-4 py-2 rounded-2xl bg-[#006A4E] text-white text-xs sm:text-sm font-extrabold shadow-warm-sm cursor-pointer"
-          >
-            {isBn ? 'স্থায়ী কমিটি' : 'Standing Committee'}
-          </Link>
-
-          <Link
-            to="team/past-committees"
-            className="px-4 py-2 rounded-2xl bg-white hover:bg-[#FAF7F2] text-slate-700 text-xs sm:text-sm font-bold border border-[#EAE3D9] transition-all cursor-pointer"
-          >
-            {isBn ? 'প্রাক্তন কমিটি আর্কাইভ' : 'Past Committees Archive'}
-          </Link>
-        </div>
-      </div>
+      </ScrollReveal>
 
       {/* STANDING COMMITTEE HIERARCHY & MEMBERS */}
-      <div className="bg-white rounded-[2.5rem] border border-[#EAE3D9] p-6 sm:p-10 space-y-8 shadow-warm-md relative overflow-hidden">
-        {/* Committee Title Header & Search Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-6">
-          <div className="space-y-1">
-            <h2 className="text-xl font-extrabold text-slate-900 font-display flex items-center gap-2">
-              <Users className="w-5 h-5 text-[#006A4E]" />
-              {standingCommittee ? tText(standingCommittee.name) : (isBn ? 'ইনফিনিটি বাংলাদেশ স্থায়ী কমিটি' : 'Infinity Bangladesh Standing Committee')}
-            </h2>
-            <p className="text-xs text-slate-500 font-medium">
-              {isBn ? 'মোট স্থায়ী সদস্য:' : 'Total Standing Members:'} <span className="font-bold text-slate-800">{allMembers.length} {isBn ? 'জন' : 'Leaders'}</span> &bull; {isBn ? 'অনুমোদিত কেন্দ্রীয় স্থায়ী পরিষদ' : 'Central Standing Council'}
-            </p>
+      <ScrollReveal effect="fade-up">
+        <div className="bg-white rounded-[2.5rem] border border-[#EAE3D9] p-6 sm:p-10 space-y-8 shadow-warm-md relative overflow-hidden">
+          {/* Committee Title Header & Search Bar */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-6">
+            <div className="space-y-1">
+              <h2 className="text-xl font-extrabold text-slate-900 font-display flex items-center gap-2">
+                <Users className="w-5 h-5 text-[#006A4E]" />
+                {standingCommittee ? tText(standingCommittee.name) : (isBn ? 'ইনফিনিটি বাংলাদেশ স্থায়ী কমিটি' : 'Infinity Bangladesh Standing Committee')}
+              </h2>
+              <p className="text-xs text-slate-500 font-medium">
+                {isBn ? 'মোট স্থায়ী সদস্য:' : 'Total Standing Members:'} <span className="font-bold text-slate-800">{allMembers.length} {isBn ? 'জন' : 'Leaders'}</span> &bull; {isBn ? 'অনুমোদিত কেন্দ্রীয় স্থায়ী পরিষদ' : 'Central Standing Council'}
+              </p>
+            </div>
+
+            <div className="relative w-full sm:w-72">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={isBn ? 'সদস্য বা পদবী খুঁজুন...' : 'Search member or position...'}
+                className="w-full pl-9 pr-4 py-2.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-2xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#006A4E] focus:bg-white transition-all"
+              />
+            </div>
           </div>
 
-          <div className="relative w-full sm:w-72">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={isBn ? 'সদস্য বা পদবী খুঁজুন...' : 'Search member or position...'}
-              className="w-full pl-9 pr-4 py-2.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-2xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#006A4E] focus:bg-white transition-all"
-            />
-          </div>
-        </div>
+          {filteredMembers.length === 0 ? (
+            <div className="text-center py-12 space-y-3 bg-[#FAF7F2] rounded-3xl border border-dashed border-[#EAE3D9]">
+              <Users className="w-12 h-12 text-slate-400 mx-auto" />
+              <p className="text-sm font-bold text-slate-600">
+                {searchQuery
+                  ? (isBn ? 'অনুসন্ধানের সাথে কোনো সদস্য মেলেনি।' : 'No members matched your search criteria.')
+                  : (isBn ? 'এই কমিটিতে এখনও কোনো সদস্য যুক্ত করা হয়নি।' : 'No members assigned to this standing committee yet.')}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-10">
+              {/* TIER 1: CHAIRMAN */}
+              {chairman.length > 0 && (
+                <div className="space-y-3">
+                  <div className="text-center">
+                    <span className="text-[11px] font-extrabold uppercase tracking-widest text-[#B31224] bg-[#FDF1F2] px-3.5 py-1 rounded-full border border-[#FCD3D7]">
+                      {isBn ? 'চেয়ারম্যান' : 'Chairman'}
+                    </span>
+                  </div>
 
-        {filteredMembers.length === 0 ? (
-          <div className="text-center py-12 space-y-3 bg-[#FAF7F2] rounded-3xl border border-dashed border-[#EAE3D9]">
-            <Users className="w-12 h-12 text-slate-400 mx-auto" />
-            <p className="text-sm font-bold text-slate-600">
-              {searchQuery
-                ? (isBn ? 'অনুসন্ধানের সাথে কোনো সদস্য মেলেনি।' : 'No members matched your search criteria.')
-                : (isBn ? 'এই কমিটিতে এখনও কোনো সদস্য যুক্ত করা হয়নি।' : 'No members assigned to this standing committee yet.')}
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-10">
-            {/* TIER 1: CHAIRMAN */}
-            {chairman.length > 0 && (
-              <div className="space-y-3">
-                <div className="text-center">
-                  <span className="text-[11px] font-extrabold uppercase tracking-widest text-[#B31224] bg-[#FDF1F2] px-3.5 py-1 rounded-full border border-[#FCD3D7]">
-                    {isBn ? 'চেয়ারম্যান' : 'Chairman'}
-                  </span>
-                </div>
-
-                <div className="flex justify-center">
-                  {chairman.map(m => (
-                    <div
-                      key={m.id}
-                      onClick={() => setSelectedMember(m)}
-                      className="group relative cursor-pointer max-w-xs sm:max-w-sm w-full bg-white text-slate-900 rounded-3xl p-6 text-center shadow-warm-lg border-2 border-[#D4182E]/40 hover:border-[#D4182E] transition-all transform hover:-translate-y-1"
-                    >
-                      <div className="absolute top-3 right-3 bg-[#FDF1F2] text-[#B31224] font-mono font-bold text-[10px] px-2 py-0.5 rounded-full border border-[#FCD3D7]">
-                        #{String(m.serialNumber || 1).padStart(2, '0')}
-                      </div>
-
-                      <div className="mx-auto w-28 h-32 sm:w-32 sm:h-36 rounded-t-full rounded-b-2xl overflow-hidden bg-[#FDF1F2] border-2 border-[#D4182E]/30 shadow-inner mb-3.5 flex items-center justify-center">
-                        {m.person.photoUrl ? (
-                          <img
-                            src={getAssetUrl(m.person.photoUrl)}
-                            alt={m.person.fullName}
-                            className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
-                            style={{
-                              objectPosition: m.person.photoPosition || 'center 15%',
-                              transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
-                            }}
-                            onError={handleImageError}
-                            loading="lazy"
-                          />
-                        ) : (
-                          <Users className="w-14 h-14 text-[#D4182E]/70" />
-                        )}
-                      </div>
-
-                      <div className="bg-[#D4182E] text-white rounded-2xl py-2 px-3 shadow-xs space-y-0.5">
-                        <h3 className="text-base sm:text-lg font-extrabold tracking-tight font-display text-white transition-colors">
-                          {isBn ? m.person.banglaName : m.person.fullName}
-                        </h3>
-                        <div className="text-[11px] font-bold text-rose-100 uppercase tracking-wider">
-                          {isBn ? m.position.name.bn : m.position.name.en}
+                  <div className="flex justify-center">
+                    {chairman.map(m => (
+                      <div
+                        key={m.id}
+                        onClick={() => setSelectedMember(m)}
+                        className="group relative cursor-pointer max-w-xs sm:max-w-sm w-full bg-white text-slate-900 rounded-3xl p-6 text-center shadow-warm-lg border-2 border-[#D4182E]/40 hover:border-[#D4182E] transition-all transform hover:-translate-y-1"
+                      >
+                        <div className="absolute top-3 right-3 bg-[#FDF1F2] text-[#B31224] font-mono font-bold text-[10px] px-2 py-0.5 rounded-full border border-[#FCD3D7]">
+                          #{String(m.serialNumber || 1).padStart(2, '0')}
                         </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
 
-            {/* TIER 2: VICE-CHAIRMEN */}
-            {viceChairmen.length > 0 && (
-              <div className="space-y-3 pt-2">
-                <div className="text-center">
-                  <span className="text-[11px] font-extrabold uppercase tracking-widest text-[#B31224] bg-[#FDF1F2] px-3.5 py-1 rounded-full border border-[#FCD3D7]">
-                    {isBn ? 'ভাইস-চেয়ারম্যান পরিষদ' : 'Vice-Chairmen'}
-                  </span>
-                </div>
-
-                <div className="flex flex-wrap justify-center gap-6 max-w-2xl mx-auto">
-                  {viceChairmen.map(m => (
-                    <div
-                      key={m.id}
-                      onClick={() => setSelectedMember(m)}
-                      className="group relative cursor-pointer bg-white text-slate-900 rounded-3xl p-5 text-center shadow-warm-sm border border-[#EAE3D9] hover:border-[#D4182E] transition-all transform hover:-translate-y-1 w-full sm:w-[calc(50%-0.75rem)] max-w-xs"
-                    >
-                      <div className="absolute top-3 right-3 bg-[#FAF7F2] text-slate-700 font-mono font-bold text-[10px] px-2 py-0.5 rounded-full border border-[#EAE3D9]">
-                        #{String(m.serialNumber || 2).padStart(2, '0')}
-                      </div>
-
-                      <div className="mx-auto w-24 h-28 sm:w-28 sm:h-32 rounded-t-full rounded-b-2xl overflow-hidden bg-[#FAF7F2] border border-[#EAE3D9] mb-3 flex items-center justify-center">
-                        {m.person.photoUrl ? (
-                          <img
-                            src={getAssetUrl(m.person.photoUrl)}
-                            alt={m.person.fullName}
-                            className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
-                            style={{
-                              objectPosition: m.person.photoPosition || 'center 15%',
-                              transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
-                            }}
-                            onError={handleImageError}
-                            loading="lazy"
-                          />
-                        ) : (
-                          <Users className="w-12 h-12 text-slate-400" />
-                        )}
-                      </div>
-
-                      <div className="bg-[#FAF7F2] border border-[#EAE3D9] text-slate-900 rounded-2xl py-1.5 px-3 shadow-2xs space-y-0.5">
-                        <h4 className="text-sm sm:text-base font-bold font-display text-slate-900 group-hover:text-[#D4182E] transition-colors">
-                          {isBn ? m.person.banglaName : m.person.fullName}
-                        </h4>
-                        <div className="text-[10px] font-bold text-[#D4182E] uppercase tracking-wider">
-                          {isBn ? m.position.name.bn : m.position.name.en}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* TIER 3: REGULAR MEMBERS */}
-            {regularMembers.length > 0 && (
-              <div className="space-y-4 pt-4 border-t border-slate-100">
-                <div className="text-center">
-                  <span className="text-[11px] font-extrabold uppercase tracking-widest text-[#00523C] bg-[#E6F3EF] px-3.5 py-1 rounded-full border border-[#C2E2D7]">
-                    {isBn ? 'স্থায়ী কমিটির সদস্যবৃন্দ' : 'Committee Members'}
-                  </span>
-                </div>
-
-                <div className="flex flex-wrap justify-center gap-6 max-w-4xl mx-auto">
-                  {regularMembers.map(m => (
-                    <div
-                      key={m.id}
-                      onClick={() => setSelectedMember(m)}
-                      className="group relative cursor-pointer bg-[#FAF7F2] rounded-3xl p-4 text-center shadow-2xs border border-[#EAE3D9] hover:border-[#006A4E] hover:shadow-warm-md transition-all transform hover:-translate-y-1 flex flex-col justify-between w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] max-w-xs"
-                    >
-                      <div className="absolute top-2.5 right-2.5 bg-white text-slate-700 font-mono font-bold text-[10px] px-1.5 py-0.5 rounded-full border border-slate-200 shadow-2xs">
-                        #{String(m.serialNumber || 0).padStart(2, '0')}
-                      </div>
-
-                      <div>
-                        <div className="mx-auto w-20 h-24 rounded-t-full rounded-b-xl overflow-hidden bg-white border border-[#EAE3D9] mb-2.5 flex items-center justify-center shadow-xs">
+                        <div className="mx-auto w-28 h-32 sm:w-32 sm:h-36 rounded-t-full rounded-b-2xl overflow-hidden bg-[#FDF1F2] border-2 border-[#D4182E]/30 shadow-inner mb-3.5 flex items-center justify-center">
                           {m.person.photoUrl ? (
                             <img
                               src={getAssetUrl(m.person.photoUrl)}
@@ -288,28 +188,142 @@ export const StandingCommitteesPage: React.FC = () => {
                               loading="lazy"
                             />
                           ) : (
-                            <Users className="w-10 h-10 text-slate-400" />
+                            <Users className="w-14 h-14 text-[#D4182E]/70" />
                           )}
                         </div>
 
-                        <h4 className="text-xs sm:text-sm font-bold text-slate-900 font-display group-hover:text-[#006A4E] transition-colors leading-snug">
-                          {isBn ? m.person.banglaName : m.person.fullName}
-                        </h4>
+                        <div className="bg-[#D4182E] text-white rounded-2xl py-2 px-3 shadow-xs space-y-0.5">
+                          <h3 className="text-base sm:text-lg font-extrabold tracking-tight font-display text-white transition-colors">
+                            {isBn ? m.person.banglaName : m.person.fullName}
+                          </h3>
+                          <div className="text-[11px] font-bold text-rose-100 uppercase tracking-wider">
+                            {isBn ? m.position.name.bn : m.position.name.en}
+                          </div>
+                        </div>
                       </div>
-
-                      <div className="mt-2 pt-2 border-t border-slate-200/60">
-                        <span className="text-[10px] font-bold text-[#006A4E] uppercase tracking-wider block">
-                          {isBn ? m.position.name.bn : m.position.name.en}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+              )}
+
+              {/* TIER 2: VICE-CHAIRMEN */}
+              {viceChairmen.length > 0 && (
+                <div className="space-y-3 pt-2">
+                  <div className="text-center">
+                    <span className="text-[11px] font-extrabold uppercase tracking-widest text-[#B31224] bg-[#FDF1F2] px-3.5 py-1 rounded-full border border-[#FCD3D7]">
+                      {isBn ? 'ভাইস-চেয়ারম্যান পরিষদ' : 'Vice-Chairmen'}
+                    </span>
+                  </div>
+
+                  <StaggerGroup className="flex flex-wrap justify-center gap-6 max-w-2xl mx-auto">
+                    {viceChairmen.map(m => (
+                      <StaggerItem
+                        key={m.id}
+                        className="w-full sm:w-[calc(50%-0.75rem)] max-w-xs"
+                      >
+                        <div
+                          onClick={() => setSelectedMember(m)}
+                          className="group relative cursor-pointer bg-white text-slate-900 rounded-3xl p-5 text-center shadow-warm-sm border border-[#EAE3D9] hover:border-[#D4182E] transition-all transform hover:-translate-y-1 h-full"
+                        >
+                          <div className="absolute top-3 right-3 bg-[#FAF7F2] text-slate-700 font-mono font-bold text-[10px] px-2 py-0.5 rounded-full border border-[#EAE3D9]">
+                            #{String(m.serialNumber || 2).padStart(2, '0')}
+                          </div>
+
+                          <div className="mx-auto w-24 h-28 sm:w-28 sm:h-32 rounded-t-full rounded-b-2xl overflow-hidden bg-[#FAF7F2] border border-[#EAE3D9] mb-3 flex items-center justify-center">
+                            {m.person.photoUrl ? (
+                              <img
+                                src={getAssetUrl(m.person.photoUrl)}
+                                alt={m.person.fullName}
+                                className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
+                                style={{
+                                  objectPosition: m.person.photoPosition || 'center 15%',
+                                  transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
+                                }}
+                                onError={handleImageError}
+                                loading="lazy"
+                              />
+                            ) : (
+                              <Users className="w-12 h-12 text-slate-400" />
+                            )}
+                          </div>
+
+                          <div className="bg-[#FAF7F2] border border-[#EAE3D9] text-slate-900 rounded-2xl py-1.5 px-3 shadow-2xs space-y-0.5">
+                            <h4 className="text-sm sm:text-base font-bold font-display text-slate-900 group-hover:text-[#D4182E] transition-colors">
+                              {isBn ? m.person.banglaName : m.person.fullName}
+                            </h4>
+                            <div className="text-[10px] font-bold text-[#D4182E] uppercase tracking-wider">
+                              {isBn ? m.position.name.bn : m.position.name.en}
+                            </div>
+                          </div>
+                        </div>
+                      </StaggerItem>
+                    ))}
+                  </StaggerGroup>
+                </div>
+              )}
+
+              {/* TIER 3: REGULAR MEMBERS */}
+              {regularMembers.length > 0 && (
+                <div className="space-y-4 pt-4 border-t border-slate-100">
+                  <div className="text-center">
+                    <span className="text-[11px] font-extrabold uppercase tracking-widest text-[#00523C] bg-[#E6F3EF] px-3.5 py-1 rounded-full border border-[#C2E2D7]">
+                      {isBn ? 'স্থায়ী কমিটির সদস্যবৃন্দ' : 'Committee Members'}
+                    </span>
+                  </div>
+
+                  <StaggerGroup className="flex flex-wrap justify-center gap-6 max-w-4xl mx-auto">
+                    {regularMembers.map(m => (
+                      <StaggerItem
+                        key={m.id}
+                        className="w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] max-w-xs"
+                      >
+                        <div
+                          onClick={() => setSelectedMember(m)}
+                          className="group relative cursor-pointer bg-[#FAF7F2] rounded-3xl p-4 text-center shadow-2xs border border-[#EAE3D9] hover:border-[#006A4E] hover:shadow-warm-md transition-all transform hover:-translate-y-1 flex flex-col justify-between h-full"
+                        >
+                          <div className="absolute top-2.5 right-2.5 bg-white text-slate-700 font-mono font-bold text-[10px] px-1.5 py-0.5 rounded-full border border-slate-200 shadow-2xs">
+                            #{String(m.serialNumber || 0).padStart(2, '0')}
+                          </div>
+
+                          <div>
+                            <div className="mx-auto w-20 h-24 rounded-t-full rounded-b-xl overflow-hidden bg-white border border-[#EAE3D9] mb-2.5 flex items-center justify-center shadow-xs">
+                              {m.person.photoUrl ? (
+                                <img
+                                  src={getAssetUrl(m.person.photoUrl)}
+                                  alt={m.person.fullName}
+                                  className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
+                                  style={{
+                                    objectPosition: m.person.photoPosition || 'center 15%',
+                                    transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
+                                  }}
+                                  onError={handleImageError}
+                                  loading="lazy"
+                                />
+                              ) : (
+                                <Users className="w-10 h-10 text-slate-400" />
+                              )}
+                            </div>
+
+                            <h4 className="text-xs sm:text-sm font-bold text-slate-900 font-display group-hover:text-[#006A4E] transition-colors leading-snug">
+                              {isBn ? m.person.banglaName : m.person.fullName}
+                            </h4>
+                          </div>
+
+                          <div className="mt-2 pt-2 border-t border-slate-200/60">
+                            <span className="text-[10px] font-bold text-[#006A4E] uppercase tracking-wider block">
+                              {isBn ? m.position.name.bn : m.position.name.en}
+                            </span>
+                          </div>
+                        </div>
+                      </StaggerItem>
+                    ))}
+                  </StaggerGroup>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </ScrollReveal>
 
       {/* Member Details Modal */}
       {selectedMember && (

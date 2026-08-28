@@ -13,7 +13,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({ story }) => {
   const { isBn, tText } = useLanguage();
 
   return (
-    <div className="group bg-white rounded-3xl border border-[#EAE3D9] overflow-hidden shadow-warm-sm hover:shadow-warm-lg transition-all duration-300 flex flex-col hover:-translate-y-1 w-full">
+    <div className="group bg-white rounded-3xl border border-[#EAE3D9] overflow-hidden shadow-warm-sm hover:shadow-warm-lg motion-card-hover transition-all duration-300 flex flex-col w-full">
       <Link
         to="stories/detail"
         slug={story.slug}
@@ -22,7 +22,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({ story }) => {
         <img
           src={getAssetUrl(story.imageUrl)}
           alt={tText(story.title)}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          className="w-full h-full object-cover motion-img-zoom"
           loading="lazy"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent" />
@@ -62,7 +62,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({ story }) => {
             className="text-xs sm:text-sm font-bold text-[#006A4E] hover:text-[#00523C] inline-flex items-center gap-1.5 cursor-pointer"
           >
             <span>{isBn ? 'সম্পূর্ণ গল্প পড়ুন' : 'Read Full Story'}</span>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            <ArrowRight className="w-4 h-4 group-arrow-hover" />
           </Link>
 
           <span className="text-[11px] text-slate-400 flex items-center gap-1 font-medium">

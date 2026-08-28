@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
 import { SectionHeading } from '../components/SectionHeading';
+import { ScrollReveal } from '../components/motion/ScrollReveal';
+import { StaggerGroup, StaggerItem } from '../components/motion/StaggerGroup';
 import { ChevronDown, HelpCircle } from 'lucide-react';
 
 export const FAQPage: React.FC = () => {
@@ -16,21 +18,23 @@ export const FAQPage: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-12 sm:space-y-14">
-      <SectionHeading
-        badge={isBn ? 'সাধারণ প্রশ্নোত্তর' : 'Knowledge Base'}
-        title={isBn ? 'সচরাচর জিজ্ঞাসিত প্রশ্নাবলী (FAQ)' : 'Frequently Asked Questions'}
-        subtitle={
-          isBn
-            ? 'সংগঠনের পরিচালনা, অনুদান, স্বচ্ছতা ও স্বেচ্ছাসেবা সংক্রান্ত গুরুত্বপূর্ণ তথ্যাবলী।'
-            : 'Find answers to common questions about our mission, transparency, volunteering, and donation stewardship.'
-        }
-      />
+      <ScrollReveal effect="fade-up">
+        <SectionHeading
+          badge={isBn ? 'সাধারণ প্রশ্নোত্তর' : 'Knowledge Base'}
+          title={isBn ? 'সচরাচর জিজ্ঞাসিত প্রশ্নাবলী (FAQ)' : 'Frequently Asked Questions'}
+          subtitle={
+            isBn
+              ? 'সংগঠনের পরিচালনা, অনুদান, স্বচ্ছতা ও স্বেচ্ছাসেবা সংক্রান্ত গুরুত্বপূর্ণ তথ্যাবলী।'
+              : 'Find answers to common questions about our mission, transparency, volunteering, and donation stewardship.'
+          }
+        />
+      </ScrollReveal>
 
-      <div className="space-y-4">
+      <StaggerGroup className="space-y-4">
         {activeFaqs.map((faq, index) => {
           const isOpen = openIndex === index;
           return (
-            <div
+            <StaggerItem
               key={faq.id || index}
               className="bg-white rounded-3xl border border-[#EAE3D9] overflow-hidden shadow-warm-sm transition-all"
             >
@@ -55,10 +59,10 @@ export const FAQPage: React.FC = () => {
                   {tText(faq.answer)}
                 </div>
               )}
-            </div>
+            </StaggerItem>
           );
         })}
-      </div>
+      </StaggerGroup>
     </div>
   );
 };

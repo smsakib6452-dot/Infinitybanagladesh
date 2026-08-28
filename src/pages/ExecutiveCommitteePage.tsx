@@ -3,6 +3,8 @@ import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
 import { Link } from '../components/Link';
 import { SectionHeading } from '../components/SectionHeading';
+import { ScrollReveal } from '../components/motion/ScrollReveal';
+import { StaggerGroup, StaggerItem } from '../components/motion/StaggerGroup';
 import { OfficialInfoBadge } from '../components/OfficialInfoBadge';
 import {
   Users,
@@ -236,7 +238,7 @@ export const ExecutiveCommitteePage: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-10 sm:space-y-14">
       {/* Header Banner */}
-      <div className="text-center space-y-4 max-w-4xl mx-auto">
+      <ScrollReveal effect="fade-up" className="text-center space-y-4 max-w-4xl mx-auto">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E6F3EF] text-[#00523C] text-xs font-extrabold uppercase tracking-wider border border-[#C2E2D7]">
           <Award className="w-3.5 h-3.5 text-[#006A4E]" />
           <span>{isBn ? 'কার্যনির্বাহী পরিষদ' : 'Executive Leadership'}</span>
@@ -250,7 +252,6 @@ export const ExecutiveCommitteePage: React.FC = () => {
             </span>
           )}
         </h1>
-
         <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-3xl mx-auto">
           {isBn
             ? 'টিম ইনফিনিটির মানবিক উদ্যোগ, মাঠপর্যায়ের ত্রাণ ও সেবা কার্যক্রম পরিচালনায় নিবেদিত নির্বাচিত কার্যনির্বাহী নেতৃত্ব।'
@@ -288,10 +289,10 @@ export const ExecutiveCommitteePage: React.FC = () => {
             {isBn ? 'প্রাক্তন কমিটি আর্কাইভ' : 'Past Committees Archive'}
           </Link>
         </div>
-      </div>
+      </ScrollReveal>
 
       {/* Official Hierarchy & Search Bar */}
-      <div className="bg-white rounded-[2.5rem] border border-[#EAE3D9] p-6 sm:p-10 space-y-10 sm:space-y-12 shadow-warm-md">
+      <ScrollReveal effect="fade-up" delay={100} className="bg-white rounded-[2.5rem] border border-[#EAE3D9] p-6 sm:p-10 space-y-10 sm:space-y-12 shadow-warm-md">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-6">
           <div className="space-y-1">
             <h2 className="text-xl font-extrabold text-slate-900 font-display flex items-center gap-2">
@@ -327,49 +328,53 @@ export const ExecutiveCommitteePage: React.FC = () => {
             </div>
 
             {searchResults.length > 0 ? (
-              <div className="flex flex-wrap justify-center items-start gap-3 sm:gap-3.5 lg:gap-4 max-w-5xl mx-auto">
+              <StaggerGroup className="flex flex-wrap justify-center items-start gap-3 sm:gap-3.5 lg:gap-4 max-w-5xl mx-auto">
                 {searchResults.map(m => (
-                  <div
+                  <StaggerItem
                     key={m.id}
-                    onClick={() => setSelectedMember(m)}
-                    className="group cursor-pointer bg-[#FAF7F2] hover:bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-3.5 text-center border border-[#EAE3D9] hover:border-[#006A4E] hover:shadow-warm-md transition-all relative flex flex-col items-center w-full max-w-[155px] sm:max-w-[170px] lg:max-w-[175px] xl:max-w-[185px] flex-shrink-0"
+                    className="w-full max-w-[155px] sm:max-w-[170px] lg:max-w-[175px] xl:max-w-[185px] flex-shrink-0"
                   >
-                    <div className="absolute top-2 right-2 bg-white text-slate-700 font-mono font-bold text-[10px] px-1.5 py-0.5 rounded-full border border-slate-200 shadow-2xs">
-                      #{String(m.serialNumber).padStart(2, '0')}
-                    </div>
+                    <div
+                      onClick={() => setSelectedMember(m)}
+                      className="group cursor-pointer bg-[#FAF7F2] hover:bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-3.5 text-center border border-[#EAE3D9] hover:border-[#006A4E] hover:shadow-warm-md transition-all relative flex flex-col items-center h-full"
+                    >
+                      <div className="absolute top-2 right-2 bg-white text-slate-700 font-mono font-bold text-[10px] px-1.5 py-0.5 rounded-full border border-slate-200 shadow-2xs">
+                        #{String(m.serialNumber).padStart(2, '0')}
+                      </div>
 
-                    <div className="w-16 h-20 sm:w-20 sm:h-24 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2 sm:mb-2.5 flex items-center justify-center shadow-xs flex-shrink-0">
-                      {m.person.photoUrl ? (
-                        <img
-                          src={getAssetUrl(m.person.photoUrl)}
-                          alt={m.person.fullName}
-                          className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
-                          style={{
-                            objectPosition: m.person.photoPosition || 'center 15%',
-                            transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
-                          }}
-                          onError={handleImageError}
-                          loading="lazy"
-                        />
-                      ) : (
-                        <Users className="w-8 h-8 text-rose-200/70" />
-                      )}
-                    </div>
+                      <div className="w-16 h-20 sm:w-20 sm:h-24 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2 sm:mb-2.5 flex items-center justify-center shadow-xs flex-shrink-0">
+                        {m.person.photoUrl ? (
+                          <img
+                            src={getAssetUrl(m.person.photoUrl)}
+                            alt={m.person.fullName}
+                            className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
+                            style={{
+                              objectPosition: m.person.photoPosition || 'center 15%',
+                              transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
+                            }}
+                            onError={handleImageError}
+                            loading="lazy"
+                          />
+                        ) : (
+                          <Users className="w-8 h-8 text-rose-200/70" />
+                        )}
+                      </div>
 
-                    <div className="w-full">
-                      <h4 className="text-xs sm:text-[13px] lg:text-[13.5px] font-bold text-slate-900 leading-tight group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words">
-                        {isBn ? m.person.banglaName : m.person.fullName}
-                      </h4>
+                      <div className="w-full">
+                        <h4 className="text-xs sm:text-[13px] lg:text-[13.5px] font-bold text-slate-900 leading-tight group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words">
+                          {isBn ? m.person.banglaName : m.person.fullName}
+                        </h4>
 
-                      <div className="mt-1.5 pt-1.5 border-t border-slate-200/70">
-                        <span className="text-[10.5px] sm:text-[11.5px] font-semibold text-slate-600 line-clamp-2 leading-tight block break-words">
-                          {isBn ? m.position.name.bn : m.position.name.en}
-                        </span>
+                        <div className="mt-1.5 pt-1.5 border-t border-slate-200/70">
+                          <span className="text-[10.5px] sm:text-[11.5px] font-semibold text-slate-600 line-clamp-2 leading-tight block break-words">
+                            {isBn ? m.position.name.bn : m.position.name.en}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  </StaggerItem>
                 ))}
-              </div>
+              </StaggerGroup>
             ) : (
               <div className="text-center py-12 text-slate-500 text-sm">
                 {isBn ? 'কোন সদস্য পাওয়া যায়নি।' : 'No members found matching your search.'}
@@ -393,7 +398,7 @@ export const ExecutiveCommitteePage: React.FC = () => {
                     'green'
                   )}
 
-                  <div className="flex justify-center">
+                  <ScrollReveal effect="fade-up" className="flex justify-center">
                     <div
                       key={member1.id}
                       onClick={() => setSelectedMember(member1)}
@@ -437,7 +442,7 @@ export const ExecutiveCommitteePage: React.FC = () => {
                           : 'President of Infinity Bangladesh.'}
                       </p>
                     </div>
-                  </div>
+                  </ScrollReveal>
                 </div>
               )}
 
@@ -450,45 +455,46 @@ export const ExecutiveCommitteePage: React.FC = () => {
                     'সহ-সভাপতি পরিষদ'
                   )}
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                  <StaggerGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
                     {members2to4.map(m => (
-                      <div
-                        key={m.id}
-                        onClick={() => setSelectedMember(m)}
-                        className="group cursor-pointer bg-white text-slate-900 rounded-3xl p-5 sm:p-6 text-center shadow-warm-sm border border-[#EAE3D9] hover:border-[#006A4E] transition-all transform hover:-translate-y-1 relative"
-                      >
-                        <div className="absolute top-3 right-3 bg-[#FAF7F2] text-slate-700 font-mono font-bold text-[11px] px-2 py-0.5 rounded-full border border-[#EAE3D9]">
-                          #{String(m.serialNumber).padStart(2, '0')}
-                        </div>
+                      <StaggerItem key={m.id}>
+                        <div
+                          onClick={() => setSelectedMember(m)}
+                          className="group cursor-pointer bg-white text-slate-900 rounded-3xl p-5 sm:p-6 text-center shadow-warm-sm border border-[#EAE3D9] hover:border-[#006A4E] transition-all transform hover:-translate-y-1 relative h-full"
+                        >
+                          <div className="absolute top-3 right-3 bg-[#FAF7F2] text-slate-700 font-mono font-bold text-[11px] px-2 py-0.5 rounded-full border border-[#EAE3D9]">
+                            #{String(m.serialNumber).padStart(2, '0')}
+                          </div>
 
-                        <div className="relative mx-auto w-24 h-28 sm:w-28 sm:h-32 rounded-t-full rounded-b-2xl overflow-hidden bg-[#FAF7F2] border border-[#EAE3D9] mb-3 flex items-center justify-center">
-                          {m.person.photoUrl ? (
-                            <img
-                              src={getAssetUrl(m.person.photoUrl)}
-                              alt={m.person.fullName}
-                              className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
-                              style={{
-                                objectPosition: m.person.photoPosition || 'center 15%',
-                                transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
-                              }}
-                              onError={handleImageError}
-                              loading="lazy"
-                            />
-                          ) : (
-                            <Users className="w-12 h-12 text-slate-400" />
-                          )}
-                        </div>
+                          <div className="relative mx-auto w-24 h-28 sm:w-28 sm:h-32 rounded-t-full rounded-b-2xl overflow-hidden bg-[#FAF7F2] border border-[#EAE3D9] mb-3 flex items-center justify-center">
+                            {m.person.photoUrl ? (
+                              <img
+                                src={getAssetUrl(m.person.photoUrl)}
+                                alt={m.person.fullName}
+                                className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
+                                style={{
+                                  objectPosition: m.person.photoPosition || 'center 15%',
+                                  transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
+                                }}
+                                onError={handleImageError}
+                                loading="lazy"
+                              />
+                            ) : (
+                              <Users className="w-12 h-12 text-slate-400" />
+                            )}
+                          </div>
 
-                        <h3 className="text-base sm:text-lg font-bold font-display text-slate-900 group-hover:text-[#006A4E] transition-colors">
-                          {isBn ? m.person.banglaName : m.person.fullName}
-                        </h3>
+                          <h3 className="text-base sm:text-lg font-bold font-display text-slate-900 group-hover:text-[#006A4E] transition-colors">
+                            {isBn ? m.person.banglaName : m.person.fullName}
+                          </h3>
 
-                        <div className="mt-1.5 inline-block px-3 py-0.5 rounded-full bg-[#FAF7F2] text-slate-700 font-semibold text-xs border border-[#EAE3D9]">
-                          {isBn ? m.position.name.bn : m.position.name.en}
+                          <div className="mt-1.5 inline-block px-3 py-0.5 rounded-full bg-[#FAF7F2] text-slate-700 font-semibold text-xs border border-[#EAE3D9]">
+                            {isBn ? m.position.name.bn : m.position.name.en}
+                          </div>
                         </div>
-                      </div>
+                      </StaggerItem>
                     ))}
-                  </div>
+                  </StaggerGroup>
                 </div>
               )}
 
@@ -502,7 +508,7 @@ export const ExecutiveCommitteePage: React.FC = () => {
                     'red'
                   )}
 
-                  <div className="flex justify-center">
+                  <ScrollReveal effect="fade-up" className="flex justify-center">
                     <div
                       key={member5.id}
                       onClick={() => setSelectedMember(member5)}
@@ -546,7 +552,7 @@ export const ExecutiveCommitteePage: React.FC = () => {
                           : 'General Secretary of Infinity Bangladesh.'}
                       </p>
                     </div>
-                  </div>
+                  </ScrollReveal>
                 </div>
               )}
             </div>
@@ -562,49 +568,53 @@ export const ExecutiveCommitteePage: React.FC = () => {
                   'যুগ্ম সাধারণ সম্পাদক পরিষদ'
                 )}
 
-                <div className="flex flex-wrap lg:flex-nowrap justify-center items-start gap-3 sm:gap-3.5 lg:gap-4 max-w-5xl mx-auto">
+                <StaggerGroup className="flex flex-wrap lg:flex-nowrap justify-center items-start gap-3 sm:gap-3.5 lg:gap-4 max-w-5xl mx-auto">
                   {members6to10.map(m => (
-                    <div
+                    <StaggerItem
                       key={m.id}
-                      onClick={() => setSelectedMember(m)}
-                      className="group cursor-pointer bg-[#FAF7F2] hover:bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-3.5 text-center border border-[#EAE3D9] hover:border-[#006A4E] hover:shadow-warm-md transition-all relative flex flex-col items-center w-full max-w-[155px] sm:max-w-[170px] lg:max-w-[175px] xl:max-w-[185px] flex-shrink-0"
+                      className="w-full max-w-[155px] sm:max-w-[170px] lg:max-w-[175px] xl:max-w-[185px] flex-shrink-0"
                     >
-                      <div className="absolute top-2 right-2 bg-white text-slate-700 font-mono font-bold text-[10px] px-1.5 py-0.5 rounded-full border border-slate-200 shadow-2xs">
-                        #{String(m.serialNumber).padStart(2, '0')}
-                      </div>
+                      <div
+                        onClick={() => setSelectedMember(m)}
+                        className="group cursor-pointer bg-[#FAF7F2] hover:bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-3.5 text-center border border-[#EAE3D9] hover:border-[#006A4E] hover:shadow-warm-md transition-all relative flex flex-col items-center h-full"
+                      >
+                        <div className="absolute top-2 right-2 bg-white text-slate-700 font-mono font-bold text-[10px] px-1.5 py-0.5 rounded-full border border-slate-200 shadow-2xs">
+                          #{String(m.serialNumber).padStart(2, '0')}
+                        </div>
 
-                      <div className="w-16 h-20 sm:w-20 sm:h-24 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2 sm:mb-2.5 flex items-center justify-center shadow-xs flex-shrink-0">
-                        {m.person.photoUrl ? (
-                          <img
-                            src={getAssetUrl(m.person.photoUrl)}
-                            alt={m.person.fullName}
-                            className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
-                            style={{
-                              objectPosition: m.person.photoPosition || 'center 15%',
-                              transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
-                            }}
-                            onError={handleImageError}
-                            loading="lazy"
-                          />
-                        ) : (
-                          <Users className="w-8 h-8 text-rose-200/70" />
-                        )}
-                      </div>
+                        <div className="w-16 h-20 sm:w-20 sm:h-24 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2 sm:mb-2.5 flex items-center justify-center shadow-xs flex-shrink-0">
+                          {m.person.photoUrl ? (
+                            <img
+                              src={getAssetUrl(m.person.photoUrl)}
+                              alt={m.person.fullName}
+                              className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
+                              style={{
+                                objectPosition: m.person.photoPosition || 'center 15%',
+                                transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
+                              }}
+                              onError={handleImageError}
+                              loading="lazy"
+                            />
+                          ) : (
+                            <Users className="w-8 h-8 text-rose-200/70" />
+                          )}
+                        </div>
 
-                      <div className="w-full">
-                        <h4 className="text-xs sm:text-[13px] lg:text-[13.5px] font-bold text-slate-900 leading-tight group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words">
-                          {isBn ? m.person.banglaName : m.person.fullName}
-                        </h4>
+                        <div className="w-full">
+                          <h4 className="text-xs sm:text-[13px] lg:text-[13.5px] font-bold text-slate-900 leading-tight group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words">
+                            {isBn ? m.person.banglaName : m.person.fullName}
+                          </h4>
 
-                        <div className="mt-1.5 pt-1.5 border-t border-slate-200/70">
-                          <span className="text-[10.5px] sm:text-[11.5px] font-semibold text-slate-600 line-clamp-2 leading-tight block break-words">
-                            {isBn ? m.position.name.bn : m.position.name.en}
-                          </span>
+                          <div className="mt-1.5 pt-1.5 border-t border-slate-200/70">
+                            <span className="text-[10.5px] sm:text-[11.5px] font-semibold text-slate-600 line-clamp-2 leading-tight block break-words">
+                              {isBn ? m.position.name.bn : m.position.name.en}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    </StaggerItem>
                   ))}
-                </div>
+                </StaggerGroup>
               </div>
             )}
 
@@ -620,77 +630,85 @@ export const ExecutiveCommitteePage: React.FC = () => {
                   'অন্যান্য কার্যনির্বাহী কমিটির সদস্যবৃন্দ'
                 )}
 
-                <div className="flex flex-wrap lg:flex-nowrap justify-center items-center gap-2.5 sm:gap-3 lg:gap-3.5 xl:gap-4 max-w-6xl mx-auto">
+                <StaggerGroup className="flex flex-wrap lg:flex-nowrap justify-center items-center gap-2.5 sm:gap-3 lg:gap-3.5 xl:gap-4 max-w-6xl mx-auto">
                   {section3Items.map(({ member: m, isHighlighted }) => (
-                    <div
+                    <StaggerItem
                       key={m.id}
-                      onClick={() => setSelectedMember(m)}
                       className={
                         isHighlighted
-                          ? 'group cursor-pointer bg-white hover:bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 text-center border-2 border-[#006A4E]/50 hover:border-[#006A4E] shadow-warm-md hover:shadow-warm-lg transition-all relative flex flex-col items-center w-full max-w-[175px] sm:max-w-[190px] lg:max-w-[184px] xl:max-w-[195px] flex-shrink-0'
-                          : 'group cursor-pointer bg-[#FAF7F2] hover:bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-3.5 text-center border border-[#EAE3D9] hover:border-[#006A4E] hover:shadow-warm-md transition-all relative flex flex-col items-center w-full max-w-[150px] sm:max-w-[165px] lg:max-w-[158px] xl:max-w-[168px] flex-shrink-0'
+                          ? 'w-full max-w-[175px] sm:max-w-[190px] lg:max-w-[184px] xl:max-w-[195px] flex-shrink-0'
+                          : 'w-full max-w-[150px] sm:max-w-[165px] lg:max-w-[158px] xl:max-w-[168px] flex-shrink-0'
                       }
                     >
                       <div
+                        onClick={() => setSelectedMember(m)}
                         className={
                           isHighlighted
-                            ? 'absolute top-2.5 right-2.5 bg-[#E6F3EF] text-[#00523C] font-mono font-bold text-[11px] px-2 py-0.5 rounded-full border border-[#C2E2D7] shadow-2xs'
-                            : 'absolute top-2 right-2 bg-white text-slate-700 font-mono font-bold text-[10px] px-1.5 py-0.5 rounded-full border border-slate-200 shadow-2xs'
+                            ? 'group cursor-pointer bg-white hover:bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 text-center border-2 border-[#006A4E]/50 hover:border-[#006A4E] shadow-warm-md hover:shadow-warm-lg transition-all relative flex flex-col items-center h-full'
+                            : 'group cursor-pointer bg-[#FAF7F2] hover:bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-3.5 text-center border border-[#EAE3D9] hover:border-[#006A4E] hover:shadow-warm-md transition-all relative flex flex-col items-center h-full'
                         }
                       >
-                        #{String(m.serialNumber).padStart(2, '0')}
-                      </div>
-
-                      <div
-                        className={
-                          isHighlighted
-                            ? 'w-20 h-24 sm:w-24 sm:h-28 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2 sm:mb-2.5 flex items-center justify-center shadow-xs flex-shrink-0'
-                            : 'w-16 h-20 sm:w-20 sm:h-24 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2 sm:mb-2.5 flex items-center justify-center shadow-xs flex-shrink-0'
-                        }
-                      >
-                        {m.person.photoUrl ? (
-                          <img
-                            src={getAssetUrl(m.person.photoUrl)}
-                            alt={m.person.fullName}
-                            className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
-                            style={{
-                              objectPosition: m.person.photoPosition || 'center 15%',
-                              transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
-                            }}
-                            onError={handleImageError}
-                            loading="lazy"
-                          />
-                        ) : (
-                          <Users className={isHighlighted ? 'w-9 h-9 text-rose-200/70' : 'w-8 h-8 text-rose-200/70'} />
-                        )}
-                      </div>
-
-                      <div className="w-full">
-                        <h4
+                        <div
                           className={
                             isHighlighted
-                              ? 'text-sm sm:text-[14.5px] lg:text-[15px] font-extrabold text-slate-900 leading-tight group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words'
-                              : 'text-xs sm:text-[13px] lg:text-[13.5px] font-bold text-slate-900 leading-tight group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words'
+                              ? 'absolute top-2.5 right-2.5 bg-[#E6F3EF] text-[#00523C] font-mono font-bold text-[11px] px-2 py-0.5 rounded-full border border-[#C2E2D7] shadow-2xs'
+                              : 'absolute top-2 right-2 bg-white text-slate-700 font-mono font-bold text-[10px] px-1.5 py-0.5 rounded-full border border-slate-200 shadow-2xs'
                           }
                         >
-                          {isBn ? m.person.banglaName : m.person.fullName}
-                        </h4>
+                          #{String(m.serialNumber).padStart(2, '0')}
+                        </div>
 
-                        <div className={isHighlighted ? 'mt-1.5 pt-1.5 border-t border-[#006A4E]/20' : 'mt-1.5 pt-1.5 border-t border-slate-200/70'}>
-                          <span
+                        <div
+                          className={
+                            isHighlighted
+                              ? 'w-20 h-24 sm:w-24 sm:h-28 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2 sm:mb-2.5 flex items-center justify-center shadow-xs flex-shrink-0'
+                              : 'w-16 h-20 sm:w-20 sm:h-24 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2 sm:mb-2.5 flex items-center justify-center shadow-xs flex-shrink-0'
+                          }
+                        >
+                          {m.person.photoUrl ? (
+                            <img
+                              src={getAssetUrl(m.person.photoUrl)}
+                              alt={m.person.fullName}
+                              className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
+                              style={{
+                                objectPosition: m.person.photoPosition || 'center 15%',
+                                transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
+                              }}
+                              onError={handleImageError}
+                              loading="lazy"
+                            />
+                          ) : (
+                            <Users className={isHighlighted ? 'w-9 h-9 text-rose-200/70' : 'w-8 h-8 text-rose-200/70'} />
+                          )}
+                        </div>
+
+                        <div className="w-full">
+                          <h4
                             className={
                               isHighlighted
-                                ? 'text-[11px] sm:text-[12px] font-bold text-[#006A4E] line-clamp-2 leading-tight block break-words'
-                                : 'text-[10.5px] sm:text-[11.5px] font-semibold text-slate-600 line-clamp-2 leading-tight block break-words'
+                                ? 'text-sm sm:text-[14.5px] lg:text-[15px] font-extrabold text-slate-900 leading-tight group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words'
+                                : 'text-xs sm:text-[13px] lg:text-[13.5px] font-bold text-slate-900 leading-tight group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words'
                             }
                           >
-                            {isBn ? m.position.name.bn : m.position.name.en}
-                          </span>
+                            {isBn ? m.person.banglaName : m.person.fullName}
+                          </h4>
+
+                          <div className={isHighlighted ? 'mt-1.5 pt-1.5 border-t border-[#006A4E]/20' : 'mt-1.5 pt-1.5 border-t border-slate-200/70'}>
+                            <span
+                              className={
+                                isHighlighted
+                                  ? 'text-[11px] sm:text-[12px] font-bold text-[#006A4E] line-clamp-2 leading-tight block break-words'
+                                  : 'text-[10.5px] sm:text-[11.5px] font-semibold text-slate-600 line-clamp-2 leading-tight block break-words'
+                              }
+                            >
+                              {isBn ? m.position.name.bn : m.position.name.en}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    </StaggerItem>
                   ))}
-                </div>
+                </StaggerGroup>
               </div>
             )}
 
@@ -706,77 +724,85 @@ export const ExecutiveCommitteePage: React.FC = () => {
                   'প্রচার, তথ্য ও প্রযুক্তি বিভাগ'
                 )}
 
-                <div className="flex flex-wrap lg:flex-nowrap justify-center items-center gap-2.5 sm:gap-3 lg:gap-3.5 xl:gap-4 max-w-6xl mx-auto">
+                <StaggerGroup className="flex flex-wrap lg:flex-nowrap justify-center items-center gap-2.5 sm:gap-3 lg:gap-3.5 xl:gap-4 max-w-6xl mx-auto">
                   {section4Items.map(({ member: m, isHighlighted }) => (
-                    <div
+                    <StaggerItem
                       key={m.id}
-                      onClick={() => setSelectedMember(m)}
                       className={
                         isHighlighted
-                          ? 'group cursor-pointer bg-white hover:bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 text-center border-2 border-[#006A4E]/50 hover:border-[#006A4E] shadow-warm-md hover:shadow-warm-lg transition-all relative flex flex-col items-center w-full max-w-[175px] sm:max-w-[190px] lg:max-w-[184px] xl:max-w-[195px] flex-shrink-0'
-                          : 'group cursor-pointer bg-[#FAF7F2] hover:bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-3.5 text-center border border-[#EAE3D9] hover:border-[#006A4E] hover:shadow-warm-md transition-all relative flex flex-col items-center w-full max-w-[150px] sm:max-w-[165px] lg:max-w-[158px] xl:max-w-[168px] flex-shrink-0'
+                          ? 'w-full max-w-[175px] sm:max-w-[190px] lg:max-w-[184px] xl:max-w-[195px] flex-shrink-0'
+                          : 'w-full max-w-[150px] sm:max-w-[165px] lg:max-w-[158px] xl:max-w-[168px] flex-shrink-0'
                       }
                     >
                       <div
+                        onClick={() => setSelectedMember(m)}
                         className={
                           isHighlighted
-                            ? 'absolute top-2.5 right-2.5 bg-[#E6F3EF] text-[#00523C] font-mono font-bold text-[11px] px-2 py-0.5 rounded-full border border-[#C2E2D7] shadow-2xs'
-                            : 'absolute top-2 right-2 bg-white text-slate-700 font-mono font-bold text-[10px] px-1.5 py-0.5 rounded-full border border-slate-200 shadow-2xs'
+                            ? 'group cursor-pointer bg-white hover:bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 text-center border-2 border-[#006A4E]/50 hover:border-[#006A4E] shadow-warm-md hover:shadow-warm-lg transition-all relative flex flex-col items-center h-full'
+                            : 'group cursor-pointer bg-[#FAF7F2] hover:bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-3.5 text-center border border-[#EAE3D9] hover:border-[#006A4E] hover:shadow-warm-md transition-all relative flex flex-col items-center h-full'
                         }
                       >
-                        #{String(m.serialNumber).padStart(2, '0')}
-                      </div>
-
-                      <div
-                        className={
-                          isHighlighted
-                            ? 'w-20 h-24 sm:w-24 sm:h-28 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2 sm:mb-2.5 flex items-center justify-center shadow-xs flex-shrink-0'
-                            : 'w-16 h-20 sm:w-20 sm:h-24 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2 sm:mb-2.5 flex items-center justify-center shadow-xs flex-shrink-0'
-                        }
-                      >
-                        {m.person.photoUrl ? (
-                          <img
-                            src={getAssetUrl(m.person.photoUrl)}
-                            alt={m.person.fullName}
-                            className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
-                            style={{
-                              objectPosition: m.person.photoPosition || 'center 15%',
-                              transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
-                            }}
-                            onError={handleImageError}
-                            loading="lazy"
-                          />
-                        ) : (
-                          <Users className={isHighlighted ? 'w-9 h-9 text-rose-200/70' : 'w-8 h-8 text-rose-200/70'} />
-                        )}
-                      </div>
-
-                      <div className="w-full">
-                        <h4
+                        <div
                           className={
                             isHighlighted
-                              ? 'text-sm sm:text-[14.5px] lg:text-[15px] font-extrabold text-slate-900 leading-tight group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words'
-                              : 'text-xs sm:text-[13px] lg:text-[13.5px] font-bold text-slate-900 leading-tight group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words'
+                              ? 'absolute top-2.5 right-2.5 bg-[#E6F3EF] text-[#00523C] font-mono font-bold text-[11px] px-2 py-0.5 rounded-full border border-[#C2E2D7] shadow-2xs'
+                              : 'absolute top-2 right-2 bg-white text-slate-700 font-mono font-bold text-[10px] px-1.5 py-0.5 rounded-full border border-slate-200 shadow-2xs'
                           }
                         >
-                          {isBn ? m.person.banglaName : m.person.fullName}
-                        </h4>
+                          #{String(m.serialNumber).padStart(2, '0')}
+                        </div>
 
-                        <div className={isHighlighted ? 'mt-1.5 pt-1.5 border-t border-[#006A4E]/20' : 'mt-1.5 pt-1.5 border-t border-slate-200/70'}>
-                          <span
+                        <div
+                          className={
+                            isHighlighted
+                              ? 'w-20 h-24 sm:w-24 sm:h-28 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2 sm:mb-2.5 flex items-center justify-center shadow-xs flex-shrink-0'
+                              : 'w-16 h-20 sm:w-20 sm:h-24 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2 sm:mb-2.5 flex items-center justify-center shadow-xs flex-shrink-0'
+                          }
+                        >
+                          {m.person.photoUrl ? (
+                            <img
+                              src={getAssetUrl(m.person.photoUrl)}
+                              alt={m.person.fullName}
+                              className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
+                              style={{
+                                objectPosition: m.person.photoPosition || 'center 15%',
+                                transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
+                              }}
+                              onError={handleImageError}
+                              loading="lazy"
+                            />
+                          ) : (
+                            <Users className={isHighlighted ? 'w-9 h-9 text-rose-200/70' : 'w-8 h-8 text-rose-200/70'} />
+                          )}
+                        </div>
+
+                        <div className="w-full">
+                          <h4
                             className={
                               isHighlighted
-                                ? 'text-[11px] sm:text-[12px] font-bold text-[#006A4E] line-clamp-2 leading-tight block break-words'
-                                : 'text-[10.5px] sm:text-[11.5px] font-semibold text-slate-600 line-clamp-2 leading-tight block break-words'
+                                ? 'text-sm sm:text-[14.5px] lg:text-[15px] font-extrabold text-slate-900 leading-tight group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words'
+                                : 'text-xs sm:text-[13px] lg:text-[13.5px] font-bold text-slate-900 leading-tight group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words'
                             }
                           >
-                            {isBn ? m.position.name.bn : m.position.name.en}
-                          </span>
+                            {isBn ? m.person.banglaName : m.person.fullName}
+                          </h4>
+
+                          <div className={isHighlighted ? 'mt-1.5 pt-1.5 border-t border-[#006A4E]/20' : 'mt-1.5 pt-1.5 border-t border-slate-200/70'}>
+                            <span
+                              className={
+                                isHighlighted
+                                  ? 'text-[11px] sm:text-[12px] font-bold text-[#006A4E] line-clamp-2 leading-tight block break-words'
+                                  : 'text-[10.5px] sm:text-[11.5px] font-semibold text-slate-600 line-clamp-2 leading-tight block break-words'
+                              }
+                            >
+                              {isBn ? m.position.name.bn : m.position.name.en}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    </StaggerItem>
                   ))}
-                </div>
+                </StaggerGroup>
               </div>
             )}
 
@@ -792,54 +818,58 @@ export const ExecutiveCommitteePage: React.FC = () => {
                   'অন্যান্য কার্যনির্বাহী কমিটির সদস্যবৃন্দ'
                 )}
 
-                <div className="flex flex-wrap justify-center items-start gap-3 sm:gap-3.5 lg:gap-4 max-w-5xl mx-auto">
+                <StaggerGroup className="flex flex-wrap justify-center items-start gap-3 sm:gap-3.5 lg:gap-4 max-w-5xl mx-auto">
                   {members23Plus.map(m => (
-                    <div
+                    <StaggerItem
                       key={m.id}
-                      onClick={() => setSelectedMember(m)}
-                      className="group cursor-pointer bg-[#FAF7F2] hover:bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-3.5 text-center border border-[#EAE3D9] hover:border-[#006A4E] hover:shadow-warm-md transition-all relative flex flex-col items-center w-full max-w-[155px] sm:max-w-[170px] lg:max-w-[175px] xl:max-w-[185px] flex-shrink-0"
+                      className="w-full max-w-[155px] sm:max-w-[170px] lg:max-w-[175px] xl:max-w-[185px] flex-shrink-0"
                     >
-                      <div className="absolute top-2 right-2 bg-white text-slate-700 font-mono font-bold text-[10px] px-1.5 py-0.5 rounded-full border border-slate-200 shadow-2xs">
-                        #{String(m.serialNumber).padStart(2, '0')}
-                      </div>
+                      <div
+                        onClick={() => setSelectedMember(m)}
+                        className="group cursor-pointer bg-[#FAF7F2] hover:bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-3.5 text-center border border-[#EAE3D9] hover:border-[#006A4E] hover:shadow-warm-md transition-all relative flex flex-col items-center h-full"
+                      >
+                        <div className="absolute top-2 right-2 bg-white text-slate-700 font-mono font-bold text-[10px] px-1.5 py-0.5 rounded-full border border-slate-200 shadow-2xs">
+                          #{String(m.serialNumber).padStart(2, '0')}
+                        </div>
 
-                      <div className="w-16 h-20 sm:w-20 sm:h-24 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2 sm:mb-2.5 flex items-center justify-center shadow-xs flex-shrink-0">
-                        {m.person.photoUrl ? (
-                          <img
-                            src={getAssetUrl(m.person.photoUrl)}
-                            alt={m.person.fullName}
-                            className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
-                            style={{
-                              objectPosition: m.person.photoPosition || 'center 15%',
-                              transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
-                            }}
-                            onError={handleImageError}
-                            loading="lazy"
-                          />
-                        ) : (
-                          <Users className="w-8 h-8 text-rose-200/70" />
-                        )}
-                      </div>
+                        <div className="w-16 h-20 sm:w-20 sm:h-24 rounded-t-full rounded-b-xl overflow-hidden bg-gradient-to-b from-rose-700 to-rose-900 border border-rose-600/60 mb-2 sm:mb-2.5 flex items-center justify-center shadow-xs flex-shrink-0">
+                          {m.person.photoUrl ? (
+                            <img
+                              src={getAssetUrl(m.person.photoUrl)}
+                              alt={m.person.fullName}
+                              className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
+                              style={{
+                                objectPosition: m.person.photoPosition || 'center 15%',
+                                transform: m.person.photoZoom ? `scale(${m.person.photoZoom})` : undefined
+                              }}
+                              onError={handleImageError}
+                              loading="lazy"
+                            />
+                          ) : (
+                            <Users className="w-8 h-8 text-rose-200/70" />
+                          )}
+                        </div>
 
-                      <div className="w-full">
-                        <h4 className="text-xs sm:text-[13px] lg:text-[13.5px] font-bold text-slate-900 leading-tight group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words">
-                          {isBn ? m.person.banglaName : m.person.fullName}
-                        </h4>
+                        <div className="w-full">
+                          <h4 className="text-xs sm:text-[13px] lg:text-[13.5px] font-bold text-slate-900 leading-tight group-hover:text-[#006A4E] transition-colors font-display line-clamp-2 break-words">
+                            {isBn ? m.person.banglaName : m.person.fullName}
+                          </h4>
 
-                        <div className="mt-1.5 pt-1.5 border-t border-slate-200/70">
-                          <span className="text-[10.5px] sm:text-[11.5px] font-semibold text-slate-600 line-clamp-2 leading-tight block break-words">
-                            {isBn ? m.position.name.bn : m.position.name.en}
-                          </span>
+                          <div className="mt-1.5 pt-1.5 border-t border-slate-200/70">
+                            <span className="text-[10.5px] sm:text-[11.5px] font-semibold text-slate-600 line-clamp-2 leading-tight block break-words">
+                              {isBn ? m.position.name.bn : m.position.name.en}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    </StaggerItem>
                   ))}
-                </div>
+                </StaggerGroup>
               </div>
             )}
           </div>
         )}
-      </div>
+      </ScrollReveal>
 
       {/* Quick Tier Bar Edit/Delete Modal */}
       {isEditingTierModalOpen && editingTierBar && (

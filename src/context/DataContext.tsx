@@ -329,7 +329,7 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-const CURRENT_DATA_VERSION = '2026.08.28.v2';
+const CURRENT_DATA_VERSION = '2026.08.27.1787940137435';
 const DATA_VERSION_KEY = 'infinity_data_version';
 const STORAGE_PREFIX = 'infinity_bd_v2_';
 

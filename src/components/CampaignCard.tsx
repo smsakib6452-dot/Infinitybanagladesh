@@ -27,7 +27,7 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({ campaign, featured =
 
   return (
     <div
-      className={`group bg-white rounded-3xl border border-[#EAE3D9] overflow-hidden shadow-warm-sm hover:shadow-warm-lg transition-all duration-300 flex flex-col hover:-translate-y-1 w-full ${
+      className={`group bg-white rounded-3xl border border-[#EAE3D9] overflow-hidden shadow-warm-sm hover:shadow-warm-lg motion-card-hover transition-all duration-300 flex flex-col w-full ${
         featured ? 'ring-2 ring-[#006A4E]/30' : ''
       }`}
     >
@@ -40,7 +40,7 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({ campaign, featured =
         <img
           src={getAssetUrl(campaign.imageUrl)}
           alt={tText(campaign.title)}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          className="w-full h-full object-cover motion-img-zoom"
           loading="lazy"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
@@ -99,7 +99,7 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({ campaign, featured =
             className="text-xs sm:text-sm font-bold text-[#006A4E] hover:text-[#00523C] inline-flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             <span>{isBn ? 'বিস্তারিত দেখুন' : 'View Campaign'}</span>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            <ArrowRight className="w-4 h-4 group-arrow-hover" />
           </Link>
 
           <Link

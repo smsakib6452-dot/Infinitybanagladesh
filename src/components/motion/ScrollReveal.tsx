@@ -1,0 +1,81 @@
+import React from 'react';
+import { motion, useReducedMotion } from 'motion/react';
+
+export type RevealEffect = 'fade-up' | 'fade-in' | 'scale-up' | 'slide-right' | 'slide-left';
+
+interface ScrollRevealProps {
+  children: React.ReactNode;
+  effect?: RevealEffect;
+  delay?: number;
+  duration?: number;
+  distance?: number;
+  className?: string;
+  viewportMargin?: string;
+  threshold?: number;
+}
+
+export const ScrollReveal: React.FC<ScrollRevealProps> = ({
+  children,
+  effect = 'fade-up',
+  delay = 0,
+  duration = 0.55,
+  distance = 24,
+  className = '',
+  viewportMargin = '-40px'
+}) => {
+  const shouldReduceMotion = useReducedMotion();
+
+  if (shouldReduceMotion) {
+    return <div className={className}>{children}</div>;
+  }
+
+  const getInitial = () => {
+    switch (effect) {
+      case 'fade-up':
+        return { opacity: 0, y: distance };
+      case 'fade-in':
+        return { opacity: 0 };
+      case 'scale-up':
+        return { opacity: 0, scale: 0.96 };
+      case 'slide-right':
+        return { opacity: 0, x: -distance };
+      case 'slide-left':
+        return { opacity: 0, x: distance };
+      default:
+        return { opacity: 0, y: distance };
+    }
+  };
+
+  const getAnimate = () => {
+    switch (effect) {
+      case 'fade-up':
+        return { opacity: 1, y: 0 };
+      case 'fade-in':
+        return { opacity: 1 };
+      case 'scale-up':
+        return { opacity: 1, scale: 1 };
+      case 'slide-right':
+        return { opacity: 1, x: 0 };
+      case 'slide-left':
+        return { opacity: 1, x: 0 };
+      default:
+        return { opacity: 1, y: 0 };
+    }
+  };
+
+  return (
+    <motion.div
+      initial={getInitial()}
+      whileInView={getAnimate()}
+      viewport={{ once: true, margin: viewportMargin as any }}
+      transition={{
+        duration,
+        delay,
+        ease: [0.16, 1, 0.3, 1]
+      }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+};

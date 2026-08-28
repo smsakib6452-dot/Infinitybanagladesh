@@ -7,6 +7,10 @@ import { Footer } from './components/Footer';
 import { GlobalSearchModal } from './components/GlobalSearchModal';
 import { AdminErrorBoundary } from './components/AdminErrorBoundary';
 
+import { ScrollProgressBar } from './components/motion/ScrollProgressBar';
+import { BackToTopButton } from './components/motion/BackToTopButton';
+import { PageTransition } from './components/motion/PageTransition';
+
 // Pages
 import { HomePage } from './pages/HomePage';
 import { AboutPage } from './pages/AboutPage';
@@ -136,14 +140,19 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans selection:bg-teal-700 selection:text-white">
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans selection:bg-teal-700 selection:text-white relative">
+      {/* Global Reading Progress Indicator */}
+      <ScrollProgressBar />
+
       {/* Top Navigation */}
       <Navbar />
 
-      {/* Main Routed Content */}
+      {/* Main Routed Content with Smooth Fast Page Transition */}
       <main className="flex-1">
         <AdminErrorBoundary fallbackTitle="Page Load Notice">
-          {renderPage()}
+          <PageTransition pageKey={currentPage}>
+            {renderPage()}
+          </PageTransition>
         </AdminErrorBoundary>
       </main>
 
@@ -152,6 +161,9 @@ const AppContent: React.FC = () => {
 
       {/* Global Search Lightbox Modal */}
       <GlobalSearchModal />
+
+      {/* Back To Top Action Button */}
+      <BackToTopButton />
     </div>
   );
 };

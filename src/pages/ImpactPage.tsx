@@ -3,6 +3,8 @@ import { useLanguage } from '../context/LanguageContext';
 import { useRouter, Link } from '../context/RouterContext';
 import { useData } from '../context/DataContext';
 import { SectionHeading } from '../components/SectionHeading';
+import { ScrollReveal } from '../components/motion/ScrollReveal';
+import { StaggerGroup, StaggerItem } from '../components/motion/StaggerGroup';
 import { ImpactCounter } from '../components/ImpactCounter';
 import { StoryCard } from '../components/StoryCard';
 import { VerifiedOrganizationPledge } from '../components/OfficialInfoBadge';
@@ -14,31 +16,35 @@ export const ImpactPage: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-14 sm:space-y-16">
-      <SectionHeading
-        badge={isBn ? 'বাস্তব পরিবর্তন ও মূল্যায়ন' : 'Measurable Change'}
-        title={isBn ? 'আমাদের কাজের প্রভাব ও পরিসংখ্যান' : 'Our Measured Community Impact'}
-        subtitle={
-          isBn
-            ? 'প্রতিটি সংখ্যা মানুষের হাসির প্রতীক। সততা এবং মাঠপর্যায়ের হিসাবের ভিত্তিতে সংগৃহীত তথ্যাবলী।'
-            : 'Explore the verified impact numbers and authentic stories of change across communities in Bangladesh.'
-        }
-      />
+      <ScrollReveal effect="fade-up">
+        <SectionHeading
+          badge={isBn ? 'বাস্তব পরিবর্তন ও মূল্যায়ন' : 'Measurable Change'}
+          title={isBn ? 'আমাদের কাজের প্রভাব ও পরিসংখ্যান' : 'Our Measured Community Impact'}
+          subtitle={
+            isBn
+              ? 'প্রতিটি সংখ্যা মানুষের হাসির প্রতীক। সততা এবং মাঠপর্যায়ের হিসাবের ভিত্তিতে সংগৃহীত তথ্যাবলী।'
+              : 'Explore the verified impact numbers and authentic stories of change across communities in Bangladesh.'
+          }
+        />
+      </ScrollReveal>
 
       {/* Metrics Grid */}
-      <div className="flex flex-wrap justify-center gap-6">
+      <StaggerGroup className="flex flex-wrap justify-center gap-6">
         {metrics.map(m => (
-          <div key={m.id} className="w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(25%-1.15rem)] max-w-xs flex">
+          <StaggerItem key={m.id} className="w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(25%-1.15rem)] max-w-xs flex">
             <ImpactCounter key={m.id} metric={m} />
-          </div>
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerGroup>
 
       {/* Verified Org Pledge */}
-      <VerifiedOrganizationPledge />
+      <ScrollReveal effect="fade-up" delay={100}>
+        <VerifiedOrganizationPledge />
+      </ScrollReveal>
 
       {/* Human Stories Section */}
       <div className="space-y-8 pt-4">
-        <div className="text-center max-w-2xl mx-auto space-y-2">
+        <ScrollReveal effect="fade-up" className="text-center max-w-2xl mx-auto space-y-2">
           <span className="text-xs font-extrabold uppercase tracking-widest text-[#00523C] bg-[#E6F3EF] px-3.5 py-1 rounded-full border border-[#C2E2D7]">
             {isBn ? 'মানবিক দলিল' : 'Human Stories'}
           </span>
@@ -50,15 +56,15 @@ export const ImpactPage: React.FC = () => {
               ? 'ব্যক্তির আত্মসম্মান ও সম্মতি রক্ষা করে সংকলিত বাস্তব অভিজ্ঞতা।'
               : 'True narratives of dignity, relief, and hope documented with strict beneficiary consent.'}
           </p>
-        </div>
+        </ScrollReveal>
 
-        <div className="flex flex-wrap justify-center gap-8">
+        <StaggerGroup className="flex flex-wrap justify-center gap-8">
           {stories.map(story => (
-            <div key={story.id} className="w-full md:w-[calc(50%-1rem)] max-w-lg flex">
+            <StaggerItem key={story.id} className="w-full md:w-[calc(50%-1rem)] max-w-lg flex">
               <StoryCard story={story} />
-            </div>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerGroup>
       </div>
     </div>
   );
@@ -99,7 +105,7 @@ export const StoryDetailPage: React.FC = () => {
       </Link>
 
       {/* Header */}
-      <div className="space-y-4">
+      <ScrollReveal effect="fade-up" className="space-y-4">
         <div className="flex items-center gap-3 text-xs text-slate-500 font-medium">
           <span className="flex items-center gap-1 text-[#006A4E] font-bold">
             <MapPin className="w-3.5 h-3.5" />
@@ -116,9 +122,10 @@ export const StoryDetailPage: React.FC = () => {
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E6F3EF] text-[#00523C] text-xs font-bold border border-[#C2E2D7]">
           <span>{tText(story.personOrCommunity)}</span>
         </div>
-      </div>
+      </ScrollReveal>
 
       {/* Image with Consent Badge */}
+      <ScrollReveal effect="fade-up" delay={100}>
       <div className="relative rounded-[2.5rem] overflow-hidden shadow-warm-xl border-4 border-white aspect-16/9 bg-slate-100">
         <img
           src={story.imageUrl}
@@ -132,9 +139,10 @@ export const StoryDetailPage: React.FC = () => {
           </div>
         )}
       </div>
+      </ScrollReveal>
 
       {/* Story Content */}
-      <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-10 space-y-6 shadow-warm-sm">
+      <ScrollReveal effect="fade-up" delay={200} className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-10 space-y-6 shadow-warm-sm">
         <div className="prose prose-slate max-w-none text-slate-700 leading-relaxed text-sm sm:text-base">
           <p>{tText(story.story)}</p>
         </div>
@@ -149,7 +157,7 @@ export const StoryDetailPage: React.FC = () => {
             {tText(story.impact)}
           </p>
         </div>
-      </div>
+      </ScrollReveal>
     </div>
   );
 };

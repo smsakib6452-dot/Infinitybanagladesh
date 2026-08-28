@@ -33,7 +33,7 @@ import {
   Check
 } from 'lucide-react';
 import { EducationCategory, VolunteerApplication } from '../types';
-
+import { ScrollReveal } from '../components/motion/ScrollReveal';
 export const VolunteerPage: React.FC = () => {
   const { isBn, tText } = useLanguage();
   const { volunteerSettings, addVolunteerApplication } = useData();
@@ -667,21 +667,23 @@ export const VolunteerPage: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-10 sm:space-y-14">
       {/* Header Section */}
-      <SectionHeading
-        badge={isBn ? 'স্বেচ্ছাসেবী পরিবারে স্বাগতম' : 'Be Part of Team Infinity'}
-        title={tText(volunteerSettings.ctaText) || (isBn ? 'স্বেচ্ছাসেবী হিসেবে যোগ দিন / সদস্যপদ আবেদন' : 'Join as Volunteer / Membership Application')}
-        subtitle={
-          tText(volunteerSettings.description) ||
-          (isBn
-            ? 'আপনার মেধা, সময় এবং সহমর্মিতা দিয়ে একজন মানুষের মুখে হাসি ফোটাতে ইনফিনিটি বাংলাদেশের সাথে যুক্ত হোন।'
-            : 'Join a vibrant, ethical youth community committed to transparent grassroots humanitarian action across Bangladesh.')
-        }
-      />
+      <ScrollReveal effect="fade-up">
+        <SectionHeading
+          badge={isBn ? 'স্বেচ্ছাসেবী পরিবারে স্বাগতম' : 'Be Part of Team Infinity'}
+          title={tText(volunteerSettings.ctaText) || (isBn ? 'স্বেচ্ছাসেবী হিসেবে যোগ দিন / সদস্যপদ আবেদন' : 'Join as Volunteer / Membership Application')}
+          subtitle={
+            tText(volunteerSettings.description) ||
+            (isBn
+              ? 'আপনার মেধা, সময় এবং সহমর্মিতা দিয়ে একজন মানুষের মুখে হাসি ফোটাতে ইনফিনিটি বাংলাদেশের সাথে যুক্ত হোন।'
+              : 'Join a vibrant, ethical youth community committed to transparent grassroots humanitarian action across Bangladesh.')
+          }
+        />
+      </ScrollReveal>
 
       {/* Main Container */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
         {/* Left Column: 8-Section Application Form */}
-        <div className="lg:col-span-8">
+        <ScrollReveal effect="fade-up" className="lg:col-span-8">
           {isSubmitted ? (
             /* ======================================================== */
             /* SUCCESS CONFIRMATION SCREEN                             */
@@ -2036,10 +2038,10 @@ export const VolunteerPage: React.FC = () => {
               </form>
             </div>
           )}
-        </div>
+        </ScrollReveal>
 
         {/* Right Column: Why Join & Guidelines */}
-        <div className="lg:col-span-4 space-y-6">
+        <ScrollReveal effect="slide-left" delay={0.2} className="lg:col-span-4 space-y-6">
           {/* Benefits Card */}
           <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-7 space-y-5 shadow-warm-sm">
             <h3 className="text-base font-extrabold text-slate-900 font-display flex items-center gap-2">
@@ -2098,7 +2100,7 @@ export const VolunteerPage: React.FC = () => {
               <span>+880 1839-008339</span>
             </a>
           </div>
-        </div>
+        </ScrollReveal>
       </div>
     </div>
   );

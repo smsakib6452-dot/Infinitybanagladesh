@@ -3,6 +3,8 @@ import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
 import { SectionHeading } from '../components/SectionHeading';
 import { CampaignCard } from '../components/CampaignCard';
+import { ScrollReveal } from '../components/motion/ScrollReveal';
+import { StaggerGroup, StaggerItem } from '../components/motion/StaggerGroup';
 import { Flag, Filter } from 'lucide-react';
 
 export const CampaignsPage: React.FC = () => {
@@ -18,18 +20,21 @@ export const CampaignsPage: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-10">
-      <SectionHeading
-        badge={isBn ? 'মাঠপর্যায়ের উদ্যোগ' : 'Field Initiatives'}
-        title={isBn ? 'আমাদের ক্যাম্পেইনসমূহ' : 'Our Campaigns'}
-        subtitle={
-          isBn
-            ? 'সুবিধাবঞ্চিত শিশু ও দারিদ্র্যপীড়িত জনগোষ্ঠীর সহায়তায় পরিচালিত সকল মৌসুমী ও নিয়মিত ক্যাম্পেইন।'
-            : 'Explore all active, upcoming, and completed humanitarian campaigns organized by Team Infinity across Bangladesh.'
-        }
-      />
+      <ScrollReveal effect="fade-up">
+        <SectionHeading
+          badge={isBn ? 'মাঠপর্যায়ের উদ্যোগ' : 'Field Initiatives'}
+          title={isBn ? 'আমাদের ক্যাম্পেইনসমূহ' : 'Our Campaigns'}
+          subtitle={
+            isBn
+              ? 'সুবিধাবঞ্চিত শিশু ও দারিদ্র্যপীড়িত জনগোষ্ঠীর সহায়তায় পরিচালিত সকল মৌসুমী ও নিয়মিত ক্যাম্পেইন।'
+              : 'Explore all active, upcoming, and completed humanitarian campaigns organized by Team Infinity across Bangladesh.'
+          }
+        />
+      </ScrollReveal>
 
       {/* Filter Tabs */}
-      <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-white rounded-3xl border border-[#EAE3D9] shadow-warm-sm">
+      <ScrollReveal effect="fade-up" delay={100}>
+        <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-white rounded-3xl border border-[#EAE3D9] shadow-warm-sm">
         <div className="flex items-center gap-2 text-xs font-extrabold text-slate-700 uppercase tracking-wider">
           <Filter className="w-4 h-4 text-[#006A4E]" />
           <span>{isBn ? 'ফিল্টার করুন:' : 'Filter Status:'}</span>
@@ -82,23 +87,26 @@ export const CampaignsPage: React.FC = () => {
           </button>
         </div>
       </div>
+      </ScrollReveal>
 
       {/* Grid of campaigns */}
       {filteredCampaigns.length === 0 ? (
-        <div className="text-center py-16 p-6 bg-white rounded-3xl border border-[#EAE3D9] space-y-2">
-          <Flag className="w-10 h-10 text-slate-300 mx-auto" />
-          <p className="font-bold text-slate-700">
-            {isBn ? 'এই ক্যাটাগরিতে কোনো ক্যাম্পেইন নেই।' : 'No campaigns found for this filter.'}
-          </p>
-        </div>
+        <ScrollReveal effect="fade-up" delay={200}>
+          <div className="text-center py-16 p-6 bg-white rounded-3xl border border-[#EAE3D9] space-y-2">
+            <Flag className="w-10 h-10 text-slate-300 mx-auto" />
+            <p className="font-bold text-slate-700">
+              {isBn ? 'এই ক্যাটাগরিতে কোনো ক্যাম্পেইন নেই।' : 'No campaigns found for this filter.'}
+            </p>
+          </div>
+        </ScrollReveal>
       ) : (
-        <div className="flex flex-wrap justify-center gap-8">
+        <StaggerGroup className="flex flex-wrap justify-center gap-8">
           {filteredCampaigns.map(campaign => (
-            <div key={campaign.id} className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.35rem)] max-w-sm flex">
+            <StaggerItem key={campaign.id} className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.35rem)] max-w-sm flex">
               <CampaignCard campaign={campaign} />
-            </div>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerGroup>
       )}
     </div>
   );

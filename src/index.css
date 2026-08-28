@@ -248,4 +248,152 @@ body {
   display: block;
 }
 
+/* ============================================================ */
+/* INFINITY BANGLADESH — PREMIUM MOTION SYSTEM TOKENS & UTILITIES */
+/* ============================================================ */
+
+/* Animated Nav Link Underline */
+.nav-link-animated {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  transition: color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-link-animated::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: #006A4E;
+  border-radius: 9999px;
+  transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-link-animated:hover::after,
+.nav-link-animated.active::after {
+  width: 100%;
+}
+
+/* Premium Card Elevation & Image Zoom */
+.motion-card-hover {
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease;
+  will-change: transform, box-shadow;
+}
+
+.motion-card-hover:hover {
+  transform: translateY(-4px);
+}
+
+/* Micro-interaction for Button Arrows */
+.group-arrow-hover {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.group:hover .group-arrow-hover {
+  transform: translateX(4px);
+}
+
+/* Image Zoom in Card */
+.motion-img-zoom {
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+.group:hover .motion-img-zoom {
+  transform: scale(1.035);
+}
+
+/* Heartbeat Pulse for Blood Drops & Lifeline Badges */
+@keyframes pulse-heartbeat {
+  0% {
+    transform: scale(1);
+  }
+  14% {
+    transform: scale(1.08);
+  }
+  28% {
+    transform: scale(1);
+  }
+  42% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-heartbeat {
+  animation: pulse-heartbeat 2.4s ease-in-out infinite;
+  transform-origin: center center;
+}
+
+/* Ambient Slow Shimmer */
+@keyframes ambient-shimmer {
+  0% {
+    opacity: 0.4;
+    transform: scale(0.98);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.02);
+  }
+  100% {
+    opacity: 0.4;
+    transform: scale(0.98);
+  }
+}
+
+.animate-ambient-shimmer {
+  animation: ambient-shimmer 6s ease-in-out infinite;
+}
+
+/* Timeline Line Draw Animation */
+@keyframes draw-line {
+  from {
+    height: 0%;
+  }
+  to {
+    height: 100%;
+  }
+}
+
+/* Reduced Motion Accessibility Overrides */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-heartbeat,
+  .animate-ambient-shimmer,
+  .animate-pulse,
+  .animate-spin {
+    animation: none !important;
+  }
+
+  .motion-card-hover:hover {
+    transform: none !important;
+  }
+
+  .motion-img-zoom:hover,
+  .group:hover .motion-img-zoom {
+    transform: none !important;
+  }
+
+  .group:hover .group-arrow-hover {
+    transform: none !important;
+  }
+}
+
+
 

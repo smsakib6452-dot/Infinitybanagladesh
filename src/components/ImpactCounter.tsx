@@ -2,6 +2,7 @@ import React from 'react';
 import { ImpactMetric } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 import { Users, HeartHandshake, Flag, Sparkles, Award, MapPin } from 'lucide-react';
+import { AnimatedCounter } from './motion/AnimatedCounter';
 
 const METRIC_ICONS: Record<string, React.ReactNode> = {
   Users: <Users className="w-6 h-6 text-[#006A4E]" />,
@@ -22,7 +23,7 @@ export const ImpactCounter: React.FC<ImpactCounterProps> = ({ metric }) => {
   const icon = METRIC_ICONS[metric.iconName] || <Sparkles className="w-6 h-6 text-[#006A4E]" />;
 
   return (
-    <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-7 shadow-warm-sm hover:shadow-warm-lg transition-all duration-300 flex flex-col items-center text-center space-y-3 relative overflow-hidden group hover:-translate-y-1 w-full">
+    <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-7 shadow-warm-sm hover:shadow-warm-lg motion-card-hover transition-all duration-300 flex flex-col items-center text-center space-y-3 relative overflow-hidden group w-full">
       {/* Decorative top accent */}
       <div className="w-12 h-1 bg-gradient-to-r from-[#006A4E] to-[#D97706] rounded-full" />
 
@@ -34,7 +35,7 @@ export const ImpactCounter: React.FC<ImpactCounterProps> = ({ metric }) => {
       {/* Number and Label */}
       <div className="space-y-1">
         <div className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight font-display">
-          {metric.value}
+          <AnimatedCounter value={metric.value} />
         </div>
         <h4 className="text-sm sm:text-base font-bold text-[#006A4E]">
           {tText(metric.label)}

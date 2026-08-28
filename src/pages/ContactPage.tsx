@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
 import { SectionHeading } from '../components/SectionHeading';
+import { ScrollReveal } from '../components/motion/ScrollReveal';
 import { VerifiedOrganizationPledge } from '../components/OfficialInfoBadge';
 import {
   Mail,
@@ -45,8 +46,9 @@ export const ContactPage: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-12 sm:space-y-16">
-      <SectionHeading
-        badge={isBn ? 'যোগাযোগ ও তথ্যসেবা' : 'Connect With Us'}
+      <ScrollReveal effect="fade-up">
+        <SectionHeading
+          badge={isBn ? 'যোগাযোগ ও তথ্যসেবা' : 'Connect With Us'}
         title={tText(contactSettings.title as any) || (isBn ? 'আমাদের সাথে যোগাযোগ করুন' : 'Get in Touch with Team Infinity')}
         subtitle={
           tText(contactSettings.subtitle as any) || (isBn
@@ -54,10 +56,11 @@ export const ContactPage: React.FC = () => {
             : 'Whether you want to partner with us, ask a question, or visit our volunteer hubs, we are here for you.')
         }
       />
+      </ScrollReveal>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         {/* Contact Form */}
-        <div className="lg:col-span-7">
+        <ScrollReveal effect="fade-up" delay={100} className="lg:col-span-7">
           {isSent ? (
             <div className="bg-white rounded-3xl border border-emerald-200 p-8 sm:p-12 text-center space-y-6 shadow-warm-md animate-in zoom-in-95">
               <div className="w-16 h-16 bg-[#E6F3EF] text-[#006A4E] rounded-full flex items-center justify-center mx-auto">
@@ -173,10 +176,10 @@ export const ContactPage: React.FC = () => {
               </button>
             </form>
           )}
-        </div>
+        </ScrollReveal>
 
         {/* Right Info Column */}
-        <div className="lg:col-span-5 space-y-6">
+        <ScrollReveal effect="slide-left" delay={200} className="lg:col-span-5 space-y-6">
           <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
             <h3 className="text-lg font-bold text-slate-900 font-display">
               {isBn ? 'অফিসিয়াল যোগাযোগের ঠিকানা' : 'Official Contact Information'}
@@ -236,7 +239,7 @@ export const ContactPage: React.FC = () => {
                 : 'All inquiries and contact information are treated with strict confidentiality.'}
             </p>
           </div>
-        </div>
+        </ScrollReveal>
       </div>
     </div>
   );

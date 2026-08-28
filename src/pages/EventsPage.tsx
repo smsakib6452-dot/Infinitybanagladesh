@@ -14,6 +14,8 @@ import {
   Send,
   Sparkles
 } from 'lucide-react';
+import { ScrollReveal } from '../components/motion/ScrollReveal';
+import { StaggerGroup, StaggerItem } from '../components/motion/StaggerGroup';
 
 export const EventsPage: React.FC = () => {
   const { isBn } = useLanguage();
@@ -21,21 +23,25 @@ export const EventsPage: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-12 sm:space-y-14">
-      <SectionHeading
-        badge={isBn ? 'কর্মশালা ও সভা' : 'Upcoming Gatherings'}
-        title={isBn ? 'ইভেন্ট ও সম্মিলন' : 'Events & Volunteer Meetups'}
-        subtitle={
-          isBn
-            ? 'টিম ইনফিনিটির স্বেচ্ছাসেবী ওরিয়েন্টেশন, প্রশিক্ষণ কর্মশালা ও সমন্বয় সভা।'
-            : 'Join our physical and online gatherings to collaborate, plan relief drives, and build community.'
-        }
-      />
+      <ScrollReveal effect="fade-up">
+        <SectionHeading
+          badge={isBn ? 'কর্মশালা ও সভা' : 'Upcoming Gatherings'}
+          title={isBn ? 'ইভেন্ট ও সম্মিলন' : 'Events & Volunteer Meetups'}
+          subtitle={
+            isBn
+              ? 'টিম ইনফিনিটির স্বেচ্ছাসেবী ওরিয়েন্টেশন, প্রশিক্ষণ কর্মশালা ও সমন্বয় সভা।'
+              : 'Join our physical and online gatherings to collaborate, plan relief drives, and build community.'
+          }
+        />
+      </ScrollReveal>
 
-      <div className="space-y-6">
+      <StaggerGroup className="space-y-6">
         {events.map(event => (
-          <EventCard key={event.id} event={event} />
+          <StaggerItem key={event.id}>
+            <EventCard event={event} />
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerGroup>
     </div>
   );
 };
@@ -77,63 +83,69 @@ export const EventDetailPage: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-10">
       {/* Back button */}
-      <Link
-        to="events"
-        className="inline-flex items-center gap-2 text-sm font-bold text-[#006A4E] hover:text-[#00523C] transition-colors cursor-pointer"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        <span>{isBn ? 'সকল ইভেন্টে ফিরে যান' : 'Back to All Events'}</span>
-      </Link>
+      <ScrollReveal effect="fade-up">
+        <Link
+          to="events"
+          className="inline-flex items-center gap-2 text-sm font-bold text-[#006A4E] hover:text-[#00523C] transition-colors cursor-pointer mb-6"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>{isBn ? 'সকল ইভেন্টে ফিরে যান' : 'Back to All Events'}</span>
+        </Link>
 
-      {/* Hero Header */}
-      <div className="space-y-4">
-        <span className="px-3.5 py-1 rounded-full text-xs font-extrabold bg-[#E6F3EF] text-[#00523C] border border-[#C2E2D7]">
-          {event.status === 'upcoming' ? (isBn ? 'আসন্ন ইভেন্ট' : 'Upcoming Event') : event.status}
-        </span>
+        {/* Hero Header */}
+        <div className="space-y-4">
+          <span className="px-3.5 py-1 rounded-full text-xs font-extrabold bg-[#E6F3EF] text-[#00523C] border border-[#C2E2D7]">
+            {event.status === 'upcoming' ? (isBn ? 'আসন্ন ইভেন্ট' : 'Upcoming Event') : event.status}
+          </span>
 
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight font-display">
-          {tText(event.title)}
-        </h1>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight font-display">
+            {tText(event.title)}
+          </h1>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-          <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-white border border-[#EAE3D9] text-xs text-slate-700 shadow-2xs">
-            <Calendar className="w-4 h-4 text-[#006A4E]" />
-            <span>{event.date}</span>
-          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+            <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-white border border-[#EAE3D9] text-xs text-slate-700 shadow-2xs">
+              <Calendar className="w-4 h-4 text-[#006A4E]" />
+              <span>{tText(event.date)}</span>
+            </div>
 
-          <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-white border border-[#EAE3D9] text-xs text-slate-700 shadow-2xs">
-            <Clock className="w-4 h-4 text-amber-600" />
-            <span>{event.time}</span>
-          </div>
+            <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-white border border-[#EAE3D9] text-xs text-slate-700 shadow-2xs">
+              <Clock className="w-4 h-4 text-[#006A4E]" />
+              <span>{tText(event.time)}</span>
+            </div>
 
-          <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-white border border-[#EAE3D9] text-xs text-slate-700 shadow-2xs">
-            <MapPin className="w-4 h-4 text-rose-600" />
-            <span>{tText(event.location)}</span>
+            <div className="flex items-center gap-2.5 p-3 rounded-2xl bg-white border border-[#EAE3D9] text-xs text-slate-700 shadow-2xs">
+              <MapPin className="w-4 h-4 text-[#006A4E]" />
+              <span>{tText(event.location)}</span>
+            </div>
           </div>
         </div>
-      </div>
+      </ScrollReveal>
 
       {/* Featured Banner */}
-      <div className="rounded-[2.5rem] overflow-hidden shadow-warm-xl border-4 border-white aspect-16/9 bg-slate-100">
-        <img
-          src={event.imageUrl}
-          alt={tText(event.title)}
-          className="w-full h-full object-cover"
-        />
-      </div>
+      <ScrollReveal effect="scale-up" delay={0.1}>
+        <div className="rounded-[2.5rem] overflow-hidden shadow-warm-xl border-4 border-white aspect-16/9 bg-slate-100">
+          <img
+            src={event.imageUrl}
+            alt={tText(event.title)}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      </ScrollReveal>
 
       {/* Description & RSVP Form */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <div className="lg:col-span-7 bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-4 shadow-warm-sm">
-          <h3 className="text-lg font-bold text-slate-900 font-display">
-            {isBn ? 'ইভেন্টের বিবরণ ও উদ্দেশ্য' : 'Event Purpose & Schedule'}
-          </h3>
-          <p className="text-slate-700 leading-relaxed text-sm">
-            {tText(event.description)}
-          </p>
-        </div>
+        <ScrollReveal effect="fade-up" delay={0.2} className="lg:col-span-7">
+          <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-4 shadow-warm-sm h-full">
+            <h3 className="text-lg font-bold text-slate-900 font-display">
+              {isBn ? 'ইভেন্টের বিবরণ ও উদ্দেশ্য' : 'Event Purpose & Schedule'}
+            </h3>
+            <p className="text-slate-700 leading-relaxed text-sm">
+              {tText(event.description)}
+            </p>
+          </div>
+        </ScrollReveal>
 
-        <div className="lg:col-span-5">
+        <ScrollReveal effect="slide-left" delay={0.3} className="lg:col-span-5">
           {isRsvpDone ? (
             <div className="bg-white rounded-3xl border border-emerald-200 p-6 sm:p-8 text-center space-y-4 shadow-warm-md">
               <div className="w-12 h-12 bg-[#E6F3EF] text-[#006A4E] rounded-full flex items-center justify-center mx-auto">
@@ -185,7 +197,7 @@ export const EventDetailPage: React.FC = () => {
               </button>
             </form>
           )}
-        </div>
+        </ScrollReveal>
       </div>
     </div>
   );

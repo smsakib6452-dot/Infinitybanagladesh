@@ -13,12 +13,12 @@ export const NewsCard: React.FC<NewsCardProps> = ({ article }) => {
   const { isBn, tText } = useLanguage();
 
   return (
-    <article className="group bg-white rounded-3xl border border-[#EAE3D9] overflow-hidden shadow-warm-sm hover:shadow-warm-lg transition-all duration-300 flex flex-col hover:-translate-y-1 w-full">
+    <article className="group bg-white rounded-3xl border border-[#EAE3D9] overflow-hidden shadow-warm-sm hover:shadow-warm-lg motion-card-hover transition-all duration-300 flex flex-col w-full">
       <Link to="news/detail" slug={article.slug} className="block relative aspect-16/9 overflow-hidden bg-slate-100">
         <img
           src={getAssetUrl(article.imageUrl)}
           alt={tText(article.title)}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          className="w-full h-full object-cover motion-img-zoom"
           loading="lazy"
         />
         <span className="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold bg-[#006A4E] text-white backdrop-blur-xs shadow-xs">
@@ -64,7 +64,7 @@ export const NewsCard: React.FC<NewsCardProps> = ({ article }) => {
             className="text-xs sm:text-sm font-bold text-[#006A4E] hover:text-[#00523C] inline-flex items-center gap-1 cursor-pointer"
           >
             <span>{isBn ? 'পড়ুন' : 'Read Full Story'}</span>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            <ArrowRight className="w-4 h-4 group-arrow-hover" />
           </Link>
         </div>
       </div>

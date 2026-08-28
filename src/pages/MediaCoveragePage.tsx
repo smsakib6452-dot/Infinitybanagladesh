@@ -4,6 +4,8 @@ import { useData } from '../context/DataContext';
 import { useLanguage } from '../context/LanguageContext';
 import { PressCoverageType } from '../types';
 import { getAssetUrl, handleImageError } from '../lib/utils/assetHelper';
+import { ScrollReveal } from '../components/motion/ScrollReveal';
+import { StaggerGroup, StaggerItem } from '../components/motion/StaggerGroup';
 
 export const MediaCoveragePage: React.FC = () => {
   const { pressCoverages, settings } = useData();
@@ -62,22 +64,24 @@ export const MediaCoveragePage: React.FC = () => {
     <div className="min-h-screen bg-[#FCFBF7] pt-24 pb-20">
       {/* Hero Header */}
       <section className="relative overflow-hidden bg-gradient-to-b from-[#006A4E]/10 via-[#FAF7F2] to-[#FCFBF7] border-b border-[#EAE3D9] py-16 sm:py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-[#006A4E]/20 text-[#006A4E] text-xs font-extrabold shadow-warm-sm">
-            <Newspaper className="w-4 h-4" />
-            <span>{isBn ? 'গণমাধ্যমে ইনফিনিটি বাংলাদেশ' : 'Media Coverage & Press Mentions'}</span>
+        <ScrollReveal effect="fade-up">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-[#006A4E]/20 text-[#006A4E] text-xs font-extrabold shadow-warm-sm">
+              <Newspaper className="w-4 h-4" />
+              <span>{isBn ? 'গণমাধ্যমে ইনফিনিটি বাংলাদেশ' : 'Media Coverage & Press Mentions'}</span>
+            </div>
+
+            <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 font-display tracking-tight max-w-3xl mx-auto leading-tight">
+              {isBn ? 'জাতীয় গণমাধ্যমে আমাদের কার্যক্রমের প্রতিফলন' : 'In The News & External Press Coverage'}
+            </h1>
+
+            <p className="text-sm sm:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed">
+              {isBn
+                ? 'দৈনিক সংবাদপত্র, জাতীয় টিভি চ্যানেল এবং অনলাইন পোর্টালে প্রকাশিত ইনফিনিটি বাংলাদেশের মানবিক অভিযান ও স্বচ্ছতার প্রতিবেদন।'
+                : 'Independent journalism, TV broadcasts, and verified news features highlighting Team Infinity’s humanitarian relief drives and volunteer impact.'}
+            </p>
           </div>
-
-          <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 font-display tracking-tight max-w-3xl mx-auto leading-tight">
-            {isBn ? 'জাতীয় গণমাধ্যমে আমাদের কার্যক্রমের প্রতিফলন' : 'In The News & External Press Coverage'}
-          </h1>
-
-          <p className="text-sm sm:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            {isBn
-              ? 'দৈনিক সংবাদপত্র, জাতীয় টিভি চ্যানেল এবং অনলাইন পোর্টালে প্রকাশিত ইনফিনিটি বাংলাদেশের মানবিক অভিযান ও স্বচ্ছতার প্রতিবেদন।'
-              : 'Independent journalism, TV broadcasts, and verified news features highlighting Team Infinity’s humanitarian relief drives and volunteer impact.'}
-          </p>
-        </div>
+        </ScrollReveal>
       </section>
 
       {/* Main Content Area */}
@@ -132,39 +136,40 @@ export const MediaCoveragePage: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div className="flex flex-wrap justify-center gap-6 sm:gap-8">
+          <StaggerGroup className="flex flex-wrap justify-center gap-6 sm:gap-8">
             {filteredItems.map(item => (
-              <article
+              <StaggerItem
                 key={item.id}
-                className="group bg-white rounded-3xl border border-[#EAE3D9] overflow-hidden shadow-warm-sm hover:shadow-warm-xl transition-all duration-300 flex flex-col hover:-translate-y-1 w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.35rem)] max-w-sm"
+                className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.35rem)] max-w-sm"
               >
-                {/* Feature Image Header */}
-                <a
-                  href={item.articleUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block relative aspect-[16/10] overflow-hidden bg-slate-100"
-                >
-                  <img
-                    src={getAssetUrl(item.imageUrl || '/images/infinity-cover-hero.jpg')}
-                    alt={isBn ? item.title.bn : item.title.en}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 transform-gpu ease-out"
-                    onError={handleImageError}
-                  />
+                <article className="group bg-white rounded-3xl border border-[#EAE3D9] overflow-hidden shadow-warm-sm hover:shadow-warm-xl transition-all duration-300 flex flex-col hover:-translate-y-1 h-full">
+                  {/* Feature Image Header */}
+                  <a
+                    href={item.articleUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block relative aspect-[16/10] overflow-hidden bg-slate-100"
+                  >
+                    <img
+                      src={getAssetUrl(item.imageUrl || '/images/infinity-cover-hero.jpg')}
+                      alt={isBn ? item.title.bn : item.title.en}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 transform-gpu ease-out"
+                      onError={handleImageError}
+                    />
 
-                  {/* Coverage Type Badge */}
-                  <div className="absolute top-3.5 left-3.5 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/80 backdrop-blur-md text-white text-[11px] font-bold shadow-md">
-                    {getTypeIcon(item.coverageType)}
-                    <span>{getTypeLabel(item.coverageType)}</span>
-                  </div>
-
-                  {item.isFeatured && (
-                    <div className="absolute top-3.5 right-3.5 px-2.5 py-1 rounded-full bg-amber-500 text-white text-[10px] font-extrabold shadow-md flex items-center gap-1">
-                      <Sparkles className="w-3 h-3" />
-                      <span>Featured</span>
+                    {/* Coverage Type Badge */}
+                    <div className="absolute top-3.5 left-3.5 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/80 backdrop-blur-md text-white text-[11px] font-bold shadow-md">
+                      {getTypeIcon(item.coverageType)}
+                      <span>{getTypeLabel(item.coverageType)}</span>
                     </div>
-                  )}
-                </a>
+
+                    {item.isFeatured && (
+                      <div className="absolute top-3.5 right-3.5 px-2.5 py-1 rounded-full bg-amber-500 text-white text-[10px] font-extrabold shadow-md flex items-center gap-1">
+                        <Sparkles className="w-3 h-3" />
+                        <span>Featured</span>
+                      </div>
+                    )}
+                  </a>
 
                 {/* Card Content Body */}
                 <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
@@ -210,10 +215,11 @@ export const MediaCoveragePage: React.FC = () => {
                       <ExternalLink className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
                     </a>
                   </div>
-                </div>
-              </article>
+                  </div>
+                </article>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerGroup>
         )}
       </section>
     </div>

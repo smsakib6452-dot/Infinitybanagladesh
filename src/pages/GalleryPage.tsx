@@ -4,6 +4,8 @@ import { useRouter, Link } from '../context/RouterContext';
 import { useData } from '../context/DataContext';
 import { GalleryLightbox } from '../components/GalleryLightbox';
 import { Image as ImageIcon, Video, Newspaper, Calendar, Sparkles, Search, Tag } from 'lucide-react';
+import { ScrollReveal } from '../components/motion/ScrollReveal';
+import { StaggerGroup, StaggerItem } from '../components/motion/StaggerGroup';
 import { getAssetUrl, handleImageError } from '../lib/utils/assetHelper';
 import { GalleryPhoto } from '../types';
 
@@ -132,22 +134,23 @@ export const GalleryPage: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-10 sm:space-y-12">
       {/* Header Banner */}
-      <div className="text-center space-y-4 max-w-3xl mx-auto">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider bg-[#E6F3EF] text-[#00523C] border border-[#C2E2D7]">
-          <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-          <span>{isBn ? 'মাঠপর্যায়ের স্মৃতি ও তথ্যচিত্র' : 'Visual Archives'}</span>
-        </div>
-        <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight font-display">
-          {isBn ? 'আলোকচিত্র ও মাঠপর্যায়ের গ্যালারি' : 'Photo Documentation Gallery'}
-        </h1>
-        <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-          {isBn
-            ? 'আমাদের বিভিন্ন কার্যক্রম, ত্রাণ বিতরণ ও মানবিক মুহূর্তের সংরক্ষিত আলোকচিত্র।'
-            : 'Explore ground-level documentation capturing moments of hope, solidarity, and volunteer dedication.'}
-        </p>
+      <ScrollReveal effect="fade-up">
+        <div className="text-center space-y-4 max-w-3xl mx-auto">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider bg-[#E6F3EF] text-[#00523C] border border-[#C2E2D7]">
+            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+            <span>{isBn ? 'মাঠপর্যায়ের স্মৃতি ও তথ্যচিত্র' : 'Visual Archives'}</span>
+          </div>
+          <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight font-display">
+            {isBn ? 'আলোকচিত্র ও মাঠপর্যায়ের গ্যালারি' : 'Photo Documentation Gallery'}
+          </h1>
+          <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+            {isBn
+              ? 'আমাদের বিভিন্ন কার্যক্রম, ত্রাণ বিতরণ ও মানবিক মুহূর্তের সংরক্ষিত আলোকচিত্র।'
+              : 'Explore ground-level documentation capturing moments of hope, solidarity, and volunteer dedication.'}
+          </p>
 
-        {/* Media & Gallery In-Page Sub Navigation Switcher */}
-        <div className="pt-3 flex flex-wrap justify-center gap-2 sm:gap-3">
+          {/* Media & Gallery In-Page Sub Navigation Switcher */}
+          <div className="pt-3 flex flex-wrap justify-center gap-2 sm:gap-3">
           <Link
             to="gallery"
             className="px-4 sm:px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold bg-[#006A4E] text-white shadow-warm-sm flex items-center gap-1.5 cursor-pointer"
@@ -178,6 +181,7 @@ export const GalleryPage: React.FC = () => {
           </Link>
         </div>
       </div>
+      </ScrollReveal>
 
       {/* Active Event Filter Banner (Bi-directional Navigation) */}
       {activeEvent && (
@@ -294,51 +298,55 @@ export const GalleryPage: React.FC = () => {
           </p>
         </div>
       ) : (
-        <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
+        <StaggerGroup className="flex flex-wrap justify-center gap-4 sm:gap-6">
           {filteredPhotos.map((photo, index) => {
             const photoTitle = tText(photo.title) || 'Infinity Bangladesh Photo';
             const photoCaption = tText(photo.caption);
 
             return (
-              <div
+              <StaggerItem
                 key={photo.id}
-                onClick={() => setSelectedImageIndex(index)}
-                className="group bg-white rounded-3xl border border-[#EAE3D9] overflow-hidden shadow-warm-sm hover:shadow-warm-md transition-all cursor-pointer flex flex-col transform hover:-translate-y-1 w-full sm:w-[calc(50%-0.75rem)] md:w-[calc(33.333%-1rem)] lg:w-[calc(25%-1.15rem)] max-w-xs"
+                className="w-full sm:w-[calc(50%-0.75rem)] md:w-[calc(33.333%-1rem)] lg:w-[calc(25%-1.15rem)] max-w-xs"
               >
-                <div className="relative aspect-4/3 overflow-hidden bg-slate-900">
-                  <img
-                    src={getAssetUrl(photo.imageUrl)}
-                    alt={photoTitle}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 transform-gpu ease-out"
-                    loading="lazy"
-                    onError={handleImageError}
-                  />
-                  <span className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#006A4E]/90 text-white backdrop-blur-xs shadow-xs">
-                    {photo.category}
-                  </span>
-                  {photo.isHighlight && (
-                    <span className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500 text-white shadow-xs flex items-center gap-1">
-                      ⭐ Highlight
+                <div
+                  onClick={() => setSelectedImageIndex(index)}
+                  className="group bg-white rounded-3xl border border-[#EAE3D9] overflow-hidden shadow-warm-sm hover:shadow-warm-md transition-all cursor-pointer flex flex-col transform hover:-translate-y-1 h-full"
+                >
+                  <div className="relative aspect-4/3 overflow-hidden bg-slate-900">
+                    <img
+                      src={getAssetUrl(photo.imageUrl)}
+                      alt={photoTitle}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 transform-gpu ease-out"
+                      loading="lazy"
+                      onError={handleImageError}
+                    />
+                    <span className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#006A4E]/90 text-white backdrop-blur-xs shadow-xs">
+                      {photo.category}
                     </span>
-                  )}
-                  <div className="absolute inset-0 bg-[#006A4E]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
-                    <ImageIcon className="w-6 h-6" />
+                    {photo.isHighlight && (
+                      <span className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500 text-white shadow-xs flex items-center gap-1">
+                        ⭐ Highlight
+                      </span>
+                    )}
+                    <div className="absolute inset-0 bg-[#006A4E]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                      <ImageIcon className="w-6 h-6" />
+                    </div>
                   </div>
-                </div>
 
-                <div className="p-4 space-y-1 flex-1 flex flex-col justify-between">
-                  <h4 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-[#006A4E] transition-colors line-clamp-1 font-display">
-                    {photoTitle}
-                  </h4>
-                  <div className="flex items-center justify-between text-[11px] text-slate-500">
-                    <span className="truncate max-w-[70%]">{photoCaption}</span>
-                    <span>{photo.date || 'Recent'}</span>
+                  <div className="p-4 space-y-1 flex-1 flex flex-col justify-between">
+                    <h4 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-[#006A4E] transition-colors line-clamp-1 font-display">
+                      {photoTitle}
+                    </h4>
+                    <div className="flex items-center justify-between text-[11px] text-slate-500">
+                      <span className="truncate max-w-[70%]">{photoCaption}</span>
+                      <span>{photo.date || 'Recent'}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </StaggerItem>
             );
           })}
-        </div>
+        </StaggerGroup>
       )}
 
       {/* Lightbox */}

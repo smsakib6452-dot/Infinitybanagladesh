@@ -341,9 +341,9 @@ export const Navbar: React.FC = () => {
                   key={item.id}
                   to={item.path}
                   isExternal={item.isExternal}
-                  className={`px-2 xl:px-2.5 2xl:px-3 py-1.5 xl:py-2 rounded-xl transition-colors cursor-pointer shrink-0 whitespace-nowrap ${
+                  className={`px-2 xl:px-2.5 2xl:px-3 py-1.5 xl:py-2 rounded-xl transition-all duration-200 cursor-pointer shrink-0 whitespace-nowrap nav-link-animated ${
                     isItemActive(item.path)
-                      ? 'text-[#006A4E] bg-[#E6F3EF]'
+                      ? 'text-[#006A4E] bg-[#E6F3EF] active'
                       : 'hover:text-[#006A4E] hover:bg-slate-50'
                   }`}
                 >

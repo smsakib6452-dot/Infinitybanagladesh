@@ -15,6 +15,8 @@ import {
   LayoutGrid
 } from 'lucide-react';
 import { getAssetUrl, handleImageError } from '../lib/utils/assetHelper';
+import { ScrollReveal } from '../components/motion/ScrollReveal';
+import { StaggerGroup, StaggerItem } from '../components/motion/StaggerGroup';
 
 export const PastCommitteesPage: React.FC = () => {
   const { isBn, tText } = useLanguage();
@@ -50,130 +52,137 @@ export const PastCommitteesPage: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-10 sm:space-y-14">
       {/* Header Banner */}
-      <div className="text-center space-y-4 max-w-4xl mx-auto">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E6F3EF] text-[#00523C] text-xs font-extrabold uppercase tracking-wider border border-[#C2E2D7]">
-          <History className="w-3.5 h-3.5 text-[#006A4E]" />
-          <span>{isBn ? 'সাংগঠনিক ইতিহাস ও নেতৃত্ব' : 'Leadership Archive'}</span>
+      <ScrollReveal effect="fade-up">
+        <div className="text-center space-y-4 max-w-4xl mx-auto">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E6F3EF] text-[#00523C] text-xs font-extrabold uppercase tracking-wider border border-[#C2E2D7]">
+            <History className="w-3.5 h-3.5 text-[#006A4E]" />
+            <span>{isBn ? 'সাংগঠনিক ইতিহাস ও নেতৃত্ব' : 'Leadership Archive'}</span>
+          </div>
+
+          <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight font-display">
+            {isBn ? 'প্রাক্তন কার্যনির্বাহী কমিটি আর্কাইভ' : 'Past Committees & Leadership Archive'}
+          </h1>
+
+          <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-3xl mx-auto">
+            {isBn
+              ? 'ইনফিনিটি বাংলাদেশ-এর সূচনালগ্ন (২০১৫) থেকে বিভিন্ন বর্ষে নিষ্ঠা ও সততার সাথে দায়িত্ব পালনকারী প্রাক্তন নেতৃবৃন্দের গৌরবময় অবদান।'
+              : 'Preserving the historic legacy and humanitarian contributions of previous executive leadership councils across service years since 2015.'}
+          </p>
+
+          {/* Sub-navigation */}
+          <div className="pt-3 flex flex-wrap justify-center items-center gap-2.5 sm:gap-3">
+            <Link
+              to="team"
+              className="px-4 py-2 rounded-2xl bg-white hover:bg-[#FAF7F2] text-slate-700 text-xs sm:text-sm font-bold border border-[#EAE3D9] transition-all cursor-pointer flex items-center gap-1.5"
+            >
+              <LayoutGrid className="w-4 h-4 text-[#006A4E]" />
+              <span>{isBn ? 'টিম ওভারভিউ' : 'Team Overview'}</span>
+            </Link>
+
+            <Link
+              to="team/executive-committee"
+              className="px-4 py-2 rounded-2xl bg-white hover:bg-[#FAF7F2] text-slate-700 text-xs sm:text-sm font-bold border border-[#EAE3D9] transition-all cursor-pointer"
+            >
+              {isBn ? 'কার্যনির্বাহী পরিষদ (২০২৬)' : 'Executive Committee (2026)'}
+            </Link>
+
+            <Link
+              to="team/standing-committee"
+              className="px-4 py-2 rounded-2xl bg-white hover:bg-[#FAF7F2] text-slate-700 text-xs sm:text-sm font-bold border border-[#EAE3D9] transition-all cursor-pointer"
+            >
+              {isBn ? 'স্থায়ী কমিটি' : 'Standing Committee'}
+            </Link>
+
+            <Link
+              to="team/past-committees"
+              className="px-4 py-2 rounded-2xl bg-[#006A4E] text-white text-xs sm:text-sm font-extrabold shadow-warm-sm cursor-pointer"
+            >
+              {isBn ? 'প্রাক্তন কমিটি আর্কাইভ' : 'Past Committees Archive'}
+            </Link>
+          </div>
         </div>
-
-        <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight font-display">
-          {isBn ? 'প্রাক্তন কার্যনির্বাহী কমিটি আর্কাইভ' : 'Past Committees & Leadership Archive'}
-        </h1>
-
-        <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-3xl mx-auto">
-          {isBn
-            ? 'ইনফিনিটি বাংলাদেশ-এর সূচনালগ্ন (২০১৫) থেকে বিভিন্ন বর্ষে নিষ্ঠা ও সততার সাথে দায়িত্ব পালনকারী প্রাক্তন নেতৃবৃন্দের গৌরবময় অবদান।'
-            : 'Preserving the historic legacy and humanitarian contributions of previous executive leadership councils across service years since 2015.'}
-        </p>
-
-        {/* Sub-navigation */}
-        <div className="pt-3 flex flex-wrap justify-center items-center gap-2.5 sm:gap-3">
-          <Link
-            to="team"
-            className="px-4 py-2 rounded-2xl bg-white hover:bg-[#FAF7F2] text-slate-700 text-xs sm:text-sm font-bold border border-[#EAE3D9] transition-all cursor-pointer flex items-center gap-1.5"
-          >
-            <LayoutGrid className="w-4 h-4 text-[#006A4E]" />
-            <span>{isBn ? 'টিম ওভারভিউ' : 'Team Overview'}</span>
-          </Link>
-
-          <Link
-            to="team/executive-committee"
-            className="px-4 py-2 rounded-2xl bg-white hover:bg-[#FAF7F2] text-slate-700 text-xs sm:text-sm font-bold border border-[#EAE3D9] transition-all cursor-pointer"
-          >
-            {isBn ? 'কার্যনির্বাহী পরিষদ (২০২৬)' : 'Executive Committee (2026)'}
-          </Link>
-
-          <Link
-            to="team/standing-committee"
-            className="px-4 py-2 rounded-2xl bg-white hover:bg-[#FAF7F2] text-slate-700 text-xs sm:text-sm font-bold border border-[#EAE3D9] transition-all cursor-pointer"
-          >
-            {isBn ? 'স্থায়ী কমিটি' : 'Standing Committee'}
-          </Link>
-
-          <Link
-            to="team/past-committees"
-            className="px-4 py-2 rounded-2xl bg-[#006A4E] text-white text-xs sm:text-sm font-extrabold shadow-warm-sm cursor-pointer"
-          >
-            {isBn ? 'প্রাক্তন কমিটি আর্কাইভ' : 'Past Committees Archive'}
-          </Link>
-        </div>
-      </div>
+      </ScrollReveal>
 
       {/* Past Committees List */}
-      <div className="space-y-6">
+      <StaggerGroup className="space-y-6">
         {pastCommittees.length > 0 ? (
           pastCommittees.map(comm => {
             const isExpanded = expandedId === comm.id;
             const members = getMembersWithDetails(comm.id);
 
             return (
-              <div
-                key={comm.id}
-                className="bg-white rounded-3xl border border-[#EAE3D9] overflow-hidden shadow-warm-sm transition-all"
-              >
+              <StaggerItem key={comm.id}>
                 <div
-                  onClick={() => toggleExpand(comm.id)}
-                  className="p-6 sm:p-8 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-[#FAF7F2] transition-colors"
+                  className="bg-white rounded-3xl border border-[#EAE3D9] overflow-hidden shadow-warm-sm hover:shadow-warm-md transition-all duration-300"
                 >
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="inline-block px-3 py-0.5 rounded-full text-[11px] font-extrabold bg-[#E6F3EF] text-[#00523C] border border-[#C2E2D7]">
-                        {isBn ? 'আর্কাইভ বর্ষ:' : 'Service Term:'} {comm.year}
+                  <div
+                    onClick={() => toggleExpand(comm.id)}
+                    className="p-6 sm:p-8 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-[#FAF7F2] transition-colors"
+                  >
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="inline-block px-3 py-0.5 rounded-full text-[11px] font-extrabold bg-[#E6F3EF] text-[#00523C] border border-[#C2E2D7]">
+                          {isBn ? 'আর্কাইভ বর্ষ:' : 'Service Term:'} {comm.year}
+                        </span>
+                      </div>
+                      <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 font-display">
+                        {tText(comm.name)}
+                      </h2>
+                      <p className="text-xs text-slate-500">
+                        {tText(comm.description)}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-bold text-slate-500">
+                        {members.length} {isBn ? 'জন সদস্য' : 'Members'}
                       </span>
+                      <div className="w-8 h-8 rounded-full bg-[#FAF7F2] border border-[#EAE3D9] flex items-center justify-center text-slate-700">
+                        {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                      </div>
                     </div>
-                    <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 font-display">
-                      {tText(comm.name)}
-                    </h2>
-                    <p className="text-xs text-slate-500">
-                      {tText(comm.description)}
-                    </p>
                   </div>
 
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs font-bold text-slate-500">
-                      {members.length} {isBn ? 'জন সদস্য' : 'Members'}
-                    </span>
-                    <div className="w-8 h-8 rounded-full bg-[#FAF7F2] border border-[#EAE3D9] flex items-center justify-center text-slate-700">
-                      {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  {isExpanded && (
+                    <div className="p-6 sm:p-8 pt-0 border-t border-slate-100 bg-[#FAF7F2]">
+                      <StaggerGroup className="flex flex-wrap justify-center gap-4 pt-6">
+                        {members.map(m => (
+                          <StaggerItem
+                            key={m.id}
+                            className="w-full sm:w-[calc(50%-0.5rem)] md:w-[calc(33.333%-0.75rem)] lg:w-[calc(25%-0.75rem)] max-w-xs"
+                          >
+                            <div
+                              className="bg-white rounded-2xl p-4 border border-[#EAE3D9] shadow-2xs text-center space-y-2 hover:border-[#006A4E] hover:shadow-warm-sm transition-all duration-200 flex flex-col justify-between h-full"
+                            >
+                              <div className="mx-auto w-16 h-20 rounded-t-full rounded-b-xl overflow-hidden bg-slate-100 border border-slate-200 flex items-center justify-center">
+                                {m.person.photoUrl ? (
+                                  <img
+                                    src={getAssetUrl(m.person.photoUrl)}
+                                    alt={m.person.fullName}
+                                    className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
+                                    onError={handleImageError}
+                                    loading="lazy"
+                                  />
+                                ) : (
+                                  <Users className="w-8 h-8 text-slate-400" />
+                                )}
+                              </div>
+                              <div>
+                                <h4 className="text-xs sm:text-sm font-bold text-slate-900 font-display">
+                                  {isBn ? m.person.banglaName : m.person.fullName}
+                                </h4>
+                                <span className="text-[11px] font-bold text-[#006A4E] block">
+                                  {isBn ? m.position.name.bn : m.position.name.en}
+                                </span>
+                              </div>
+                            </div>
+                          </StaggerItem>
+                        ))}
+                      </StaggerGroup>
                     </div>
-                  </div>
+                  )}
                 </div>
-
-                {isExpanded && (
-                  <div className="p-6 sm:p-8 pt-0 border-t border-slate-100 bg-[#FAF7F2]">
-                    <div className="flex flex-wrap justify-center gap-4 pt-6">
-                      {members.map(m => (
-                        <div
-                          key={m.id}
-                          className="bg-white rounded-2xl p-4 border border-[#EAE3D9] shadow-2xs text-center space-y-2 w-full sm:w-[calc(50%-0.5rem)] md:w-[calc(33.333%-0.75rem)] lg:w-[calc(25%-0.75rem)] max-w-xs flex flex-col justify-between"
-                        >
-                          <div className="mx-auto w-16 h-20 rounded-t-full rounded-b-xl overflow-hidden bg-slate-100 border border-slate-200 flex items-center justify-center">
-                            {m.person.photoUrl ? (
-                              <img
-                                src={getAssetUrl(m.person.photoUrl)}
-                                alt={m.person.fullName}
-                                className="w-full h-full object-cover select-none pointer-events-none transform-gpu"
-                                onError={handleImageError}
-                                loading="lazy"
-                              />
-                            ) : (
-                              <Users className="w-8 h-8 text-slate-400" />
-                            )}
-                          </div>
-                          <div>
-                            <h4 className="text-xs sm:text-sm font-bold text-slate-900 font-display">
-                              {isBn ? m.person.banglaName : m.person.fullName}
-                            </h4>
-                            <span className="text-[11px] font-bold text-[#006A4E] block">
-                              {isBn ? m.position.name.bn : m.position.name.en}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
+              </StaggerItem>
             );
           })
         ) : (
@@ -181,7 +190,7 @@ export const PastCommitteesPage: React.FC = () => {
             {isBn ? 'কোনো সংরক্ষিত আর্কাইভ তথ্য পাওয়া যায়নি।' : 'No past committees archived yet.'}
           </div>
         )}
-      </div>
+      </StaggerGroup>
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { GalleryPhoto } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 import { Link } from '../context/RouterContext';
@@ -19,23 +19,46 @@ export const GalleryLightbox: React.FC<GalleryLightboxProps> = ({
   const { isBn, tText } = useLanguage();
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
+  const handlePrev = useCallback(() => {
+    setCurrentIndex(prev => (prev > 0 ? prev - 1 : photos.length - 1));
+  }, [photos.length]);
+
+  const handleNext = useCallback(() => {
+    setCurrentIndex(prev => (prev < photos.length - 1 ? prev + 1 : 0));
+  }, [photos.length]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      } else if (e.key === 'ArrowLeft') {
+        handlePrev();
+      } else if (e.key === 'ArrowRight') {
+        handleNext();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [onClose, handlePrev, handleNext]);
+
   if (!photos || photos.length === 0) return null;
 
   const currentPhoto = photos[currentIndex];
 
-  const handlePrev = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setCurrentIndex(prev => (prev > 0 ? prev - 1 : photos.length - 1));
-  };
-
-  const handleNext = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setCurrentIndex(prev => (prev < photos.length - 1 ? prev + 1 : 0));
-  };
-
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md animate-in fade-in"
+      role="dialog"
+      aria-modal="true"
+      aria-label={currentPhoto ? tText(currentPhoto.title) : 'Photo Gallery Lightbox'}
+      tabIndex={-1}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md animate-in fade-in outline-none"
       onClick={onClose}
     >
       {/* Close button */}

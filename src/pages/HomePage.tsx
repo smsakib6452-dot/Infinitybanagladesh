@@ -12,6 +12,8 @@ import { EventCard } from '../components/EventCard';
 import { GalleryLightbox } from '../components/GalleryLightbox';
 import { VerifiedOrganizationPledge } from '../components/OfficialInfoBadge';
 import { getAssetUrl } from '../lib/utils/assetHelper';
+import { ScrollReveal } from '../components/motion/ScrollReveal';
+import { StaggerGroup, StaggerItem } from '../components/motion/StaggerGroup';
 import {
   Heart,
   Users,
@@ -101,7 +103,7 @@ export const HomePage: React.FC = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
                 {/* Left Column: Headline, Description & CTAs */}
-                <div className="lg:col-span-7 space-y-6 sm:space-y-7 text-left">
+                <ScrollReveal effect="slide-right" className="lg:col-span-7 space-y-6 sm:space-y-7 text-left">
                   {/* Eyebrow Pill */}
                   <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E6F3EF] border border-[#C2E2D7] text-[#00523C] text-xs sm:text-sm font-extrabold shadow-2xs">
                     <span className="w-2 h-2 rounded-full bg-[#006A4E] animate-pulse" />
@@ -174,10 +176,10 @@ export const HomePage: React.FC = () => {
                       </div>
                     ))}
                   </div>
-                </div>
+                </ScrollReveal>
 
                 {/* Right Column: Hero Real Photography Container */}
-                <div className="lg:col-span-5 relative mt-4 lg:mt-0">
+                <ScrollReveal effect="slide-left" delay={200} className="lg:col-span-5 relative mt-4 lg:mt-0">
                   <div className="absolute -inset-3 bg-gradient-to-tr from-[#D97706]/20 via-[#006A4E]/15 to-transparent rounded-[2.5rem] blur-xl" />
                   <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-[#D97706]/15 rounded-full blur-2xl" />
 
@@ -217,7 +219,7 @@ export const HomePage: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                </div>
+                </ScrollReveal>
               </div>
             </div>
           </section>
@@ -236,13 +238,13 @@ export const HomePage: React.FC = () => {
               }
             />
 
-            <div className="flex flex-wrap justify-center gap-5 sm:gap-6">
-              {activeMetrics.map(m => (
-                <div key={m.id} className="w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(25%-1.15rem)] max-w-xs flex">
+            <StaggerGroup className="flex flex-wrap justify-center gap-5 sm:gap-6">
+              {activeMetrics.map((m, idx) => (
+                <StaggerItem key={m.id} className="w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(25%-1.15rem)] max-w-xs flex">
                   <ImpactCounter metric={m} />
-                </div>
+                </StaggerItem>
               ))}
-            </div>
+            </StaggerGroup>
           </section>
         );
 
@@ -252,7 +254,7 @@ export const HomePage: React.FC = () => {
             <div className="bg-white rounded-[2.5rem] border border-[#EAE3D9] p-7 sm:p-12 lg:p-14 shadow-warm-md relative overflow-hidden">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
                 {/* Left Column: About Photo */}
-                <div className="lg:col-span-5 relative order-2 lg:order-1">
+                <ScrollReveal effect="scale-up" className="lg:col-span-5 relative order-2 lg:order-1">
                   <div className="rounded-3xl overflow-hidden shadow-warm-lg border-2 border-white aspect-4/3 sm:aspect-1/1 bg-slate-100">
                     <img
                       src={getAssetUrl(aboutPreview.imageUrl || '/images/events/winter-warmth.jpg')}
@@ -270,10 +272,10 @@ export const HomePage: React.FC = () => {
                       — {aboutPreview.quoteAuthor || 'Team Infinity'}
                     </span>
                   </div>
-                </div>
+                </ScrollReveal>
 
                 {/* Right Column: Mission Story */}
-                <div className="lg:col-span-7 space-y-5 sm:space-y-6 order-1 lg:order-2">
+                <ScrollReveal effect="slide-left" delay={200} className="lg:col-span-7 space-y-5 sm:space-y-6 order-1 lg:order-2">
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E6F3EF] text-[#00523C] text-xs font-extrabold uppercase tracking-wider border border-[#C2E2D7]">
                     {tText(aboutPreview.eyebrow)}
                   </div>
@@ -318,7 +320,7 @@ export const HomePage: React.FC = () => {
                       <ArrowRight className="w-4 h-4" />
                     </Link>
                   </div>
-                </div>
+                </ScrollReveal>
               </div>
             </div>
           </section>
@@ -337,13 +339,13 @@ export const HomePage: React.FC = () => {
               }
             />
 
-            <div className="flex flex-wrap justify-center gap-6 sm:gap-8">
-              {programs.filter(p => p.status !== 'archived').map(prog => (
-                <div key={prog.id} className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.35rem)] max-w-sm flex">
+            <StaggerGroup className="flex flex-wrap justify-center gap-6 sm:gap-8">
+              {programs.filter(p => p.status !== 'archived').map((prog, idx) => (
+                <StaggerItem key={prog.id} className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.35rem)] max-w-sm flex">
                   <ProgramCard program={prog} />
-                </div>
+                </StaggerItem>
               ))}
-            </div>
+            </StaggerGroup>
           </section>
         );
 
@@ -362,6 +364,7 @@ export const HomePage: React.FC = () => {
 
             <div className="space-y-8">
               {featuredCampaign && (
+                <ScrollReveal effect="fade-up">
                 <div className="p-6 sm:p-10 rounded-[2.5rem] bg-white border border-[#EAE3D9] shadow-warm-lg grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                   <div className="lg:col-span-6 space-y-5">
                     <div className="flex flex-wrap items-center gap-2">
@@ -409,16 +412,17 @@ export const HomePage: React.FC = () => {
                     />
                   </div>
                 </div>
+                </ScrollReveal>
               )}
 
               {otherCampaigns.length > 0 && (
-                <div className="flex flex-wrap justify-center gap-6 pt-4">
-                  {otherCampaigns.map(c => (
-                    <div key={c.id} className="w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] max-w-sm flex">
+                <StaggerGroup className="flex flex-wrap justify-center gap-6 pt-4">
+                  {otherCampaigns.map((c, idx) => (
+                    <StaggerItem key={c.id} className="w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] max-w-sm flex">
                       <CampaignCard campaign={c} />
-                    </div>
+                    </StaggerItem>
                   ))}
-                </div>
+                </StaggerGroup>
               )}
             </div>
           </section>
@@ -437,13 +441,13 @@ export const HomePage: React.FC = () => {
               }
             />
 
-            <div className="flex flex-wrap justify-center gap-8">
-              {featuredStories.map(story => (
-                <div key={story.id} className="w-full md:w-[calc(50%-1rem)] max-w-lg flex">
+            <StaggerGroup className="flex flex-wrap justify-center gap-8">
+              {featuredStories.map((story, idx) => (
+                <StaggerItem key={story.id} className="w-full md:w-[calc(50%-1rem)] max-w-lg flex">
                   <StoryCard story={story} />
-                </div>
+                </StaggerItem>
               ))}
-            </div>
+            </StaggerGroup>
 
             <div className="text-center pt-8">
               <Link
@@ -470,27 +474,28 @@ export const HomePage: React.FC = () => {
               }
             />
 
-            <div className="flex flex-wrap justify-center gap-3.5 sm:gap-4">
+            <StaggerGroup className="flex flex-wrap justify-center gap-3.5 sm:gap-4">
               {gallery.slice(0, 6).map((photo, i) => (
-                <div
-                  key={photo.id}
-                  onClick={() => setLightboxIndex(i)}
-                  className="group relative aspect-square w-[calc(50%-0.5rem)] sm:w-[calc(33.333%-0.7rem)] md:w-[calc(25%-0.75rem)] lg:w-[calc(16.666%-0.85rem)] max-w-[190px] rounded-2xl overflow-hidden bg-slate-900 cursor-pointer shadow-warm-xs hover:shadow-warm-md border border-[#EAE3D9] transition-all"
-                >
-                  <img
-                    src={getAssetUrl(photo.imageUrl)}
-                    alt={tText(photo.title)}
-                    className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent flex items-end p-2.5 transition-all">
-                    <span className="text-[11px] text-white font-bold truncate leading-tight drop-shadow-sm">
-                      {tText(photo.title)}
-                    </span>
+                <StaggerItem key={photo.id}>
+                  <div
+                    onClick={() => setLightboxIndex(i)}
+                    className="group relative aspect-square w-[calc(50%-0.5rem)] sm:w-[calc(33.333%-0.7rem)] md:w-[calc(25%-0.75rem)] lg:w-[calc(16.666%-0.85rem)] max-w-[190px] rounded-2xl overflow-hidden bg-slate-900 cursor-pointer shadow-warm-xs hover:shadow-warm-md border border-[#EAE3D9] transition-all"
+                  >
+                    <img
+                      src={getAssetUrl(photo.imageUrl)}
+                      alt={tText(photo.title)}
+                      className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent flex items-end p-2.5 transition-all">
+                      <span className="text-[11px] text-white font-bold truncate leading-tight drop-shadow-sm">
+                        {tText(photo.title)}
+                      </span>
+                    </div>
                   </div>
-                </div>
+                </StaggerItem>
               ))}
-            </div>
+            </StaggerGroup>
 
             {lightboxIndex !== null && (
               <GalleryLightbox
@@ -511,7 +516,7 @@ export const HomePage: React.FC = () => {
               <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#D97706]/10 rounded-full blur-3xl pointer-events-none" />
 
               <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-                <div className="lg:col-span-8 space-y-4 text-left">
+                <ScrollReveal effect="slide-right" className="lg:col-span-8 space-y-4 text-left">
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-600/40 text-emerald-300 text-xs font-bold uppercase tracking-wider">
                     <Sparkles className="w-3.5 h-3.5 text-amber-400" />
                     <span>{tText(volBanner?.badge) || (isBn ? 'স্বেচ্ছাসেবী পরিবারে স্বাগতম' : 'Be Part of Team Infinity')}</span>
@@ -526,9 +531,9 @@ export const HomePage: React.FC = () => {
                       ? 'টিম ইনফিনিটি একটি তারুণ্যনির্ভর স্বচ্ছ মানবিক পরিবার। আপনার মেধা ও সহমর্মিতা দিয়ে একজন মানুষের মুখে হাসি ফোটাতে আমাদের সাথে যুক্ত হোন।'
                       : 'Join a vibrant, ethical youth community committed to transparent grassroots humanitarian action across Bangladesh.')}
                   </p>
-                </div>
+                </ScrollReveal>
 
-                <div className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-3 justify-center">
+                <ScrollReveal effect="slide-left" delay={200} className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-3 justify-center">
                   <Link
                     to={volBanner?.primaryButtonUrl || volBanner?.primaryCtaUrl || 'volunteer'}
                     className="w-full py-3.5 px-6 rounded-2xl bg-[#006A4E] hover:bg-[#008562] active:bg-[#004D38] text-white font-extrabold text-xs sm:text-sm shadow-warm-md transition-all flex items-center justify-center gap-2 cursor-pointer transform hover:-translate-y-0.5"
@@ -544,7 +549,7 @@ export const HomePage: React.FC = () => {
                     <Users className="w-4 h-4 text-emerald-300" />
                     <span>{tText(volBanner?.secondaryButtonText || volBanner?.secondaryCtaText) || (isBn ? 'আমাদের নেতৃত্ব দেখুন' : 'Meet Our Team')}</span>
                   </Link>
-                </div>
+                </ScrollReveal>
               </div>
             </div>
           </section>
@@ -572,9 +577,9 @@ export const HomePage: React.FC = () => {
               </Link>
             </div>
 
-            <div className="flex flex-wrap justify-center gap-6">
-              {featuredPress.map(item => (
-                <div
+            <StaggerGroup className="flex flex-wrap justify-center gap-6">
+              {featuredPress.map((item, idx) => (
+                <StaggerItem
                   key={item.id}
                   className="w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] max-w-sm bg-white rounded-3xl border border-[#EAE3D9] p-5 shadow-warm-sm hover:shadow-warm-md transition-all flex flex-col justify-between space-y-4 group"
                 >
@@ -604,24 +609,24 @@ export const HomePage: React.FC = () => {
                     <span>{isBn ? 'প্রতিবেদন পড়ুন' : 'Read Article'}</span>
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
-                </div>
+                </StaggerItem>
               ))}
-            </div>
+            </StaggerGroup>
           </section>
         );
       }
 
       case 'transparency':
         return (
-          <section key="transparency" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <ScrollReveal effect="fade-up" key="transparency" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <VerifiedOrganizationPledge />
-          </section>
+          </ScrollReveal>
         );
 
       case 'support': {
         const supBanner = homepageConfig.supportBanner;
         return (
-          <section key="support" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <ScrollReveal effect="fade-up" key="support" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="bg-gradient-to-br from-[#FAF7F2] to-white rounded-[2.5rem] border border-[#EAE3D9] p-8 sm:p-12 text-center space-y-6 shadow-warm-md">
               <div className="w-14 h-14 rounded-3xl bg-[#E6F3EF] text-[#006A4E] flex items-center justify-center mx-auto shadow-warm-xs">
                 <HandHeart className="w-7 h-7" />
@@ -656,7 +661,7 @@ export const HomePage: React.FC = () => {
                 </Link>
               </div>
             </div>
-          </section>
+          </ScrollReveal>
         );
       }
 

@@ -4,6 +4,8 @@ import { useRouter, Link } from '../context/RouterContext';
 import { useData } from '../context/DataContext';
 import { GalleryLightbox } from '../components/GalleryLightbox';
 import { CampaignCard } from '../components/CampaignCard';
+import { ScrollReveal } from '../components/motion/ScrollReveal';
+import { StaggerGroup, StaggerItem } from '../components/motion/StaggerGroup';
 import { getAssetUrl } from '../lib/utils/assetHelper';
 import {
   ArrowLeft,
@@ -90,7 +92,7 @@ export const CampaignDetailPage: React.FC = () => {
       </div>
 
       {/* Hero Section */}
-      <div className="space-y-6">
+      <ScrollReveal effect="fade-up" className="space-y-6">
         <div className="flex flex-wrap items-center gap-3">
           <span className="px-3.5 py-1 rounded-full text-xs font-extrabold bg-[#E6F3EF] text-[#00523C] border border-[#C2E2D7]">
             {campaign.category}
@@ -112,73 +114,74 @@ export const CampaignDetailPage: React.FC = () => {
         <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-4xl font-normal">
           {tText(campaign.description)}
         </p>
-      </div>
+      </ScrollReveal>
 
       {/* Main Content Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         {/* Left Column: Media & Story */}
         <div className="lg:col-span-8 space-y-10">
-          <div className="rounded-[2.5rem] overflow-hidden shadow-warm-xl border-4 border-white aspect-16/9 bg-slate-100">
+          <ScrollReveal effect="fade-up" className="rounded-[2.5rem] overflow-hidden shadow-warm-xl border-4 border-white aspect-16/9 bg-slate-100">
             <img
               src={getAssetUrl(campaign.imageUrl)}
               alt={tText(campaign.title)}
               className="w-full h-full object-cover"
             />
-          </div>
+          </ScrollReveal>
 
           {/* Objectives */}
-          <div className="p-6 sm:p-8 bg-white rounded-3xl border border-[#EAE3D9] space-y-4 shadow-warm-sm">
+          <ScrollReveal effect="fade-up" delay={0.1} className="p-6 sm:p-8 bg-white rounded-3xl border border-[#EAE3D9] space-y-4 shadow-warm-sm">
             <h3 className="text-lg font-bold text-slate-900 font-display flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 text-[#006A4E]" />
               <span>{isBn ? 'ক্যাম্পেইনের মূল লক্ষ্যসমূহ' : 'Key Campaign Objectives'}</span>
             </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+            <StaggerGroup className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
               {(isBn ? campaign.objectives.bn : campaign.objectives.en).map((obj, index) => (
-                <div key={index} className="flex items-start gap-2.5 p-3 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] text-xs sm:text-sm text-slate-700">
+                <StaggerItem key={index} className="flex items-start gap-2.5 p-3 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] text-xs sm:text-sm text-slate-700">
                   <Sparkles className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
                   <span>{obj}</span>
-                </div>
+                </StaggerItem>
               ))}
-            </div>
-          </div>
+            </StaggerGroup>
+          </ScrollReveal>
 
           {/* Detailed Narrative */}
-          <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-4 shadow-warm-sm">
+          <ScrollReveal effect="fade-up" delay={0.2} className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-4 shadow-warm-sm">
             <h3 className="text-lg font-bold text-slate-900 font-display">
               {isBn ? 'ক্যাম্পেইন বিবরণ ও বাস্তবায়ন পরিকল্পনা' : 'Implementation Narrative & Impact'}
             </h3>
             <p className="text-slate-700 leading-relaxed text-sm">
               {tText(campaign.details)}
             </p>
-          </div>
+          </ScrollReveal>
 
           {/* Photo Gallery Grid */}
           {campaign.galleryImages.length > 0 && (
-            <div className="space-y-4">
+            <ScrollReveal effect="fade-up" delay={0.3} className="space-y-4">
               <h3 className="text-xl font-bold text-slate-900 font-display">
                 {isBn ? 'মাঠপর্যায়ের আলোকচিত্র' : 'Field Photo Documentation'}
               </h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              <StaggerGroup className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 {campaign.galleryImages.map((img, i) => (
-                  <div
-                    key={i}
-                    onClick={() => setLightboxIndex(i)}
-                    className="aspect-square rounded-2xl overflow-hidden bg-slate-100 cursor-pointer shadow-warm-sm border border-[#EAE3D9] group"
-                  >
-                    <img
-                      src={getAssetUrl(img)}
-                      alt={`Gallery ${i + 1}`}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                    />
-                  </div>
+                  <StaggerItem key={i}>
+                    <div
+                      onClick={() => setLightboxIndex(i)}
+                      className="aspect-square rounded-2xl overflow-hidden bg-slate-100 cursor-pointer shadow-warm-sm border border-[#EAE3D9] group"
+                    >
+                      <img
+                        src={getAssetUrl(img)}
+                        alt={`Gallery ${i + 1}`}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                      />
+                    </div>
+                  </StaggerItem>
                 ))}
-              </div>
-            </div>
+              </StaggerGroup>
+            </ScrollReveal>
           )}
         </div>
 
         {/* Right Column: Support / Donation Box */}
-        <div className="lg:col-span-4 space-y-6">
+        <ScrollReveal effect="slide-left" delay={0.2} className="lg:col-span-4 space-y-6">
           <div className="p-6 sm:p-8 bg-white rounded-3xl border border-[#EAE3D9] space-y-6 shadow-warm-md sticky top-24">
             <div className="space-y-2">
               <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#006A4E] bg-[#E6F3EF] px-3 py-1 rounded-full border border-[#C2E2D7]">
@@ -224,7 +227,7 @@ export const CampaignDetailPage: React.FC = () => {
               </p>
             </div>
           </div>
-        </div>
+        </ScrollReveal>
       </div>
 
       {/* Other campaigns */}

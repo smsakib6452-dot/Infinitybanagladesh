@@ -3,6 +3,8 @@ import { useLanguage } from '../context/LanguageContext';
 import { useRouter, Link } from '../context/RouterContext';
 import { useData } from '../context/DataContext';
 import { SectionHeading } from '../components/SectionHeading';
+import { ScrollReveal } from '../components/motion/ScrollReveal';
+import { StaggerGroup, StaggerItem } from '../components/motion/StaggerGroup';
 import { NewsCard } from '../components/NewsCard';
 import {
   ArrowLeft,
@@ -28,18 +30,20 @@ export const NewsPage: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-12 sm:space-y-14">
-      <SectionHeading
-        badge={isBn ? 'সংবাদ ও হালনাগাদ' : 'Press & Updates'}
-        title={isBn ? 'সংবাদ ও বিজ্ঞপ্তি' : 'Latest News & Announcements'}
-        subtitle={
-          isBn
-            ? 'টিম ইনফিনিটির মাঠপর্যায়ের কার্যক্রম, নতুন উদ্যোগ ও প্রাতিষ্ঠানিক খবরাখবর।'
-            : 'Read the official stories, media releases, and operational updates from Infinity Bangladesh.'
-        }
-      />
+      <ScrollReveal effect="fade-up">
+        <SectionHeading
+          badge={isBn ? 'সংবাদ ও হালনাগাদ' : 'Press & Updates'}
+          title={isBn ? 'সংবাদ ও বিজ্ঞপ্তি' : 'Latest News & Announcements'}
+          subtitle={
+            isBn
+              ? 'টিম ইনফিনিটির মাঠপর্যায়ের কার্যক্রম, নতুন উদ্যোগ ও প্রাতিষ্ঠানিক খবরাখবর।'
+              : 'Read the official stories, media releases, and operational updates from Infinity Bangladesh.'
+          }
+        />
+      </ScrollReveal>
 
       {/* Categories */}
-      <div className="flex flex-wrap items-center justify-center gap-2">
+      <ScrollReveal effect="fade-up" delay={100} className="flex flex-wrap items-center justify-center gap-2">
         {categories.map(cat => (
           <button
             key={cat}
@@ -54,16 +58,16 @@ export const NewsPage: React.FC = () => {
             {cat}
           </button>
         ))}
-      </div>
+      </ScrollReveal>
 
       {/* News Grid */}
-      <div className="flex flex-wrap justify-center gap-8">
+      <StaggerGroup className="flex flex-wrap justify-center gap-8">
         {filteredNews.map(article => (
-          <div key={article.id} className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.35rem)] max-w-sm flex">
+          <StaggerItem key={article.id} className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.35rem)] max-w-sm flex">
             <NewsCard article={article} />
-          </div>
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerGroup>
     </div>
   );
 };
@@ -127,7 +131,7 @@ export const NewsDetailPage: React.FC = () => {
       </div>
 
       {/* Header */}
-      <div className="space-y-4">
+      <ScrollReveal effect="fade-up" className="space-y-4">
         <div className="flex flex-wrap items-center gap-3">
           <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-[#E6F3EF] text-[#00523C] border border-[#C2E2D7]">
             {article.category}
@@ -145,19 +149,21 @@ export const NewsDetailPage: React.FC = () => {
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight font-display">
           {tText(article.title)}
         </h1>
-      </div>
+      </ScrollReveal>
 
       {/* Featured Image */}
-      <div className="rounded-[2.5rem] overflow-hidden shadow-warm-xl border-4 border-white aspect-16/9 bg-slate-100">
-        <img
-          src={article.imageUrl}
-          alt={tText(article.title)}
-          className="w-full h-full object-cover"
-        />
-      </div>
+      <ScrollReveal effect="fade-up" delay={100}>
+        <div className="rounded-[2.5rem] overflow-hidden shadow-warm-xl border-4 border-white aspect-16/9 bg-slate-100">
+          <img
+            src={article.imageUrl}
+            alt={tText(article.title)}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      </ScrollReveal>
 
       {/* Content */}
-      <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-10 space-y-6 shadow-warm-sm">
+      <ScrollReveal effect="fade-up" delay={200} className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-10 space-y-6 shadow-warm-sm">
         <p className="text-base sm:text-lg text-slate-900 font-semibold leading-relaxed border-b border-slate-100 pb-4">
           {tText(article.excerpt)}
         </p>
@@ -177,7 +183,7 @@ export const NewsDetailPage: React.FC = () => {
             ))}
           </div>
         )}
-      </div>
+      </ScrollReveal>
     </div>
   );
 };

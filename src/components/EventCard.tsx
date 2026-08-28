@@ -13,7 +13,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
   const { isBn, tText } = useLanguage();
 
   return (
-    <div className="bg-white rounded-3xl border border-[#EAE3D9] overflow-hidden shadow-warm-sm hover:shadow-warm-lg transition-all duration-300 flex flex-col md:flex-row group hover:-translate-y-0.5">
+    <div className="bg-white rounded-3xl border border-[#EAE3D9] overflow-hidden shadow-warm-sm hover:shadow-warm-lg motion-card-hover transition-all duration-300 flex flex-col md:flex-row group w-full">
       {/* Event Image */}
       <Link
         to="events/detail"
@@ -23,7 +23,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
         <img
           src={getAssetUrl(event.imageUrl)}
           alt={tText(event.title)}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          className="w-full h-full object-cover motion-img-zoom"
           loading="lazy"
         />
         <div className="absolute top-3 left-3 bg-[#006A4E] text-white text-xs font-bold px-3 py-1 rounded-full shadow-xs">
@@ -69,7 +69,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event }) => {
             className="text-xs sm:text-sm font-bold text-[#006A4E] hover:text-[#00523C] inline-flex items-center gap-1.5 cursor-pointer"
           >
             <span>{isBn ? 'বিস্তারিত ও অংশগ্রহণ' : 'Event Details & RSVP'}</span>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            <ArrowRight className="w-4 h-4 group-arrow-hover" />
           </Link>
 
           {event.registrationOpen && (

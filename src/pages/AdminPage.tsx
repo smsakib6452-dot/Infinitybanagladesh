@@ -312,7 +312,7 @@ export const AdminPage: React.FC = () => {
   const [donorToDelete, setDonorToDelete] = useState<BloodDonor | null>(null);
   const [editingEmergencyRequest, setEditingEmergencyRequest] = useState<EmergencyBloodRequest | null>(null);
   const [isEmergencyRequestModalOpen, setIsEmergencyRequestModalOpen] = useState(false);
-  const [bloodSubTab, setBloodSubTab] = useState<'overview' | 'donors' | 'emergency' | 'settings'>('overview');
+  const [bloodSubTab, setBloodSubTab] = useState<'overview' | 'pending' | 'donors' | 'emergency' | 'settings'>('overview');
   const [bloodDonorSearch, setBloodDonorSearch] = useState('');
   const [bloodDonorGroupFilter, setBloodDonorGroupFilter] = useState('ALL');
   const [bloodDonorStatusFilter, setBloodDonorStatusFilter] = useState('ALL');
@@ -5346,30 +5346,45 @@ export const AdminPage: React.FC = () => {
 
                   {/* Subtabs Bar */}
                   <div className="flex items-center gap-2 border-b border-slate-100 pb-2 overflow-x-auto no-scrollbar">
-                    {[
-                      { id: 'overview', label: isBn ? 'ড্যাশবোর্ড ওভারভিউ' : 'Overview Dashboard', icon: LayoutDashboard },
-                      { id: 'donors', label: isBn ? `রক্তদাতাবৃন্দ (${bloodDonors.length})` : `All Donors (${bloodDonors.length})`, icon: Users },
-                      { id: 'emergency', label: isBn ? `জরুরি আবেদন (${emergencyBloodRequests.length})` : `Emergency Requests (${emergencyBloodRequests.length})`, icon: AlertTriangle },
-                      { id: 'settings', label: isBn ? 'সেটিংস ও ক্যাটাগরি' : 'Settings & Categories', icon: Sliders }
-                    ].map(st => {
-                      const Icon = st.icon;
-                      const isSelected = bloodSubTab === st.id;
-                      return (
-                        <button
-                          key={st.id}
-                          type="button"
-                          onClick={() => setBloodSubTab(st.id as any)}
-                          className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 ${
-                            isSelected
-                              ? 'bg-[#006A4E] text-white shadow-xs'
-                              : 'bg-[#FAF7F2] hover:bg-[#EAE3D9] text-slate-700'
-                          }`}
-                        >
-                          <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-emerald-200' : 'text-slate-500'}`} />
-                          <span>{st.label}</span>
-                        </button>
-                      );
-                    })}
+                    {(() => {
+                      const pendingDonors = bloodDonors.filter(d => d.approvalStatus === 'PENDING');
+                      const pendingCount = pendingDonors.length;
+                      return [
+                        { id: 'overview', label: isBn ? 'ড্যাশবোর্ড ওভারভিউ' : 'Overview Dashboard', icon: LayoutDashboard },
+                        { 
+                          id: 'pending', 
+                          label: isBn ? `অপেক্ষমাণ আবেদন (${pendingCount})` : `Pending Approvals (${pendingCount})`, 
+                          icon: Clock,
+                          badge: pendingCount > 0 ? pendingCount : undefined 
+                        },
+                        { id: 'donors', label: isBn ? `রক্তদাতাবৃন্দ (${bloodDonors.length})` : `All Donors (${bloodDonors.length})`, icon: Users },
+                        { id: 'emergency', label: isBn ? `জরুরি আবেদন (${emergencyBloodRequests.length})` : `Emergency Requests (${emergencyBloodRequests.length})`, icon: AlertTriangle },
+                        { id: 'settings', label: isBn ? 'সেটিংস ও ক্যাটাগরি' : 'Settings & Categories', icon: Sliders }
+                      ].map(st => {
+                        const Icon = st.icon;
+                        const isSelected = bloodSubTab === st.id;
+                        return (
+                          <button
+                            key={st.id}
+                            type="button"
+                            onClick={() => setBloodSubTab(st.id as any)}
+                            className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-2 ${
+                              isSelected
+                                ? 'bg-[#006A4E] text-white shadow-xs'
+                                : 'bg-[#FAF7F2] hover:bg-[#EAE3D9] text-slate-700'
+                            }`}
+                          >
+                            <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-emerald-200' : 'text-slate-500'}`} />
+                            <span>{st.label}</span>
+                            {st.badge !== undefined && (
+                              <span className="px-1.5 py-0.5 rounded-full text-[10px] font-mono font-black bg-amber-500 text-white animate-pulse">
+                                {st.badge}
+                              </span>
+                            )}
+                          </button>
+                        );
+                      });
+                    })()}
                   </div>
                 </div>
 
@@ -5383,8 +5398,14 @@ export const AdminPage: React.FC = () => {
                         <p className="text-2xl sm:text-3xl font-extrabold text-[#006A4E] font-display">{bloodDonors.length}</p>
                       </div>
 
-                      <div className="p-5 rounded-3xl bg-amber-50 border border-amber-200 shadow-warm-xs space-y-1">
-                        <p className="text-xs font-bold text-amber-800 uppercase">{isBn ? 'অনুমোদন অপেক্ষায় (Pending)' : 'Pending Approval'}</p>
+                      <div 
+                        onClick={() => setBloodSubTab('pending')}
+                        className="p-5 rounded-3xl bg-amber-50 border border-amber-200 shadow-warm-xs space-y-1 cursor-pointer hover:border-amber-400 transition-colors group"
+                      >
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs font-bold text-amber-800 uppercase">{isBn ? 'অনুমোদন অপেক্ষায় (Pending)' : 'Pending Approval'}</p>
+                          <ChevronRight className="w-3.5 h-3.5 text-amber-600 group-hover:translate-x-1 transition-transform" />
+                        </div>
                         <p className="text-2xl sm:text-3xl font-extrabold text-amber-700 font-display">
                           {bloodDonors.filter(d => d.approvalStatus === 'PENDING').length}
                         </p>
@@ -5397,8 +5418,14 @@ export const AdminPage: React.FC = () => {
                         </p>
                       </div>
 
-                      <div className="p-5 rounded-3xl bg-rose-50 border border-rose-200 shadow-warm-xs space-y-1">
-                        <p className="text-xs font-bold text-rose-800 uppercase">{isBn ? 'জরুরি রক্তের আবেদন' : 'Emergency Requests'}</p>
+                      <div 
+                        onClick={() => setBloodSubTab('emergency')}
+                        className="p-5 rounded-3xl bg-rose-50 border border-rose-200 shadow-warm-xs space-y-1 cursor-pointer hover:border-rose-400 transition-colors group"
+                      >
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs font-bold text-rose-800 uppercase">{isBn ? 'জরুরি রক্তের আবেদন' : 'Emergency Requests'}</p>
+                          <ChevronRight className="w-3.5 h-3.5 text-rose-600 group-hover:translate-x-1 transition-transform" />
+                        </div>
                         <p className="text-2xl sm:text-3xl font-extrabold text-rose-700 font-display">
                           {emergencyBloodRequests.length}
                         </p>
@@ -5406,7 +5433,7 @@ export const AdminPage: React.FC = () => {
                     </div>
 
                     {/* Pending Approvals Queue */}
-                    {bloodDonors.filter(d => d.approvalStatus === 'PENDING').length > 0 && (
+                    {bloodDonors.filter(d => d.approvalStatus === 'PENDING').length > 0 ? (
                       <div className="bg-amber-50/70 rounded-3xl border border-amber-200 p-6 space-y-4 shadow-warm-xs">
                         <div className="flex items-center justify-between">
                           <h3 className="text-sm font-extrabold text-amber-950 uppercase tracking-wider flex items-center gap-2">
@@ -5438,7 +5465,7 @@ export const AdminPage: React.FC = () => {
                                     <span className="text-xs text-emerald-700 font-bold">&bull; {donor.orgCategory}</span>
                                   </div>
                                   <p className="text-xs text-slate-500">
-                                    Phone: <span className="font-bold text-slate-700">{donor.phone}</span> &bull; Location: {donor.area}, {donor.upazila}, {donor.district}
+                                    Phone: <span className="font-bold text-slate-700">{donor.phone}</span> &bull; Location: {donor.area ? donor.area + ', ' : ''}{donor.upazila}, {donor.district}
                                     {donor.lastDonationDate && (
                                       <span className="text-emerald-800 font-bold ml-1.5 inline-flex items-center gap-1">
                                         &bull; <Clock className="w-3 h-3 text-emerald-600 inline" />
@@ -5452,14 +5479,20 @@ export const AdminPage: React.FC = () => {
                               <div className="flex items-center gap-2 w-full sm:w-auto">
                                 <button
                                   type="button"
-                                  onClick={() => approveBloodDonor(donor.id)}
-                                  className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs cursor-pointer"
+                                  onClick={() => {
+                                    approveBloodDonor(donor.id);
+                                    showToast(isBn ? `${donor.fullName}-এর আবেদন অনুমোদিত হয়েছে!` : `Approved ${donor.fullName}`);
+                                  }}
+                                  className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs cursor-pointer shadow-2xs"
                                 >
                                   {isBn ? 'অনুমোদন করুন' : 'Approve'}
                                 </button>
                                 <button
                                   type="button"
-                                  onClick={() => rejectBloodDonor(donor.id)}
+                                  onClick={() => {
+                                    rejectBloodDonor(donor.id);
+                                    showToast(isBn ? `${donor.fullName}-এর আবেদন বাতিল করা হয়েছে` : `Rejected ${donor.fullName}`);
+                                  }}
                                   className="px-3.5 py-1.5 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-800 font-bold text-xs cursor-pointer"
                                 >
                                   {isBn ? 'বাতিল' : 'Reject'}
@@ -5478,6 +5511,147 @@ export const AdminPage: React.FC = () => {
                             </div>
                           ))}
                         </div>
+                      </div>
+                    ) : (
+                      <div className="p-6 text-center bg-white rounded-3xl border border-[#EAE3D9] space-y-2">
+                        <div className="w-10 h-10 rounded-full bg-emerald-50 text-[#006A4E] mx-auto flex items-center justify-center font-bold">
+                          <Check className="w-5 h-5" />
+                        </div>
+                        <p className="text-xs font-bold text-slate-700">
+                          {isBn ? 'বর্তমানে কোনো নতুন অপেক্ষমাণ রক্তদাতা আবেদন নেই' : 'No Pending Donor Applications'}
+                        </p>
+                        <p className="text-[11px] text-slate-500">
+                          {isBn ? 'ওয়েবসাইট থেকে কেউ "Become a Donor" ফর্ম পূরণ করলে এখানে তা অনুমোদনের জন্য ভেসে উঠবে।' : 'New voluntary donor registrations will appear here for verification.'}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* SUBTAB: DEDICATED PENDING APPROVALS LIST */}
+                {bloodSubTab === 'pending' && (
+                  <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+                    <div className="border-b border-slate-100 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div>
+                        <h3 className="text-lg font-extrabold text-slate-900 font-display flex items-center gap-2">
+                          <Clock className="w-5 h-5 text-amber-600" />
+                          <span>{isBn ? 'অপেক্ষমাণ রক্তদাতা আবেদন তালিকা (Pending Approvals)' : 'Pending Donor Applications Roster'}</span>
+                        </h3>
+                        <p className="text-xs text-slate-500">
+                          {isBn ? 'যাচাই করে রক্তদাতাকে পাবলিক ডিরেক্টরিতে সক্রিয় বা বাতিল করুন।' : 'Review pending voluntary blood donor applications and grant approval.'}
+                        </p>
+                      </div>
+                      <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-900 border border-amber-300 w-fit">
+                        {bloodDonors.filter(d => d.approvalStatus === 'PENDING').length} {isBn ? 'টি আবেদন অপেক্ষমাণ' : 'Pending Requests'}
+                      </span>
+                    </div>
+
+                    {bloodDonors.filter(d => d.approvalStatus === 'PENDING').length === 0 ? (
+                      <div className="p-10 text-center bg-[#FAF7F2] rounded-3xl border border-[#EAE3D9] space-y-3">
+                        <div className="w-12 h-12 rounded-full bg-emerald-100 text-[#006A4E] mx-auto flex items-center justify-center font-bold">
+                          <Check className="w-6 h-6 text-[#006A4E]" />
+                        </div>
+                        <h4 className="font-extrabold text-slate-900 text-sm font-display">
+                          {isBn ? 'বর্তমানে কোনো নতুন অপেক্ষমাণ আবেদন নেই' : 'No Pending Applications'}
+                        </h4>
+                        <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
+                          {isBn
+                            ? 'সকল রক্তদাতা আবেদন যাচাই ও অনুমোদিত রয়েছে। নতুন রক্তদাতা ফর্ম পূরণ করলে তৎক্ষণাৎ এই তালিকায় প্রদর্শিত হবে।'
+                            : 'All donor applications have been processed and approved. New registrations will automatically appear here.'}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {bloodDonors.filter(d => d.approvalStatus === 'PENDING').map(donor => (
+                          <div
+                            key={donor.id}
+                            className="p-5 rounded-2xl bg-[#FAF7F2] border border-amber-300 flex flex-col lg:flex-row lg:items-center justify-between gap-4 shadow-xs"
+                          >
+                            <div className="flex items-start sm:items-center gap-3.5">
+                              <div className="w-12 h-12 rounded-2xl bg-emerald-950 text-white font-bold flex items-center justify-center shrink-0 overflow-hidden border border-slate-300">
+                                {donor.photoUrl ? (
+                                  <img src={getAssetUrl(donor.photoUrl)} alt={donor.fullName} className="w-full h-full object-cover" />
+                                ) : (
+                                  <span className="text-base">{donor.fullName.charAt(0)}</span>
+                                )}
+                              </div>
+                              <div className="space-y-1">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <span className="px-2.5 py-0.5 rounded-lg bg-rose-600 text-white font-black text-xs font-display shadow-2xs">
+                                    {donor.bloodGroup}
+                                  </span>
+                                  <span className="text-base font-extrabold text-slate-900 font-display">{donor.fullName}</span>
+                                  <span className="text-xs text-emerald-800 font-bold">&bull; {donor.orgCategory}</span>
+                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-200 text-amber-900">
+                                    ID: {donor.id}
+                                  </span>
+                                </div>
+                                <p className="text-xs text-slate-600">
+                                  মোবাইল: <span className="font-bold text-slate-900">{donor.phone}</span> &bull; অবস্থান: <span className="font-semibold">{donor.area ? donor.area + ', ' : ''}{donor.upazila}, {donor.district}</span>
+                                  {donor.gender && <span> &bull; লিঙ্গ: {donor.gender}</span>}
+                                  {donor.dateOfBirth && <span> &bull; জন্ম তারিখ: {donor.dateOfBirth}</span>}
+                                </p>
+                                {donor.experienceNotes && (
+                                  <p className="text-[11px] text-slate-500 italic">
+                                    "{donor.experienceNotes}"
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-2 shrink-0 pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-200">
+                              {donor.phone && (
+                                <a
+                                  href={`https://wa.me/${donor.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                                    `আসসালামু আলাইকুম ${donor.fullName}। ইনফিনিটি বাংলাদেশ ব্লাড নেটওয়ার্কে আপনার রক্তদাতা হিসেবে রেজিস্ট্রেশনের আবেদনটি পাওয়া গেছে। তথ্য যাচাইয়ের জন্য যোগাযোগ করা হচ্ছে। ধন্যবাদ।`
+                                  )}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="px-3 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-colors"
+                                >
+                                  <MessageCircle className="w-3.5 h-3.5 text-emerald-700" />
+                                  <span>WhatsApp</span>
+                                </a>
+                              )}
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  approveBloodDonor(donor.id);
+                                  showToast(isBn ? `রক্তদাতা ${donor.fullName}-এর আবেদন অনুমোদিত হয়েছে!` : `Donor ${donor.fullName} approved!`);
+                                }}
+                                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-warm-xs cursor-pointer flex items-center gap-1.5 transition-all"
+                              >
+                                <Check className="w-4 h-4" />
+                                <span>{isBn ? 'অনুমোদন করুন (Approve)' : 'Approve'}</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  rejectBloodDonor(donor.id);
+                                  showToast(isBn ? `রক্তদাতা ${donor.fullName}-এর আবেদন বাতিল করা হয়েছে` : `Donor ${donor.fullName} rejected`);
+                                }}
+                                className="px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold text-xs cursor-pointer transition-colors"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                                <span>{isBn ? 'বাতিল' : 'Reject'}</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEditingBloodDonor(donor);
+                                  setIsBloodDonorModalOpen(true);
+                                }}
+                                className="p-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold cursor-pointer"
+                                title="Edit Details"
+                              >
+                                <Edit3 className="w-3.5 h-3.5 text-slate-600" />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     )}
                   </div>

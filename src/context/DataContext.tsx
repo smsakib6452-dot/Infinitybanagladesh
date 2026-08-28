@@ -1240,10 +1240,20 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       // 17.5. Blood Donation Network
-      const { data: bloodDonorsData } = await supabase
-        .from('blood_donors')
-        .select('*, blood_donation_history(*)')
-        .order('created_at', { ascending: false });
+      let bloodDonorsData: any[] | null = null;
+      try {
+        const { data: bData, error: bErr } = await supabase
+          .from('blood_donors')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (!bErr && Array.isArray(bData)) {
+          bloodDonorsData = bData;
+        } else if (bErr) {
+          console.warn('Supabase blood_donors query warning:', bErr.message);
+        }
+      } catch (err: any) {
+        console.warn('Supabase blood_donors fetch error:', err.message);
+      }
 
       const legacyMockIds = new Set(['donor-1', 'donor-2', 'donor-3', 'donor-4', 'donor-5', 'donor-6', 'donor-7', 'donor-8', 'donor-9', 'donor-10']);
 
@@ -1296,8 +1306,53 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setBloodDonors(prevLocal => {
           const remoteIds = new Set(remoteDonors.map(r => r.id));
           const localOnly = prevLocal.filter(l => !remoteIds.has(l.id));
-          return [...remoteDonors, ...localOnly];
+          const merged = [...remoteDonors, ...localOnly];
+          try {
+            localStorage.setItem(`${STORAGE_PREFIX}bloodDonors`, JSON.stringify(merged));
+          } catch {}
+          return merged;
         });
+      }
+
+      // 17.6. Emergency Blood Requests Sync
+      try {
+        const { data: emgData, error: emgErr } = await supabase
+          .from('emergency_blood_requests')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (!emgErr && Array.isArray(emgData)) {
+          const remoteRequests: EmergencyBloodRequest[] = emgData
+            .filter(r => !deletedRequestIdsRef.current.has(r.id))
+            .map(r => cleanEmergencyRequest({
+              id: r.id,
+              requesterName: r.requester_name,
+              contactNumber: r.contact_number,
+              patientName: r.patient_name,
+              bloodGroup: r.blood_group,
+              unitsNeeded: Number(r.units_needed) || 1,
+              hospitalName: r.hospital_name,
+              district: r.district,
+              upazila: r.upazila,
+              emergencyLevel: r.emergency_level || 'URGENT',
+              requiredDate: r.required_date,
+              additionalNotes: r.additional_notes,
+              status: r.status || 'PENDING',
+              matchedDonorIds: Array.isArray(r.matched_donor_ids) ? r.matched_donor_ids : [],
+              createdAt: r.created_at,
+              updatedAt: r.updated_at
+            }));
+          setEmergencyBloodRequests(prevLocal => {
+            const remoteIds = new Set(remoteRequests.map(r => r.id));
+            const localOnly = prevLocal.filter(l => !remoteIds.has(l.id));
+            const merged = [...remoteRequests, ...localOnly];
+            try {
+              localStorage.setItem(`${STORAGE_PREFIX}emergencyRequests`, JSON.stringify(merged));
+            } catch {}
+            return merged;
+          });
+        }
+      } catch (err: any) {
+        console.warn('Supabase emergency_blood_requests network warning:', err.message);
       }
 
       const { data: bSettingsData } = await supabase.from('blood_donation_settings').select('*').single();

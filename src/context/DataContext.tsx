@@ -303,35 +303,20 @@ interface DataContextType {
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-const CURRENT_DATA_VERSION = '2026.08.27.1787845157669';
+const CURRENT_DATA_VERSION = '2026.08.28.v2';
 const DATA_VERSION_KEY = 'infinity_data_version';
 const STORAGE_PREFIX = 'infinity_bd_v2_';
 
-// Auto-check and invalidate stale cached data on startup so users never need to manually clear cache
+// Safe version marker without deleting user customized data
 (() => {
   try {
     if (typeof window !== 'undefined' && window.localStorage) {
-      const storedVersion = localStorage.getItem(DATA_VERSION_KEY);
-      if (storedVersion !== CURRENT_DATA_VERSION) {
-        const keysToRemove: string[] = [];
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (
-            key &&
-            (key.startsWith('infinity_') || key.startsWith(STORAGE_PREFIX)) &&
-            !key.includes('admin_auth') &&
-            !key.includes('admin_user') &&
-            !key.includes('deleted_')
-          ) {
-            keysToRemove.push(key);
-          }
-        }
-        keysToRemove.forEach(k => localStorage.removeItem(k));
+      if (!localStorage.getItem(DATA_VERSION_KEY)) {
         localStorage.setItem(DATA_VERSION_KEY, CURRENT_DATA_VERSION);
       }
     }
   } catch (e) {
-    console.warn('Storage migration check warning:', e);
+    console.warn('Storage check warning:', e);
   }
 })();
 

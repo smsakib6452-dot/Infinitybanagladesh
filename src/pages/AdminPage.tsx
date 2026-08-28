@@ -6709,6 +6709,193 @@ export const AdminPage: React.FC = () => {
                 </div>
               </div>
             )}
+
+            {/* -------------------------------------------------------- */}
+            {/* TAB: BACKUP & DATABASE SYNCHRONIZATION */}
+            {/* -------------------------------------------------------- */}
+            {activeTab === 'backup' && (
+              <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-8 shadow-warm-sm">
+                <div className="border-b border-slate-100 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <h2 className="text-xl font-extrabold text-slate-900 font-display flex items-center gap-2.5">
+                      <Database className="w-6 h-6 text-[#006A4E]" />
+                      <span>{isBn ? 'ক্লাউড ডাটাবেজ সিঙ্ক ও ব্যাকআপ পোর্টাল' : 'Cloud Database Synchronization & Backup'}</span>
+                    </h2>
+                    <p className="text-xs text-slate-500 mt-1">
+                      {isBn
+                        ? 'আপনার ওয়েবসাইটের যাবতীয় কনটেন্ট ক্লাউড ডাটাবেজে পার্মানেন্ট সেভ করুন, ব্যাকআপ ফাইল নামিয়ে রাখুন অথবা পূর্বের ব্যাকআপ রিস্টোর করুন।'
+                        : 'Permanently persist CMS data to Supabase PostgreSQL, export full JSON snapshots, or restore backups.'}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                      isLiveSupabase ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                    }`}>
+                      {isLiveSupabase ? '🟢 Live Supabase Connected' : '🟠 Local Storage Mode'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* 1. Cloud Sync Box */}
+                <div className="p-6 rounded-3xl bg-[#E6F3EF] border border-[#C2E2D7] space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="space-y-1">
+                      <h3 className="font-extrabold text-base text-slate-900 font-display flex items-center gap-2">
+                        <Upload className="w-5 h-5 text-[#006A4E]" />
+                        <span>{isBn ? 'ক্লাউড ডাটাবেজে এক ক্লিকে সকল ডাটা সেভ করুন' : 'Push All Local CMS Data to Cloud Database'}</span>
+                      </h3>
+                      <p className="text-xs text-slate-600">
+                        {isBn
+                          ? 'ব্রাউজারে করা আপনার সকল পরিবর্তন, ছবি, সেটিংস ও রক্তদান ডেটা সরাসরি Supabase ক্লাউড ডাটাবেজে সংরক্ষিত হবে।'
+                          : 'Synchronizes all in-memory and local browser modifications to Supabase PostgreSQL in a single atomic batch.'}
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      disabled={isSyncing}
+                      onClick={async () => {
+                        const res = await pushAllToSupabase();
+                        showToast(res.message);
+                      }}
+                      className="px-6 py-3 rounded-2xl bg-[#006A4E] hover:bg-[#00523C] text-white font-extrabold text-xs sm:text-sm shadow-warm-md hover:shadow-warm-lg transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer disabled:opacity-50 transform hover:-translate-y-0.5"
+                    >
+                      <Upload className={`w-4 h-4 ${isSyncing ? 'animate-bounce' : ''}`} />
+                      <span>{isSyncing ? 'Pushing to Cloud...' : (isBn ? 'সব ডাটা ক্লাউডে সেভ করুন (Push All)' : 'Push All to Cloud Database')}</span>
+                    </button>
+                  </div>
+
+                  <div className="pt-3 border-t border-[#C2E2D7] flex flex-col sm:flex-row sm:items-center justify-between text-xs text-slate-600 gap-2">
+                    <span>
+                      {isBn ? 'শেষ ক্লাউড সিঙ্ক:' : 'Last Cloud Sync:'} <strong>{lastSyncedAt ? lastSyncedAt.toLocaleTimeString() : 'Active in Memory'}</strong>
+                    </span>
+                    <button
+                      type="button"
+                      disabled={isSyncing}
+                      onClick={async () => {
+                        await syncWithSupabase();
+                        showToast(isBn ? 'ক্লাউড ডাটাবেজ থেকে সর্বশেষ তথ্য লোড করা হয়েছে।' : 'Pulled latest cloud data.');
+                      }}
+                      className="text-[#006A4E] font-bold hover:underline cursor-pointer flex items-center gap-1.5 self-start sm:self-auto"
+                    >
+                      <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
+                      <span>{isBn ? 'ক্লাউড থেকে ফ্রেশ ডাটা টানুন (Pull DB)' : 'Refresh / Pull from Cloud'}</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* 2. Export & Import JSON Backup Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Export Box */}
+                  <div className="p-6 rounded-3xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-4 flex flex-col justify-between">
+                    <div className="space-y-2">
+                      <div className="w-10 h-10 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center">
+                        <Download className="w-5 h-5" />
+                      </div>
+                      <h4 className="font-extrabold text-sm sm:text-base text-slate-900 font-display">
+                        {isBn ? 'সম্পূর্ণ ওয়েবসাইটের ব্যাকআপ ডাউনলোড (JSON)' : 'Export Full JSON Database Backup'}
+                      </h4>
+                      <p className="text-xs text-slate-500">
+                        {isBn
+                          ? 'ক্যাম্পেইন, প্রোগ্রাম, সেটিংস, রক্তদাতা ও মিডিয়া লিংকসহ পুরো ওয়েবসাইটের ডাটা একটি JSON ফাইলে সংরক্ষণ করুন।'
+                          : 'Creates an offline, complete JSON snapshot file of every setting, program, campaign, and donor record.'}
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const json = exportDatabaseJSON();
+                        const blob = new Blob([json], { type: 'application/json' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `infinity_bangladesh_backup_${new Date().toISOString().split('T')[0]}.json`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        showToast(isBn ? 'ব্যাকআপ ফাইল সফলভাবে ডাউনলোড হয়েছে' : 'JSON Backup exported successfully');
+                      }}
+                      className="w-full py-3 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs shadow-warm-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <Download className="w-4 h-4" />
+                      <span>{isBn ? 'ব্যাকআপ ডাউনলোড করুন (Export JSON)' : 'Download Backup File (.json)'}</span>
+                    </button>
+                  </div>
+
+                  {/* Import Box */}
+                  <div className="p-6 rounded-3xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-4 flex flex-col justify-between">
+                    <div className="space-y-2">
+                      <div className="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                        <FileText className="w-5 h-5" />
+                      </div>
+                      <h4 className="font-extrabold text-sm sm:text-base text-slate-900 font-display">
+                        {isBn ? 'পূর্বের ব্যাকআপ রিস্টোর করুন (JSON Restore)' : 'Restore from JSON Backup File'}
+                      </h4>
+                      <p className="text-xs text-slate-500">
+                        {isBn
+                          ? 'আগে ডাউনলোড করা কোনো ব্যাকআপ JSON ফাইল আপলোড করে এক ক্লিকে ওয়েবসাইটের পূর্বাবস্থা ফিরিয়ে আনুন।'
+                          : 'Restore your website content, settings, and donor lists from a previously saved .json backup file.'}
+                      </p>
+                    </div>
+
+                    <label className="w-full py-3 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs shadow-warm-xs transition-all flex items-center justify-center gap-2 cursor-pointer text-center">
+                      <Upload className="w-4 h-4" />
+                      <span>{isBn ? 'ব্যাকআপ ফাইল নির্বাচন করুন' : 'Select Backup JSON File'}</span>
+                      <input
+                        type="file"
+                        accept=".json,application/json"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                              const content = event.target?.result as string;
+                              if (content) {
+                                const ok = importDatabaseJSON(content);
+                                if (ok) {
+                                  showToast(isBn ? 'ব্যাকআপ সফলভাবে রিস্টোর করা হয়েছে' : 'Backup restored successfully');
+                                } else {
+                                  alert('Invalid backup JSON format');
+                                }
+                              }
+                            };
+                            reader.readAsText(file);
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                {/* 3. Factory Reset Section */}
+                <div className="p-5 rounded-3xl bg-rose-50 border border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <h4 className="text-xs sm:text-sm font-extrabold text-rose-900">
+                      {isBn ? 'ফ্যাক্টরি রিসেট / অফিশিয়াল ডিফল্ট ডাটা রিস্টোর' : 'Factory Reset to Official Defaults'}
+                    </h4>
+                    <p className="text-[11px] text-rose-700">
+                      {isBn
+                        ? 'সকল কাস্টম পরিবর্তন মুছে ফেলে অফিসিয়াল ভেরিফাইড ডিফল্ট ডাটা ফিরিয়ে আনবে।'
+                        : 'Erases all custom modifications and resets CMS state to default verified organizational records.'}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (confirm(isBn ? 'আপনি কি নিশ্চিত যে সকল সেটিংস অফিশিয়াল ডিফল্টে রিসেট করতে চান?' : 'Are you sure you want to reset all CMS data to default?')) {
+                        resetToDefaultData();
+                        showToast(isBn ? 'সকল ডাটা অফিশিয়াল ডিফল্টে রিসেট হয়েছে' : 'Database reset to official defaults');
+                      }
+                    }}
+                    className="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-2xs transition-colors shrink-0 cursor-pointer"
+                  >
+                    {isBn ? 'ডিফল্ট ডাটা রিস্টোর করুন' : 'Reset to Defaults'}
+                  </button>
+                </div>
+              </div>
+            )}
             {activeTab === 'media_library' && (() => {
               const MEDIA_CATEGORIES: MediaCategory[] = [
                 'General', 'Hero', 'Campaigns', 'Volunteers', 'Events', 'Children & Community', 'Logos', 'Banners', 'Stories', 'Gallery', 'Documents'

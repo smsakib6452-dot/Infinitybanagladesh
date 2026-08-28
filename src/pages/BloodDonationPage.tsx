@@ -74,6 +74,7 @@ import {
 import { ScrollReveal } from '../components/motion/ScrollReveal';
 import { StaggerGroup, StaggerItem } from '../components/motion/StaggerGroup';
 import { AnimatedCounter } from '../components/motion/AnimatedCounter';
+import { LifeLineHeroLogoAnimation } from '../components/motion/LifeLineHeroLogoAnimation';
 
 interface BloodDonationPageProps {
   initialTab?: 'find-donor' | 'become-donor' | 'update-donor' | 'emergency-request' | 'donors' | 'statistics' | 'guidelines';
@@ -795,26 +796,14 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                   </span>
                 </div>
 
-                {/* Sub-brand Main Logo (Infinity LifeLine SVG - Transparent on Dark) */}
+                {/* Sub-brand Main Logo with Signature Opening Animation */}
                 <div className="pt-1 flex items-center justify-center lg:justify-start">
-                  <div
-                    className="transition-all duration-200"
-                    style={{
-                      width: `${bloodDonationSettings.wingLogoSize || 480}px`,
-                      maxWidth: '100%'
-                    }}
-                  >
-                    <img
-                      src={getAssetUrl(bloodDonationSettings.wingLogoUrl || '/brand/Infinitylifeline-logo.svg')}
-                      alt="Infinity LifeLine - One Drop, Infinite Hope"
-                      style={{
-                        transform: `scale(${bloodDonationSettings.wingLogoZoom || 1})`,
-                        transformOrigin: 'left center',
-                        objectFit: bloodDonationSettings.wingLogoCrop || 'contain'
-                      }}
-                      className="w-full h-auto object-contain mx-auto lg:mx-0 drop-shadow-md transition-all duration-200"
-                    />
-                  </div>
+                  <LifeLineHeroLogoAnimation
+                    logoUrl={bloodDonationSettings.wingLogoUrl || '/brand/Infinitylifeline-logo.svg'}
+                    logoSize={bloodDonationSettings.wingLogoSize || 480}
+                    logoZoom={bloodDonationSettings.wingLogoZoom || 1}
+                    logoCrop={bloodDonationSettings.wingLogoCrop || 'contain'}
+                  />
                 </div>
 
                 {/* Subtitle / Initiative Line (Fully editable from Admin) */}

@@ -474,9 +474,12 @@ export const HomePage: React.FC = () => {
               }
             />
 
-            <StaggerGroup className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5 sm:gap-4">
+            <StaggerGroup className="flex flex-wrap justify-center items-center gap-3.5 sm:gap-4 max-w-7xl mx-auto">
               {gallery.slice(0, 6).map((photo, i) => (
-                <StaggerItem key={photo.id} className="w-full">
+                <StaggerItem
+                  key={photo.id}
+                  className="w-[calc(50%-0.5rem)] sm:w-[calc(33.333%-0.7rem)] md:w-[calc(25%-0.75rem)] lg:w-[calc(16.666%-0.85rem)] max-w-[190px] flex-shrink-0"
+                >
                   <div
                     onClick={() => setLightboxIndex(i)}
                     className="group relative aspect-square w-full rounded-2xl overflow-hidden bg-slate-900 cursor-pointer shadow-warm-xs hover:shadow-warm-md border border-[#EAE3D9] transition-all transform hover:-translate-y-1"

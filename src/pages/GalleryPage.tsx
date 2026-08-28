@@ -203,7 +203,7 @@ export const GalleryPage: React.FC = () => {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
           {filteredPhotos.map((photo, index) => {
             const photoTitle = tText(photo.title) || 'Infinity Bangladesh Photo';
             const photoCaption = tText(photo.caption);
@@ -212,7 +212,7 @@ export const GalleryPage: React.FC = () => {
               <div
                 key={photo.id}
                 onClick={() => setSelectedImageIndex(index)}
-                className="group bg-white rounded-3xl border border-[#EAE3D9] overflow-hidden shadow-warm-sm hover:shadow-warm-md transition-all cursor-pointer flex flex-col transform hover:-translate-y-1"
+                className="group bg-white rounded-3xl border border-[#EAE3D9] overflow-hidden shadow-warm-sm hover:shadow-warm-md transition-all cursor-pointer flex flex-col transform hover:-translate-y-1 w-full sm:w-[calc(50%-0.75rem)] md:w-[calc(33.333%-1rem)] lg:w-[calc(25%-1.15rem)] max-w-xs"
               >
                 <div className="relative aspect-4/3 overflow-hidden bg-slate-900">
                   <img

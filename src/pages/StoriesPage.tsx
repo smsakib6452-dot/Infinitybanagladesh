@@ -32,11 +32,11 @@ export const StoriesPage: React.FC = () => {
         </div>
 
         {/* Stories Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="flex flex-wrap justify-center gap-8">
           {stories.map((story) => (
             <div
               key={story.id}
-              className="bg-white rounded-[2.5rem] border border-[#EAE3D9] overflow-hidden shadow-warm-sm hover:shadow-warm-md transition-all duration-300 flex flex-col justify-between group"
+              className="w-full md:w-[calc(50%-1rem)] max-w-lg bg-white rounded-[2.5rem] border border-[#EAE3D9] overflow-hidden shadow-warm-sm hover:shadow-warm-md transition-all duration-300 flex flex-col justify-between group"
             >
               <div>
                 {/* Photo with Consent Badge */}

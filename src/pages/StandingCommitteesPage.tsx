@@ -210,12 +210,12 @@ export const StandingCommitteesPage: React.FC = () => {
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
+                <div className="flex flex-wrap justify-center gap-6 max-w-2xl mx-auto">
                   {viceChairmen.map(m => (
                     <div
                       key={m.id}
                       onClick={() => setSelectedMember(m)}
-                      className="group relative cursor-pointer bg-white text-slate-900 rounded-3xl p-5 text-center shadow-warm-sm border border-[#EAE3D9] hover:border-[#D4182E] transition-all transform hover:-translate-y-1"
+                      className="group relative cursor-pointer bg-white text-slate-900 rounded-3xl p-5 text-center shadow-warm-sm border border-[#EAE3D9] hover:border-[#D4182E] transition-all transform hover:-translate-y-1 w-full sm:w-[calc(50%-0.75rem)] max-w-xs"
                     >
                       <div className="absolute top-3 right-3 bg-[#FAF7F2] text-slate-700 font-mono font-bold text-[10px] px-2 py-0.5 rounded-full border border-[#EAE3D9]">
                         #{String(m.serialNumber || 2).padStart(2, '0')}
@@ -262,12 +262,12 @@ export const StandingCommitteesPage: React.FC = () => {
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                <div className="flex flex-wrap justify-center gap-6 max-w-4xl mx-auto">
                   {regularMembers.map(m => (
                     <div
                       key={m.id}
                       onClick={() => setSelectedMember(m)}
-                      className="group relative cursor-pointer bg-[#FAF7F2] rounded-3xl p-4 text-center shadow-2xs border border-[#EAE3D9] hover:border-[#006A4E] hover:shadow-warm-md transition-all transform hover:-translate-y-1 flex flex-col justify-between"
+                      className="group relative cursor-pointer bg-[#FAF7F2] rounded-3xl p-4 text-center shadow-2xs border border-[#EAE3D9] hover:border-[#006A4E] hover:shadow-warm-md transition-all transform hover:-translate-y-1 flex flex-col justify-between w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] max-w-xs"
                     >
                       <div className="absolute top-2.5 right-2.5 bg-white text-slate-700 font-mono font-bold text-[10px] px-1.5 py-0.5 rounded-full border border-slate-200 shadow-2xs">
                         #{String(m.serialNumber || 0).padStart(2, '0')}

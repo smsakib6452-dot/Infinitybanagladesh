@@ -236,9 +236,11 @@ export const HomePage: React.FC = () => {
               }
             />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+            <div className="flex flex-wrap justify-center gap-5 sm:gap-6">
               {activeMetrics.map(m => (
-                <ImpactCounter key={m.id} metric={m} />
+                <div key={m.id} className="w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(25%-1.15rem)] max-w-xs flex">
+                  <ImpactCounter metric={m} />
+                </div>
               ))}
             </div>
           </section>
@@ -335,9 +337,11 @@ export const HomePage: React.FC = () => {
               }
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            <div className="flex flex-wrap justify-center gap-6 sm:gap-8">
               {programs.filter(p => p.status !== 'archived').map(prog => (
-                <ProgramCard key={prog.id} program={prog} />
+                <div key={prog.id} className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.35rem)] max-w-sm flex">
+                  <ProgramCard program={prog} />
+                </div>
               ))}
             </div>
           </section>
@@ -408,9 +412,11 @@ export const HomePage: React.FC = () => {
               )}
 
               {otherCampaigns.length > 0 && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
+                <div className="flex flex-wrap justify-center gap-6 pt-4">
                   {otherCampaigns.map(c => (
-                    <CampaignCard key={c.id} campaign={c} />
+                    <div key={c.id} className="w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] max-w-sm flex">
+                      <CampaignCard campaign={c} />
+                    </div>
                   ))}
                 </div>
               )}
@@ -431,9 +437,11 @@ export const HomePage: React.FC = () => {
               }
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="flex flex-wrap justify-center gap-8">
               {featuredStories.map(story => (
-                <StoryCard key={story.id} story={story} />
+                <div key={story.id} className="w-full md:w-[calc(50%-1rem)] max-w-lg flex">
+                  <StoryCard story={story} />
+                </div>
               ))}
             </div>
 
@@ -462,12 +470,12 @@ export const HomePage: React.FC = () => {
               }
             />
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5 sm:gap-4">
+            <div className="flex flex-wrap justify-center gap-3.5 sm:gap-4">
               {gallery.slice(0, 6).map((photo, i) => (
                 <div
                   key={photo.id}
                   onClick={() => setLightboxIndex(i)}
-                  className="group relative aspect-square rounded-2xl overflow-hidden bg-slate-900 cursor-pointer shadow-warm-xs hover:shadow-warm-md border border-[#EAE3D9] transition-all"
+                  className="group relative aspect-square w-[calc(50%-0.5rem)] sm:w-[calc(33.333%-0.7rem)] md:w-[calc(25%-0.75rem)] lg:w-[calc(16.666%-0.85rem)] max-w-[190px] rounded-2xl overflow-hidden bg-slate-900 cursor-pointer shadow-warm-xs hover:shadow-warm-md border border-[#EAE3D9] transition-all"
                 >
                   <img
                     src={getAssetUrl(photo.imageUrl)}
@@ -564,11 +572,11 @@ export const HomePage: React.FC = () => {
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="flex flex-wrap justify-center gap-6">
               {featuredPress.map(item => (
                 <div
                   key={item.id}
-                  className="bg-white rounded-3xl border border-[#EAE3D9] p-5 shadow-warm-sm hover:shadow-warm-md transition-all flex flex-col justify-between space-y-4 group"
+                  className="w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] max-w-sm bg-white rounded-3xl border border-[#EAE3D9] p-5 shadow-warm-sm hover:shadow-warm-md transition-all flex flex-col justify-between space-y-4 group"
                 >
                   <div className="space-y-3">
                     <div className="flex items-center justify-between text-xs text-slate-500">

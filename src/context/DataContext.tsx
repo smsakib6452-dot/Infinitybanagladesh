@@ -228,7 +228,7 @@ interface DataContextType {
   setFeaturedJourneyVideo: (id: string) => void;
 
   // Blood Donation Network
-  addBloodDonor: (donor: Omit<BloodDonor, 'createdAt' | 'updatedAt'> & { id?: string }) => BloodDonor;
+  addBloodDonor: (donor: Omit<BloodDonor, 'id' | 'createdAt' | 'updatedAt'> & { id?: string }) => BloodDonor;
   updateBloodDonor: (id: string, updates: Partial<BloodDonor>) => void;
   deleteBloodDonor: (id: string) => void;
   approveBloodDonor: (id: string) => void;
@@ -491,9 +491,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
   const [bloodDonationSettings, setBloodDonationSettings] = useState<BloodDonationSettings>(() => {
     const stored = getStoredOrDefault<any>('bloodDonationSettings', INITIAL_BLOOD_SETTINGS);
-    const resolvedWingLogo = (stored?.wingLogoUrl && !stored.wingLogoUrl.includes('.png'))
-      ? stored.wingLogoUrl
-      : '/brand/Infinitylifeline-logo.svg';
+    const resolvedWingLogo = stored?.wingLogoUrl || INITIAL_BLOOD_SETTINGS.wingLogoUrl || '/brand/Infinitylifeline-logo.svg';
     return {
       ...INITIAL_BLOOD_SETTINGS,
       ...(stored || {}),
@@ -1384,39 +1382,41 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const { data: bSettingsData } = await supabase.from('blood_donation_settings').select('*').single();
       if (bSettingsData) {
-        const remoteBSettings: BloodDonationSettings = {
-          wingLogoUrl: bSettingsData.wing_logo_url || INITIAL_BLOOD_SETTINGS.wingLogoUrl,
-          wingLogoSize: bSettingsData.wing_logo_size || INITIAL_BLOOD_SETTINGS.wingLogoSize,
-          wingLogoZoom: bSettingsData.wing_logo_zoom ?? 1,
-          wingLogoCrop: bSettingsData.wing_logo_crop || 'contain',
-          heroBadge: bSettingsData.hero_badge || INITIAL_BLOOD_SETTINGS.heroBadge,
-          heroTitle: bSettingsData.hero_title || INITIAL_BLOOD_SETTINGS.heroTitle,
-          heroSubtitle: bSettingsData.hero_subtitle || INITIAL_BLOOD_SETTINGS.heroSubtitle,
-          heroCtaBadge: bSettingsData.hero_cta_badge || INITIAL_BLOOD_SETTINGS.heroCtaBadge,
-          heroCtaTitle: bSettingsData.hero_cta_title || INITIAL_BLOOD_SETTINGS.heroCtaTitle,
-          heroCtaDescription: bSettingsData.hero_cta_description || INITIAL_BLOOD_SETTINGS.heroCtaDescription,
-          heroCtaBtn1Text: bSettingsData.hero_cta_btn1_text || INITIAL_BLOOD_SETTINGS.heroCtaBtn1Text,
-          heroCtaBtn2Text: bSettingsData.hero_cta_btn2_text || INITIAL_BLOOD_SETTINGS.heroCtaBtn2Text,
-          statTotalDonorsLabel: bSettingsData.stat_total_donors_label || INITIAL_BLOOD_SETTINGS.statTotalDonorsLabel,
-          statActiveDonorsLabel: bSettingsData.stat_active_donors_label || INITIAL_BLOOD_SETTINGS.statActiveDonorsLabel,
-          statGroupsLabel: bSettingsData.stat_groups_label || INITIAL_BLOOD_SETTINGS.statGroupsLabel,
-          statGroupsValue: bSettingsData.stat_groups_value || INITIAL_BLOOD_SETTINGS.statGroupsValue,
-          statImpactLabel: bSettingsData.stat_impact_label || INITIAL_BLOOD_SETTINGS.statImpactLabel,
-          statTotalDonorsOverride: bSettingsData.stat_total_donors_override ?? INITIAL_BLOOD_SETTINGS.statTotalDonorsOverride,
-          statActiveDonorsOverride: bSettingsData.stat_active_donors_override ?? INITIAL_BLOOD_SETTINGS.statActiveDonorsOverride,
-          statImpactOverride: bSettingsData.stat_impact_override ?? INITIAL_BLOOD_SETTINGS.statImpactOverride,
-          emergencyHelpline: bSettingsData.emergency_helpline || INITIAL_BLOOD_SETTINGS.emergencyHelpline,
-          helplineLabel: bSettingsData.helpline_label || INITIAL_BLOOD_SETTINGS.helplineLabel,
-          coordinationEmail: bSettingsData.coordination_email || INITIAL_BLOOD_SETTINGS.coordinationEmail,
-          guidelinesTitle: bSettingsData.guidelines_title || INITIAL_BLOOD_SETTINGS.guidelinesTitle,
-          guidelinesText: bSettingsData.guidelines_text || INITIAL_BLOOD_SETTINGS.guidelinesText,
-          consentStatement: bSettingsData.consent_statement || INITIAL_BLOOD_SETTINGS.consentStatement,
-          enablePublicDirectContact: bSettingsData.enable_public_direct_contact ?? true
-        };
-        setBloodDonationSettings(remoteBSettings);
-        try {
-          localStorage.setItem(`${STORAGE_PREFIX}bloodDonationSettings`, JSON.stringify(remoteBSettings));
-        } catch {}
+        setBloodDonationSettings(prevLocal => {
+          const remoteBSettings: BloodDonationSettings = {
+            wingLogoUrl: bSettingsData.wing_logo_url || prevLocal.wingLogoUrl || INITIAL_BLOOD_SETTINGS.wingLogoUrl,
+            wingLogoSize: bSettingsData.wing_logo_size ?? prevLocal.wingLogoSize ?? INITIAL_BLOOD_SETTINGS.wingLogoSize,
+            wingLogoZoom: bSettingsData.wing_logo_zoom ?? prevLocal.wingLogoZoom ?? 1,
+            wingLogoCrop: bSettingsData.wing_logo_crop || prevLocal.wingLogoCrop || 'contain',
+            heroBadge: (bSettingsData.hero_badge && (bSettingsData.hero_badge.en || bSettingsData.hero_badge.bn)) ? bSettingsData.hero_badge : prevLocal.heroBadge,
+            heroTitle: (bSettingsData.hero_title && (bSettingsData.hero_title.en || bSettingsData.hero_title.bn)) ? bSettingsData.hero_title : prevLocal.heroTitle,
+            heroSubtitle: (bSettingsData.hero_subtitle && (bSettingsData.hero_subtitle.en || bSettingsData.hero_subtitle.bn)) ? bSettingsData.hero_subtitle : prevLocal.heroSubtitle,
+            heroCtaBadge: (bSettingsData.hero_cta_badge && (bSettingsData.hero_cta_badge.en || bSettingsData.hero_cta_badge.bn)) ? bSettingsData.hero_cta_badge : prevLocal.heroCtaBadge,
+            heroCtaTitle: (bSettingsData.hero_cta_title && (bSettingsData.hero_cta_title.en || bSettingsData.hero_cta_title.bn)) ? bSettingsData.hero_cta_title : prevLocal.heroCtaTitle,
+            heroCtaDescription: (bSettingsData.hero_cta_description && (bSettingsData.hero_cta_description.en || bSettingsData.hero_cta_description.bn)) ? bSettingsData.hero_cta_description : prevLocal.heroCtaDescription,
+            heroCtaBtn1Text: (bSettingsData.hero_cta_btn1_text && (bSettingsData.hero_cta_btn1_text.en || bSettingsData.hero_cta_btn1_text.bn)) ? bSettingsData.hero_cta_btn1_text : prevLocal.heroCtaBtn1Text,
+            heroCtaBtn2Text: (bSettingsData.hero_cta_btn2_text && (bSettingsData.hero_cta_btn2_text.en || bSettingsData.hero_cta_btn2_text.bn)) ? bSettingsData.hero_cta_btn2_text : prevLocal.heroCtaBtn2Text,
+            statTotalDonorsLabel: (bSettingsData.stat_total_donors_label && (bSettingsData.stat_total_donors_label.en || bSettingsData.stat_total_donors_label.bn)) ? bSettingsData.stat_total_donors_label : prevLocal.statTotalDonorsLabel,
+            statActiveDonorsLabel: (bSettingsData.stat_active_donors_label && (bSettingsData.stat_active_donors_label.en || bSettingsData.stat_active_donors_label.bn)) ? bSettingsData.stat_active_donors_label : prevLocal.statActiveDonorsLabel,
+            statGroupsLabel: (bSettingsData.stat_groups_label && (bSettingsData.stat_groups_label.en || bSettingsData.stat_groups_label.bn)) ? bSettingsData.stat_groups_label : prevLocal.statGroupsLabel,
+            statGroupsValue: bSettingsData.stat_groups_value || prevLocal.statGroupsValue || INITIAL_BLOOD_SETTINGS.statGroupsValue,
+            statImpactLabel: (bSettingsData.stat_impact_label && (bSettingsData.stat_impact_label.en || bSettingsData.stat_impact_label.bn)) ? bSettingsData.stat_impact_label : prevLocal.statImpactLabel,
+            statTotalDonorsOverride: bSettingsData.stat_total_donors_override !== undefined ? bSettingsData.stat_total_donors_override : prevLocal.statTotalDonorsOverride,
+            statActiveDonorsOverride: bSettingsData.stat_active_donors_override !== undefined ? bSettingsData.stat_active_donors_override : prevLocal.statActiveDonorsOverride,
+            statImpactOverride: bSettingsData.stat_impact_override !== undefined ? bSettingsData.stat_impact_override : prevLocal.statImpactOverride,
+            emergencyHelpline: bSettingsData.emergency_helpline || prevLocal.emergencyHelpline || INITIAL_BLOOD_SETTINGS.emergencyHelpline,
+            helplineLabel: (bSettingsData.helpline_label && (bSettingsData.helpline_label.en || bSettingsData.helpline_label.bn)) ? bSettingsData.helpline_label : prevLocal.helplineLabel,
+            coordinationEmail: bSettingsData.coordination_email || prevLocal.coordinationEmail || INITIAL_BLOOD_SETTINGS.coordinationEmail,
+            guidelinesTitle: (bSettingsData.guidelines_title && (bSettingsData.guidelines_title.en || bSettingsData.guidelines_title.bn)) ? bSettingsData.guidelines_title : prevLocal.guidelinesTitle,
+            guidelinesText: (bSettingsData.guidelines_text && (bSettingsData.guidelines_text.en || bSettingsData.guidelines_text.bn)) ? bSettingsData.guidelines_text : prevLocal.guidelinesText,
+            consentStatement: (bSettingsData.consent_statement && (bSettingsData.consent_statement.en || bSettingsData.consent_statement.bn)) ? bSettingsData.consent_statement : prevLocal.consentStatement,
+            enablePublicDirectContact: bSettingsData.enable_public_direct_contact ?? prevLocal.enablePublicDirectContact ?? true
+          };
+          try {
+            localStorage.setItem(`${STORAGE_PREFIX}bloodDonationSettings`, JSON.stringify(remoteBSettings));
+          } catch {}
+          return remoteBSettings;
+        });
       }
 
       // 18. Press & Media Coverage
@@ -3406,7 +3406,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   };
 
-  const addBloodDonor = useCallback((donor: Omit<BloodDonor, 'createdAt' | 'updatedAt'> & { id?: string }) => {
+  const addBloodDonor = useCallback((donor: Omit<BloodDonor, 'id' | 'createdAt' | 'updatedAt'> & { id?: string }) => {
     const id = donor.id?.trim() || `donor-${Date.now()}`;
     // If ID was in deletedDonorIds, remove it from deleted list since admin explicitly added/re-used this ID
     if (deletedDonorIdsRef.current.has(id)) {
@@ -3478,7 +3478,12 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const updated = prev.map(d => {
         if (d.id !== id) return d;
         const mergedHistory = updates.donationHistory !== undefined ? updates.donationHistory : (d.donationHistory || []);
-        const stats = calculateDonorStats(mergedHistory, updates.firstDonationDate || d.firstDonationDate, updates.lastDonationDate || d.lastDonationDate, updates.totalDonations !== undefined ? updates.totalDonations : d.totalDonations);
+        const stats = calculateDonorStats(
+          mergedHistory,
+          updates.firstDonationDate ?? d.firstDonationDate,
+          updates.lastDonationDate ?? d.lastDonationDate,
+          updates.totalDonations ?? d.totalDonations
+        );
 
         return {
           ...d,
@@ -3533,18 +3538,16 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return updated;
     });
 
-    logAudit('UPDATE', 'BloodDonor', id, 'Updated blood donor record');
+    logAudit('UPDATE', 'BloodDonor', id, `Updated blood donor: ${updates.fullName || id}`);
   }, [logAudit, safeDbDelete, safeDbUpsert]);
 
   const deleteBloodDonor = useCallback((id: string) => {
-    if (!id) return;
-    const cleanId = String(id).trim();
+    const cleanId = id?.trim();
+    if (!cleanId) return;
     deletedDonorIdsRef.current.add(cleanId);
     try {
       localStorage.setItem(`${STORAGE_PREFIX}deleted_donor_ids`, JSON.stringify(Array.from(deletedDonorIdsRef.current)));
-    } catch (e) {
-      console.warn('Storage error on deleted_donor_ids:', e);
-    }
+    } catch {}
 
     setBloodDonors(prev => {
       const filtered = prev.filter(d => d.id !== cleanId && d.id.trim() !== cleanId);
@@ -3555,8 +3558,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
     logAudit('DELETE', 'BloodDonor', cleanId, 'Deleted blood donor');
     if (supabase && isSupabaseConfigured) {
-      supabase.from('blood_donation_history').delete().eq('donor_id', cleanId)
-        .then(() => supabase?.from('blood_donors').delete().eq('id', cleanId))
+      Promise.resolve(supabase.from('blood_donation_history').delete().eq('donor_id', cleanId))
+        .then(() => (supabase ? Promise.resolve(supabase.from('blood_donors').delete().eq('id', cleanId)) : undefined))
         .catch(err => console.warn('Supabase donor delete error (handled):', err));
     }
   }, [logAudit]);

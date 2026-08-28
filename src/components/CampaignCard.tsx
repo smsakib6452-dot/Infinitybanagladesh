@@ -27,7 +27,7 @@ export const CampaignCard: React.FC<CampaignCardProps> = ({ campaign, featured =
 
   return (
     <div
-      className={`group bg-white rounded-3xl border border-[#EAE3D9] overflow-hidden shadow-warm-sm hover:shadow-warm-lg transition-all duration-300 flex flex-col hover:-translate-y-1 ${
+      className={`group bg-white rounded-3xl border border-[#EAE3D9] overflow-hidden shadow-warm-sm hover:shadow-warm-lg transition-all duration-300 flex flex-col hover:-translate-y-1 w-full ${
         featured ? 'ring-2 ring-[#006A4E]/30' : ''
       }`}
     >

@@ -275,6 +275,9 @@ export interface BannerItem {
 export type MediaCategory =
   | 'Hero'
   | 'Campaigns'
+  | 'Relief Campaigns'
+  | 'Volunteer Drives'
+  | 'Community Impact'
   | 'Volunteers'
   | 'Events'
   | 'Children & Community'

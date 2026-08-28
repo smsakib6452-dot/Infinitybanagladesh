@@ -36,7 +36,7 @@ export const SectionHeading: React.FC<SectionHeadingProps> = ({
           {title}
         </h2>
         {subtitle && (
-          <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-2xl">
+          <p className={`text-sm sm:text-base text-slate-600 leading-relaxed max-w-2xl ${isCenter ? 'mx-auto' : ''}`}>
             {subtitle}
           </p>
         )}

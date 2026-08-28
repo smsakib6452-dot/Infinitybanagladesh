@@ -38,47 +38,53 @@ export const TransparencyPage: React.FC = () => {
       <VerifiedOrganizationPledge />
 
       {/* Ethical Code of Transparency */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="p-6 sm:p-7 bg-white rounded-3xl border border-[#EAE3D9] space-y-3 shadow-warm-sm hover:-translate-y-1 transition-all">
-          <div className="w-12 h-12 rounded-2xl bg-[#E6F3EF] text-[#006A4E] flex items-center justify-center font-bold">
-            <Scale className="w-6 h-6" />
+      <div className="flex flex-wrap justify-center gap-6">
+        <div className="p-6 sm:p-7 bg-white rounded-3xl border border-[#EAE3D9] space-y-3 shadow-warm-sm hover:-translate-y-1 transition-all w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] max-w-sm flex flex-col justify-between">
+          <div className="space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-[#E6F3EF] text-[#006A4E] flex items-center justify-center font-bold">
+              <Scale className="w-6 h-6" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-900 font-display">
+              {isBn ? 'শূন্য অপচয় ও সঠিক ব্যবহার' : 'Zero Waste Policy'}
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              {isBn
+                ? 'অনুদান সংগ্রহের প্রতিটি অর্থ সরাসরি সুবিধাভোগীদের সামগ্রী ক্রয়ে ব্যয় হয়। কোনো প্রশাসনিক অপচয় সহ্য করা হয় না।'
+                : 'Donations are directly mapped to field procurement. Zero leakage or unverified overheads.'}
+            </p>
           </div>
-          <h3 className="text-lg font-bold text-slate-900 font-display">
-            {isBn ? 'শূন্য অপচয় ও সঠিক ব্যবহার' : 'Zero Waste Policy'}
-          </h3>
-          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-            {isBn
-              ? 'অনুদান সংগ্রহের প্রতিটি অর্থ সরাসরি সুবিধাভোগীদের সামগ্রী ক্রয়ে ব্যয় হয়। কোনো প্রশাসনিক অপচয় সহ্য করা হয় না।'
-              : 'Donations are directly mapped to field procurement. Zero leakage or unverified overheads.'}
-          </p>
         </div>
 
-        <div className="p-6 sm:p-7 bg-white rounded-3xl border border-[#EAE3D9] space-y-3 shadow-warm-sm hover:-translate-y-1 transition-all">
-          <div className="w-12 h-12 rounded-2xl bg-[#E6F3EF] text-[#006A4E] flex items-center justify-center font-bold">
-            <Eye className="w-6 h-6" />
+        <div className="p-6 sm:p-7 bg-white rounded-3xl border border-[#EAE3D9] space-y-3 shadow-warm-sm hover:-translate-y-1 transition-all w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] max-w-sm flex flex-col justify-between">
+          <div className="space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-[#E6F3EF] text-[#006A4E] flex items-center justify-center font-bold">
+              <Eye className="w-6 h-6" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-900 font-display">
+              {isBn ? 'উন্মুক্ত অডিট নিরীক্ষা' : 'Public Audit Access'}
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              {isBn
+                ? 'মৌসুমী প্রতিটি ক্যাম্পেইন সমাপ্তির পর ক্রয় রসিদ এবং বিতরণ সংখ্যার অডিট রিপোর্ট প্রকাশ করা হয়।'
+                : 'Following each seasonal campaign, itemized expense receipts and beneficiary summaries are audited.'}
+            </p>
           </div>
-          <h3 className="text-lg font-bold text-slate-900 font-display">
-            {isBn ? 'উন্মুক্ত অডিট নিরীক্ষা' : 'Public Audit Access'}
-          </h3>
-          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-            {isBn
-              ? 'মৌসুমী প্রতিটি ক্যাম্পেইন সমাপ্তির পর ক্রয় রসিদ এবং বিতরণ সংখ্যার অডিট রিপোর্ট প্রকাশ করা হয়।'
-              : 'Following each seasonal campaign, itemized expense receipts and beneficiary summaries are audited.'}
-          </p>
         </div>
 
-        <div className="p-6 sm:p-7 bg-white rounded-3xl border border-[#EAE3D9] space-y-3 shadow-warm-sm hover:-translate-y-1 transition-all">
-          <div className="w-12 h-12 rounded-2xl bg-[#E6F3EF] text-[#006A4E] flex items-center justify-center font-bold">
-            <ShieldCheck className="w-6 h-6" />
+        <div className="p-6 sm:p-7 bg-white rounded-3xl border border-[#EAE3D9] space-y-3 shadow-warm-sm hover:-translate-y-1 transition-all w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] max-w-sm flex flex-col justify-between">
+          <div className="space-y-3">
+            <div className="w-12 h-12 rounded-2xl bg-[#E6F3EF] text-[#006A4E] flex items-center justify-center font-bold">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-900 font-display">
+              {isBn ? 'সততা নীতি (Anti-Fabrication)' : 'Anti-Fabrication Pledge'}
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              {isBn
+                ? 'আমরা কখনো ভুয়া সংখ্যা, সাজানো ছবি বা কাল্পনিক তথ্য প্রচার করি না। সত্যতা আমাদের সবচেয়ে বড় শক্তি।'
+                : 'We strictly reject inflated beneficiary metrics, fake claims, and poverty-exploitative media.'}
+            </p>
           </div>
-          <h3 className="text-lg font-bold text-slate-900 font-display">
-            {isBn ? 'সততা নীতি (Anti-Fabrication)' : 'Anti-Fabrication Pledge'}
-          </h3>
-          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-            {isBn
-              ? 'আমরা কখনো ভুয়া সংখ্যা, সাজানো ছবি বা কাল্পনিক তথ্য প্রচার করি না। সত্যতা আমাদের সবচেয়ে বড় শক্তি।'
-              : 'We strictly reject inflated beneficiary metrics, fake claims, and poverty-exploitative media.'}
-          </p>
         </div>
       </div>
 
@@ -108,9 +114,11 @@ export const TransparencyPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="flex flex-wrap justify-center gap-6">
           {filteredReports.map(report => (
-            <ReportCard key={report.id} report={report} />
+            <div key={report.id} className="w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] max-w-sm flex">
+              <ReportCard report={report} />
+            </div>
           ))}
         </div>
       </div>

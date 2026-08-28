@@ -13,7 +13,7 @@ export const StoryCard: React.FC<StoryCardProps> = ({ story }) => {
   const { isBn, tText } = useLanguage();
 
   return (
-    <div className="group bg-white rounded-3xl border border-[#EAE3D9] overflow-hidden shadow-warm-sm hover:shadow-warm-lg transition-all duration-300 flex flex-col hover:-translate-y-1">
+    <div className="group bg-white rounded-3xl border border-[#EAE3D9] overflow-hidden shadow-warm-sm hover:shadow-warm-lg transition-all duration-300 flex flex-col hover:-translate-y-1 w-full">
       <Link
         to="stories/detail"
         slug={story.slug}

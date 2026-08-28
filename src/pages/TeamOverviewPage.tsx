@@ -147,14 +147,14 @@ export const TeamOverviewPage: React.FC = () => {
           </div>
 
           {/* Top Featured Executive Leaders Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="flex flex-wrap justify-center gap-6">
             {execMembers.slice(0, 8).map((item, idx) => {
               const person = item.person;
               const position = item.position;
               return (
                 <div
                   key={item.id}
-                  className="group bg-white rounded-3xl border border-[#EAE3D9] p-5 shadow-warm-sm hover:shadow-warm-lg hover:-translate-y-1 transition-all duration-300 flex flex-col items-center text-center space-y-4"
+                  className="group bg-white rounded-3xl border border-[#EAE3D9] p-5 shadow-warm-sm hover:shadow-warm-lg hover:-translate-y-1 transition-all duration-300 flex flex-col items-center text-center space-y-4 w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(25%-1.15rem)] max-w-xs"
                 >
                   {/* Member Photo */}
                   <div className="relative w-28 h-28 rounded-2xl overflow-hidden bg-slate-100 border-2 border-[#006A4E]/20 shadow-inner">
@@ -241,14 +241,14 @@ export const TeamOverviewPage: React.FC = () => {
           </div>
 
           {/* Standing Committee Members Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="flex flex-wrap justify-center gap-6">
             {standingMembers.slice(0, 6).map((item, idx) => {
               const person = item.person;
               const position = item.position;
               return (
                 <div
                   key={item.id}
-                  className="bg-white rounded-3xl border border-[#EAE3D9] p-6 shadow-warm-sm hover:shadow-warm-lg hover:-translate-y-1 transition-all duration-300 flex items-center gap-4"
+                  className="bg-white rounded-3xl border border-[#EAE3D9] p-6 shadow-warm-sm hover:shadow-warm-lg hover:-translate-y-1 transition-all duration-300 flex items-center gap-4 w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] max-w-sm"
                 >
                   <div className="relative w-20 h-20 rounded-2xl overflow-hidden bg-slate-100 border-2 border-[#006A4E]/20 shrink-0">
                     {person?.photoUrl ? (
@@ -316,13 +316,13 @@ export const TeamOverviewPage: React.FC = () => {
           </div>
 
           {/* Past Committees Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="flex flex-wrap justify-center gap-6">
             {pastCommittees.map(comm => {
               const members = getMembersWithDetails(comm.id);
               return (
                 <div
                   key={comm.id}
-                  className="bg-white rounded-3xl border border-[#EAE3D9] p-6 shadow-warm-sm hover:shadow-warm-lg hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between space-y-6"
+                  className="bg-white rounded-3xl border border-[#EAE3D9] p-6 shadow-warm-sm hover:shadow-warm-lg hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between space-y-6 w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] max-w-sm"
                 >
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">

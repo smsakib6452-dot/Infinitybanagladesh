@@ -21,7 +21,7 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
   };
 
   return (
-    <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-7 shadow-warm-sm hover:shadow-warm-md transition-all flex flex-col justify-between space-y-4">
+    <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-7 shadow-warm-sm hover:shadow-warm-md transition-all flex flex-col justify-between space-y-4 w-full">
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <span className="text-[11px] font-extrabold uppercase tracking-wider px-3 py-0.5 rounded-full bg-[#E6F3EF] text-[#00523C] border border-[#C2E2D7]">

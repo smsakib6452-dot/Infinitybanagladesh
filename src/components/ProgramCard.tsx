@@ -32,7 +32,7 @@ export const ProgramCard: React.FC<ProgramCardProps> = ({ program }) => {
   const icon = ICON_MAP[program.iconName] || <Sparkles className="w-6 h-6" />;
 
   return (
-    <div className="group bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-7 shadow-warm-sm hover:shadow-warm-lg transition-all duration-300 flex flex-col justify-between hover:border-[#006A4E]/40 hover:-translate-y-1">
+    <div className="group bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-7 shadow-warm-sm hover:shadow-warm-lg transition-all duration-300 flex flex-col justify-between hover:border-[#006A4E]/40 hover:-translate-y-1 w-full">
       <div className="space-y-4">
         {/* Icon & Category */}
         <div className="flex items-center justify-between">

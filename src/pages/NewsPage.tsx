@@ -57,9 +57,11 @@ export const NewsPage: React.FC = () => {
       </div>
 
       {/* News Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="flex flex-wrap justify-center gap-8">
         {filteredNews.map(article => (
-          <NewsCard key={article.id} article={article} />
+          <div key={article.id} className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.35rem)] max-w-sm flex">
+            <NewsCard article={article} />
+          </div>
         ))}
       </div>
     </div>

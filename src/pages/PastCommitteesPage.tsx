@@ -141,11 +141,11 @@ export const PastCommitteesPage: React.FC = () => {
 
                 {isExpanded && (
                   <div className="p-6 sm:p-8 pt-0 border-t border-slate-100 bg-[#FAF7F2]">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-6">
+                    <div className="flex flex-wrap justify-center gap-4 pt-6">
                       {members.map(m => (
                         <div
                           key={m.id}
-                          className="bg-white rounded-2xl p-4 border border-[#EAE3D9] shadow-2xs text-center space-y-2"
+                          className="bg-white rounded-2xl p-4 border border-[#EAE3D9] shadow-2xs text-center space-y-2 w-full sm:w-[calc(50%-0.5rem)] md:w-[calc(33.333%-0.75rem)] lg:w-[calc(25%-0.75rem)] max-w-xs flex flex-col justify-between"
                         >
                           <div className="mx-auto w-16 h-20 rounded-t-full rounded-b-xl overflow-hidden bg-slate-100 border border-slate-200 flex items-center justify-center">
                             {m.person.photoUrl ? (

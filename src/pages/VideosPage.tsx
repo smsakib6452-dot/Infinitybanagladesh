@@ -246,7 +246,7 @@ export const VideosPage: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          <div className="flex flex-wrap justify-center gap-6 sm:gap-8">
             {filteredVideos.map((item) => {
               const detection = detectAndNormalizeMedia(item.videoUrl || '');
               const displayThumbnail = item.thumbnailUrl || detection.thumbnailUrl || DEFAULT_VIDEO_THUMBNAIL;
@@ -257,7 +257,7 @@ export const VideosPage: React.FC = () => {
               return (
                 <div
                   key={item.id}
-                  className="group bg-white rounded-3xl border border-[#EAE3D9] overflow-hidden shadow-warm-sm hover:shadow-warm-lg transition-all duration-300 flex flex-col cursor-pointer transform hover:-translate-y-1"
+                  className="group bg-white rounded-3xl border border-[#EAE3D9] overflow-hidden shadow-warm-sm hover:shadow-warm-lg transition-all duration-300 flex flex-col cursor-pointer transform hover:-translate-y-1 w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.35rem)] max-w-sm"
                   onClick={() => setSelectedVideo(item)}
                 >
                   {/* Thumbnail with Play Overlay */}

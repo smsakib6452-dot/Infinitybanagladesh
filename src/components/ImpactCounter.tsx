@@ -22,7 +22,7 @@ export const ImpactCounter: React.FC<ImpactCounterProps> = ({ metric }) => {
   const icon = METRIC_ICONS[metric.iconName] || <Sparkles className="w-6 h-6 text-[#006A4E]" />;
 
   return (
-    <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-7 shadow-warm-sm hover:shadow-warm-lg transition-all duration-300 flex flex-col items-center text-center space-y-3 relative overflow-hidden group hover:-translate-y-1">
+    <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-7 shadow-warm-sm hover:shadow-warm-lg transition-all duration-300 flex flex-col items-center text-center space-y-3 relative overflow-hidden group hover:-translate-y-1 w-full">
       {/* Decorative top accent */}
       <div className="w-12 h-1 bg-gradient-to-r from-[#006A4E] to-[#D97706] rounded-full" />
 

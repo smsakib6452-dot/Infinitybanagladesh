@@ -25,9 +25,11 @@ export const ImpactPage: React.FC = () => {
       />
 
       {/* Metrics Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="flex flex-wrap justify-center gap-6">
         {metrics.map(m => (
-          <ImpactCounter key={m.id} metric={m} />
+          <div key={m.id} className="w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(25%-1.15rem)] max-w-xs flex">
+            <ImpactCounter key={m.id} metric={m} />
+          </div>
         ))}
       </div>
 
@@ -50,9 +52,11 @@ export const ImpactPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="flex flex-wrap justify-center gap-8">
           {stories.map(story => (
-            <StoryCard key={story.id} story={story} />
+            <div key={story.id} className="w-full md:w-[calc(50%-1rem)] max-w-lg flex">
+              <StoryCard story={story} />
+            </div>
           ))}
         </div>
       </div>

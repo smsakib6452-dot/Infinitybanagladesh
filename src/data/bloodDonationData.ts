@@ -119,6 +119,41 @@ export function cleanEmergencyRequest(r: any): EmergencyBloodRequest {
 }
 
 /**
+ * Master Admin Access Passcodes that always unlock profile editing
+ */
+export const MASTER_ADMIN_PASSCODES = ['INFINITY2026', 'IBBLOODADMIN', 'IB2026', '123456'];
+
+/**
+ * Generates or retrieves deterministic 6-digit donor edit access passcode
+ */
+export function getDonorEditAccessCode(donor: BloodDonor): string {
+  if (!donor) return '123456';
+  if ((donor as any).editPasscode) return String((donor as any).editPasscode);
+
+  const raw = `${donor.id}_${donor.phone || '01800000000'}`;
+  let hash = 0;
+  for (let i = 0; i < raw.length; i++) {
+    hash = (hash << 5) - hash + raw.charCodeAt(i);
+    hash |= 0;
+  }
+  const code = Math.abs(hash % 900000) + 100000;
+  return String(code);
+}
+
+/**
+ * Validates donor edit passcode against Admin code or Master passcodes
+ */
+export function verifyDonorAccessCode(donor: BloodDonor, inputCode: string): boolean {
+  if (!donor || !inputCode) return false;
+  const cleanInput = inputCode.trim();
+  if (MASTER_ADMIN_PASSCODES.includes(cleanInput.toUpperCase()) || MASTER_ADMIN_PASSCODES.includes(cleanInput)) {
+    return true;
+  }
+  const expectedCode = getDonorEditAccessCode(donor);
+  return cleanInput === expectedCode;
+}
+
+/**
  * Helper to get available upazilas by district
  */
 export function getUpazilasForDistrict(districtName: any): string[] {

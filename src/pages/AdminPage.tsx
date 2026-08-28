@@ -75,7 +75,9 @@ import {
   Building2,
   Phone,
   Save,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Key,
+  MessageCircle
 } from 'lucide-react';
 import {
   Campaign,
@@ -116,7 +118,14 @@ import {
   BloodGroup
 } from '../types';
 import { DEFAULT_EXECUTIVE_TIER_BARS } from '../data/initialData';
-import { calculateAge } from '../data/bloodDonationData';
+import {
+  calculateAge,
+  getDonorEditAccessCode,
+  getCooldownStatusInfo,
+  BLOOD_DONATION_COOLDOWN_DAYS,
+  toSafeString,
+  cleanBloodDonor
+} from '../data/bloodDonationData';
 import { getAssetUrl, handleImageError } from '../lib/utils/assetHelper';
 import { formatBDT } from '../lib/utils/formatters';
 import { Toast } from '../components/Toast';
@@ -5493,6 +5502,38 @@ export const AdminPage: React.FC = () => {
 
                                 <td className="p-3.5 text-center sticky right-0 bg-white group-hover:bg-slate-50 transition-colors shadow-[-6px_0_12px_-4px_rgba(0,0,0,0.06)] z-10">
                                   <div className="flex items-center justify-center gap-1.5">
+                                    {/* Admin Edit Access Passcode Tool */}
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        const code = getDonorEditAccessCode(donor);
+                                        navigator.clipboard.writeText(code);
+                                        showToast(
+                                          isBn
+                                            ? `রক্তদাতা ${donor.fullName}-এর অ্যাক্সেস কোড [ ${code} ] কপি হয়েছে! হোয়াটসঅ্যাপে প্রদান করুন।`
+                                            : `Access code [ ${code} ] for ${donor.fullName} copied! Send to donor via WhatsApp.`
+                                        );
+                                      }}
+                                      className="p-1.5 rounded-lg text-amber-600 hover:bg-amber-50 hover:text-amber-700 transition-colors cursor-pointer"
+                                      title={isBn ? `এডিট অ্যাক্সেস কোড: ${getDonorEditAccessCode(donor)} (ক্লিক করে কপি করুন)` : `Edit Access Code: ${getDonorEditAccessCode(donor)} (Click to copy)`}
+                                    >
+                                      <Key className="w-4 h-4" />
+                                    </button>
+
+                                    {donor.phone && (
+                                      <a
+                                        href={`https://wa.me/${donor.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                                          `আসসালামু আলাইকুম ${donor.fullName}। ইনফিনিটি বাংলাদেশ ব্লাড নেটওয়ার্কে আপনার প্রোফাইল সম্পাদনা করার ৬ ডিজিটের সিকিউরিটি অ্যাক্সেস কোড হলো: ${getDonorEditAccessCode(donor)}। এটি দিয়ে ওয়েবসাইট থেকে আপনার তথ্য আপডেট করুন। ধন্যবাদ।`
+                                        )}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 transition-colors cursor-pointer"
+                                        title={isBn ? 'হোয়াটসঅ্যাপে অ্যাক্সেস কোড পাঠান' : 'Send Access Code via WhatsApp'}
+                                      >
+                                        <MessageCircle className="w-4 h-4" />
+                                      </a>
+                                    )}
+
                                     <button
                                       type="button"
                                       onClick={() => {

@@ -15,6 +15,7 @@ export type PageRoute =
   | 'team/past-committees'
   | 'programs'
   | 'programs/detail'
+  | 'programs/event-detail'
   | 'campaigns'
   | 'campaigns/detail'
   | 'impact'
@@ -372,6 +373,43 @@ export interface Program {
   iconName: string;
   status: 'active' | 'planning' | 'archived';
   displayOrder?: number;
+  eventsCount?: number;
+  featuredEventId?: string;
+}
+
+export interface ProgramEventMetric {
+  label: BilingualText;
+  value: string;
+}
+
+export interface ProgramEvent {
+  id: string;
+  programId: string;
+  slug: string;
+  title: BilingualText;
+  year: number;
+  dateRange?: BilingualText;
+  startDate?: string;
+  endDate?: string;
+  location: BilingualText;
+  coverImageUrl: string;
+  shortDescription: BilingualText;
+  fullStory?: BilingualText;
+  objectives?: BilingualList;
+  impactMetrics?: ProgramEventMetric[];
+  status: 'completed' | 'ongoing' | 'upcoming' | 'archived';
+  displayOrder?: number;
+  isFeatured?: boolean;
+}
+
+export interface EventMedia {
+  id: string;
+  eventId: string;
+  mediaId: string;
+  isHighlight: boolean;
+  highlightOrder?: number;
+  customCaption?: BilingualText;
+  customAlt?: string;
 }
 
 export interface Campaign {

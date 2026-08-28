@@ -9,39 +9,59 @@ import { GalleryPhoto } from '../types';
 
 export const GalleryPage: React.FC = () => {
   const { isBn, tText } = useLanguage();
-  const { navigate } = useRouter();
-  const { mediaLibrary, gallery } = useData();
+  const { queryParams, currentSlug, navigate } = useRouter();
+  const { mediaLibrary, gallery, programEvents, eventMediaList, programs } = useData();
 
+  // Active filter eventId from queryParams or currentSlug (e.g. ?event=pevt-eid-2024 or #gallery/pevt-eid-2024)
+  const initialEventId = queryParams?.event || queryParams?.program || (currentSlug && currentSlug.startsWith('pevt-') ? currentSlug : '');
+  const [selectedEventId, setSelectedEventId] = useState<string>(initialEventId);
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 
-  // Unify dynamic images from mediaLibrary & gallery
-  const allPhotos: (GalleryPhoto & { usageTags?: string[] })[] = useMemo(() => {
+  // Sync if URL query param changes
+  React.useEffect(() => {
+    if (queryParams?.event) {
+      setSelectedEventId(queryParams.event);
+    }
+  }, [queryParams]);
+
+  const activeEvent = programEvents.find(e => e.id === selectedEventId || e.slug === selectedEventId);
+  const activeProgram = activeEvent ? programs.find(p => p.id === activeEvent.programId) : null;
+
+  // Unify dynamic images from mediaLibrary & gallery with event association
+  const allPhotos: (GalleryPhoto & { usageTags?: string[]; eventId?: string; isHighlight?: boolean })[] = useMemo(() => {
+    // Map media items
     const mediaImages = mediaLibrary
       .filter(m => m.type !== 'video' && m.status !== 'draft')
-      .map(item => ({
-        id: item.id,
-        title: {
-          en: item.title || item.fileName.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '),
-          bn: item.altText || item.title || item.fileName
-        },
-        caption: {
-          en: item.caption || item.altText || 'Infinity Bangladesh Official Photographic Record',
-          bn: item.altText || item.caption || 'ইনফিনিটি বাংলাদেশ অফিসিয়াল আলোকচিত্র'
-        },
-        imageUrl: item.url,
-        category: item.category || 'General',
-        date: item.uploadedAt || 'Official Archive',
-        usageTags: item.usageTags || []
-      }));
+      .map(item => {
+        const matchingEm = eventMediaList.find(em => em.mediaId === item.id);
+
+        return {
+          id: item.id,
+          title: {
+            en: item.title || item.fileName.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '),
+            bn: item.altText || item.title || item.fileName
+          },
+          caption: {
+            en: item.caption || item.altText || 'Infinity Bangladesh Official Photographic Record',
+            bn: item.altText || item.caption || 'ইনফিনিটি বাংলাদেশ অফিসিয়াল আলোকচিত্র'
+          },
+          imageUrl: item.url,
+          category: item.category || 'General',
+          date: item.uploadedAt || 'Official Archive',
+          usageTags: item.usageTags || [],
+          eventId: matchingEm?.eventId,
+          isHighlight: matchingEm?.isHighlight
+        };
+      });
 
     if (mediaImages.length > 0) {
       return mediaImages;
     }
 
     return gallery;
-  }, [mediaLibrary, gallery]);
+  }, [mediaLibrary, gallery, eventMediaList]);
 
   // Dynamically compute unique category filter tabs
   const categoryTabs = useMemo(() => {
@@ -54,7 +74,6 @@ export const GalleryPage: React.FC = () => {
       { id: 'Logos', labelEn: 'Brand & Emblems', labelBn: 'ব্র্যান্ড ও প্রতীক' }
     ];
 
-    // Collect any extra distinct categories from data
     const presentCats = new Set<string>();
     allPhotos.forEach(p => {
       if (p.category) presentCats.add(p.category);
@@ -69,9 +88,18 @@ export const GalleryPage: React.FC = () => {
     });
   }, [allPhotos]);
 
-  // Filtered photos based on active category & search query
+  // Filtered photos based on active category, event filter & search query
   const filteredPhotos = useMemo(() => {
     return allPhotos.filter(item => {
+      // Event filter
+      if (selectedEventId) {
+        // If an event is explicitly selected, check if this photo is linked to this event
+        const matchingEm = eventMediaList.find(em => em.mediaId === item.id && (em.eventId === selectedEventId || em.eventId === activeEvent?.id));
+        if (!matchingEm && item.eventId !== selectedEventId) {
+          return false;
+        }
+      }
+
       // Category / Tag filter
       let matchesCat = true;
       if (activeCategory !== 'All') {
@@ -99,7 +127,7 @@ export const GalleryPage: React.FC = () => {
 
       return matchesCat && matchesSearch;
     });
-  }, [allPhotos, activeCategory, searchQuery]);
+  }, [allPhotos, selectedEventId, activeEvent, eventMediaList, activeCategory, searchQuery]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-10 sm:space-y-12">
@@ -151,10 +179,73 @@ export const GalleryPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Active Event Filter Banner (Bi-directional Navigation) */}
+      {activeEvent && (
+        <div className="bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 rounded-3xl border border-emerald-200 p-4 sm:p-6 shadow-warm-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-[#006A4E] text-white flex items-center justify-center font-bold shrink-0">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-[#006A4E] uppercase tracking-wider">
+                {isBn ? 'বাছাইকৃত আসরের গ্যালারি' : 'Showing Event Gallery'}
+              </div>
+              <h3 className="text-base sm:text-lg font-black text-slate-900 font-display">
+                {tText(activeEvent.title)} ({activeEvent.year})
+              </h3>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5 self-end sm:self-auto">
+            {activeProgram && (
+              <button
+                onClick={() => navigate('programs/event-detail', activeProgram.slug, activeEvent.slug)}
+                className="px-4 py-2 rounded-xl bg-[#006A4E] text-white hover:bg-[#00523C] text-xs font-bold transition-all shadow-warm-xs cursor-pointer inline-flex items-center gap-1.5"
+              >
+                <span>{isBn ? 'এই আসরের বিবরণ দেখুন' : 'View Event Details'}</span>
+                <span>→</span>
+              </button>
+            )}
+            <button
+              onClick={() => {
+                setSelectedEventId('');
+                navigate('gallery');
+              }}
+              className="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold border border-slate-300 transition-all cursor-pointer"
+            >
+              {isBn ? 'ফিল্টার মুছুন' : 'Clear Filter'}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Filter Tabs & Search Bar */}
       <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-2">
-        {/* Dynamic Category Filter Pills */}
+        {/* Dynamic Category Filter Pills + Event Selector */}
         <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
+          {/* Event Dropdown selector if multiple events exist */}
+          {programEvents.length > 0 && (
+            <select
+              value={selectedEventId}
+              onChange={(e) => {
+                setSelectedEventId(e.target.value);
+                if (e.target.value) {
+                  navigate('gallery', e.target.value);
+                } else {
+                  navigate('gallery');
+                }
+              }}
+              className="px-3.5 py-2 rounded-2xl text-xs font-bold bg-white border border-[#EAE3D9] text-slate-700 hover:border-[#006A4E] transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#006A4E]"
+            >
+              <option value="">{isBn ? '🎯 সকল ইভেন্ট / আসর' : '🎯 All Events / Editions'}</option>
+              {programEvents.map(pe => (
+                <option key={pe.id} value={pe.id}>
+                  {pe.year} — {tText(pe.title)}
+                </option>
+              ))}
+            </select>
+          )}
+
           {categoryTabs.map(tab => {
             const isSelected = activeCategory === tab.id;
             return (
@@ -225,6 +316,11 @@ export const GalleryPage: React.FC = () => {
                   <span className="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#006A4E]/90 text-white backdrop-blur-xs shadow-xs">
                     {photo.category}
                   </span>
+                  {photo.isHighlight && (
+                    <span className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500 text-white shadow-xs flex items-center gap-1">
+                      ⭐ Highlight
+                    </span>
+                  )}
                   <div className="absolute inset-0 bg-[#006A4E]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
                     <ImageIcon className="w-6 h-6" />
                   </div>

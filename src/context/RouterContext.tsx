@@ -4,7 +4,9 @@ import { PageRoute } from '../types';
 interface RouterContextType {
   currentPage: PageRoute;
   currentSlug: string | null;
-  navigate: (page: PageRoute, slug?: string | null) => void;
+  subSlug: string | null;
+  queryParams: Record<string, string>;
+  navigate: (page: PageRoute, slug?: string | null, subSlug?: string | null) => void;
   isSearchOpen: boolean;
   setIsSearchOpen: (open: boolean) => void;
 }
@@ -14,6 +16,8 @@ const RouterContext = createContext<RouterContextType | undefined>(undefined);
 export const RouterProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentPage, setCurrentPage] = useState<PageRoute>('home');
   const [currentSlug, setCurrentSlug] = useState<string | null>(null);
+  const [subSlug, setSubSlug] = useState<string | null>(null);
+  const [queryParams, setQueryParams] = useState<Record<string, string>>({});
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
 
   // Sync with URL hash or pathname for reload/back button
@@ -23,16 +27,23 @@ export const RouterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       if (!rawHash) {
         setCurrentPage('home');
         setCurrentSlug(null);
+        setSubSlug(null);
+        setQueryParams({});
         return;
       }
 
-      // Handle query params in hash (e.g. team/past-committees?id=comm-exec-2025 or ?year=2025)
+      // Handle query params in hash (e.g. gallery?event=pevt-eid-2024 or team/past-committees?id=comm-exec-2025)
       const [hashPath, queryString] = rawHash.split('?');
       let queryParamSlug: string | null = null;
+      const parsedParams: Record<string, string> = {};
       if (queryString) {
         const searchParams = new URLSearchParams(queryString);
-        queryParamSlug = searchParams.get('id') || searchParams.get('year') || searchParams.get('comm');
+        searchParams.forEach((val, key) => {
+          parsedParams[key] = val;
+        });
+        queryParamSlug = searchParams.get('id') || searchParams.get('year') || searchParams.get('comm') || searchParams.get('event') || searchParams.get('program');
       }
+      setQueryParams(parsedParams);
 
       const parts = hashPath.split('/');
       if (parts.length === 1) {
@@ -44,9 +55,11 @@ export const RouterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         ) {
           setCurrentPage('team');
           setCurrentSlug(queryParamSlug);
+          setSubSlug(null);
         } else {
           setCurrentPage(parts[0] as PageRoute);
           setCurrentSlug(queryParamSlug);
+          setSubSlug(null);
         }
       } else if (parts.length >= 2) {
         const root = parts[0];
@@ -57,48 +70,68 @@ export const RouterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           if (sub === 'standing-committees' || sub === 'standing-committee') {
             setCurrentPage('about/standing-committees');
             setCurrentSlug(extra || null);
+            setSubSlug(null);
           } else if (sub === 'executive-committee') {
             setCurrentPage('about/executive-committee');
             setCurrentSlug(extra || null);
+            setSubSlug(null);
           } else if (sub === 'past-committees') {
             setCurrentPage('about/past-committees');
             setCurrentSlug(extra || null);
+            setSubSlug(null);
           } else {
             setCurrentPage(`about/${sub}` as PageRoute);
             setCurrentSlug(extra || null);
+            setSubSlug(null);
           }
         } else if (root === 'team') {
           if (sub === 'executive-committee') {
             setCurrentPage('about/executive-committee');
             setCurrentSlug(extra || null);
+            setSubSlug(null);
           } else if (sub === 'standing-committee' || sub === 'standing-committees') {
             setCurrentPage('about/standing-committees');
             setCurrentSlug(extra || null);
+            setSubSlug(null);
           } else if (sub === 'past-committees') {
             setCurrentPage('about/past-committees');
             setCurrentSlug(extra || null);
+            setSubSlug(null);
           } else {
             setCurrentPage('team');
             setCurrentSlug(extra || null);
+            setSubSlug(null);
           }
         } else if (root === 'campaigns') {
           setCurrentPage('campaigns/detail');
           setCurrentSlug(sub);
+          setSubSlug(null);
         } else if (root === 'programs') {
-          setCurrentPage('programs/detail');
-          setCurrentSlug(sub);
+          if (parts.length >= 3) {
+            setCurrentPage('programs/event-detail');
+            setCurrentSlug(sub);
+            setSubSlug(parts[2]);
+          } else {
+            setCurrentPage('programs/detail');
+            setCurrentSlug(sub);
+            setSubSlug(null);
+          }
         } else if (root === 'stories') {
           setCurrentPage('stories/detail');
           setCurrentSlug(sub);
+          setSubSlug(null);
         } else if (root === 'news') {
           setCurrentPage('news/detail');
           setCurrentSlug(sub);
+          setSubSlug(null);
         } else if (root === 'events') {
           setCurrentPage('events/detail');
           setCurrentSlug(sub);
+          setSubSlug(null);
         } else {
           setCurrentPage(hashPath as PageRoute);
           setCurrentSlug(extra || null);
+          setSubSlug(null);
         }
       }
     };
@@ -108,19 +141,22 @@ export const RouterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  const navigate = (page: PageRoute, slug: string | null = null) => {
+  const navigate = (page: PageRoute, slug: string | null = null, subSlugParam: string | null = null) => {
     setCurrentPage(page);
     setCurrentSlug(slug);
+    setSubSlug(subSlugParam);
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    let hash = page;
-    if (page === 'campaigns/detail' && slug) hash = `campaigns/${slug}` as PageRoute;
-    if (page === 'programs/detail' && slug) hash = `programs/${slug}` as PageRoute;
-    if (page === 'stories/detail' && slug) hash = `stories/${slug}` as PageRoute;
-    if (page === 'news/detail' && slug) hash = `news/${slug}` as PageRoute;
-    if (page === 'events/detail' && slug) hash = `events/${slug}` as PageRoute;
-    if (page === 'about/past-committees' && slug) hash = `team/past-committees?id=${slug}` as PageRoute;
-    if (page === 'team/past-committees' && slug) hash = `team/past-committees?id=${slug}` as PageRoute;
+    let hash: string = page;
+    if (page === 'campaigns/detail' && slug) hash = `campaigns/${slug}`;
+    if (page === 'programs/event-detail' && slug && subSlugParam) hash = `programs/${slug}/${subSlugParam}`;
+    else if (page === 'programs/detail' && slug) hash = `programs/${slug}`;
+    if (page === 'stories/detail' && slug) hash = `stories/${slug}`;
+    if (page === 'news/detail' && slug) hash = `news/${slug}`;
+    if (page === 'events/detail' && slug) hash = `events/${slug}`;
+    if (page === 'gallery' && slug) hash = `gallery?event=${slug}`;
+    if (page === 'about/past-committees' && slug) hash = `team/past-committees?id=${slug}`;
+    if (page === 'team/past-committees' && slug) hash = `team/past-committees?id=${slug}`;
 
     window.location.hash = `/${hash === 'home' ? '' : hash}`;
   };
@@ -142,6 +178,8 @@ export const RouterProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       value={{
         currentPage,
         currentSlug,
+        subSlug,
+        queryParams,
         navigate,
         isSearchOpen,
         setIsSearchOpen

@@ -310,10 +310,53 @@ CREATE TABLE IF NOT EXISTS public.programs (
   image_url TEXT NOT NULL,
   icon_name TEXT NOT NULL DEFAULT 'HeartHandshake',
   status TEXT NOT NULL DEFAULT 'active',
+  events_count INT DEFAULT 0,
+  featured_event_id TEXT DEFAULT '',
   display_order INT NOT NULL DEFAULT 0,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Program Events / Annual Editions
+CREATE TABLE IF NOT EXISTS public.program_events (
+  id TEXT PRIMARY KEY,
+  program_id TEXT NOT NULL REFERENCES public.programs(id) ON DELETE CASCADE,
+  slug TEXT NOT NULL,
+  title JSONB NOT NULL,
+  year INT NOT NULL,
+  date_range JSONB DEFAULT '{"en": "", "bn": ""}'::jsonb,
+  location JSONB NOT NULL,
+  cover_image_url TEXT NOT NULL,
+  short_description JSONB NOT NULL,
+  full_story JSONB DEFAULT '{"en": "", "bn": ""}'::jsonb,
+  objectives JSONB DEFAULT '{"en": [], "bn": []}'::jsonb,
+  impact_metrics JSONB DEFAULT '[]'::jsonb,
+  status TEXT NOT NULL DEFAULT 'completed',
+  is_featured BOOLEAN NOT NULL DEFAULT FALSE,
+  display_order INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_program_events_program_id ON public.program_events (program_id);
+CREATE INDEX IF NOT EXISTS idx_program_events_year ON public.program_events (year);
+
+-- Event Media (Single Source of Truth Media References & Highlights)
+CREATE TABLE IF NOT EXISTS public.event_media (
+  id TEXT PRIMARY KEY,
+  event_id TEXT NOT NULL REFERENCES public.program_events(id) ON DELETE CASCADE,
+  media_id TEXT NOT NULL,
+  is_highlight BOOLEAN NOT NULL DEFAULT FALSE,
+  highlight_order INT DEFAULT NULL,
+  custom_caption JSONB DEFAULT '{"en": "", "bn": ""}'::jsonb,
+  custom_alt TEXT DEFAULT '',
+  display_order INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_event_media_event_id ON public.event_media (event_id);
+CREATE INDEX IF NOT EXISTS idx_event_media_media_id ON public.event_media (media_id);
+CREATE INDEX IF NOT EXISTS idx_event_media_highlight ON public.event_media (event_id, is_highlight);
 
 -- Campaigns
 CREATE TABLE IF NOT EXISTS public.campaigns (

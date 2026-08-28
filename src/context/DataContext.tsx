@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import {
   Campaign,
   Program,
+  ProgramEvent,
+  EventMedia,
   ImpactMetric,
   ImpactStory,
   NewsArticle,
@@ -47,6 +49,8 @@ import {
 import {
   INITIAL_CAMPAIGNS,
   INITIAL_PROGRAMS,
+  INITIAL_PROGRAM_EVENTS,
+  INITIAL_EVENT_MEDIA,
   INITIAL_IMPACT_METRICS,
   INITIAL_IMPACT_STORIES,
   INITIAL_NEWS,
@@ -94,6 +98,8 @@ interface DataContextType {
   // Entities
   campaigns: Campaign[];
   programs: Program[];
+  programEvents: ProgramEvent[];
+  eventMediaList: EventMedia[];
   metrics: ImpactMetric[];
   stories: ImpactStory[];
   news: NewsArticle[];
@@ -196,6 +202,25 @@ interface DataContextType {
   addProgram: (program: Omit<Program, 'id'>) => Program;
   updateProgram: (id: string, program: Partial<Program>) => void;
   deleteProgram: (id: string) => void;
+
+  // Program Events / Editions
+  addProgramEvent: (event: Omit<ProgramEvent, 'id'>) => ProgramEvent;
+  updateProgramEvent: (id: string, updates: Partial<ProgramEvent>) => void;
+  deleteProgramEvent: (id: string) => void;
+  reorderProgramEvents: (programId: string, orderedIds: string[]) => void;
+
+  // Event Media & Highlights Curation
+  addMediaToEvent: (eventId: string, mediaId: string, isHighlight?: boolean, caption?: { en: string; bn: string }) => EventMedia;
+  removeMediaFromEvent: (eventId: string, mediaId: string) => void;
+  toggleEventHighlight: (eventId: string, mediaId: string, isHighlight?: boolean) => void;
+  reorderEventHighlights: (eventId: string, orderedMediaIds: string[]) => void;
+  setEventHighlights: (eventId: string, highlightMediaIds: string[]) => void;
+
+  // Helper Selectors for Program Architecture
+  getEventsByProgramId: (programId: string) => ProgramEvent[];
+  getProgramEventBySlug: (programSlug: string, eventSlug: string) => { program?: Program; event?: ProgramEvent } | null;
+  getEventMedia: (eventId: string) => (EventMedia & { media: MediaItem })[];
+  getEventHighlights: (eventId: string) => (EventMedia & { media: MediaItem })[];
 
   addMetric: (metric: Omit<ImpactMetric, 'id'>) => ImpactMetric;
   updateMetric: (id: string, metric: Partial<ImpactMetric>) => void;
@@ -431,6 +456,28 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // 2. Core Entities
   const [campaigns, setCampaigns] = useState<Campaign[]>(() => getStoredOrDefault('campaigns', INITIAL_CAMPAIGNS));
   const [programs, setPrograms] = useState<Program[]>(() => getStoredOrDefault('programs', INITIAL_PROGRAMS));
+  const [programEvents, setProgramEvents] = useState<ProgramEvent[]>(() => {
+    const stored = getStoredOrDefault<ProgramEvent[]>('programEvents', INITIAL_PROGRAM_EVENTS);
+    if (!Array.isArray(stored) || stored.length === 0) return INITIAL_PROGRAM_EVENTS;
+    const merged = [...stored];
+    INITIAL_PROGRAM_EVENTS.forEach(initEvt => {
+      if (!merged.some(m => m.id === initEvt.id || (m.programId === initEvt.programId && m.slug === initEvt.slug))) {
+        merged.push(initEvt);
+      }
+    });
+    return merged;
+  });
+  const [eventMediaList, setEventMediaList] = useState<EventMedia[]>(() => {
+    const stored = getStoredOrDefault<EventMedia[]>('eventMediaList', INITIAL_EVENT_MEDIA);
+    if (!Array.isArray(stored) || stored.length === 0) return INITIAL_EVENT_MEDIA;
+    const merged = [...stored];
+    INITIAL_EVENT_MEDIA.forEach(initEm => {
+      if (!merged.some(m => m.id === initEm.id || (m.eventId === initEm.eventId && m.mediaId === initEm.mediaId))) {
+        merged.push(initEm);
+      }
+    });
+    return merged;
+  });
   const [metrics, setMetrics] = useState<ImpactMetric[]>(() => getStoredOrDefault('metrics', INITIAL_IMPACT_METRICS));
   const [stories, setStories] = useState<ImpactStory[]>(() => getStoredOrDefault('stories', INITIAL_IMPACT_STORIES));
   const [news, setNews] = useState<NewsArticle[]>(() => getStoredOrDefault('news', INITIAL_NEWS));
@@ -564,6 +611,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem(`${STORAGE_PREFIX}adminProfiles`, JSON.stringify(adminProfiles));
     localStorage.setItem(`${STORAGE_PREFIX}campaigns`, JSON.stringify(campaigns));
     localStorage.setItem(`${STORAGE_PREFIX}programs`, JSON.stringify(programs));
+    localStorage.setItem(`${STORAGE_PREFIX}programEvents`, JSON.stringify(programEvents));
+    localStorage.setItem(`${STORAGE_PREFIX}eventMediaList`, JSON.stringify(eventMediaList));
     localStorage.setItem(`${STORAGE_PREFIX}metrics`, JSON.stringify(metrics));
     localStorage.setItem(`${STORAGE_PREFIX}stories`, JSON.stringify(stories));
     localStorage.setItem(`${STORAGE_PREFIX}news`, JSON.stringify(news));
@@ -590,7 +639,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     settings, homepageConfig, aboutSettings, headerSettings, footerSettings,
     socialLinks, volunteerSettings, supportSettings, contactSettings, seoSettings,
     navigationItems, banners, mediaLibrary, galleryAlbums, pressCoverages, adminProfiles,
-    campaigns, programs, metrics, stories, news, events, gallery, videos, journeyVideos,
+    campaigns, programs, programEvents, eventMediaList, metrics, stories, news, events, gallery, videos, journeyVideos,
     bloodDonors, emergencyBloodRequests, bloodDonationSettings, donorCategories,
     reports, partners, volunteers, donations, messages, faqs, auditLogs,
     committees, persons, positions, committeeMembers
@@ -617,6 +666,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setCampaigns(parsed);
         } else if (entityKey === 'programs' && Array.isArray(parsed)) {
           setPrograms(parsed);
+        } else if (entityKey === 'programEvents' && Array.isArray(parsed)) {
+          setProgramEvents(parsed);
+        } else if (entityKey === 'eventMediaList' && Array.isArray(parsed)) {
+          setEventMediaList(parsed);
         } else if (entityKey === 'mediaLibrary' && Array.isArray(parsed)) {
           setMediaLibrary(parsed);
         } else if (entityKey === 'gallery' && Array.isArray(parsed)) {
@@ -2580,6 +2633,255 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     safeDbDelete('programs', 'id', id);
   }, [logAudit, safeDbDelete]);
 
+  // MUTATIONS: Program Events / Editions
+  const addProgramEvent = useCallback((event: Omit<ProgramEvent, 'id'>) => {
+    const id = `pevt-${Date.now()}`;
+    const newEvt: ProgramEvent = {
+      ...event,
+      id,
+      coverImageUrl: getFreshImageUrl(event.coverImageUrl)
+    };
+    setProgramEvents(prev => [newEvt, ...prev]);
+    logAudit('CREATE', 'ProgramEvent', id, `Created event edition: ${event.title.en}`);
+
+    safeDbUpsert('program_events', {
+      id: newEvt.id,
+      program_id: newEvt.programId,
+      slug: newEvt.slug,
+      title: newEvt.title,
+      year: newEvt.year,
+      date_range: newEvt.dateRange,
+      start_date: newEvt.startDate || null,
+      end_date: newEvt.endDate || null,
+      location: newEvt.location,
+      cover_image_url: newEvt.coverImageUrl,
+      short_description: newEvt.shortDescription,
+      full_story: newEvt.fullStory || null,
+      objectives: newEvt.objectives || null,
+      impact_metrics: newEvt.impactMetrics || [],
+      status: newEvt.status,
+      display_order: newEvt.displayOrder || 0,
+      is_featured: newEvt.isFeatured || false,
+      updated_at: new Date().toISOString()
+    });
+
+    return newEvt;
+  }, [logAudit, safeDbUpsert]);
+
+  const updateProgramEvent = useCallback((id: string, updates: Partial<ProgramEvent>) => {
+    setProgramEvents(prev => {
+      const updated = prev.map(e => {
+        if (e.id !== id) return e;
+        return {
+          ...e,
+          ...updates,
+          coverImageUrl: updates.coverImageUrl ? getFreshImageUrl(updates.coverImageUrl) : e.coverImageUrl
+        };
+      });
+      const match = updated.find(e => e.id === id);
+      if (match) {
+        safeDbUpsert('program_events', {
+          id: match.id,
+          program_id: match.programId,
+          slug: match.slug,
+          title: match.title,
+          year: match.year,
+          date_range: match.dateRange,
+          start_date: match.startDate || null,
+          end_date: match.endDate || null,
+          location: match.location,
+          cover_image_url: match.coverImageUrl,
+          short_description: match.shortDescription,
+          full_story: match.fullStory || null,
+          objectives: match.objectives || null,
+          impact_metrics: match.impactMetrics || [],
+          status: match.status,
+          display_order: match.displayOrder || 0,
+          is_featured: match.isFeatured || false,
+          updated_at: new Date().toISOString()
+        });
+      }
+      return updated;
+    });
+    logAudit('UPDATE', 'ProgramEvent', id, 'Updated program event/edition');
+  }, [logAudit, safeDbUpsert]);
+
+  const deleteProgramEvent = useCallback((id: string) => {
+    setProgramEvents(prev => prev.filter(e => e.id !== id));
+    setEventMediaList(prev => prev.filter(em => em.eventId !== id));
+    logAudit('DELETE', 'ProgramEvent', id, 'Deleted program event edition');
+    safeDbDelete('program_events', 'id', id);
+    safeDbDelete('event_media', 'event_id', id);
+  }, [logAudit, safeDbDelete]);
+
+  const reorderProgramEvents = useCallback((programId: string, orderedIds: string[]) => {
+    setProgramEvents(prev => {
+      const idOrderMap = new Map(orderedIds.map((id, index) => [id, index + 1]));
+      return prev.map(evt => {
+        if (evt.programId === programId && idOrderMap.has(evt.id)) {
+          return { ...evt, displayOrder: idOrderMap.get(evt.id) };
+        }
+        return evt;
+      });
+    });
+    logAudit('REORDER', 'ProgramEvent', programId, `Reordered editions for program ${programId}`);
+  }, [logAudit]);
+
+  // Event Media & Highlights Curation Mutations
+  const addMediaToEvent = useCallback((eventId: string, mediaId: string, isHighlight: boolean = false, caption?: { en: string; bn: string }) => {
+    const id = `em-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+    const newEm: EventMedia = {
+      id,
+      eventId,
+      mediaId,
+      isHighlight,
+      highlightOrder: isHighlight ? 1 : undefined,
+      customCaption: caption
+    };
+    setEventMediaList(prev => {
+      if (prev.some(em => em.eventId === eventId && em.mediaId === mediaId)) {
+        return prev;
+      }
+      return [...prev, newEm];
+    });
+    logAudit('ATTACH', 'EventMedia', id, `Attached media ${mediaId} to event ${eventId}`);
+
+    safeDbUpsert('event_media', {
+      id: newEm.id,
+      event_id: newEm.eventId,
+      media_id: newEm.mediaId,
+      is_highlight: newEm.isHighlight,
+      highlight_order: newEm.highlightOrder || null,
+      custom_caption: newEm.customCaption || null,
+      custom_alt: newEm.customAlt || null,
+      updated_at: new Date().toISOString()
+    });
+
+    return newEm;
+  }, [logAudit, safeDbUpsert]);
+
+  const removeMediaFromEvent = useCallback((eventId: string, mediaId: string) => {
+    setEventMediaList(prev => prev.filter(em => !(em.eventId === eventId && em.mediaId === mediaId)));
+    logAudit('DETACH', 'EventMedia', `${eventId}_${mediaId}`, `Removed media from event`);
+    if (isSupabaseConfigured && supabase) {
+      supabase.from('event_media').delete().match({ event_id: eventId, media_id: mediaId }).then();
+    }
+  }, [logAudit]);
+
+  const toggleEventHighlight = useCallback((eventId: string, mediaId: string, isHighlight?: boolean) => {
+    setEventMediaList(prev => {
+      const match = prev.find(em => em.eventId === eventId && em.mediaId === mediaId);
+      const nextHighlight = isHighlight !== undefined ? isHighlight : !match?.isHighlight;
+      const currentHighlights = prev.filter(em => em.eventId === eventId && em.isHighlight);
+      const nextOrder = nextHighlight ? (currentHighlights.length + 1) : undefined;
+
+      const updated = prev.map(em => {
+        if (em.eventId === eventId && em.mediaId === mediaId) {
+          return {
+            ...em,
+            isHighlight: nextHighlight,
+            highlightOrder: nextOrder
+          };
+        }
+        return em;
+      });
+
+      const target = updated.find(em => em.eventId === eventId && em.mediaId === mediaId);
+      if (target) {
+        safeDbUpsert('event_media', {
+          id: target.id,
+          event_id: target.eventId,
+          media_id: target.mediaId,
+          is_highlight: target.isHighlight,
+          highlight_order: target.highlightOrder || null,
+          custom_caption: target.customCaption || null,
+          updated_at: new Date().toISOString()
+        });
+      }
+      return updated;
+    });
+    logAudit('UPDATE', 'EventMediaHighlight', `${eventId}_${mediaId}`, 'Toggled event media highlight status');
+  }, [logAudit, safeDbUpsert]);
+
+  const reorderEventHighlights = useCallback((eventId: string, orderedMediaIds: string[]) => {
+    setEventMediaList(prev => {
+      const idOrderMap = new Map(orderedMediaIds.map((id, index) => [id, index + 1]));
+      return prev.map(em => {
+        if (em.eventId === eventId && idOrderMap.has(em.mediaId)) {
+          return {
+            ...em,
+            isHighlight: true,
+            highlightOrder: idOrderMap.get(em.mediaId)
+          };
+        }
+        return em;
+      });
+    });
+    logAudit('REORDER', 'EventHighlights', eventId, `Reordered highlights for event ${eventId}`);
+  }, [logAudit]);
+
+  const setEventHighlights = useCallback((eventId: string, highlightMediaIds: string[]) => {
+    const highlightSet = new Set(highlightMediaIds);
+    const idOrderMap = new Map(highlightMediaIds.map((id, index) => [id, index + 1]));
+
+    setEventMediaList(prev => {
+      return prev.map(em => {
+        if (em.eventId === eventId) {
+          const isH = highlightSet.has(em.mediaId);
+          return {
+            ...em,
+            isHighlight: isH,
+            highlightOrder: isH ? idOrderMap.get(em.mediaId) : undefined
+          };
+        }
+        return em;
+      });
+    });
+    logAudit('CURATE', 'EventHighlights', eventId, `Updated curated highlights (${highlightMediaIds.length} items) for event ${eventId}`);
+  }, [logAudit]);
+
+  // Helper Selectors
+  const getEventsByProgramId = useCallback((programId: string): ProgramEvent[] => {
+    return programEvents
+      .filter(e => e.programId === programId)
+      .sort((a, b) => {
+        if (b.year !== a.year) return b.year - a.year;
+        return (a.displayOrder || 0) - (b.displayOrder || 0);
+      });
+  }, [programEvents]);
+
+  const getProgramEventBySlug = useCallback((programSlug: string, eventSlug: string) => {
+    const prog = programs.find(p => p.slug === programSlug || p.id === programSlug);
+    if (!prog) return null;
+    const evt = programEvents.find(e => (e.programId === prog.id) && (e.slug === eventSlug || e.id === eventSlug));
+    return { program: prog, event: evt };
+  }, [programs, programEvents]);
+
+  const getEventMedia = useCallback((eventId: string) => {
+    const ems = eventMediaList.filter(em => em.eventId === eventId);
+    return ems.map(em => {
+      const media = mediaLibrary.find(m => m.id === em.mediaId) || {
+        id: em.mediaId,
+        fileName: 'Media File',
+        url: '',
+        fileSize: '',
+        mimeType: 'image/jpeg',
+        category: 'Events',
+        altText: '',
+        uploadedAt: '',
+        usageTags: []
+      } as MediaItem;
+      return { ...em, media };
+    }).filter(em => Boolean(em.media.url));
+  }, [eventMediaList, mediaLibrary]);
+
+  const getEventHighlights = useCallback((eventId: string) => {
+    const all = getEventMedia(eventId);
+    return all
+      .filter(item => item.isHighlight)
+      .sort((a, b) => (a.highlightOrder || 999) - (b.highlightOrder || 999));
+  }, [getEventMedia]);
+
   const addMetric = useCallback((metric: Omit<ImpactMetric, 'id'>) => {
     const id = `met-${Date.now()}`;
     const newMet: ImpactMetric = { ...metric, id };
@@ -3553,7 +3855,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       district: req.district,
       upazila: req.upazila,
       additionalNotes: req.additionalNotes?.trim() || undefined,
-      status: req.status || 'PENDING',
+      status: 'PENDING',
       matchedDonorIds: req.matchedDonorIds || [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
@@ -4334,6 +4636,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       adminProfiles,
       campaigns,
       programs,
+      programEvents,
+      eventMediaList,
       metrics,
       stories,
       news,
@@ -4361,7 +4665,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     settings, homepageConfig, aboutSettings, headerSettings, footerSettings,
     socialLinks, volunteerSettings, supportSettings, contactSettings, seoSettings,
     navigationItems, banners, mediaLibrary, galleryAlbums, pressCoverages, adminProfiles,
-    campaigns, programs, metrics, stories, news, events, gallery, videos, journeyVideos,
+    campaigns, programs, programEvents, eventMediaList, metrics, stories, news, events, gallery, videos, journeyVideos,
     bloodDonors, emergencyBloodRequests, bloodDonationSettings, donorCategories,
     reports, partners, volunteers, donations, messages, committees,
     persons, positions, committeeMembers, auditLogs
@@ -4388,6 +4692,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (parsed.adminProfiles) setAdminProfiles(parsed.adminProfiles);
       if (parsed.campaigns) setCampaigns(parsed.campaigns);
       if (parsed.programs) setPrograms(parsed.programs);
+      if (parsed.programEvents) setProgramEvents(parsed.programEvents);
+      if (parsed.eventMediaList) setEventMediaList(parsed.eventMediaList);
       if (parsed.metrics) setMetrics(parsed.metrics);
       if (parsed.stories) setStories(parsed.stories);
       if (parsed.news) setNews(parsed.news);
@@ -4436,6 +4742,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setAdminProfiles(INITIAL_ADMIN_PROFILES);
     setCampaigns(INITIAL_CAMPAIGNS);
     setPrograms(INITIAL_PROGRAMS);
+    setProgramEvents(INITIAL_PROGRAM_EVENTS);
+    setEventMediaList(INITIAL_EVENT_MEDIA);
     setMetrics(INITIAL_IMPACT_METRICS);
     setStories(INITIAL_IMPACT_STORIES);
     setNews(INITIAL_NEWS);
@@ -4473,6 +4781,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       value={{
         campaigns,
         programs,
+        programEvents,
+        eventMediaList,
         metrics,
         stories,
         news,
@@ -4561,6 +4871,22 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         addProgram,
         updateProgram,
         deleteProgram,
+
+        addProgramEvent,
+        updateProgramEvent,
+        deleteProgramEvent,
+        reorderProgramEvents,
+
+        addMediaToEvent,
+        removeMediaFromEvent,
+        toggleEventHighlight,
+        reorderEventHighlights,
+        setEventHighlights,
+
+        getEventsByProgramId,
+        getProgramEventBySlug,
+        getEventMedia,
+        getEventHighlights,
 
         addMetric,
         updateMetric,

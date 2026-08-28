@@ -16,6 +16,7 @@ import { StandingCommitteesPage } from './pages/StandingCommitteesPage';
 import { PastCommitteesPage } from './pages/PastCommitteesPage';
 import { ProgramsPage } from './pages/ProgramsPage';
 import { ProgramDetailPage } from './pages/ProgramDetailPage';
+import { ProgramEventDetailPage } from './pages/ProgramEventDetailPage';
 import { CampaignsPage } from './pages/CampaignsPage';
 import { CampaignDetailPage } from './pages/CampaignDetailPage';
 import { ImpactPage, StoryDetailPage } from './pages/ImpactPage';
@@ -71,6 +72,8 @@ const AppContent: React.FC = () => {
         return <ProgramsPage />;
       case 'programs/detail':
         return <ProgramDetailPage />;
+      case 'programs/event-detail':
+        return <ProgramEventDetailPage />;
       case 'campaigns':
         return <CampaignsPage />;
       case 'campaigns/detail':

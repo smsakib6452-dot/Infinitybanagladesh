@@ -115,7 +115,8 @@ import {
   BloodDonationSettings,
   DonorCategoryOption,
   EmergencyRequestStatus,
-  BloodGroup
+  BloodGroup,
+  ProgramEvent
 } from '../types';
 import { DEFAULT_EXECUTIVE_TIER_BARS } from '../data/initialData';
 import {
@@ -132,6 +133,8 @@ import { Toast } from '../components/Toast';
 import { MediaPickerModal } from '../components/MediaPickerModal';
 import { CampaignModal } from '../components/CampaignModal';
 import { ProgramModal } from '../components/ProgramModal';
+import { ProgramEventModal } from '../components/ProgramEventModal';
+import { EventMediaManagerModal } from '../components/EventMediaManagerModal';
 import { StoryModal } from '../components/StoryModal';
 import { FAQModal } from '../components/FAQModal';
 import { CommitteeMemberModal, CommitteeMemberFormData } from '../components/CommitteeMemberModal';
@@ -150,7 +153,6 @@ import { AdminErrorBoundary } from '../components/AdminErrorBoundary';
 import { isSupabaseConfigured, signInWithEmail, signOutAdmin } from '../lib/supabase';
 import { detectAndNormalizeMedia, DEFAULT_VIDEO_THUMBNAIL, isPortraitVideo } from '../lib/utils/mediaHelper';
 import { uploadToCloudinary } from '../lib/cloudinary';
-import { getCooldownStatusInfo } from '../data/bloodDonationData';
 
 type AdminTab =
   | 'overview'
@@ -229,6 +231,7 @@ export const AdminPage: React.FC = () => {
     addDonationHistoryEntry, deleteDonationHistoryEntry,
     addEmergencyBloodRequest, updateEmergencyBloodRequestStatus, deleteEmergencyBloodRequest,
     updateBloodDonationSettings, addDonorCategory, updateDonorCategory, deleteDonorCategory,
+    programEvents, getEventsByProgramId, getEventHighlights, getEventMedia, deleteProgramEvent,
     isLiveSupabase, isSyncing, lastSyncedAt, syncWithSupabase, pushAllToSupabase, resetToDefaultData, exportDatabaseJSON, importDatabaseJSON
   } = useData();
 
@@ -256,6 +259,15 @@ export const AdminPage: React.FC = () => {
 
   const [editingProgram, setEditingProgram] = useState<Program | null>(null);
   const [isProgramModalOpen, setIsProgramModalOpen] = useState(false);
+
+  // Program Editions / Events Management State
+  const [expandedProgramId, setExpandedProgramId] = useState<string | null>(null);
+  const [selectedProgramForEvent, setSelectedProgramForEvent] = useState<Program | null>(null);
+  const [editingProgramEvent, setEditingProgramEvent] = useState<ProgramEvent | null>(null);
+  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
+  const [selectedProgramForMedia, setSelectedProgramForMedia] = useState<Program | null>(null);
+  const [selectedEventForMedia, setSelectedEventForMedia] = useState<ProgramEvent | null>(null);
+  const [isEventMediaModalOpen, setIsEventMediaModalOpen] = useState(false);
 
   const [editingStory, setEditingStory] = useState<ImpactStory | null>(null);
   const [isStoryModalOpen, setIsStoryModalOpen] = useState(false);
@@ -3234,10 +3246,12 @@ export const AdminPage: React.FC = () => {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
                       <h2 className="text-xl font-extrabold text-slate-900 font-display">
-                        {isBn ? 'সেবামূলক কর্মসূচি ও প্রোগ্রাম' : 'Humanitarian Programs Manager'}
+                        {isBn ? 'সেবামূলক কর্মসূচি ও প্রোগ্রাম ব্যবস্থাপনা' : 'Humanitarian Programs & Editions Manager'}
                       </h2>
                       <p className="text-xs text-slate-500">
-                        {isBn ? 'শিশু কল্যাণ, শীতবস্ত্র ত্রাণ ও অন্যান্য স্থায়ী কর্মসূচি পরিচালনা করুন।' : 'Manage long-term humanitarian initiatives, child welfare, and relief missions.'}
+                        {isBn
+                          ? 'কর্মসূচি, বাৎসরিক আসর (Editions), গ্যালারি ও হাইলাইটস কিউরেট করুন।'
+                          : 'Manage programs, annual event editions, photo/video archives, and curated highlights.'}
                       </p>
                     </div>
 
@@ -3254,53 +3268,227 @@ export const AdminPage: React.FC = () => {
                     </button>
                   </div>
 
-                  <div className="space-y-3 pt-2">
-                    {programs.map(prog => (
-                      <div
-                        key={prog.id}
-                        className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-                      >
-                        <div className="flex items-center gap-3.5">
-                          <div className="w-16 h-12 rounded-xl overflow-hidden bg-slate-200 border border-slate-300 shrink-0">
-                            <img
-                              src={getAssetUrl(prog.imageUrl)}
-                              alt={prog.title.en}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                          <div>
-                            <h4 className="font-bold text-sm text-slate-900">{prog.title.en}</h4>
-                            <p className="text-xs text-slate-500">{prog.title.bn} &bull; {prog.category} &bull; Status: {prog.status}</p>
-                          </div>
-                        </div>
+                  <div className="space-y-4 pt-2">
+                    {programs.map(prog => {
+                      const progEditions = getEventsByProgramId(prog.id);
+                      const isExpanded = expandedProgramId === prog.id;
 
-                        <div className="flex items-center gap-2 shrink-0">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setEditingProgram(prog);
-                              setIsProgramModalOpen(true);
-                            }}
-                            className="p-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold flex items-center gap-1 cursor-pointer"
-                          >
-                            <Edit2 className="w-3.5 h-3.5" />
-                            <span>Edit</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (confirm(`Delete program: ${prog.title.en}?`)) {
-                                deleteProgram(prog.id);
-                                showToast('Program deleted');
-                              }
-                            }}
-                            className="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-bold cursor-pointer"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                      return (
+                        <div
+                          key={prog.id}
+                          className="rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] overflow-hidden transition-all"
+                        >
+                          {/* Program Header Row */}
+                          <div className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div className="flex items-center gap-3.5">
+                              <div className="w-16 h-12 rounded-xl overflow-hidden bg-slate-200 border border-slate-300 shrink-0">
+                                <img
+                                  src={getAssetUrl(prog.imageUrl)}
+                                  alt={prog.title.en}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <h4 className="font-bold text-sm text-slate-900">{prog.title.en}</h4>
+                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#E6F3EF] text-[#00523C]">
+                                    {prog.category}
+                                  </span>
+                                </div>
+                                <p className="text-xs text-slate-500">
+                                  {prog.title.bn} &bull; {progEditions.length} {isBn ? 'টি আসর' : 'Editions Recorded'}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-2 shrink-0">
+                              {/* Expand / Collapse Editions Manager */}
+                              <button
+                                type="button"
+                                onClick={() => setExpandedProgramId(isExpanded ? null : prog.id)}
+                                className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                                  isExpanded
+                                    ? 'bg-[#006A4E] text-white shadow-warm-xs'
+                                    : 'bg-white hover:bg-emerald-50 text-[#006A4E] border border-[#006A4E]/30'
+                                }`}
+                              >
+                                <Calendar className="w-3.5 h-3.5" />
+                                <span>
+                                  {isExpanded
+                                    ? (isBn ? 'আসরসমূহ বন্ধ করুন' : 'Hide Editions')
+                                    : `${isBn ? 'আসরসমূহ পরিচালনা' : 'Manage Editions'} (${progEditions.length})`}
+                                </span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSelectedProgramForEvent(prog);
+                                  setEditingProgramEvent(null);
+                                  setIsEventModalOpen(true);
+                                }}
+                                className="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-[#006A4E] border border-emerald-200 text-xs font-bold flex items-center gap-1 cursor-pointer"
+                                title="Add New Edition to this program"
+                              >
+                                <Plus className="w-3.5 h-3.5" />
+                                <span>{isBn ? 'নতুন আসর' : 'Add Edition'}</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEditingProgram(prog);
+                                  setIsProgramModalOpen(true);
+                                }}
+                                className="p-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold flex items-center gap-1 cursor-pointer"
+                                title="Edit Program Details"
+                              >
+                                <Edit2 className="w-3.5 h-3.5" />
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (confirm(`Delete program: ${prog.title.en}?`)) {
+                                    deleteProgram(prog.id);
+                                    showToast('Program deleted');
+                                  }
+                                }}
+                                className="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-bold cursor-pointer"
+                                title="Delete Program"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Expandable Chronological Editions Section */}
+                          {isExpanded && (
+                            <div className="p-4 sm:p-5 border-t border-[#EAE3D9] bg-white/70 space-y-4">
+                              <div className="flex items-center justify-between">
+                                <div className="text-xs font-bold text-slate-700 flex items-center gap-2">
+                                  <span>{isBn ? 'এই কর্মসূচির আসর ও ইভেন্ট তালিকা:' : 'Chronological Editions & Events:'}</span>
+                                  <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-800 text-[11px]">
+                                    {progEditions.length} Total
+                                  </span>
+                                </div>
+
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedProgramForEvent(prog);
+                                    setEditingProgramEvent(null);
+                                    setIsEventModalOpen(true);
+                                  }}
+                                  className="px-3 py-1 rounded-xl bg-[#006A4E] hover:bg-[#00523C] text-white text-xs font-bold inline-flex items-center gap-1 cursor-pointer"
+                                >
+                                  <Plus className="w-3 h-3" />
+                                  <span>{isBn ? '+ নতুন আসর যুক্ত করুন' : '+ Add New Edition'}</span>
+                                </button>
+                              </div>
+
+                              {progEditions.length === 0 ? (
+                                <div className="text-center py-6 bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-xs text-slate-500">
+                                  No event editions recorded for this program yet. Click "+ Add New Edition" to create one.
+                                </div>
+                              ) : (
+                                <div className="space-y-2.5">
+                                  {progEditions.map(ed => {
+                                    const edMedia = getEventMedia(ed.id);
+                                    const edHighlights = getEventHighlights(ed.id);
+
+                                    return (
+                                      <div
+                                        key={ed.id}
+                                        className="p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 hover:border-emerald-200 transition-colors"
+                                      >
+                                        <div className="flex items-center gap-3 min-w-0">
+                                          <div className="w-12 h-10 rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shrink-0">
+                                            <img
+                                              src={getAssetUrl(ed.coverImageUrl || prog.imageUrl)}
+                                              alt={ed.title.en}
+                                              className="w-full h-full object-cover"
+                                            />
+                                          </div>
+
+                                          <div className="min-w-0">
+                                            <div className="flex items-center gap-2">
+                                              <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-[#006A4E] text-[10px] font-black">
+                                                {ed.year}
+                                              </span>
+                                              <h5 className="font-bold text-xs sm:text-sm text-slate-900 truncate">
+                                                {ed.title.en}
+                                              </h5>
+                                              {ed.isFeatured && (
+                                                <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-800">
+                                                  ★ Featured
+                                                </span>
+                                              )}
+                                            </div>
+                                            <p className="text-[11px] text-slate-500 truncate mt-0.5">
+                                              {ed.title.bn} &bull; 📍 {ed.location.en} &bull; Status: {ed.status}
+                                            </p>
+                                          </div>
+                                        </div>
+
+                                        {/* Action Controls for this edition */}
+                                        <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+                                          {/* Curate Media & Highlights Button */}
+                                          <button
+                                            type="button"
+                                            onClick={() => {
+                                              setSelectedProgramForMedia(prog);
+                                              setSelectedEventForMedia(ed);
+                                              setIsEventMediaModalOpen(true);
+                                            }}
+                                            className="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+                                            title="Manage Media & Curate Highlights"
+                                          >
+                                            <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                                            <span>
+                                              {edHighlights.length} {isBn ? 'হাইলাইটস' : 'Highlights'} ({edMedia.length} Media)
+                                            </span>
+                                          </button>
+
+                                          {/* Edit Edition */}
+                                          <button
+                                            type="button"
+                                            onClick={() => {
+                                              setSelectedProgramForEvent(prog);
+                                              setEditingProgramEvent(ed);
+                                              setIsEventModalOpen(true);
+                                            }}
+                                            className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer"
+                                            title="Edit Edition Details"
+                                          >
+                                            <Edit2 className="w-3.5 h-3.5" />
+                                          </button>
+
+                                          {/* Delete Edition */}
+                                          <button
+                                            type="button"
+                                            onClick={() => {
+                                              if (confirm(`Delete edition: ${ed.title.en} (${ed.year})?`)) {
+                                                deleteProgramEvent(ed.id);
+                                                showToast('Event edition deleted');
+                                              }
+                                            }}
+                                            className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 cursor-pointer"
+                                            title="Delete Edition"
+                                          >
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                          </button>
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               </div>
@@ -9628,6 +9816,38 @@ export const AdminPage: React.FC = () => {
           showToast('Emergency request status updated');
         }}
       />
+
+      {/* ======================================================== */}
+      {/* PROGRAM EVENT / EDITION MODAL */}
+      {/* ======================================================== */}
+      {selectedProgramForEvent && (
+        <ProgramEventModal
+          isOpen={isEventModalOpen}
+          onClose={() => {
+            setIsEventModalOpen(false);
+            setSelectedProgramForEvent(null);
+            setEditingProgramEvent(null);
+          }}
+          program={selectedProgramForEvent}
+          eventToEdit={editingProgramEvent}
+        />
+      )}
+
+      {/* ======================================================== */}
+      {/* EVENT MEDIA & HIGHLIGHTS MANAGER MODAL */}
+      {/* ======================================================== */}
+      {selectedProgramForMedia && selectedEventForMedia && (
+        <EventMediaManagerModal
+          isOpen={isEventMediaModalOpen}
+          onClose={() => {
+            setIsEventMediaModalOpen(false);
+            setSelectedProgramForMedia(null);
+            setSelectedEventForMedia(null);
+          }}
+          program={selectedProgramForMedia}
+          event={selectedEventForMedia}
+        />
+      )}
 
       {/* Toast Notification */}
       {toastMessage && <Toast message={toastMessage} onClose={() => setToastMessage(null)} />}

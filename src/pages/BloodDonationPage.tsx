@@ -269,15 +269,12 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
   };
 
   // ----------------------------------------------------
-  // DONOR SELF-UPDATE FORM STATE (WITH ADMIN WHATSAPP VERIFICATION)
+  // DONOR SELF-UPDATE FORM STATE (WITH ADMIN WHATSAPP SUBMISSION)
   // ----------------------------------------------------
-  const [updStep, setUpdStep] = useState<'SEARCH' | 'ADMIN_VERIFY' | 'EDIT_FORM'>('SEARCH');
   const [updSearchQuery, setUpdSearchQuery] = useState('');
   const [updSearchError, setUpdSearchError] = useState<string | null>(null);
-  const [pendingDonorForUpdate, setPendingDonorForUpdate] = useState<BloodDonor | null>(null);
-  const [updAccessCodeInput, setUpdAccessCodeInput] = useState('');
-  const [updAccessCodeError, setUpdAccessCodeError] = useState<string | null>(null);
   const [matchedDonor, setMatchedDonor] = useState<BloodDonor | null>(null);
+  const [submittedWhatsAppUrl, setSubmittedWhatsAppUrl] = useState<string>('');
 
   // Form Fields for Update
   const [updFullName, setUpdFullName] = useState('');
@@ -340,7 +337,6 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
   const handleSearchDonorForUpdate = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setUpdSearchError(null);
-    setUpdAccessCodeError(null);
     const query = updSearchQuery.trim();
     if (!query) {
       setUpdSearchError(
@@ -361,11 +357,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
     });
 
     if (found) {
-      const safe = cleanBloodDonor(found);
-      setPendingDonorForUpdate(safe);
-      setUpdStep('ADMIN_VERIFY');
-      setUpdAccessCodeInput('');
-      setUpdAccessCodeError(null);
+      populateUpdateForm(found);
     } else {
       setUpdSearchError(
         isBn
@@ -375,43 +367,13 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
     }
   };
 
-  const handleVerifyAccessCode = (e: React.FormEvent) => {
-    e.preventDefault();
-    setUpdAccessCodeError(null);
-    if (!pendingDonorForUpdate) return;
-
-    const input = updAccessCodeInput.trim();
-    if (!input) {
-      setUpdAccessCodeError(
-        isBn
-          ? 'অনুগ্রহ করে অ্যাডমিন প্রদত্ত সিকিউরিটি অ্যাক্সেস কোডটি লিখুন।'
-          : 'Please enter the security access code provided by Admin.'
-      );
-      return;
-    }
-
-    const isValid = verifyDonorAccessCode(pendingDonorForUpdate, input);
-    if (isValid) {
-      populateUpdateForm(pendingDonorForUpdate);
-      setUpdStep('EDIT_FORM');
-      setUpdAccessCodeError(null);
-    } else {
-      setUpdAccessCodeError(
-        isBn
-          ? 'ভুল অ্যাক্সেস কোড! অনুগ্রহ করে হোয়াটসঅ্যাপে যোগাযোগ করে অ্যাডমিনের দেওয়া সঠিক কোডটি লিখুন।'
-          : 'Incorrect Access Code! Please verify with Admin on WhatsApp to get the valid passcode.'
-      );
-    }
-  };
-
   const handleResetUpdateFlow = () => {
-    setUpdStep('SEARCH');
-    setPendingDonorForUpdate(null);
     setMatchedDonor(null);
-    setUpdAccessCodeInput('');
-    setUpdAccessCodeError(null);
     setUpdSearchQuery('');
     setUpdSubmitted(false);
+    setUpdFormError(null);
+    setUpdSearchError(null);
+    setSubmittedWhatsAppUrl('');
   };
 
   // One-click "Donated Today" action (Sets last donation to today, adds +1 to total donations, sets cooldown)
@@ -508,6 +470,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
 
     setIsUpdatingDonor(true);
     try {
+      // 1. Update with PENDING status so Admin verifies & approves
       updateBloodDonor(matchedDonor.id, {
         fullName: updFullName.trim(),
         bloodGroup: updBloodGroup,
@@ -527,8 +490,34 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
         lastDonationDate: updLastDonationDate || undefined,
         totalDonations: Number(updTotalDonations) || 0,
         experienceNotes: updExperienceNotes.trim() || undefined,
-        showPhonePublicly: updShowPhone
+        showPhonePublicly: updShowPhone,
+        approvalStatus: 'PENDING', // Awaiting Admin Approval
+        updatedAt: new Date().toISOString()
       });
+
+      // 2. Generate WhatsApp message for Admin
+      const cleanHelpline = (bloodDonationSettings.emergencyHelpline || '+8801839008339').replace(/[^0-9]/g, '');
+      const lastDonationText = updLastDonationDate
+        ? `${updLastDonationDate} (${updLastDonationDate === todayStr ? 'আজকে রক্তদান করেছি' : 'সর্বশেষ তারিখ'})`
+        : 'রেকর্ড নেই';
+      const availabilityText = updAvailability === 'AVAILABLE_EMERGENCY'
+        ? 'জরুরি প্রয়োজনে প্রস্তুত'
+        : updAvailability === 'AVAILABLE_NOTICE'
+        ? 'নোটিশ সাপেক্ষে প্রস্তুত'
+        : 'সাময়িক অনুপলব্ধ';
+
+      const whatsappMsg = encodeURIComponent(
+        `আসসালামু আলাইকুম অ্যাডমিন,\nআমি ${updFullName.trim()} (রক্তদাতা আইডি: ${matchedDonor.id}, মোবাইল: ${cleanPhone})।\nআমি ইনফিনিটি বাংলাদেশ ব্লাড নেটওয়ার্কে আমার রক্তদানের তথ্য / প্রোফাইল আপডেট করেছি।\n\n📋 আপডেটের বিবরণ:\n• রক্ত গ্রুপ: ${updBloodGroup}\n• সর্বশেষ রক্তদান: ${lastDonationText}\n• মোট রক্তদান: ${updTotalDonations || 0} বার\n• অবস্থান: ${updArea ? updArea + ', ' : ''}${updUpazila}, ${updDistrict}\n• প্রাপ্যতা: ${availabilityText}\n\nঅনুগ্রহ করে আমার মোবাইল নম্বর যাচাই করে অ্যাডমিন ড্যাশবোর্ড থেকে আমার প্রোফাইল আপডেটটি অনুমোদন (Approve) করুন। ধন্যবাদ।`
+      );
+      const waUrl = `https://wa.me/${cleanHelpline}?text=${whatsappMsg}`;
+      setSubmittedWhatsAppUrl(waUrl);
+
+      // Open WhatsApp automatically
+      try {
+        window.open(waUrl, '_blank');
+      } catch (e) {
+        // Pop-up blocker fallback handled in UI
+      }
 
       setUpdSubmitted(true);
     } catch (err) {
@@ -1912,7 +1901,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
             </div>
 
             {/* Step 1: Donor Mobile / ID Lookup */}
-            {updStep === 'SEARCH' && (
+            {!matchedDonor && !updSubmitted && (
               <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#EAE3D9] shadow-warm-sm space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm sm:text-base font-extrabold text-slate-900 font-display flex items-center gap-2">
@@ -1965,150 +1954,47 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
               </div>
             )}
 
-            {/* Step 2: Admin WhatsApp Verification Screen */}
-            {updStep === 'ADMIN_VERIFY' && pendingDonorForUpdate && (
-              <div className="bg-white rounded-3xl p-6 sm:p-9 border border-[#EAE3D9] shadow-warm-md space-y-6 animate-in fade-in">
-                {/* Donor Header Preview */}
-                <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#006A4E] to-[#00523C] text-white flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <div className="flex items-center gap-3 text-center sm:text-left">
-                    <div className="w-13 h-13 rounded-2xl overflow-hidden bg-emerald-950 border-2 border-white/40 shrink-0 flex items-center justify-center font-extrabold text-lg text-white">
-                      {pendingDonorForUpdate.photoUrl ? (
-                        <img src={getAssetUrl(pendingDonorForUpdate.photoUrl)} alt={pendingDonorForUpdate.fullName} className="w-full h-full object-cover" />
-                      ) : (
-                        pendingDonorForUpdate.fullName?.charAt(0) || 'D'
-                      )}
-                    </div>
-                    <div>
-                      <div className="flex items-center justify-center sm:justify-start gap-2">
-                        <h4 className="text-base sm:text-lg font-extrabold text-white font-display">
-                          {pendingDonorForUpdate.fullName}
-                        </h4>
-                        <span className="px-2.5 py-0.5 rounded-lg bg-rose-600 text-white font-black text-xs font-display">
-                          {pendingDonorForUpdate.bloodGroup}
-                        </span>
-                      </div>
-                      <p className="text-xs text-emerald-100/90 mt-0.5">
-                        {isBn ? 'ফোন:' : 'Phone:'} <span className="font-mono">{pendingDonorForUpdate.phone ? pendingDonorForUpdate.phone.replace(/(\d{3})\d{4}(\d{4})/, '$1 •••• $2') : 'N/A'}</span> &bull; {pendingDonorForUpdate.area}, {pendingDonorForUpdate.upazila}, {pendingDonorForUpdate.district}
-                      </p>
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={handleResetUpdateFlow}
-                    className="text-xs text-emerald-200 hover:text-white underline cursor-pointer shrink-0"
-                  >
-                    {isBn ? '← অন্য নম্বর দিয়ে খুঁজুন' : '← Search Another'}
-                  </button>
-                </div>
-
-                {/* Admin Verification Notice Box */}
-                <div className="p-5 sm:p-6 rounded-2xl bg-amber-50/80 border border-amber-200/90 text-amber-950 space-y-3 shadow-2xs">
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-amber-100 border border-amber-300 text-amber-800 flex items-center justify-center shrink-0">
-                      <Lock className="w-5 h-5" />
-                    </div>
-                    <div className="space-y-1 flex-1">
-                      <h5 className="font-extrabold text-sm sm:text-base text-amber-950">
-                        {isBn ? '🔒 তথ্যের সুরক্ষা ও অপব্যবহার রোধে অ্যাডমিন ভেরিফিকেশন' : '🔒 Admin Verification Required for Profile Edit'}
-                      </h5>
-                      <p className="text-xs text-amber-900/90 leading-relaxed">
-                        {isBn
-                          ? 'রক্তদাতার ব্যক্তিগত তথ্যের নিরাপত্তা রক্ষার্থে প্রোফাইল সম্পাদনার জন্য টিম ইনফিনিটি অ্যাডমিনের অনুমোদন প্রয়োজন। অনুগ্রহ করে নিচের হোয়াটসঅ্যাপ বাটনে ক্লিক করে অ্যাডমিনকে মেসেজ পাঠান এবং ৬ ডিজিটের অ্যাক্সেস কোডটি নিন।'
-                          : 'To protect donor privacy and data accuracy, profile editing requires Admin verification. Click below to message Team Infinity Admin on WhatsApp and receive your one-time 6-digit access code.'}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* WhatsApp Action Button */}
-                  <div className="pt-2">
-                    {(() => {
-                      const cleanHelpline = (bloodDonationSettings.emergencyHelpline || '+8801839008339').replace(/[^0-9]/g, '');
-                      const whatsappMsg = encodeURIComponent(
-                        `আসসালামু আলাইকুম। আমি ইনফিনিটি বাংলাদেশ ব্লাড নেটওয়ার্কের নিবন্ধিত রক্তদাতা [${pendingDonorForUpdate.fullName}, আইডি: ${pendingDonorForUpdate.id}, মোবাইল: ${pendingDonorForUpdate.phone}]। আমার রক্তদানের তথ্য / ঠিকানা হালনাগাদ করার জন্য এডিট পারমিশন বা অ্যাক্সেস কোড প্রয়োজন।`
-                      );
-                      const whatsappUrl = `https://wa.me/${cleanHelpline}?text=${whatsappMsg}`;
-
-                      return (
-                        <a
-                          href={whatsappUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-full py-3.5 px-5 rounded-2xl bg-[#25D366] hover:bg-[#20bd5a] text-white font-extrabold text-xs sm:text-sm shadow-warm-md hover:shadow-warm-lg transition-all flex items-center justify-center gap-2.5 cursor-pointer transform hover:-translate-y-0.5"
-                        >
-                          <MessageCircle className="w-5 h-5 fill-current" />
-                          <span>
-                            {isBn
-                              ? '💬 অ্যাডমিনকে হোয়াটসঅ্যাপে মেসেজ পাঠিয়ে অ্যাক্সেস কোড নিন'
-                              : '💬 Request Access Code from Admin on WhatsApp'}
-                          </span>
-                        </a>
-                      );
-                    })()}
-                  </div>
-                </div>
-
-                {/* Code Verification Form */}
-                <form onSubmit={handleVerifyAccessCode} className="p-5 sm:p-6 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-4">
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-bold text-slate-800 flex items-center justify-between">
-                      <span className="flex items-center gap-1.5">
-                        <Key className="w-3.5 h-3.5 text-[#006A4E]" />
-                        <span>{isBn ? 'অ্যাডমিন প্রদত্ত অ্যাক্সেস কোড লিখুন' : 'Enter Admin-Provided Access Code'}</span>
-                      </span>
-                      <span className="text-[10px] text-slate-400 font-mono">6-digit Code</span>
-                    </label>
-                    <div className="flex flex-col sm:flex-row gap-2.5">
-                      <div className="relative flex-1">
-                        <Key className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                        <input
-                          type="text"
-                          value={updAccessCodeInput}
-                          onChange={(e) => {
-                            setUpdAccessCodeInput(e.target.value);
-                            if (updAccessCodeError) setUpdAccessCodeError(null);
-                          }}
-                          placeholder={isBn ? 'অ্যাডমিন প্রদত্ত কোড (যেমন: 749201)...' : 'Enter passcode from Admin...'}
-                          className="w-full pl-10 pr-4 py-3 rounded-xl border border-[#EAE3D9] bg-white text-xs sm:text-sm font-mono tracking-wider font-bold focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
-                        />
-                      </div>
-                      <button
-                        type="submit"
-                        className="px-6 py-3 rounded-xl bg-[#006A4E] hover:bg-[#00553E] text-white font-extrabold text-xs sm:text-sm shadow-warm-sm transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0"
-                      >
-                        <Unlock className="w-4 h-4" />
-                        <span>{isBn ? 'আনলক ও তথ্য সম্পাদন করুন' : 'Unlock & Edit Profile'}</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {updAccessCodeError && (
-                    <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-900 text-xs font-medium flex items-center gap-2 animate-in fade-in">
-                      <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
-                      <span>{updAccessCodeError}</span>
-                    </div>
-                  )}
-                </form>
-              </div>
-            )}
-
-            {/* Step 3: Matched Donor Form or Success Screen */}
+            {/* Step 2: Matched Donor Form or Success Screen */}
             {updSubmitted ? (
-              <div className="p-8 sm:p-12 text-center bg-white rounded-3xl border border-emerald-200 shadow-warm-lg space-y-5 animate-in fade-in">
-                <div className="w-16 h-16 rounded-full bg-emerald-100 text-[#006A4E] mx-auto flex items-center justify-center">
-                  <CheckCircle2 className="w-9 h-9" />
+              <div className="p-8 sm:p-12 text-center bg-white rounded-3xl border border-emerald-200 shadow-warm-lg space-y-6 animate-in fade-in">
+                <div className="w-18 h-18 rounded-full bg-emerald-100 text-[#006A4E] mx-auto flex items-center justify-center shadow-warm-sm">
+                  <CheckCircle2 className="w-10 h-10" />
                 </div>
 
                 <div className="space-y-2">
-                  <h3 className="text-2xl font-extrabold text-slate-900 font-display">
-                    {isBn ? 'রক্তদাতার তথ্য সফলভাবে হালনাগাদ হয়েছে!' : 'Donor Profile Updated Successfully!'}
+                  <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-display">
+                    {isBn ? 'তথ্য আপডেটের আবেদন সফলভাবে জমা হয়েছে!' : 'Update Request Submitted Successfully!'}
                   </h3>
-                  <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
+                  <p className="text-xs sm:text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
                     {isBn
-                      ? 'আপনার রক্তদানের রেকর্ড, বর্তমান অবস্থান এবং প্রাপ্যতা স্ট্যাটাস সফলভাবে ডাটাবেজে সংরক্ষিত হয়েছে।'
-                      : 'Your donation record, latest address, and availability status have been updated in the database.'}
+                      ? 'আপনার রক্তদানের রেকর্ড ও ঠিকানার আবেদনটি সিস্টেমে সংরক্ষিত হয়েছে। অননুমোদিত সম্পাদন রোধে অ্যাডমিন আপনার হোয়াটসঅ্যাপ মেসেজ ও মোবাইল নম্বর যাচাই করে অনুমোদন করলেই এটি লাইভ হবে।'
+                      : 'Your donation record and profile update request has been submitted. For data security, it will go live once Admin verifies your mobile number on WhatsApp and approves it from the Admin Dashboard.'}
                   </p>
                 </div>
+
+                {/* WhatsApp Admin Request Banner */}
+                {submittedWhatsAppUrl && (
+                  <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-300 max-w-lg mx-auto space-y-3">
+                    <div className="flex items-center justify-center gap-2 text-emerald-950 font-bold text-xs sm:text-sm">
+                      <MessageCircle className="w-5 h-5 text-emerald-700" />
+                      <span>{isBn ? 'অ্যাডমিনকে হোয়াটসঅ্যাপে মেসেজ পাঠানো হয়েছে' : 'Admin WhatsApp Notification'}</span>
+                    </div>
+                    <p className="text-xs text-emerald-800 leading-relaxed">
+                      {isBn
+                        ? 'হোয়াটসঅ্যাপ নিজে থেকে চালু না হলে নিচের বাটনে ক্লিক করে অ্যাডমিনকে আপনার আবেদনটি পাঠিয়ে দিন যাতে দ্রুত অনুমোদন পাওয়া যায়।'
+                        : 'If WhatsApp did not open automatically, please click below to send your request message to Admin for fast approval.'}
+                    </p>
+                    <a
+                      href={submittedWhatsAppUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-2 w-full py-3.5 px-5 rounded-2xl bg-[#25D366] hover:bg-[#20bd5a] text-white font-extrabold text-xs sm:text-sm shadow-warm-md hover:shadow-warm-lg transition-all cursor-pointer transform hover:-translate-y-0.5"
+                    >
+                      <MessageCircle className="w-5 h-5 fill-current" />
+                      <span>{isBn ? '💬 অ্যাডমিনকে হোয়াটসঅ্যাপে মেসেজ পাঠান' : '💬 Send WhatsApp Message to Admin'}</span>
+                    </a>
+                  </div>
+                )}
 
                 {/* Cooldown Status Summary Card */}
                 {updLastDonationDate && (() => {
@@ -2126,27 +2012,14 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                   );
                 })()}
 
-                <div className="flex flex-wrap items-center justify-center gap-3 pt-3">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (matchedDonor) {
-                        const updated = bloodDonors.find(d => d.id === matchedDonor.id);
-                        if (updated) setSelectedDonorForProfile(updated);
-                      }
-                    }}
-                    className="px-5 py-2.5 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-[#006A4E] border border-emerald-300 font-extrabold text-xs transition-all cursor-pointer"
-                  >
-                    {isBn ? 'আপডেট করা প্রোফাইল দেখুন' : 'View Updated Profile'}
-                  </button>
-
+                <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
                   <button
                     type="button"
                     onClick={() => {
                       handleResetUpdateFlow();
                       setActiveTab('find-donor');
                     }}
-                    className="px-5 py-2.5 rounded-2xl bg-[#006A4E] hover:bg-[#00553E] text-white font-extrabold text-xs shadow-warm-xs transition-all cursor-pointer"
+                    className="px-6 py-3 rounded-2xl bg-[#006A4E] hover:bg-[#00553E] text-white font-extrabold text-xs shadow-warm-sm transition-all cursor-pointer"
                   >
                     {isBn ? 'রক্তদাতা ডিরেক্টরিতে যান' : 'Go to Donor Directory'}
                   </button>
@@ -2154,13 +2027,13 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                   <button
                     type="button"
                     onClick={handleResetUpdateFlow}
-                    className="px-4 py-2.5 rounded-2xl bg-white border border-[#EAE3D9] text-slate-700 font-bold text-xs hover:bg-slate-50 transition-all cursor-pointer"
+                    className="px-5 py-3 rounded-2xl bg-white border border-[#EAE3D9] text-slate-700 font-bold text-xs hover:bg-slate-50 transition-all cursor-pointer"
                   >
                     {isBn ? 'আরেকটি প্রোফাইল আপডেট' : 'Update Another'}
                   </button>
                 </div>
               </div>
-            ) : updStep === 'EDIT_FORM' && matchedDonor ? (
+            ) : matchedDonor ? (
               <div className="bg-white rounded-3xl p-7 sm:p-10 border border-[#EAE3D9] shadow-warm-md space-y-8 animate-in fade-in">
                 {/* Active Donor Banner with Verified Status */}
                 <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-900 to-emerald-950 text-white flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -2194,16 +2067,13 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="px-3 py-1 rounded-full bg-emerald-400/20 text-emerald-200 text-xs font-bold border border-emerald-400/40 flex items-center gap-1.5">
-                      <ShieldCheck className="w-4 h-4 text-emerald-300" />
-                      <span>{isBn ? 'অ্যাডমিন কর্তৃক অনুমোদিত' : 'Admin Approved'}</span>
-                    </span>
                     <button
                       type="button"
                       onClick={handleResetUpdateFlow}
-                      className="px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-medium border border-white/20 cursor-pointer"
+                      className="px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-medium border border-white/20 cursor-pointer flex items-center gap-1.5"
                     >
-                      {isBn ? 'লগআউট' : 'Lock'}
+                      <RefreshCw className="w-3.5 h-3.5" />
+                      <span>{isBn ? 'অন্য নম্বর দিয়ে খুঁজুন' : 'Search Another'}</span>
                     </button>
                   </div>
                 </div>
@@ -2693,32 +2563,43 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                     </div>
                   )}
 
-                  {/* Submit Button */}
-                  <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
-                    <button
-                      type="submit"
-                      disabled={isUpdatingDonor || Boolean(updLastDonationDate && updLastDonationDate > new Date().toISOString().split('T')[0])}
-                      className={`w-full sm:flex-1 py-3.5 rounded-2xl font-extrabold text-sm shadow-warm-md transition-all flex items-center justify-center gap-2 ${
-                        updLastDonationDate && updLastDonationDate > new Date().toISOString().split('T')[0]
-                          ? 'bg-slate-300 text-slate-500 cursor-not-allowed opacity-80'
-                          : 'bg-[#006A4E] hover:bg-[#00523C] text-white cursor-pointer transform hover:-translate-y-0.5'
-                      }`}
-                    >
-                      <CheckCircle2 className="w-4 h-4" />
-                      <span>
-                        {isUpdatingDonor
-                          ? (isBn ? 'তথ্য সংরক্ষণ করা হচ্ছে...' : 'Saving Changes...')
-                          : (isBn ? 'তথ্য সংরক্ষণ ও প্রোফাইল হালনাগাদ করুন' : 'Save & Update Donor Profile')}
-                      </span>
-                    </button>
+                  {/* Submit Button & Admin WhatsApp Notification Note */}
+                  <div className="space-y-3 pt-2">
+                    <div className="p-3.5 bg-amber-50/80 rounded-2xl border border-amber-200/80 text-amber-950 text-xs flex items-start gap-2.5">
+                      <MessageCircle className="w-4 h-4 text-[#25D366] shrink-0 mt-0.5 fill-current" />
+                      <p className="leading-relaxed">
+                        {isBn
+                          ? 'নিরাপত্তার স্বার্থে সাবমিট বাটনে চাপলে স্বয়ংক্রিয়ভাবে অ্যাডমিনকে হোয়াটসঅ্যাপে আবেদন পাঠানো হবে। অ্যাডমিন আপনার নম্বর দেখে ড্যাশবোর্ড থেকে অ্যাপ্রুভ (অনুমোদন) করলেই তথ্যটি ডিরেক্টরিতে লাইভ হবে।'
+                          : 'For security, submitting will automatically notify Admin on WhatsApp. Once Admin verifies and approves the request from the dashboard, updates will appear live in the Directory.'}
+                      </p>
+                    </div>
 
-                    <button
-                      type="button"
-                      onClick={() => setMatchedDonor(null)}
-                      className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-white border border-[#EAE3D9] text-slate-700 font-bold text-xs hover:bg-slate-50 transition-all cursor-pointer text-center"
-                    >
-                      {isBn ? 'বাতিল' : 'Cancel'}
-                    </button>
+                    <div className="flex flex-col sm:flex-row items-center gap-3">
+                      <button
+                        type="submit"
+                        disabled={isUpdatingDonor || Boolean(updLastDonationDate && updLastDonationDate > new Date().toISOString().split('T')[0])}
+                        className={`w-full sm:flex-1 py-4 px-6 rounded-2xl font-extrabold text-sm shadow-warm-md transition-all flex items-center justify-center gap-2.5 ${
+                          updLastDonationDate && updLastDonationDate > new Date().toISOString().split('T')[0]
+                            ? 'bg-slate-300 text-slate-500 cursor-not-allowed opacity-80'
+                            : 'bg-[#006A4E] hover:bg-[#00523C] text-white cursor-pointer transform hover:-translate-y-0.5'
+                        }`}
+                      >
+                        <MessageCircle className="w-4 h-4 text-emerald-300 fill-current" />
+                        <span>
+                          {isUpdatingDonor
+                            ? (isBn ? 'আবেদন সাবমিট হচ্ছে...' : 'Submitting Request...')
+                            : (isBn ? 'তথ্য হালনাগাদ আবেদন সাবমিট করুন ও হোয়াটসঅ্যাপে পাঠান' : 'Submit Update Request & Send via WhatsApp')}
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handleResetUpdateFlow}
+                        className="w-full sm:w-auto px-6 py-4 rounded-2xl bg-white border border-[#EAE3D9] text-slate-700 font-bold text-xs hover:bg-slate-50 transition-all cursor-pointer text-center"
+                      >
+                        {isBn ? 'বাতিল' : 'Cancel'}
+                      </button>
+                    </div>
                   </div>
                 </form>
               </div>
@@ -3361,12 +3242,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
           }}
           onUpdateClick={(donor) => {
             setSelectedDonorForProfile(null);
-            const safe = cleanBloodDonor(donor);
-            setPendingDonorForUpdate(safe);
-            setUpdSearchQuery(toSafeString(safe.phone || safe.id));
-            setUpdStep('ADMIN_VERIFY');
-            setUpdAccessCodeInput('');
-            setUpdAccessCodeError(null);
+            populateUpdateForm(donor);
             setActiveTab('update-donor');
             window.scrollTo({ top: 380, behavior: 'smooth' });
           }}

@@ -5488,47 +5488,67 @@ export const AdminPage: React.FC = () => {
                                       donor.approvalStatus === 'APPROVED'
                                         ? 'bg-emerald-100 text-emerald-800'
                                         : donor.approvalStatus === 'PENDING'
-                                        ? 'bg-amber-100 text-amber-800'
+                                        ? 'bg-amber-100 text-amber-900 border border-amber-300 font-extrabold'
                                         : 'bg-rose-100 text-rose-800'
                                     }`}
                                   >
                                     {donor.approvalStatus === 'APPROVED'
                                       ? (isBn ? 'অনুমোদিত' : 'Approved')
                                       : donor.approvalStatus === 'PENDING'
-                                      ? (isBn ? 'অপেক্ষমাণ' : 'Pending')
+                                      ? (isBn ? '⏳ অপেক্ষমাণ আবেদন' : '⏳ Pending Approval')
                                       : (isBn ? 'বাতিল' : 'Rejected')}
                                   </span>
                                 </td>
 
                                 <td className="p-3.5 text-center sticky right-0 bg-white group-hover:bg-slate-50 transition-colors shadow-[-6px_0_12px_-4px_rgba(0,0,0,0.06)] z-10">
                                   <div className="flex items-center justify-center gap-1.5">
-                                    {/* Admin Edit Access Passcode Tool */}
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        const code = getDonorEditAccessCode(donor);
-                                        navigator.clipboard.writeText(code);
-                                        showToast(
-                                          isBn
-                                            ? `রক্তদাতা ${donor.fullName}-এর অ্যাক্সেস কোড [ ${code} ] কপি হয়েছে! হোয়াটসঅ্যাপে প্রদান করুন।`
-                                            : `Access code [ ${code} ] for ${donor.fullName} copied! Send to donor via WhatsApp.`
-                                        );
-                                      }}
-                                      className="p-1.5 rounded-lg text-amber-600 hover:bg-amber-50 hover:text-amber-700 transition-colors cursor-pointer"
-                                      title={isBn ? `এডিট অ্যাক্সেস কোড: ${getDonorEditAccessCode(donor)} (ক্লিক করে কপি করুন)` : `Edit Access Code: ${getDonorEditAccessCode(donor)} (Click to copy)`}
-                                    >
-                                      <Key className="w-4 h-4" />
-                                    </button>
+                                    {/* Quick Approve / Reject for Pending Updates */}
+                                    {donor.approvalStatus === 'PENDING' ? (
+                                      <div className="flex items-center gap-1">
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            approveBloodDonor(donor.id);
+                                            showToast(
+                                              isBn
+                                                ? `রক্তদাতা ${donor.fullName}-এর আবেদন ও প্রোফাইল আপডেট সফলভাবে অনুমোদন করা হয়েছে!`
+                                                : `Donor profile/update for ${donor.fullName} approved!`
+                                            );
+                                          }}
+                                          className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
+                                          title={isBn ? 'অনুমোদন করুন (Approve)' : 'Approve'}
+                                        >
+                                          <Check className="w-3.5 h-3.5" />
+                                          <span>{isBn ? 'অ্যাপ্রুভ' : 'Approve'}</span>
+                                        </button>
+
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            rejectBloodDonor(donor.id);
+                                            showToast(
+                                              isBn
+                                                ? `রক্তদাতা ${donor.fullName}-এর আবেদন বাতিল করা হয়েছে।`
+                                                : `Donor request for ${donor.fullName} rejected.`
+                                            );
+                                          }}
+                                          className="p-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 transition-colors cursor-pointer border border-rose-200"
+                                          title={isBn ? 'বাতিল করুন (Reject)' : 'Reject'}
+                                        >
+                                          <X className="w-3.5 h-3.5" />
+                                        </button>
+                                      </div>
+                                    ) : null}
 
                                     {donor.phone && (
                                       <a
                                         href={`https://wa.me/${donor.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
-                                          `আসসালামু আলাইকুম ${donor.fullName}। ইনফিনিটি বাংলাদেশ ব্লাড নেটওয়ার্কে আপনার প্রোফাইল সম্পাদনা করার ৬ ডিজিটের সিকিউরিটি অ্যাক্সেস কোড হলো: ${getDonorEditAccessCode(donor)}। এটি দিয়ে ওয়েবসাইট থেকে আপনার তথ্য আপডেট করুন। ধন্যবাদ।`
+                                          `আসসালামু আলাইকুম ${donor.fullName}। ইনফিনিটি বাংলাদেশ ব্লাড নেটওয়ার্ক থেকে আপনার রক্তদাতার তথ্য ও প্রোফাইল আপডেট সংক্রান্ত বিষয়ে যোগাযোগ করা হচ্ছে। ধন্যবাদ।`
                                         )}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 transition-colors cursor-pointer"
-                                        title={isBn ? 'হোয়াটসঅ্যাপে অ্যাক্সেস কোড পাঠান' : 'Send Access Code via WhatsApp'}
+                                        title={isBn ? 'হোয়াটসঅ্যাপে যোগাযোগ করুন' : 'Contact on WhatsApp'}
                                       >
                                         <MessageCircle className="w-4 h-4" />
                                       </a>

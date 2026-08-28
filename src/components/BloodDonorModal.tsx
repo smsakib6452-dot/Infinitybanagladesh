@@ -622,11 +622,15 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
                     onChange={(e) => setOrgCategory(e.target.value)}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm font-medium focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
                   >
-                    {donorCategories.map(cat => (
-                      <option key={cat.id} value={cat.name.en}>
-                        {cat.name.en} ({cat.name.bn})
-                      </option>
-                    ))}
+                    {donorCategories.map(cat => {
+                      const nameEn = typeof cat.name === 'object' ? (cat.name.en || '') : cat.name;
+                      const nameBn = typeof cat.name === 'object' ? (cat.name.bn || '') : '';
+                      return (
+                        <option key={cat.id} value={nameEn}>
+                          {nameEn} {nameBn ? `(${nameBn})` : ''}
+                        </option>
+                      );
+                    })}
                   </select>
                 </div>
 

@@ -1045,11 +1045,15 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                     className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs font-medium focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
                   >
                     <option value="ALL">{isBn ? 'সকল ক্যাটাগরি' : 'All Categories'}</option>
-                    {donorCategories.map(cat => (
-                      <option key={cat.id} value={cat.name.en}>
-                        {cat.name.en}
-                      </option>
-                    ))}
+                    {donorCategories.map(cat => {
+                      const nameEn = typeof cat.name === 'object' ? (cat.name.en || '') : cat.name;
+                      const nameBn = typeof cat.name === 'object' ? (cat.name.bn || '') : '';
+                      return (
+                        <option key={cat.id} value={nameEn}>
+                          {isBn ? (nameBn || nameEn) : nameEn}
+                        </option>
+                      );
+                    })}
                   </select>
                 </div>
               </div>
@@ -1613,11 +1617,15 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                           onChange={(e) => setRegOrgCategory(e.target.value)}
                           className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
                         >
-                          {donorCategories.map(cat => (
-                            <option key={cat.id} value={cat.name.en}>
-                              {cat.name.en} ({cat.name.bn})
-                            </option>
-                          ))}
+                          {donorCategories.map(cat => {
+                            const nameEn = typeof cat.name === 'object' ? (cat.name.en || '') : cat.name;
+                            const nameBn = typeof cat.name === 'object' ? (cat.name.bn || '') : '';
+                            return (
+                              <option key={cat.id} value={nameEn}>
+                                {nameEn} {nameBn ? `(${nameBn})` : ''}
+                              </option>
+                            );
+                          })}
                         </select>
                       </div>
 
@@ -2279,8 +2287,10 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                           }}
                           className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm font-medium focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
                         >
-                          {BANGLADESH_DISTRICTS.map(dist => (
-                            <option key={dist} value={dist}>{dist}</option>
+                          {BANGLADESH_DISTRICTS.map(d => (
+                            <option key={d.nameEn} value={d.nameEn}>
+                              {d.nameEn} ({d.nameBn})
+                            </option>
                           ))}
                         </select>
                       </div>
@@ -2439,11 +2449,15 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                           onChange={(e) => setUpdOrgCategory(e.target.value)}
                           className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
                         >
-                          {donorCategories.map(cat => (
-                            <option key={cat.id} value={cat.name.en}>
-                              {cat.name.en} ({cat.name.bn})
-                            </option>
-                          ))}
+                          {donorCategories.map(cat => {
+                            const nameEn = typeof cat.name === 'object' ? (cat.name.en || '') : cat.name;
+                            const nameBn = typeof cat.name === 'object' ? (cat.name.bn || '') : '';
+                            return (
+                              <option key={cat.id} value={nameEn}>
+                                {nameEn} {nameBn ? `(${nameBn})` : ''}
+                              </option>
+                            );
+                          })}
                         </select>
                       </div>
 

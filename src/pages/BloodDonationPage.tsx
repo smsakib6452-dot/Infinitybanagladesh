@@ -10,11 +10,18 @@ import {
   EmergencyLevel
 } from '../types';
 import { BANGLADESH_DISTRICTS } from '../data/bangladeshData';
-import { getUpazilasForDistrict, calculateAge } from '../data/bloodDonationData';
+import {
+  getUpazilasForDistrict,
+  calculateAge,
+  isEligibleToDonate,
+  getCooldownStatusInfo,
+  BLOOD_DONATION_COOLDOWN_DAYS
+} from '../data/bloodDonationData';
 import { getAssetUrl } from '../lib/utils/assetHelper';
 import { SectionHeading } from '../components/SectionHeading';
 import { BloodDonorProfileModal } from '../components/BloodDonorProfileModal';
 import { EmergencyBloodContactModal } from '../components/EmergencyBloodContactModal';
+import { ImageEditorModal } from '../components/ImageEditorModal';
 import {
   Droplet,
   Search,
@@ -45,11 +52,17 @@ import {
   Camera,
   Upload,
   Trash2,
-  ImageIcon
+  ImageIcon,
+  Edit3,
+  HeartPulse,
+  RefreshCw,
+  Crop,
+  Sliders,
+  ZoomIn
 } from 'lucide-react';
 
 interface BloodDonationPageProps {
-  initialTab?: 'find-donor' | 'become-donor' | 'emergency-request' | 'donors' | 'statistics' | 'guidelines';
+  initialTab?: 'find-donor' | 'become-donor' | 'update-donor' | 'emergency-request' | 'donors' | 'statistics' | 'guidelines';
 }
 
 export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
@@ -62,16 +75,18 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
     bloodDonationSettings,
     donorCategories,
     addBloodDonor,
+    updateBloodDonor,
     addEmergencyBloodRequest
   } = useData();
   const { currentPage, navigate } = useRouter();
 
   // Active tab state
   const [activeTab, setActiveTab] = useState<
-    'find-donor' | 'become-donor' | 'emergency-request' | 'donors' | 'statistics' | 'guidelines'
+    'find-donor' | 'become-donor' | 'update-donor' | 'emergency-request' | 'donors' | 'statistics' | 'guidelines'
   >(() => {
     if (currentPage === 'blood-donation/find-donor') return 'find-donor';
     if (currentPage === 'blood-donation/become-donor') return 'become-donor';
+    if (currentPage === 'blood-donation/update-donor') return 'update-donor';
     if (currentPage === 'blood-donation/emergency-request') return 'emergency-request';
     if (currentPage === 'blood-donation/statistics') return 'statistics';
     return initialTab;
@@ -80,6 +95,14 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
   // Modals state
   const [selectedDonorForProfile, setSelectedDonorForProfile] = useState<BloodDonor | null>(null);
   const [selectedDonorForContact, setSelectedDonorForContact] = useState<BloodDonor | null>(null);
+
+  // ----------------------------------------------------
+  // IMAGE CROPPER & ZOOM MODAL STATE (1:1 Aspect Ratio)
+  // ----------------------------------------------------
+  const [cropperOpen, setCropperOpen] = useState(false);
+  const [cropperImageUrl, setCropperImageUrl] = useState('');
+  const [cropperTitle, setCropperTitle] = useState('');
+  const [cropperCallback, setCropperCallback] = useState<((croppedUrl: string) => void) | null>(null);
 
   // ----------------------------------------------------
   // SEARCH & FILTER STATE (FIND A DONOR)
@@ -95,7 +118,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
   // Pagination for Donors Directory
   const [displayCount, setDisplayCount] = useState<number>(8);
 
-  // Available Upazilas for selected district
+  // Available Upazilas for selected district in search
   const availableUpazilas = useMemo(() => {
     if (searchDistrict === 'ALL') return [];
     return getUpazilasForDistrict(searchDistrict);
@@ -130,7 +153,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
   const [regRefId, setRegRefId] = useState('');
   const [regFormError, setRegFormError] = useState<string | null>(null);
 
-  // Handle Donor Photo Selection with Canvas Compression
+  // Handle Donor Photo Selection with interactive Crop & Zoom Modal
   const handleDonorPhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -146,59 +169,47 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
       return;
     }
 
-    // Validate size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
+    // Validate size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
       setRegFormError(
         isBn
-          ? 'ছবির সাইজ ৫ মেগাবাইট (5MB)-এর কম হতে হবে।'
-          : 'Image size must be under 5MB.'
+          ? 'ছবির সাইজ ১০ মেগাবাইট (10MB)-এর কম হতে হবে।'
+          : 'Image size must be under 10MB.'
       );
       return;
     }
 
     setRegPhotoFileName(file.name);
     setRegFormError(null);
-    setIsUploadingPhoto(true);
 
     const reader = new FileReader();
     reader.onload = (readerEvent) => {
-      const img = new Image();
-      img.onload = () => {
-        // Optimize and compress large images to maintain snappy client performance
-        const maxDim = 800;
-        let width = img.width;
-        let height = img.height;
-
-        if (width > maxDim || height > maxDim) {
-          if (width > height) {
-            height = Math.round((height * maxDim) / width);
-            width = maxDim;
-          } else {
-            width = Math.round((width * maxDim) / height);
-            height = maxDim;
-          }
-        }
-
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-          ctx.drawImage(img, 0, 0, width, height);
-          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
-          setRegPhotoUrl(compressedDataUrl);
-        } else {
-          setRegPhotoUrl(readerEvent.target?.result as string);
-        }
-        setIsUploadingPhoto(false);
-      };
-      img.onerror = () => {
-        setRegPhotoUrl(readerEvent.target?.result as string);
-        setIsUploadingPhoto(false);
-      };
-      img.src = readerEvent.target?.result as string;
+      const src = readerEvent.target?.result as string;
+      if (src) {
+        setCropperImageUrl(src);
+        setCropperTitle(isBn ? 'রক্তদাতার ছবি ক্রপ ও জুম এডিটর (১:১)' : 'Donor Photo Zoom & Crop (1:1)');
+        setCropperCallback(() => (croppedUrl: string) => {
+          setRegPhotoUrl(croppedUrl);
+        });
+        setCropperOpen(true);
+      }
     };
     reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const handleOpenPhotoCropper = (currentUrl: string, isUpdate: boolean = false) => {
+    if (!currentUrl) return;
+    setCropperImageUrl(currentUrl);
+    setCropperTitle(isBn ? 'ছবি ক্রপ ও জুম এডিটর (১:১)' : 'Photo Zoom & Crop (1:1)');
+    setCropperCallback(() => (croppedUrl: string) => {
+      if (isUpdate) {
+        setUpdPhotoUrl(croppedUrl);
+      } else {
+        setRegPhotoUrl(croppedUrl);
+      }
+    });
+    setCropperOpen(true);
   };
 
   const handleRemoveDonorPhoto = () => {
@@ -235,6 +246,227 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
     setRegShowPhone(false);
     setRegFormError(null);
     setRegSubmitted(false);
+  };
+
+  // ----------------------------------------------------
+  // DONOR SELF-UPDATE FORM STATE
+  // ----------------------------------------------------
+  const [updSearchQuery, setUpdSearchQuery] = useState('');
+  const [updSearchError, setUpdSearchError] = useState<string | null>(null);
+  const [matchedDonor, setMatchedDonor] = useState<BloodDonor | null>(null);
+
+  // Form Fields for Update
+  const [updFullName, setUpdFullName] = useState('');
+  const [updBloodGroup, setUpdBloodGroup] = useState<BloodGroup>('O+');
+  const [updGender, setUpdGender] = useState<'Male' | 'Female' | 'Other' | string>('Male');
+  const [updDateOfBirth, setUpdDateOfBirth] = useState('');
+  const [updPhone, setUpdPhone] = useState('');
+  const [updEmail, setUpdEmail] = useState('');
+  const [updPhotoUrl, setUpdPhotoUrl] = useState('');
+  const [updPhotoFileName, setUpdPhotoFileName] = useState('');
+  const [updDistrict, setUpdDistrict] = useState('Chattogram');
+  const [updUpazila, setUpdUpazila] = useState('Hathazari');
+  const [updArea, setUpdArea] = useState('');
+  const [updDetailedAddress, setUpdDetailedAddress] = useState('');
+  const [updOrgCategory, setUpdOrgCategory] = useState('Infinity Bangladesh Volunteer');
+  const [updCommitteePosition, setUpdCommitteePosition] = useState('');
+  const [updAvailability, setUpdAvailability] = useState<DonorAvailabilityStatus>('AVAILABLE_EMERGENCY');
+  const [updLastDonationDate, setUpdLastDonationDate] = useState('');
+  const [updTotalDonations, setUpdTotalDonations] = useState<number>(0);
+  const [updExperienceNotes, setUpdExperienceNotes] = useState('');
+  const [updShowPhone, setUpdShowPhone] = useState(false);
+  const [updFormError, setUpdFormError] = useState<string | null>(null);
+  const [updSubmitted, setUpdSubmitted] = useState(false);
+  const [isUpdatingDonor, setIsUpdatingDonor] = useState(false);
+  const updPhotoInputRef = useRef<HTMLInputElement>(null);
+
+  // Dynamic Upazilas for Update form
+  const availableUpazilasForUpdate = useMemo(() => {
+    return getUpazilasForDistrict(updDistrict);
+  }, [updDistrict]);
+
+  const populateUpdateForm = (donor: BloodDonor) => {
+    setMatchedDonor(donor);
+    setUpdFullName(donor.fullName || '');
+    setUpdBloodGroup(donor.bloodGroup || 'O+');
+    setUpdGender(donor.gender || 'Male');
+    setUpdDateOfBirth(donor.dateOfBirth || donor.dob || '');
+    setUpdPhone(donor.phone || '');
+    setUpdEmail(donor.email || '');
+    setUpdPhotoUrl(donor.photoUrl || '');
+    setUpdPhotoFileName('');
+    setUpdDistrict(donor.district || 'Chattogram');
+    setUpdUpazila(donor.upazila || 'Hathazari');
+    setUpdArea(donor.area || '');
+    setUpdDetailedAddress(donor.detailedAddress || '');
+    setUpdOrgCategory(donor.orgCategory || 'Infinity Bangladesh Volunteer');
+    setUpdCommitteePosition(donor.committeePosition || '');
+    setUpdAvailability(donor.availabilityStatus || 'AVAILABLE_EMERGENCY');
+    setUpdLastDonationDate(donor.lastDonationDate || '');
+    setUpdTotalDonations(donor.totalDonations || 0);
+    setUpdExperienceNotes(donor.experienceNotes || '');
+    setUpdShowPhone(Boolean(donor.showPhonePublicly));
+    setUpdFormError(null);
+    setUpdSubmitted(false);
+    setUpdSearchError(null);
+    setUpdSearchQuery(donor.phone || donor.id);
+  };
+
+  const handleSearchDonorForUpdate = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setUpdSearchError(null);
+    const query = updSearchQuery.trim();
+    if (!query) {
+      setUpdSearchError(
+        isBn
+          ? 'অনুগ্রহ করে আপনার নিবন্ধিত মোবাইল নম্বর বা ডোনার আইডি প্রদান করুন।'
+          : 'Please enter your registered phone number or Donor ID.'
+      );
+      return;
+    }
+
+    const cleanQuery = query.replace(/\D/g, '');
+    const found = bloodDonors.find(d => {
+      if (d.id.toLowerCase() === query.toLowerCase()) return true;
+      const cleanPhone = d.phone ? d.phone.replace(/\D/g, '') : '';
+      if (cleanQuery.length >= 10 && cleanPhone.includes(cleanQuery)) return true;
+      if (d.phone && d.phone.includes(query)) return true;
+      return false;
+    });
+
+    if (found) {
+      populateUpdateForm(found);
+    } else {
+      setUpdSearchError(
+        isBn
+          ? 'প্রদত্ত মোবাইল নম্বর বা আইডি অনুযায়ী কোনো রক্তদাতার তথ্য খুঁজে পাওয়া যায়নি। অনুগ্রহ করে সঠিক নম্বর দিন অথবা নতুন রক্তদাতা হিসেবে নিবন্ধন করুন।'
+          : 'No donor profile found with this mobile number or ID. Please check the number or register as a new donor.'
+      );
+    }
+  };
+
+  // One-click "Donated Today" action (Sets last donation to today, adds +1 to total donations, sets cooldown)
+  const handleSetDonatedToday = () => {
+    const todayStr = new Date().toISOString().split('T')[0];
+    setUpdLastDonationDate(todayStr);
+    setUpdTotalDonations(prev => (Number(prev) || 0) + 1);
+    setUpdAvailability('UNAVAILABLE');
+    if (updFormError?.includes('তারিখ') || updFormError?.includes('date')) {
+      setUpdFormError(null);
+    }
+  };
+
+  // Handle Photo selection with Cropper in Update Form
+  const handleUpdatePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      setUpdFormError(
+        isBn
+          ? 'অনুগ্রহ করে JPG, JPEG, PNG বা WebP ফরম্যাটের ছবি আপলোড করুন।'
+          : 'Please upload a JPG, JPEG, PNG, or WebP format image.'
+      );
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      setUpdFormError(
+        isBn
+          ? 'ছবির সাইজ ১০ মেগাবাইট (10MB)-এর কম হতে হবে।'
+          : 'Image size must be under 10MB.'
+      );
+      return;
+    }
+
+    setUpdPhotoFileName(file.name);
+    setUpdFormError(null);
+
+    const reader = new FileReader();
+    reader.onload = (readerEvent) => {
+      const src = readerEvent.target?.result as string;
+      if (src) {
+        setCropperImageUrl(src);
+        setCropperTitle(isBn ? 'রক্তদাতার নতুন ছবি ক্রপ ও জুম এডিটর (১:১)' : 'Donor Photo Zoom & Crop (1:1)');
+        setCropperCallback(() => (croppedUrl: string) => {
+          setUpdPhotoUrl(croppedUrl);
+        });
+        setCropperOpen(true);
+      }
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const handleRemoveUpdatePhoto = () => {
+    setUpdPhotoUrl('');
+    setUpdPhotoFileName('');
+    if (updPhotoInputRef.current) {
+      updPhotoInputRef.current.value = '';
+    }
+  };
+
+  const handleDonorUpdateSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!matchedDonor) return;
+    setUpdFormError(null);
+
+    if (!updFullName.trim() || !updPhone.trim() || !updDistrict || !updUpazila) {
+      setUpdFormError(isBn ? 'অনুগ্রহ করে সকল আবশ্যকীয় তথ্য পূরণ করুন।' : 'Please fill in all required fields.');
+      return;
+    }
+
+    const cleanPhone = updPhone.replace(/\D/g, '');
+    if (!/^01[3-9]\d{8}$/.test(cleanPhone)) {
+      setUpdFormError(
+        isBn
+          ? 'অনুগ্রহ করে সঠিক ১১ ডিজিটের বাংলাদেশি মোবাইল নম্বর প্রদান করুন (যেমন: 018XXXXXXXX)'
+          : 'Please enter a valid 11-digit Bangladeshi mobile number starting with 01 (e.g. 018XXXXXXXX)'
+      );
+      return;
+    }
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    if (updLastDonationDate && updLastDonationDate > todayStr) {
+      setUpdFormError(
+        isBn
+          ? 'সর্বশেষ রক্তদানের তারিখ আজকের বা অতীতের তারিখ হতে হবে, ভবিষ্যতের তারিখ নির্বাচন করা যাবে না।'
+          : 'Last donation date cannot be in the future. Please select today or a past date.'
+      );
+      return;
+    }
+
+    setIsUpdatingDonor(true);
+    try {
+      updateBloodDonor(matchedDonor.id, {
+        fullName: updFullName.trim(),
+        bloodGroup: updBloodGroup,
+        gender: updGender,
+        dateOfBirth: updDateOfBirth || undefined,
+        dob: updDateOfBirth || undefined,
+        phone: cleanPhone,
+        email: updEmail.trim() || undefined,
+        photoUrl: updPhotoUrl.trim() || undefined,
+        district: updDistrict,
+        upazila: updUpazila,
+        area: updArea.trim(),
+        detailedAddress: updDetailedAddress.trim() || undefined,
+        orgCategory: updOrgCategory,
+        committeePosition: updCommitteePosition.trim() || undefined,
+        availabilityStatus: updAvailability,
+        lastDonationDate: updLastDonationDate || undefined,
+        totalDonations: Number(updTotalDonations) || 0,
+        experienceNotes: updExperienceNotes.trim() || undefined,
+        showPhonePublicly: updShowPhone
+      });
+
+      setUpdSubmitted(true);
+    } catch (err) {
+      setUpdFormError(isBn ? 'তথ্য হালনাগাদ করতে ত্রুটি হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।' : 'Failed to update donor information. Please try again.');
+    } finally {
+      setIsUpdatingDonor(false);
+    }
   };
 
   // ----------------------------------------------------
@@ -565,7 +797,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                     : 'Every drop counts. Register as a voluntary blood donor with Team Infinity and become someone’s lifeline in moments of crisis.')}
                 </p>
 
-                <div className="space-y-3 pt-1">
+                <div className="space-y-2.5 pt-1">
                   <button
                     type="button"
                     onClick={() => setActiveTab('become-donor')}
@@ -585,6 +817,20 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                     <AlertTriangle className="w-4 h-4" />
                     <span>
                       {tText(bloodDonationSettings.heroCtaBtn2Text) || (isBn ? 'জরুরি রক্তের আবেদন করুন' : 'Emergency Blood Request')}
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveTab('update-donor');
+                      window.scrollTo({ top: 380, behavior: 'smooth' });
+                    }}
+                    className="w-full py-2.5 rounded-xl bg-[#FAF7F2] hover:bg-[#F3EFE8] text-[#006A4E] border border-[#006A4E]/25 font-bold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs hover:border-[#006A4E]/50"
+                  >
+                    <Edit3 className="w-3.5 h-3.5 text-[#006A4E]" />
+                    <span>
+                      {isBn ? 'ইতিমধ্যে রক্তদাতা? তথ্য বা শেষ রক্তদানের তারিখ আপডেট করুন' : 'Already a Donor? Update Profile / Last Donation'}
                     </span>
                   </button>
                 </div>
@@ -617,6 +863,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
             {[
               { id: 'find-donor', label: isBn ? 'রক্তদাতা খুঁজুন' : 'Find a Donor', icon: Search },
               { id: 'become-donor', label: isBn ? 'রক্তদাতা হন' : 'Become a Donor', icon: UserPlus },
+              { id: 'update-donor', label: isBn ? 'তথ্য হালনাগাদ' : 'Update Profile', icon: Edit3 },
               { id: 'emergency-request', label: isBn ? 'জরুরি রক্তের আবেদন' : 'Emergency Request', icon: AlertTriangle, badge: stats.activeEmergencyRequests ? `${stats.activeEmergencyRequests}` : undefined },
               { id: 'donors', label: isBn ? 'রক্তদাতা তালিকা' : 'Our Donors', icon: Users },
               { id: 'statistics', label: isBn ? 'রক্তদান পরিসংখ্যান' : 'Blood Statistics', icon: Activity },
@@ -915,6 +1162,16 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                                 {donor.totalDonations} {isBn ? 'বার রক্তদান' : 'donations'}
                               </span>
                             </div>
+
+                            {donor.lastDonationDate && (() => {
+                              const cd = getCooldownStatusInfo(donor.lastDonationDate, isBn);
+                              return (
+                                <div className={`flex items-center gap-1.5 text-[10.5px] px-2.5 py-1 rounded-xl font-bold border ${cd.badgeColorClass}`}>
+                                  <Clock className="w-3 h-3 shrink-0" />
+                                  <span className="truncate">{cd.badgeText}</span>
+                                </div>
+                              );
+                            })()}
                           </div>
 
                           {donor.experienceNotes && (
@@ -1090,6 +1347,18 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                               </span>
                             </button>
 
+                            {regPhotoUrl && (
+                              <button
+                                type="button"
+                                onClick={() => handleOpenPhotoCropper(regPhotoUrl, false)}
+                                className="px-3.5 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-[#006A4E] border border-emerald-300 text-xs font-bold shadow-2xs inline-flex items-center justify-center gap-1.5 cursor-pointer transition-colors shrink-0"
+                                title={isBn ? 'ছবি জুম ও ক্রপ করুন' : 'Crop & Zoom Photo'}
+                              >
+                                <Crop className="w-3.5 h-3.5" />
+                                <span>{isBn ? 'ক্রপ / জুম করুন' : 'Crop / Zoom'}</span>
+                              </button>
+                            )}
+
                             <input
                               type="url"
                               value={regPhotoUrl.startsWith('data:') ? '' : regPhotoUrl}
@@ -1104,8 +1373,8 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
 
                           <p className="text-[11px] text-slate-500">
                             {isBn
-                              ? 'JPG, PNG বা WebP ফরম্যাট। সর্বোচ্চ সাইজ: ৫MB। (ছবি না দিলেও নিবন্ধন সম্পন্ন হবে)'
-                              : 'Supported: JPG, PNG, WebP (max 5MB). Photo is optional.'}
+                              ? 'JPG, PNG বা WebP ফরম্যাট। জুম ইন/আউট ও ১:১ স্কয়ার ক্রপিং সুবিধা উপলব্ধ। (ছবি না দিলেও নিবন্ধন সম্পন্ন হবে)'
+                              : 'Supported: JPG, PNG, WebP. Full Zoom & 1:1 Square Cropper included. Photo is optional.'}
                           </p>
 
                           {regPhotoFileName && (
@@ -1498,7 +1767,733 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
         )}
 
         {/* ==================================================== */}
-        {/* TAB 3: EMERGENCY BLOOD REQUEST (FORM & LIVE BOARD) */}
+        {/* TAB 3: UPDATE DONOR PROFILE & LAST DONATION RECORD */}
+        {/* ==================================================== */}
+        {activeTab === 'update-donor' && (
+          <div className="max-w-3xl mx-auto space-y-8 animate-in fade-in">
+            {/* Header Card */}
+            <div className="bg-white rounded-3xl p-7 sm:p-9 border border-[#EAE3D9] shadow-warm-sm space-y-4 text-center sm:text-left">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-4">
+                <div className="space-y-1.5 flex-1">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-extrabold border border-emerald-200">
+                    <Edit3 className="w-3.5 h-3.5 text-[#006A4E]" />
+                    <span>{isBn ? 'রক্তদাতার প্রোফাইল ও রেকর্ড হালনাগাদ' : 'Donor Profile & History Update'}</span>
+                  </div>
+                  <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-display">
+                    {isBn ? 'রক্তদানের তথ্য বা প্রোফাইল আপডেট করুন' : 'Update Your Blood Donor Profile'}
+                  </h2>
+                  <p className="text-xs sm:text-sm text-slate-500 max-w-xl">
+                    {isBn
+                      ? 'নিবন্ধিত মোবাইল নম্বর দিয়ে প্রোফাইল খুঁজুন। সর্বশেষ রক্তদানের তারিখ (১২০ দিনের কুলডাউন হিসাবসহ), ছবি, এলাকা/ঠিকানা ও প্রাপ্যতা সহজে আপডেট করুন।'
+                      : 'Find your profile by registered mobile number. Easily update your last donation date (with 120-day cooldown calculation), photo, address, and availability.'}
+                  </p>
+                </div>
+
+                <div className="p-3.5 bg-emerald-950 text-emerald-100 rounded-2xl border border-emerald-800/40 text-center shrink-0 shadow-xs max-w-xs sm:max-w-none">
+                  <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-emerald-300">
+                    <Clock className="w-3.5 h-3.5" />
+                    <span>{isBn ? 'নিরাপদ রক্তদানের ব্যবধান' : 'Safe Donation Interval'}</span>
+                  </div>
+                  <p className="text-lg font-extrabold text-white font-display mt-0.5">
+                    {isBn ? '১২০ দিন (৪ মাস)' : '120 Days (4 Months)'}
+                  </p>
+                  <p className="text-[10px] text-emerald-300/80">
+                    {isBn ? 'স্বাস্থ্যের পূর্ণ সুরক্ষায়' : 'For optimal health & recovery'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Step 1: Donor Mobile / ID Lookup */}
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#EAE3D9] shadow-warm-sm space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm sm:text-base font-extrabold text-slate-900 font-display flex items-center gap-2">
+                  <Search className="w-4 h-4 text-[#006A4E]" />
+                  <span>{isBn ? '১. আপনার প্রোফাইল অনুসন্ধান করুন' : '1. Search Your Donor Profile'}</span>
+                </h3>
+                {matchedDonor && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMatchedDonor(null);
+                      setUpdSearchQuery('');
+                      setUpdSubmitted(false);
+                    }}
+                    className="text-xs font-bold text-[#006A4E] hover:underline cursor-pointer flex items-center gap-1"
+                  >
+                    <RefreshCw className="w-3 h-3" />
+                    <span>{isBn ? 'অন্য নম্বর দিয়ে খুঁজুন' : 'Search Another Number'}</span>
+                  </button>
+                )}
+              </div>
+
+              <form onSubmit={handleSearchDonorForUpdate} className="space-y-3">
+                <div className="flex flex-col sm:flex-row gap-2.5">
+                  <div className="relative flex-1 min-w-0">
+                    <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                      type="text"
+                      value={updSearchQuery}
+                      onChange={(e) => {
+                        setUpdSearchQuery(e.target.value);
+                        if (updSearchError) setUpdSearchError(null);
+                      }}
+                      placeholder={isBn ? 'রেজিস্টার্ড ১১ ডিজিট মোবাইল নম্বর দিন (যেমন: 018XXXXXXXX)...' : 'Enter registered 11-digit mobile number (e.g. 018XXXXXXXX)...'}
+                      className="w-full pl-10 pr-4 py-3 rounded-2xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm font-medium focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="px-6 py-3 rounded-2xl bg-[#006A4E] hover:bg-[#00553E] text-white font-extrabold text-xs sm:text-sm shadow-warm-sm transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0"
+                  >
+                    <Search className="w-4 h-4" />
+                    <span>{isBn ? 'প্রোফাইল খুঁজুন' : 'Find Profile'}</span>
+                  </button>
+                </div>
+
+                {updSearchError && (
+                  <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 text-xs font-medium flex items-start gap-2 animate-in fade-in">
+                    <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                    <div className="space-y-1">
+                      <p className="font-bold">{updSearchError}</p>
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('become-donor')}
+                        className="text-rose-700 font-extrabold underline hover:text-rose-900 text-[11px] block cursor-pointer"
+                      >
+                        {isBn ? '→ নতুন রক্তদাতা হিসেবে নিবন্ধন করুন' : '→ Register as a New Donor'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </form>
+            </div>
+
+            {/* Step 2: Matched Donor Form or Success Screen */}
+            {updSubmitted ? (
+              <div className="p-8 sm:p-12 text-center bg-white rounded-3xl border border-emerald-200 shadow-warm-lg space-y-5 animate-in fade-in">
+                <div className="w-16 h-16 rounded-full bg-emerald-100 text-[#006A4E] mx-auto flex items-center justify-center">
+                  <CheckCircle2 className="w-9 h-9" />
+                </div>
+
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-extrabold text-slate-900 font-display">
+                    {isBn ? 'রক্তদাতার তথ্য সফলভাবে হালনাগাদ হয়েছে!' : 'Donor Profile Updated Successfully!'}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
+                    {isBn
+                      ? 'আপনার রক্তদানের রেকর্ড, বর্তমান অবস্থান এবং প্রাপ্যতা স্ট্যাটাস সফলভাবে ডাটাবেজে সংরক্ষিত হয়েছে।'
+                      : 'Your donation record, latest address, and availability status have been updated in the database.'}
+                  </p>
+                </div>
+
+                {/* Cooldown Status Summary Card */}
+                {updLastDonationDate && (() => {
+                  const cooldown = getCooldownStatusInfo(updLastDonationDate, isBn);
+                  return (
+                    <div className={`p-4.5 rounded-2xl border max-w-md mx-auto text-left space-y-1.5 ${cooldown.badgeColorClass}`}>
+                      <div className="flex items-center gap-2 font-extrabold text-xs">
+                        <HeartPulse className="w-4 h-4" />
+                        <span>{cooldown.badgeText}</span>
+                      </div>
+                      <p className="text-[11px] opacity-90 leading-relaxed">
+                        {cooldown.description}
+                      </p>
+                    </div>
+                  );
+                })()}
+
+                <div className="flex flex-wrap items-center justify-center gap-3 pt-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (matchedDonor) {
+                        const updated = bloodDonors.find(d => d.id === matchedDonor.id);
+                        if (updated) setSelectedDonorForProfile(updated);
+                      }
+                    }}
+                    className="px-5 py-2.5 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-[#006A4E] border border-emerald-300 font-extrabold text-xs transition-all cursor-pointer"
+                  >
+                    {isBn ? 'আপডেট করা প্রোফাইল দেখুন' : 'View Updated Profile'}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUpdSubmitted(false);
+                      setActiveTab('find-donor');
+                    }}
+                    className="px-5 py-2.5 rounded-2xl bg-[#006A4E] hover:bg-[#00553E] text-white font-extrabold text-xs shadow-warm-xs transition-all cursor-pointer"
+                  >
+                    {isBn ? 'রক্তদাতা ডিরেক্টরিতে যান' : 'Go to Donor Directory'}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUpdSubmitted(false);
+                      setMatchedDonor(null);
+                      setUpdSearchQuery('');
+                    }}
+                    className="px-4 py-2.5 rounded-2xl bg-white border border-[#EAE3D9] text-slate-700 font-bold text-xs hover:bg-slate-50 transition-all cursor-pointer"
+                  >
+                    {isBn ? 'আরেকটি প্রোফাইল আপডেট' : 'Update Another'}
+                  </button>
+                </div>
+              </div>
+            ) : matchedDonor ? (
+              <div className="bg-white rounded-3xl p-7 sm:p-10 border border-[#EAE3D9] shadow-warm-md space-y-8 animate-in fade-in">
+                {/* Active Donor Banner */}
+                <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-900 to-emerald-950 text-white flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="flex items-center gap-3 text-center sm:text-left">
+                    <div className="relative w-14 h-14 rounded-2xl overflow-hidden bg-emerald-800 shrink-0 border-2 border-emerald-500/40">
+                      {updPhotoUrl ? (
+                        <img src={getAssetUrl(updPhotoUrl)} alt={updFullName} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-white font-extrabold text-xl">
+                          {updFullName ? updFullName.charAt(0) : 'D'}
+                        </div>
+                      )}
+                      <div className="absolute bottom-0 right-0 px-1.5 py-0.2 bg-rose-600 text-white text-[9px] font-black rounded-tl-md">
+                        {updBloodGroup}
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-base sm:text-lg font-extrabold text-white font-display">
+                          {updFullName}
+                        </h4>
+                        <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-200 text-[10px] font-bold border border-emerald-400/30">
+                          {updBloodGroup}
+                        </span>
+                      </div>
+                      <p className="text-xs text-emerald-200/90 mt-0.5">
+                        ID: <span className="font-mono">{matchedDonor.id}</span> &bull; {updDistrict}, {updUpazila}
+                      </p>
+                    </div>
+                  </div>
+
+                  <span className="px-3 py-1 rounded-full bg-white/10 text-emerald-100 text-xs font-bold border border-white/20">
+                    {isBn ? 'সম্পাদনা মোড সক্রিয়' : 'Editing Mode Active'}
+                  </span>
+                </div>
+
+                <form onSubmit={handleDonorUpdateSubmit} className="space-y-8">
+                  {/* ==================================================== */}
+                  {/* SECTION 1: LAST DONATION & 120-DAY COOLDOWN */}
+                  {/* ==================================================== */}
+                  <div className="p-5 sm:p-6 rounded-3xl bg-[#FAF7F2] border-2 border-[#EAE3D9] space-y-4">
+                    <div className="flex items-center justify-between border-b border-[#EAE3D9] pb-3">
+                      <div className="space-y-0.5">
+                        <h4 className="text-sm font-extrabold uppercase tracking-wider text-slate-900 flex items-center gap-2 font-display">
+                          <Clock className="w-4 h-4 text-rose-600" />
+                          <span>{isBn ? '১. সর্বশেষ রক্তদান ও ১২০ দিনের কুলডাউন হিসাব' : '1. Last Donation & 120-Day Cooldown Tracker'}</span>
+                        </h4>
+                        <p className="text-[11px] text-slate-500">
+                          {isBn ? 'রক্তদানের তারিখ আপডেট করলে মোট রক্তদান বৃদ্ধি পাবে ও কুলডাউন হিসাব আপডেট হবে' : 'Updating donation date calculates cooldown status and increments total count'}
+                        </p>
+                      </div>
+
+                      {/* Quick Shortcut Button */}
+                      <button
+                        type="button"
+                        onClick={handleSetDonatedToday}
+                        className="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs shadow-warm-xs transition-all flex items-center gap-1.5 cursor-pointer transform hover:-translate-y-0.5 shrink-0"
+                        title={isBn ? 'আজকে রক্তদান করেছেন হিসেবে সেট করুন' : 'Mark as Donated Today'}
+                      >
+                        <Droplet className="w-3.5 h-3.5 fill-current" />
+                        <span>{isBn ? 'আজকে রক্তদান করেছি' : 'Donated Today'}</span>
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* Last Donation Date */}
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-bold text-slate-800 flex items-center justify-between">
+                          <span>{isBn ? 'সর্বশেষ রক্তদানের তারিখ *' : 'Last Donation Date *'}</span>
+                          {updLastDonationDate && (
+                            <span className="text-[10px] font-mono text-slate-500 font-bold">
+                              {updLastDonationDate}
+                            </span>
+                          )}
+                        </label>
+                        <input
+                          type="date"
+                          max={new Date().toISOString().split('T')[0]}
+                          value={updLastDonationDate}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setUpdLastDonationDate(val);
+                            const today = new Date().toISOString().split('T')[0];
+                            if (val > today) {
+                              setUpdFormError(
+                                isBn
+                                  ? 'সর্বশেষ রক্তদানের তারিখ আজকের বা অতীতের তারিখ হতে হবে, ভবিষ্যতের নয়।'
+                                  : 'Last donation date cannot be in the future.'
+                              );
+                            } else if (updFormError?.includes('তারিখ') || updFormError?.includes('date')) {
+                              setUpdFormError(null);
+                            }
+                          }}
+                          className={`w-full px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm font-medium transition-all focus:outline-none ${
+                            updLastDonationDate && updLastDonationDate > new Date().toISOString().split('T')[0]
+                              ? 'border-rose-500 bg-rose-50 text-rose-900 ring-2 ring-rose-300'
+                              : 'border-[#EAE3D9] bg-white focus:ring-2 focus:ring-[#006A4E]'
+                          }`}
+                        />
+                      </div>
+
+                      {/* Total Donations Count */}
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-bold text-slate-800 flex items-center justify-between">
+                          <span>{isBn ? 'মোট কতবার রক্তদান করেছেন' : 'Total Donations Count'}</span>
+                          <span className="text-[10px] text-slate-400 font-medium">
+                            {isBn ? 'সংখ্যা বাড়ানো বা কমানো যাবে' : 'Adjustable'}
+                          </span>
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            min="0"
+                            value={updTotalDonations}
+                            onChange={(e) => setUpdTotalDonations(Math.max(0, Number(e.target.value)))}
+                            className="flex-1 min-w-0 px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-white text-xs sm:text-sm font-bold text-slate-900 focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setUpdTotalDonations(prev => (Number(prev) || 0) + 1)}
+                            className="px-3.5 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-[#006A4E] border border-emerald-300 font-extrabold text-xs cursor-pointer"
+                            title={isBn ? '১ বাড়ান' : 'Increment by 1'}
+                          >
+                            +1
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Live 120-Day Cooldown Status Card */}
+                    {updLastDonationDate ? (() => {
+                      const cooldown = getCooldownStatusInfo(updLastDonationDate, isBn);
+                      return (
+                        <div className={`p-4 rounded-2xl border flex items-start gap-3 text-xs shadow-2xs ${cooldown.badgeColorClass} animate-in fade-in`}>
+                          <HeartPulse className="w-5 h-5 shrink-0 mt-0.5" />
+                          <div className="space-y-1 flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <p className="font-extrabold text-sm tracking-tight">
+                                {cooldown.badgeText}
+                              </p>
+                              {cooldown.daysPassed !== null && (
+                                <span className="px-2.5 py-0.5 rounded-full bg-white/70 text-[10px] font-extrabold shadow-2xs">
+                                  {isBn ? `রক্তদানের পর ${cooldown.daysPassed} দিন পার` : `${cooldown.daysPassed} days passed`}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs opacity-90 leading-relaxed">
+                              {cooldown.description}
+                            </p>
+                            {!cooldown.isEligible && (
+                              <p className="text-[11px] font-bold text-rose-900 bg-rose-100/80 p-2 rounded-xl border border-rose-200 mt-1">
+                                💡 {isBn
+                                  ? 'পরামর্শ: যেহেতু ১২০ দিন পূর্ণ হয়নি, আপনার প্রাপ্যতা স্ট্যাটাস "সাময়িক বিরতিতে আছেন" নির্বাচন করা শ্রেয়।'
+                                  : 'Advice: As 120 days have not passed, setting availability to "Temporarily Unavailable" is recommended.'}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })() : (
+                      <p className="text-[11px] text-slate-500 italic">
+                        {isBn ? 'রক্তদানের তারিখ নির্বাচন করলে এখানে ১২০ দিনের কুলডাউন হিসাব প্রদর্শিত হবে।' : 'Select a donation date to compute the 120-day cooldown status.'}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* ==================================================== */}
+                  {/* SECTION 2: PHOTO UPDATE & CROP */}
+                  {/* ==================================================== */}
+                  <div className="space-y-4 pt-2 border-t border-slate-100">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
+                        {isBn ? '২. প্রোফাইল ছবি ও রূপরেখা (১:১ ক্রপ ও জুম)' : '2. Profile Photo (1:1 Zoom & Crop)'}
+                      </h4>
+                      <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 font-bold">
+                        {isBn ? 'জুম ও ক্রপ সমর্থিত' : 'Zoom & Crop Supported'}
+                      </span>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
+                      {updPhotoUrl ? (
+                        <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden border-2 border-[#006A4E] shadow-warm-sm shrink-0 bg-white group">
+                          <img
+                            src={getAssetUrl(updPhotoUrl)}
+                            alt="Donor Update Preview"
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleRemoveUpdatePhoto}
+                            className="absolute inset-0 bg-black/60 text-white opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-1 transition-opacity cursor-pointer text-[10px] font-bold"
+                            title={isBn ? 'ছবি মুছুন' : 'Remove Photo'}
+                          >
+                            <Trash2 className="w-4 h-4 text-rose-300" />
+                            <span>{isBn ? 'মুছুন' : 'Remove'}</span>
+                          </button>
+                        </div>
+                      ) : (
+                        <div
+                          onClick={() => updPhotoInputRef.current?.click()}
+                          className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white border border-slate-200 flex flex-col items-center justify-center text-slate-400 hover:text-[#006A4E] hover:border-[#006A4E] transition-all cursor-pointer shrink-0 shadow-2xs group"
+                          title={isBn ? 'ছবি আপলোড করতে ক্লিক করুন' : 'Click to upload photo'}
+                        >
+                          <Camera className="w-7 h-7 mb-1 text-slate-400 group-hover:scale-110 group-hover:text-[#006A4E] transition-all" />
+                          <span className="text-[10px] font-bold uppercase text-center px-1 text-slate-600 group-hover:text-[#006A4E]">
+                            {isBn ? 'ছবি দিন' : 'Upload'}
+                          </span>
+                        </div>
+                      )}
+
+                      <div className="space-y-2 text-center sm:text-left min-w-0 flex-1 w-full">
+                        <input
+                          ref={updPhotoInputRef}
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp,image/jpg"
+                          onChange={handleUpdatePhotoUpload}
+                          className="hidden"
+                        />
+                        <div className="flex flex-wrap sm:flex-nowrap gap-2">
+                          <button
+                            type="button"
+                            onClick={() => updPhotoInputRef.current?.click()}
+                            className="px-4 py-2.5 rounded-xl bg-white border border-[#EAE3D9] hover:bg-slate-100 text-slate-800 text-xs font-bold shadow-2xs inline-flex items-center justify-center gap-2 cursor-pointer transition-colors shrink-0"
+                          >
+                            <Upload className="w-3.5 h-3.5 text-[#006A4E]" />
+                            <span>
+                              {updPhotoUrl
+                                ? (isBn ? 'নতুন ছবি আপলোড' : 'Upload New Photo')
+                                : (isBn ? 'ডিভাইস থেকে ছবি আপলোড' : 'Upload from Device')}
+                            </span>
+                          </button>
+
+                          {updPhotoUrl && (
+                            <button
+                              type="button"
+                              onClick={() => handleOpenPhotoCropper(updPhotoUrl, true)}
+                              className="px-3.5 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-[#006A4E] border border-emerald-300 text-xs font-bold shadow-2xs inline-flex items-center justify-center gap-1.5 cursor-pointer transition-colors shrink-0"
+                              title={isBn ? 'ছবি ক্রপ ও জুম করুন' : 'Crop & Zoom Photo'}
+                            >
+                              <Crop className="w-3.5 h-3.5" />
+                              <span>{isBn ? 'ক্রপ / জুম করুন' : 'Crop / Zoom'}</span>
+                            </button>
+                          )}
+
+                          <input
+                            type="url"
+                            value={updPhotoUrl.startsWith('data:') ? '' : updPhotoUrl}
+                            onChange={(e) => {
+                              setUpdPhotoUrl(e.target.value);
+                              setUpdPhotoFileName('');
+                            }}
+                            placeholder={isBn ? 'অথবা সরাসরি ছবির লিঙ্ক দিন (URL)' : 'Or paste direct Image URL...'}
+                            className="flex-1 min-w-0 px-3.5 py-2 rounded-xl border border-[#EAE3D9] bg-white text-xs focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                          />
+                        </div>
+
+                        <p className="text-[11px] text-slate-500">
+                          {isBn
+                            ? 'ছবি সিলেক্ট করার সাথে সাথেই ক্রপ ও জুম ইন/আউট এডিটর ওপেন হবে।'
+                            : 'Cropper with Zoom in/out and 1:1 framing will open upon file selection.'}
+                        </p>
+
+                        {updPhotoFileName && (
+                          <p className="text-[11px] font-mono text-[#006A4E] truncate flex items-center justify-center sm:justify-start gap-1 font-bold">
+                            <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                            <span>{updPhotoFileName}</span>
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ==================================================== */}
+                  {/* SECTION 3: LOCATION & ADDRESS UPDATES */}
+                  {/* ==================================================== */}
+                  <div className="space-y-4 pt-2 border-t border-slate-100">
+                    <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
+                      {isBn ? '৩. বর্তমান অবস্থান ও ঠিকানা পরিবর্তন' : '3. Location & Address Changes'}
+                    </h4>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      {/* District Selection */}
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-bold text-slate-800">{isBn ? 'জেলা (District) *' : 'District *'}</label>
+                        <select
+                          value={updDistrict}
+                          onChange={(e) => {
+                            const newDistrict = e.target.value;
+                            setUpdDistrict(newDistrict);
+                            const upazilas = getUpazilasForDistrict(newDistrict);
+                            if (upazilas.length > 0) {
+                              setUpdUpazila(upazilas[0]);
+                            }
+                          }}
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm font-medium focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                        >
+                          {BANGLADESH_DISTRICTS.map(dist => (
+                            <option key={dist} value={dist}>{dist}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Dynamic Upazila */}
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-bold text-slate-800">{isBn ? 'উপজেলা / থানা *' : 'Upazila / Thana *'}</label>
+                        <select
+                          value={updUpazila}
+                          onChange={(e) => setUpdUpazila(e.target.value)}
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm font-medium focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                        >
+                          {availableUpazilasForUpdate.map(upz => (
+                            <option key={upz} value={upz}>{upz}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Area */}
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-bold text-slate-800">{isBn ? 'নির্দিষ্ট এলাকা / গ্রাম *' : 'Area / Locality *'}</label>
+                        <input
+                          type="text"
+                          required
+                          value={updArea}
+                          onChange={(e) => setUpdArea(e.target.value)}
+                          placeholder="e.g. Fatehabad / College Road"
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-bold text-slate-800 flex items-center justify-between">
+                        <span>{isBn ? 'বিস্তারিত আবাসিক ঠিকানা (গোপন রাখা হবে)' : 'Detailed Address (Protected & Private)'}</span>
+                        <span className="text-[10px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md">Private</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={updDetailedAddress}
+                        onChange={(e) => setUpdDetailedAddress(e.target.value)}
+                        placeholder="House #, Road #, Village..."
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  {/* ==================================================== */}
+                  {/* SECTION 4: PERSONAL & CONTACT INFORMATION */}
+                  {/* ==================================================== */}
+                  <div className="space-y-4 pt-2 border-t border-slate-100">
+                    <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
+                      {isBn ? '৪. ব্যক্তিগত ও যোগাযোগের তথ্য' : '4. Personal & Contact Details'}
+                    </h4>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
+                      <div className="sm:col-span-8 space-y-1.5">
+                        <label className="block text-xs font-bold text-slate-800">{isBn ? 'পূর্ণ নাম *' : 'Full Name *'}</label>
+                        <input
+                          type="text"
+                          required
+                          value={updFullName}
+                          onChange={(e) => setUpdFullName(e.target.value)}
+                          className="w-full px-4 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none font-medium"
+                        />
+                      </div>
+
+                      <div className="sm:col-span-4 space-y-1.5">
+                        <label className="block text-xs font-bold text-slate-800">{isBn ? 'রক্তের গ্রুপ *' : 'Blood Group *'}</label>
+                        <select
+                          value={updBloodGroup}
+                          onChange={(e) => setUpdBloodGroup(e.target.value as BloodGroup)}
+                          className="w-full px-4 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm font-black text-rose-700 focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                        >
+                          <option value="A+">A+ (Positive)</option>
+                          <option value="A-">A- (Negative)</option>
+                          <option value="B+">B+ (Positive)</option>
+                          <option value="B-">B- (Negative)</option>
+                          <option value="O+">O+ (Positive)</option>
+                          <option value="O-">O- (Negative)</option>
+                          <option value="AB+">AB+ (Positive)</option>
+                          <option value="AB-">AB- (Negative)</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
+                      <div className="sm:col-span-4 space-y-1.5">
+                        <label className="block text-xs font-bold text-slate-800">{isBn ? 'লিঙ্গ (Gender) *' : 'Gender *'}</label>
+                        <select
+                          value={updGender}
+                          onChange={(e) => setUpdGender(e.target.value)}
+                          className="w-full px-4 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                        >
+                          <option value="Male">{isBn ? 'পুরুষ (Male)' : 'Male'}</option>
+                          <option value="Female">{isBn ? 'নারী (Female)' : 'Female'}</option>
+                          <option value="Other">{isBn ? 'অন্যান্য (Other)' : 'Other'}</option>
+                        </select>
+                      </div>
+
+                      <div className="sm:col-span-8 space-y-1.5">
+                        <label className="block text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                          <Calendar className="w-3.5 h-3.5 text-[#006A4E]" />
+                          <span>{isBn ? 'জন্ম তারিখ (Date of Birth)' : 'Date of Birth'}</span>
+                        </label>
+                        <input
+                          type="date"
+                          value={updDateOfBirth}
+                          onChange={(e) => setUpdDateOfBirth(e.target.value)}
+                          className="w-full px-4 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-bold text-slate-800 flex items-center justify-between">
+                          <span>{isBn ? 'মোবাইল নম্বর *' : 'Phone Number *'}</span>
+                          <span className="text-[10px] text-slate-400">১১ ডিজিট (01XXXXXXXXX)</span>
+                        </label>
+                        <input
+                          type="tel"
+                          required
+                          value={updPhone}
+                          onChange={(e) => setUpdPhone(e.target.value)}
+                          className="w-full px-4 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm font-mono font-bold focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-bold text-slate-800">{isBn ? 'ইমেইল (ঐচ্ছিক)' : 'Email (Optional)'}</label>
+                        <input
+                          type="email"
+                          value={updEmail}
+                          onChange={(e) => setUpdEmail(e.target.value)}
+                          placeholder="donor@example.com"
+                          className="w-full px-4 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ==================================================== */}
+                  {/* SECTION 5: AVAILABILITY & EXPERIENCE NOTES */}
+                  {/* ==================================================== */}
+                  <div className="space-y-4 pt-2 border-t border-slate-100">
+                    <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
+                      {isBn ? '৫. প্রাপ্যতা স্ট্যাটাস ও বার্তা' : '5. Availability Status & Message'}
+                    </h4>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-bold text-slate-800">{isBn ? 'সংগঠনের সাথে সম্পর্ক' : 'Organization Category'}</label>
+                        <select
+                          value={updOrgCategory}
+                          onChange={(e) => setUpdOrgCategory(e.target.value)}
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                        >
+                          {donorCategories.map(cat => (
+                            <option key={cat.id} value={cat.name.en}>
+                              {cat.name.en} ({cat.name.bn})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="block text-xs font-bold text-slate-800">{isBn ? 'বর্তমান প্রাপ্যতা স্ট্যাটাস *' : 'Availability Status *'}</label>
+                        <select
+                          value={updAvailability}
+                          onChange={(e) => setUpdAvailability(e.target.value as DonorAvailabilityStatus)}
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm font-bold focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                        >
+                          <option value="AVAILABLE_EMERGENCY">🟢 {isBn ? 'জরুরি প্রয়োজনে যেকোনো সময় প্রস্তুত' : 'Available for Emergency'}</option>
+                          <option value="AVAILABLE_NOTICE">🟡 {isBn ? 'পূর্বে জানালে প্রস্তুত' : 'Available with Prior Notice'}</option>
+                          <option value="UNAVAILABLE">🔴 {isBn ? 'সাময়িক বিরতিতে আছেন / সম্প্রতি রক্তদান করেছেন' : 'Temporarily Unavailable (Resting)'}</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="block text-xs font-bold text-slate-800">{isBn ? 'রক্তদানের অভিজ্ঞতা বা বিশেষ বার্তা' : 'Experience or Motivation'}</label>
+                      <textarea
+                        rows={2}
+                        value={updExperienceNotes}
+                        onChange={(e) => setUpdExperienceNotes(e.target.value)}
+                        placeholder="e.g. Regular voluntary blood donor..."
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                      />
+                    </div>
+
+                    <label className="flex items-start gap-2.5 cursor-pointer text-xs text-slate-700 leading-relaxed pt-1">
+                      <input
+                        type="checkbox"
+                        checked={updShowPhone}
+                        onChange={(e) => setUpdShowPhone(e.target.checked)}
+                        className="w-4 h-4 text-[#006A4E] rounded-md mt-0.5 focus:ring-[#006A4E]"
+                      />
+                      <span>
+                        {isBn
+                          ? 'রক্তগ্রহীতা যাতে সরাসরি আমার নম্বরে কল করতে পারেন, তার অনুমতি দিচ্ছি (বন্ধ রাখলে হেল্পলাইনের মাধ্যমে সমন্বয় করা হবে)।'
+                          : 'Allow public users to view direct call button (if disabled, requests route through 24/7 Helpline).'}
+                      </span>
+                    </label>
+                  </div>
+
+                  {/* Form Error Banner */}
+                  {updFormError && (
+                    <div className="p-4 rounded-2xl bg-rose-50 border-2 border-rose-300 text-rose-900 text-xs sm:text-sm font-bold flex items-start gap-2.5 shadow-warm-xs animate-in fade-in">
+                      <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-extrabold text-rose-950">{isBn ? 'হালনাগাদ করতে ত্রুটি:' : 'Update Error:'}</p>
+                        <p className="font-medium text-rose-800 mt-0.5 leading-relaxed">{updFormError}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Submit Button */}
+                  <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
+                    <button
+                      type="submit"
+                      disabled={isUpdatingDonor || Boolean(updLastDonationDate && updLastDonationDate > new Date().toISOString().split('T')[0])}
+                      className={`w-full sm:flex-1 py-3.5 rounded-2xl font-extrabold text-sm shadow-warm-md transition-all flex items-center justify-center gap-2 ${
+                        updLastDonationDate && updLastDonationDate > new Date().toISOString().split('T')[0]
+                          ? 'bg-slate-300 text-slate-500 cursor-not-allowed opacity-80'
+                          : 'bg-[#006A4E] hover:bg-[#00523C] text-white cursor-pointer transform hover:-translate-y-0.5'
+                      }`}
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>
+                        {isUpdatingDonor
+                          ? (isBn ? 'তথ্য সংরক্ষণ করা হচ্ছে...' : 'Saving Changes...')
+                          : (isBn ? 'তথ্য সংরক্ষণ ও প্রোফাইল হালনাগাদ করুন' : 'Save & Update Donor Profile')}
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setMatchedDonor(null)}
+                      className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-white border border-[#EAE3D9] text-slate-700 font-bold text-xs hover:bg-slate-50 transition-all cursor-pointer text-center"
+                    >
+                      {isBn ? 'বাতিল' : 'Cancel'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            ) : null}
+          </div>
+        )}
+
+        {/* ==================================================== */}
+        {/* TAB 4: EMERGENCY BLOOD REQUEST (FORM & LIVE BOARD) */}
         {/* ==================================================== */}
         {activeTab === 'emergency-request' && (
           <div className="space-y-10 animate-in fade-in">
@@ -2079,7 +3074,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-[#006A4E] shrink-0 mt-0.5" />
-                    <span>{isBn ? 'ব্যবধান: পূর্ববর্তী রক্তদানের পর কমপক্ষে ৩-৪ মাস অতিক্রান্ত হতে হবে।' : 'Interval: At least 90-120 days since last donation.'}</span>
+                    <span>{isBn ? 'ব্যবধান: পূর্ববর্তী রক্তদানের পর কমপক্ষে ৪ মাস (১২০ দিন) অতিক্রান্ত হতে হবে।' : 'Interval: At least 120 days (4 months) since last donation.'}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-[#006A4E] shrink-0 mt-0.5" />
@@ -2130,6 +3125,12 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
             setSelectedDonorForProfile(null);
             setSelectedDonorForContact(donor);
           }}
+          onUpdateClick={(donor) => {
+            setSelectedDonorForProfile(null);
+            populateUpdateForm(donor);
+            setActiveTab('update-donor');
+            window.scrollTo({ top: 380, behavior: 'smooth' });
+          }}
         />
       )}
 
@@ -2146,6 +3147,26 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
           }}
         />
       )}
+
+      {/* Interactive Image Cropper Modal (1:1 Aspect Ratio with Zoom In/Out, Pan, Rotate, Flip) */}
+      <ImageEditorModal
+        isOpen={cropperOpen}
+        onClose={() => {
+          setCropperOpen(false);
+          setCropperCallback(null);
+        }}
+        imageUrl={cropperImageUrl}
+        title={cropperTitle || (isBn ? 'ছবি ক্রপ ও জুম এডিটর (১:১)' : 'Photo Zoom & Crop (1:1)')}
+        defaultAspectRatio="1:1"
+        allowedAspectRatios={['1:1', '4:5', '3:4', 'free']}
+        onSave={(croppedDataUrl) => {
+          if (cropperCallback) {
+            cropperCallback(croppedDataUrl);
+          }
+          setCropperOpen(false);
+          setCropperCallback(null);
+        }}
+      />
     </div>
   );
 };

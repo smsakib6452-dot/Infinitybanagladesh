@@ -74,6 +74,107 @@ export function getUpazilasForDistrict(districtName: string): string[] {
 }
 
 /**
+ * Cooldown period in days between blood donations (120 days = 4 months)
+ */
+export const BLOOD_DONATION_COOLDOWN_DAYS = 120;
+
+/**
+ * Calculate blood donation eligibility based on 120 days interval
+ */
+export function isEligibleToDonate(lastDonationDate?: string): {
+  eligible: boolean;
+  daysRemaining: number;
+  daysPassed: number | null;
+  nextEligibleDateStr: string | null;
+} {
+  if (!lastDonationDate) {
+    return {
+      eligible: true,
+      daysRemaining: 0,
+      daysPassed: null,
+      nextEligibleDateStr: null
+    };
+  }
+
+  const lastDate = new Date(lastDonationDate);
+  if (isNaN(lastDate.getTime())) {
+    return {
+      eligible: true,
+      daysRemaining: 0,
+      daysPassed: null,
+      nextEligibleDateStr: null
+    };
+  }
+
+  const today = new Date();
+  const diffTime = today.getTime() - lastDate.getTime();
+  const daysPassed = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+  const nextDate = new Date(lastDate);
+  nextDate.setDate(nextDate.getDate() + BLOOD_DONATION_COOLDOWN_DAYS);
+  const nextEligibleDateStr = nextDate.toISOString().split('T')[0];
+
+  if (daysPassed >= BLOOD_DONATION_COOLDOWN_DAYS) {
+    return {
+      eligible: true,
+      daysRemaining: 0,
+      daysPassed,
+      nextEligibleDateStr
+    };
+  }
+
+  const daysRemaining = Math.max(0, BLOOD_DONATION_COOLDOWN_DAYS - daysPassed);
+  return {
+    eligible: false,
+    daysRemaining,
+    daysPassed: Math.max(0, daysPassed),
+    nextEligibleDateStr
+  };
+}
+
+/**
+ * Format donation cooldown text for UI badges and banners
+ */
+export function getCooldownStatusInfo(lastDonationDate?: string, isBn: boolean = true) {
+  const result = isEligibleToDonate(lastDonationDate);
+
+  if (!lastDonationDate || result.daysPassed === null) {
+    return {
+      isEligible: true,
+      badgeText: isBn ? 'রক্তদানে প্রস্তুত' : 'Eligible to Donate',
+      badgeColorClass: 'bg-emerald-50 text-emerald-800 border-emerald-300',
+      description: isBn
+        ? 'পূর্ববর্তী রক্তদানের কোনো রেকর্ড নেই, আপনি রক্তদানের জন্য সম্পূর্ণ প্রস্তুত।'
+        : 'No previous donation record found. You are eligible to donate.'
+    };
+  }
+
+  if (result.eligible) {
+    return {
+      isEligible: true,
+      daysPassed: result.daysPassed,
+      badgeText: isBn ? 'রক্তদানে সম্পূর্ণ প্রস্তুত' : 'Ready & Eligible to Donate',
+      badgeColorClass: 'bg-emerald-50 text-emerald-800 border-emerald-300',
+      description: isBn
+        ? `সর্বশেষ রক্তদানের পর ${result.daysPassed} দিন অতিক্রান্ত হয়েছে (১২০ দিন সম্পন্ন)। আপনি নিরাপদে রক্তদান করতে পারবেন।`
+        : `${result.daysPassed} days have passed since your last donation (120-day cooldown complete). You are ready to donate safely.`
+    };
+  }
+
+  return {
+    isEligible: false,
+    daysRemaining: result.daysRemaining,
+    daysPassed: result.daysPassed,
+    nextEligibleDateStr: result.nextEligibleDateStr,
+    badgeText: isBn ? `১২০ দিন পূর্ণ হতে আর ${result.daysRemaining} দিন বাকি` : `${result.daysRemaining} days remaining in 120-day cooldown`,
+    badgeColorClass: 'bg-rose-50 text-rose-800 border-rose-300',
+    description: isBn
+      ? `আপনার শেষ রক্তদানের পর ${result.daysPassed} দিন পার হয়েছে। সুস্থতার জন্য ১২০ দিন (৪ মাস) পূর্ণ হওয়া পর্যন্ত বিশ্রাম নেওয়া আবশ্যক। আগামী ${result.nextEligibleDateStr} থেকে রক্তদানে সক্ষম হবেন।`
+      : `${result.daysPassed} days passed since last donation. 120-day cooldown required for safe donation. Eligible again on ${result.nextEligibleDateStr}.`
+  };
+}
+
+/**
  * Calculate age in years from a Date of Birth string (YYYY-MM-DD)
  */
 export function calculateAge(dobString?: string): number | null {

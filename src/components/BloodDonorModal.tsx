@@ -3,7 +3,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
 import { BloodDonor, BloodGroup, DonorAvailabilityStatus, DonorApprovalStatus, BloodDonationHistoryEntry } from '../types';
 import { BANGLADESH_DISTRICTS } from '../data/bangladeshData';
-import { getUpazilasForDistrict, calculateAge } from '../data/bloodDonationData';
+import { getUpazilasForDistrict, calculateAge, getCooldownStatusInfo } from '../data/bloodDonationData';
 import { getAssetUrl } from '../lib/utils/assetHelper';
 import {
   X,
@@ -765,9 +765,20 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
                     <AlertTriangle className="w-3.5 h-3.5" />
                     <span>{isBn ? 'ভবিষ্যতের তারিখ গ্রহণযোগ্য নয়' : 'Future dates not allowed'}</span>
                   </p>
-                ) : (
+                ) : lastDonationDate ? (() => {
+                  const cooldown = getCooldownStatusInfo(lastDonationDate, isBn);
+                  return (
+                    <div className={`p-3 rounded-xl border flex items-center justify-between gap-2 text-xs ${cooldown.badgeColorClass}`}>
+                      <div className="flex items-center gap-1.5 font-extrabold">
+                        <Droplet className="w-3.5 h-3.5 fill-current" />
+                        <span>{cooldown.badgeText}</span>
+                      </div>
+                      <span className="text-[10px] font-medium opacity-90">{cooldown.description}</span>
+                    </div>
+                  );
+                })() : (
                   <p className="text-[10px] text-slate-400">
-                    {isBn ? 'ভবিষ্যতের কোনো তারিখ প্রযোজ্য নয়' : 'Future dates not allowed'}
+                    {isBn ? 'রক্তদানের তারিখ দিলে ১২০ দিনের কুলডাউন স্বয়ংক্রিয়ভাবে হিসাব হবে' : 'Cooldown status is computed based on 120-day interval rule'}
                   </p>
                 )}
               </div>

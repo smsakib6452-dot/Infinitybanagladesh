@@ -141,6 +141,7 @@ import { AdminErrorBoundary } from '../components/AdminErrorBoundary';
 import { isSupabaseConfigured, signInWithEmail, signOutAdmin } from '../lib/supabase';
 import { detectAndNormalizeMedia, DEFAULT_VIDEO_THUMBNAIL, isPortraitVideo } from '../lib/utils/mediaHelper';
 import { uploadToCloudinary } from '../lib/cloudinary';
+import { getCooldownStatusInfo } from '../data/bloodDonationData';
 
 type AdminTab =
   | 'overview'
@@ -5441,23 +5442,31 @@ export const AdminPage: React.FC = () => {
                                 </td>
 
                                 <td className="p-3.5 whitespace-nowrap">
-                                  {donor.lastDonationDate ? (
-                                    <div>
-                                      <p className="font-bold text-slate-900 flex items-center gap-1.5">
-                                        <Clock className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                                        <span>
-                                          {new Date(donor.lastDonationDate).toLocaleDateString(isBn ? 'bn-BD' : 'en-US', {
-                                            day: 'numeric',
-                                            month: 'short',
-                                            year: 'numeric'
-                                          })}
-                                        </span>
-                                      </p>
-                                      <p className="text-[10px] text-slate-500 font-medium">
-                                        {donor.totalDonations ? `${donor.totalDonations} ${isBn ? 'বার রক্তদান' : 'donations'}` : (isBn ? 'রক্তদান সম্পন্ন' : 'Donated')}
-                                      </p>
-                                    </div>
-                                  ) : (
+                                  {donor.lastDonationDate ? (() => {
+                                    const cd = getCooldownStatusInfo(donor.lastDonationDate, isBn);
+                                    return (
+                                      <div className="space-y-1">
+                                        <p className="font-bold text-slate-900 flex items-center gap-1.5">
+                                          <Clock className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                                          <span>
+                                            {new Date(donor.lastDonationDate).toLocaleDateString(isBn ? 'bn-BD' : 'en-US', {
+                                              day: 'numeric',
+                                              month: 'short',
+                                              year: 'numeric'
+                                            })}
+                                          </span>
+                                        </p>
+                                        <div className="flex items-center gap-1.5">
+                                          <span className={`inline-flex items-center px-2 py-0.2 rounded-full text-[9.5px] font-bold border ${cd.badgeColorClass}`}>
+                                            {cd.badgeText}
+                                          </span>
+                                          <span className="text-[10px] text-slate-500 font-medium">
+                                            {donor.totalDonations ? `${donor.totalDonations} ${isBn ? 'বার' : 'times'}` : ''}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    );
+                                  })() : (
                                     <span className="text-[11px] text-slate-400 italic">
                                       {isBn ? 'কোনো রেকর্ড নেই' : 'No Record'}
                                     </span>

@@ -2,7 +2,7 @@ import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { BloodDonor } from '../types';
 import { getAssetUrl } from '../lib/utils/assetHelper';
-import { calculateAge } from '../data/bloodDonationData';
+import { calculateAge, getCooldownStatusInfo, BLOOD_DONATION_COOLDOWN_DAYS } from '../data/bloodDonationData';
 import {
   X,
   ShieldCheck,
@@ -13,7 +13,9 @@ import {
   Award,
   AlertCircle,
   Calendar,
-  User
+  User,
+  Edit3,
+  HeartPulse
 } from 'lucide-react';
 
 interface BloodDonorProfileModalProps {
@@ -21,13 +23,15 @@ interface BloodDonorProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
   onContactClick: (donor: BloodDonor) => void;
+  onUpdateClick?: (donor: BloodDonor) => void;
 }
 
 export const BloodDonorProfileModal: React.FC<BloodDonorProfileModalProps> = ({
   donor,
   isOpen,
   onClose,
-  onContactClick
+  onContactClick,
+  onUpdateClick
 }) => {
   const { isBn } = useLanguage();
 
@@ -186,30 +190,50 @@ export const BloodDonorProfileModal: React.FC<BloodDonorProfileModalProps> = ({
             </div>
           </div>
 
-          {/* Key Milestones (Last Blood Donation) */}
-          <div className="p-4 rounded-2xl bg-white border border-[#EAE3D9] flex items-center justify-between gap-3">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 text-slate-500 text-xs font-bold">
-                <Clock className="w-4 h-4 text-amber-600" />
-                <span>{isBn ? 'সর্বশেষ রক্তদানের তারিখ' : 'Last Blood Donation'}</span>
+          {/* Key Milestones (Last Blood Donation & 120-Day Cooldown) */}
+          <div className="p-4.5 rounded-2xl bg-white border border-[#EAE3D9] space-y-3 shadow-xs">
+            <div className="flex items-center justify-between gap-3">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 text-slate-500 text-xs font-bold">
+                  <Clock className="w-4 h-4 text-amber-600" />
+                  <span>{isBn ? 'সর্বশেষ রক্তদানের তারিখ' : 'Last Blood Donation'}</span>
+                </div>
+                <p className="text-sm sm:text-base font-extrabold text-slate-800 font-display">
+                  {donor.lastDonationDate ? (
+                    new Date(donor.lastDonationDate).toLocaleDateString(isBn ? 'bn-BD' : 'en-US', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric'
+                    })
+                  ) : (
+                    (isBn ? 'রেকর্ড সংরক্ষিত নেই' : 'No Record')
+                  )}
+                </p>
               </div>
-              <p className="text-sm font-extrabold text-slate-800">
-                {donor.lastDonationDate ? (
-                  new Date(donor.lastDonationDate).toLocaleDateString(isBn ? 'bn-BD' : 'en-US', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric'
-                  })
-                ) : (
-                  (isBn ? 'রেকর্ড সংরক্ষিত নেই' : 'No Record')
-                )}
-              </p>
+              {donor.lastDonationDate && (
+                <span className="px-3 py-1 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold font-mono">
+                  {donor.lastDonationDate}
+                </span>
+              )}
             </div>
-            {donor.lastDonationDate && (
-              <span className="px-3 py-1 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold font-mono">
-                {donor.lastDonationDate}
-              </span>
-            )}
+
+            {/* 120-Day Cooldown Eligibility Indicator */}
+            {donor.lastDonationDate && (() => {
+              const cooldownInfo = getCooldownStatusInfo(donor.lastDonationDate, isBn);
+              return (
+                <div className={`p-3 rounded-xl border flex items-start gap-2.5 text-xs ${cooldownInfo.badgeColorClass}`}>
+                  <HeartPulse className="w-4 h-4 shrink-0 mt-0.5" />
+                  <div className="space-y-0.5">
+                    <p className="font-extrabold tracking-tight">
+                      {cooldownInfo.badgeText}
+                    </p>
+                    <p className="text-[11px] opacity-90 leading-relaxed">
+                      {cooldownInfo.description}
+                    </p>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
 
           {/* Donation Experience Notes */}
@@ -225,28 +249,57 @@ export const BloodDonorProfileModal: React.FC<BloodDonorProfileModalProps> = ({
             </div>
           )}
 
-          {/* Privacy Note */}
-          <div className="p-3.5 bg-amber-50/70 border border-amber-200 rounded-2xl flex items-start gap-2.5 text-[11px] text-amber-900 leading-relaxed">
-            <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-            <span>
-              {isBn
-                ? 'রক্তদাতার ব্যক্তিগত গোপনীয়তা রক্ষার স্বার্থে সম্পূর্ণ আবাসিক ঠিকানা ও ব্যক্তিগত যোগাযোগ তথ্য ফিল্টারকৃত রাখা হয়েছে। রক্তদানের সমন্বয়ে হেল্পলাইন বা অনুমোদিত বাটন ব্যবহার করুন।'
-                : 'Exact residential addresses are protected under donor privacy safeguards. Public users see general locality for safety and coordination.'}
-            </span>
+          {/* Privacy Note & Self-Update Prompt */}
+          <div className="p-3.5 bg-amber-50/70 border border-amber-200 rounded-2xl flex items-start justify-between gap-3 text-[11px] text-amber-900 leading-relaxed">
+            <div className="flex items-start gap-2.5">
+              <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+              <span>
+                {isBn
+                  ? 'রক্তদাতার ব্যক্তিগত গোপনীয়তা রক্ষার স্বার্থে সম্পূর্ণ আবাসিক ঠিকানা ও ব্যক্তিগত যোগাযোগ তথ্য ফিল্টারকৃত রাখা হয়েছে।'
+                  : 'Exact residential addresses are protected under donor privacy safeguards.'}
+              </span>
+            </div>
           </div>
         </div>
 
         {/* Action Footer */}
         <div className="p-4 sm:p-5 bg-slate-50 border-t border-[#EAE3D9] flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
-          <p className="text-xs text-slate-500 font-medium text-center sm:text-left">
-            {isBn ? 'জরুরি রক্তের প্রয়োজনে সরাসরি যোগাযোগ করুন' : 'Need emergency blood assistance?'}
-          </p>
+          <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
+            <span>{isBn ? 'এটি কি আপনার প্রোফাইল?' : 'Is this your profile?'}</span>
+            {onUpdateClick && (
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onUpdateClick(donor);
+                }}
+                className="font-bold text-[#006A4E] hover:underline inline-flex items-center gap-1 cursor-pointer"
+              >
+                <Edit3 className="w-3.5 h-3.5" />
+                <span>{isBn ? 'তথ্য হালনাগাদ করুন' : 'Update Info'}</span>
+              </button>
+            )}
+          </div>
 
           <div className="flex items-center gap-2.5 w-full sm:w-auto">
+            {onUpdateClick && (
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onUpdateClick(donor);
+                }}
+                className="flex-1 sm:flex-initial px-4 py-2.5 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-[#006A4E] border border-emerald-300 font-extrabold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <Edit3 className="w-3.5 h-3.5" />
+                <span>{isBn ? 'তথ্য হালনাগাদ' : 'Update Profile'}</span>
+              </button>
+            )}
+
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 sm:flex-initial px-4 py-2.5 rounded-2xl bg-white border border-[#EAE3D9] text-slate-700 font-bold text-xs hover:bg-[#FAF7F2] transition-all cursor-pointer"
+              className="px-4 py-2.5 rounded-2xl bg-white border border-[#EAE3D9] text-slate-700 font-bold text-xs hover:bg-[#FAF7F2] transition-all cursor-pointer"
             >
               {isBn ? 'বন্ধ করুন' : 'Close'}
             </button>

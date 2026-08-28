@@ -88,6 +88,8 @@ const AppContent: React.FC = () => {
         return <BloodDonationPage initialTab="find-donor" />;
       case 'blood-donation/become-donor':
         return <BloodDonationPage initialTab="become-donor" />;
+      case 'blood-donation/update-donor':
+        return <BloodDonationPage initialTab="update-donor" />;
       case 'blood-donation/emergency-request':
         return <BloodDonationPage initialTab="emergency-request" />;
       case 'blood-donation/statistics':

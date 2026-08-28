@@ -830,6 +830,15 @@ export const INITIAL_NAVIGATION_ITEMS: NavigationItem[] = [
         "active": true
       },
       {
+        "id": "sub-blood-update",
+        "label": {
+          "en": "Update Profile",
+          "bn": "তথ্য হালনাগাদ"
+        },
+        "path": "blood-donation/update-donor",
+        "active": true
+      },
+      {
         "id": "sub-blood-emergency",
         "label": {
           "en": "Emergency Request",

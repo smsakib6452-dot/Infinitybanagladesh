@@ -36,6 +36,7 @@ export type PageRoute =
   | 'blood-donation'
   | 'blood-donation/find-donor'
   | 'blood-donation/become-donor'
+  | 'blood-donation/update-donor'
   | 'blood-donation/emergency-request'
   | 'blood-donation/statistics'
   | 'privacy'

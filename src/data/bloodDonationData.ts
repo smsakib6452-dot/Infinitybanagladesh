@@ -215,36 +215,6 @@ export const DEFAULT_DONOR_CATEGORIES: DonorCategoryOption[] = [
     isDefault: true
   },
   {
-    id: 'cat-work',
-    name: {
-      en: 'Working Committee',
-      bn: 'কর্মপরিষদ ও শাখা কমিটি'
-    },
-    badgeColor: '#0284C7',
-    displayOrder: 3,
-    isDefault: true
-  },
-  {
-    id: 'cat-perm',
-    name: {
-      en: 'Permanent Committee',
-      bn: 'স্থায়ী কমিটি ও উপদেষ্টা'
-    },
-    badgeColor: '#7C3AED',
-    displayOrder: 4,
-    isDefault: true
-  },
-  {
-    id: 'cat-former',
-    name: {
-      en: 'Former Member / Volunteer',
-      bn: 'প্রাক্তন সদস্য ও শুভানুধ্যায়ী'
-    },
-    badgeColor: '#475569',
-    displayOrder: 5,
-    isDefault: true
-  },
-  {
     id: 'cat-ext',
     name: {
       en: 'External Blood Donor',
@@ -253,6 +223,14 @@ export const DEFAULT_DONOR_CATEGORIES: DonorCategoryOption[] = [
     badgeColor: '#E11D48',
     displayOrder: 6,
     isDefault: true
+  },
+  {
+    name: {
+      en: 'Standing Committee',
+      bn: 'স্থায়ী কমিটি'
+    },
+    displayOrder: 4,
+    id: 'cat-1787889544113'
   }
 ];
 
@@ -265,16 +243,16 @@ export const INITIAL_BLOOD_SETTINGS: BloodDonationSettings = {
   wingLogoZoom: 1,
   wingLogoCrop: 'contain',
   heroBadge: {
-    en: 'Emergency Blood Donation & Coordination',
-    bn: 'জরুরি রক্তদান ও সমন্বয় নেটওয়ার্ক'
+    en: 'Emergency Blood Donation & Coordination 📍',
+    bn: 'জরুরি রক্তদান ও সমন্বয় নেটওয়ার্ক 📍'
   },
   heroTitle: {
-    en: 'Blood Donation Network',
-    bn: 'রক্তদান নেটওয়ার্ক'
+    en: 'Infinity Blood Donation Network',
+    bn: 'ইনফিনিটি বাংলাদেশ রক্তদান নেটওয়ার্ক'
   },
   heroSubtitle: {
-    en: 'A blood donation initiative by Infinity Bangladesh',
-    bn: 'ইনফিনিটি বাংলাদেশ-এর একটি মানবিক রক্তদান উদ্যোগ'
+    en: 'An Emergency Blood Donation Initiative by 𝐈𝐧𝐟𝐢𝐧𝐢𝐭𝐲 𝐁𝐚𝐧𝐠𝐥𝐚𝐝𝐞𝐬𝐡 🩸',
+    bn: 'ইনফিনিটি বাংলাদেশ-এর একটি জরুরি রক্তদান উদ্যোগ 🩸'
   },
   heroCtaBadge: {
     en: 'JOIN THE CAUSE',
@@ -286,7 +264,7 @@ export const INITIAL_BLOOD_SETTINGS: BloodDonationSettings = {
   },
   heroCtaDescription: {
     en: 'Every drop counts. Register as a voluntary blood donor with Team Infinity and become someone’s lifeline in moments of crisis.',
-    bn: 'আপনার এক ব্যাগ রক্ত বাঁচাতে পারে একটি মূল্যবান প্রাণ। টিম ইনফিনিটির সাথে রক্তদাতা হিসেবে যুক্ত হতে এখনই রেজিস্ট্রেশন করুন।'
+    bn: 'আপনার এক ব্যাগ রক্ত বাঁচাতে পারে একটি মূল্যবান প্রাণ। ইনফিনিটি বাংলাদেশ রক্তদান নেটওয়ার্কে রক্তদাতা হিসেবে যুক্ত হতে এখনই রেজিস্ট্রেশন করুন।'
   },
   heroCtaBtn1Text: {
     en: 'Become a Donor',
@@ -315,7 +293,7 @@ export const INITIAL_BLOOD_SETTINGS: BloodDonationSettings = {
   },
   statTotalDonorsOverride: null,
   statActiveDonorsOverride: null,
-  statImpactOverride: null,
+  statImpactOverride: 0,
   emergencyHelpline: '+880 1839-008339',
   helplineLabel: {
     en: '24/7 Helpline:',
@@ -324,15 +302,15 @@ export const INITIAL_BLOOD_SETTINGS: BloodDonationSettings = {
   coordinationEmail: 'blood@infinitybangladesh.org',
   guidelinesTitle: {
     en: 'Blood Donation Guidelines & Eligibility',
-    bn: 'রক্তদানের সাধারণ নিয়মাবলী ও যোগ্যতা'
+    bn: 'রক্তদানের নীতিমালা ও আবশ্যিক নির্দেশিকা'
   },
   guidelinesText: {
-    en: 'Age must be between 18 and 60 years. Minimum body weight: 45 kg for females and 50 kg for males. Minimum interval between whole blood donations is 90 to 120 days (3-4 months). Blood pressure, pulse, and hemoglobin levels must be within normal clinical ranges.',
-    bn: 'বয়স ন্যূনতম ১৮ থেকে ৬০ বছরের মধ্যে হতে হবে। শারীরিক ওজন মহিলাদের ক্ষেত্রে কমপক্ষে ৪৫ কেজি এবং পুরুষদের ক্ষেত্রে ৫০ কেজি হওয়া আবশ্যক। প্রতি ৩ থেকে ৪ মাস পর পর একজন সুস্থ মানুষ নিরাপদে রক্তদান করতে পারেন।'
+    en: 'Age: 18-60 years. Minimum Weight: 45kg for females, 50kg for males. Interval: At least 120 days (4 months) between donations.',
+    bn: 'বয়স: ১৮-৬০ বছর। সর্বনিম্ন ওজন: মহিলাদের ৪৫ কেজি, পুরুষদের ৫০ কেজি। ব্যবধান: প্রতি ৪ মাস (১২০ দিন) পর পর রক্তদান করা নিরাপদ।'
   },
   consentStatement: {
-    en: 'I agree to the appropriate use of my provided information for emergency blood donation and coordination by Infinity Bangladesh.',
-    bn: 'আমি স্বেচ্ছায় রক্তদাতা হিসেবে রেজিস্ট্রেশন করছি এবং জরুরি প্রয়োজনে ইনফিনিটি বাংলাদেশ কর্তৃক যোগাযোগের জন্য তথ্যের ব্যবহারে সম্মতি প্রদান করছি।'
+    en: 'I hereby confirm my willingness to be a voluntary blood donor and consent to Infinity Bangladesh coordinating blood requests.',
+    bn: 'আমি স্বেচ্ছায় রক্তদাতা হিসেবে নিবন্ধিত হতে সম্মত এবং ইনফিনিটি বাংলাদেশ কর্তৃক রক্তদানের সমন্বয়ে তথ্য ব্যবহারে সম্মতি দিচ্ছি।'
   },
   enablePublicDirectContact: true
 };
@@ -340,7 +318,85 @@ export const INITIAL_BLOOD_SETTINGS: BloodDonationSettings = {
 /**
  * Initial Seed Blood Donors (Real donor records added by admin)
  */
-export const INITIAL_BLOOD_DONORS: BloodDonor[] = [];
+export const INITIAL_BLOOD_DONORS: BloodDonor[] = [
+  {
+    id: 'donor-1787850707660',
+    fullName: 'Salimur Rahaman Opi',
+    bloodGroup: 'A+',
+    gender: 'Male',
+    phone: '01815847049',
+    email: 'selimurrahmanopi@gmail.com',
+    photoUrl: '/brand/infinity-logo.png',
+    district: 'Chattogram',
+    upazila: 'Hathazari',
+    area: 'Hathazari College Gate',
+    detailedAddress: 'Hasmat Ali Chowdhury Bari',
+    orgCategory: 'Executive Committee',
+    committeePosition: undefined,
+    availabilityStatus: 'AVAILABLE_EMERGENCY',
+    lastDonationDate: '2025-07-12',
+    totalDonations: 6,
+    experienceNotes: undefined,
+    privacyConsent: true,
+    showPhonePublicly: false,
+    approvalStatus: 'APPROVED',
+    isVerified: true,
+    donationHistory: [],
+    createdAt: '2026-08-27T17:11:47.661+00:00',
+    updatedAt: '2026-08-27T17:42:12.633+00:00'
+  },
+  {
+    id: 'donor-1787850356625',
+    fullName: 'MD. Shahadad Alam',
+    bloodGroup: 'B+',
+    gender: 'Male',
+    phone: '01842312364',
+    photoUrl: 'https://res.cloudinary.com/evj6fhsf/image/upload/v1787461653/c0sywzwjmt4gyi0uesch.jpg',
+    district: 'Chattogram',
+    upazila: 'Hathazari',
+    area: 'Hathazari',
+    detailedAddress: 'Krisi farm road',
+    orgCategory: 'Infinity Bangladesh Volunteer',
+    committeePosition: undefined,
+    availabilityStatus: 'AVAILABLE_EMERGENCY',
+    lastDonationDate: '2024-05-13',
+    totalDonations: 4,
+    experienceNotes: undefined,
+    privacyConsent: true,
+    showPhonePublicly: false,
+    approvalStatus: 'APPROVED',
+    isVerified: true,
+    donationHistory: [],
+    createdAt: '2026-08-27T17:05:56.625+00:00',
+    updatedAt: '2026-08-27T17:13:02.628+00:00'
+  },
+  {
+    id: 'donor-1787831352728',
+    fullName: 'Md Shahidul Alam Sakib',
+    bloodGroup: 'B+',
+    gender: 'Male',
+    phone: '01839008339',
+    email: 'sa.sakib360@gmail.com',
+    photoUrl: 'https://res.cloudinary.com/evj6fhsf/image/upload/v1787464356/nvdp2wahmmvef9d80mzr.jpg',
+    district: 'Chattogram',
+    upazila: 'Hathazari',
+    area: 'Hathazari',
+    detailedAddress: 'Rangipara',
+    orgCategory: 'Executive Committee',
+    committeePosition: undefined,
+    availabilityStatus: 'AVAILABLE_EMERGENCY',
+    lastDonationDate: '2026-03-07',
+    totalDonations: 10,
+    experienceNotes: undefined,
+    privacyConsent: true,
+    showPhonePublicly: false,
+    approvalStatus: 'APPROVED',
+    isVerified: true,
+    donationHistory: [],
+    createdAt: '2026-08-27T11:49:12.728+00:00',
+    updatedAt: '2026-08-27T17:07:47.357+00:00'
+  }
+];
 
 /**
  * Initial Active Emergency Blood Requests (Real requests submitted via form or admin)

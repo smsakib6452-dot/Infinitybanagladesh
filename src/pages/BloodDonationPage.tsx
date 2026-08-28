@@ -794,6 +794,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                   <span>
                     {tText(bloodDonationSettings.heroBadge) || (isBn ? 'জরুরি রক্তদান ও সমন্বয় নেটওয়ার্ক' : 'Emergency Blood Donation & Coordination')}
                   </span>
+                  <Droplet className="w-3.5 h-3.5 text-rose-500 fill-current ml-0.5" />
                 </div>
 
                 {/* Sub-brand Main Logo with Signature Opening Animation */}
@@ -806,14 +807,22 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                   />
                 </div>
 
-                {/* Subtitle / Initiative Line (Fully editable from Admin) */}
-                <p className="text-sm sm:text-base text-emerald-100/90 font-medium max-w-xl leading-relaxed mt-6">
-                  {tText(bloodDonationSettings.heroSubtitle) || (
-                    isBn
-                      ? 'ইনফিনিটি বাংলাদেশ-এর একটি মানবিক রক্তদান উদ্যোগ'
-                      : 'A blood donation initiative by Infinity Bangladesh'
-                  )}
-                </p>
+                {/* Slogan & Initiative Subtitle (matching reference) */}
+                <div className="space-y-1.5 mt-3 text-center lg:text-left">
+                  <p className="text-xs sm:text-sm uppercase tracking-[0.24em] text-emerald-200 font-bold font-serif">
+                    {isBn ? 'এক বিন্দু রক্ত, অসীম আশা' : 'ONE DROP, INFINITY HOPE'}
+                  </p>
+                  <p className="text-xs sm:text-sm text-emerald-100/85 font-medium max-w-xl leading-relaxed flex items-center justify-center lg:justify-start gap-1.5">
+                    <span>
+                      {tText(bloodDonationSettings.heroSubtitle) || (
+                        isBn
+                          ? 'ইনফিনিটি বাংলাদেশ-এর একটি জরুরি মানবিক রক্তদান উদ্যোগ'
+                          : 'An Emergency Blood Donation Initiative by Infinity Bangladesh'
+                      )}
+                    </span>
+                    <Droplet className="w-3.5 h-3.5 text-rose-500 fill-current shrink-0 inline-block" />
+                  </p>
+                </div>
 
                 {/* 4 Dynamic Statistics Counters (matching screenshot exactly) */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6">

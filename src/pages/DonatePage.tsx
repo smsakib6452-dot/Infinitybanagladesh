@@ -109,12 +109,12 @@ export const DonatePage: React.FC = () => {
       </ScrollReveal>
 
       {/* Verified Org Pledge */}
-      <ScrollReveal effect="fade-up" delay={100}>
+      <ScrollReveal effect="fade-up" delay={0.1}>
         <VerifiedOrganizationPledge />
       </ScrollReveal>
 
       {/* Official Payment Channels Status */}
-      <ScrollReveal effect="fade-up" delay={200} className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+      <ScrollReveal effect="fade-up" delay={0.2} className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-[#E6F3EF] text-[#006A4E] flex items-center justify-center font-bold">
             <Smartphone className="w-5 h-5" />
@@ -378,7 +378,7 @@ export const DonatePage: React.FC = () => {
         </ScrollReveal>
 
         {/* Right Receipt / Verification Panel */}
-        <ScrollReveal effect="slide-left" delay={200} className="lg:col-span-5 relative">
+        <ScrollReveal effect="slide-left" delay={0.2} className="lg:col-span-5 relative">
           <div className="sticky top-24">
             {receiptData ? (
               <div className="bg-white rounded-3xl border border-emerald-300 p-6 sm:p-8 space-y-6 shadow-warm-lg animate-in zoom-in-95">

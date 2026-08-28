@@ -33,7 +33,7 @@ export const CampaignsPage: React.FC = () => {
       </ScrollReveal>
 
       {/* Filter Tabs */}
-      <ScrollReveal effect="fade-up" delay={100}>
+      <ScrollReveal effect="fade-up" delay={0.1}>
         <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-white rounded-3xl border border-[#EAE3D9] shadow-warm-sm">
         <div className="flex items-center gap-2 text-xs font-extrabold text-slate-700 uppercase tracking-wider">
           <Filter className="w-4 h-4 text-[#006A4E]" />
@@ -91,7 +91,7 @@ export const CampaignsPage: React.FC = () => {
 
       {/* Grid of campaigns */}
       {filteredCampaigns.length === 0 ? (
-        <ScrollReveal effect="fade-up" delay={200}>
+        <ScrollReveal effect="fade-up" delay={0.2}>
           <div className="text-center py-16 p-6 bg-white rounded-3xl border border-[#EAE3D9] space-y-2">
             <Flag className="w-10 h-10 text-slate-300 mx-auto" />
             <p className="font-bold text-slate-700">

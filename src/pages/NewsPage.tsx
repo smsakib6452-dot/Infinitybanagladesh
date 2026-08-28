@@ -43,7 +43,7 @@ export const NewsPage: React.FC = () => {
       </ScrollReveal>
 
       {/* Categories */}
-      <ScrollReveal effect="fade-up" delay={100} className="flex flex-wrap items-center justify-center gap-2">
+      <ScrollReveal effect="fade-up" delay={0.1} className="flex flex-wrap items-center justify-center gap-2">
         {categories.map(cat => (
           <button
             key={cat}
@@ -152,7 +152,7 @@ export const NewsDetailPage: React.FC = () => {
       </ScrollReveal>
 
       {/* Featured Image */}
-      <ScrollReveal effect="fade-up" delay={100}>
+      <ScrollReveal effect="fade-up" delay={0.1}>
         <div className="rounded-[2.5rem] overflow-hidden shadow-warm-xl border-4 border-white aspect-16/9 bg-slate-100">
           <img
             src={article.imageUrl}
@@ -163,7 +163,7 @@ export const NewsDetailPage: React.FC = () => {
       </ScrollReveal>
 
       {/* Content */}
-      <ScrollReveal effect="fade-up" delay={200} className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-10 space-y-6 shadow-warm-sm">
+      <ScrollReveal effect="fade-up" delay={0.2} className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-10 space-y-6 shadow-warm-sm">
         <p className="text-base sm:text-lg text-slate-900 font-semibold leading-relaxed border-b border-slate-100 pb-4">
           {tText(article.excerpt)}
         </p>

@@ -21,9 +21,12 @@ export const ScrollReveal: React.FC<ScrollRevealProps> = ({
   duration = 0.55,
   distance = 24,
   className = '',
-  viewportMargin = '-40px'
+  viewportMargin = '0px'
 }) => {
   const shouldReduceMotion = useReducedMotion();
+
+  // Normalize delay: if passed as milliseconds (e.g. 100, 200), convert to seconds (0.1, 0.2)
+  const normalizedDelay = delay >= 10 ? delay / 1000 : delay;
 
   if (shouldReduceMotion) {
     return <div className={className}>{children}</div>;
@@ -67,10 +70,10 @@ export const ScrollReveal: React.FC<ScrollRevealProps> = ({
     <motion.div
       initial={getInitial()}
       whileInView={getAnimate()}
-      viewport={{ once: true, margin: viewportMargin as any }}
+      viewport={{ once: true, margin: viewportMargin as any, amount: 0.02 }}
       transition={{
         duration,
-        delay,
+        delay: normalizedDelay,
         ease: [0.16, 1, 0.3, 1]
       }}
       className={className}

@@ -69,19 +69,19 @@ export const TeamOverviewPage: React.FC = () => {
             </div>
           </ScrollReveal>
 
-          <ScrollReveal effect="fade-up" delay={100}>
+          <ScrollReveal effect="fade-up" delay={0.1}>
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 font-display tracking-tight leading-tight">
               {isBn ? 'আমাদের টিম ও নেতৃত্ব' : 'Meet Our Team'}
             </h1>
           </ScrollReveal>
 
-          <ScrollReveal effect="fade-up" delay={150}>
+          <ScrollReveal effect="fade-up" delay={0.15}>
             <p className="text-lg sm:text-2xl font-bold text-[#006A4E] font-display max-w-3xl mx-auto">
               {isBn ? 'মানবতার সেবায় একতাবদ্ধ' : 'Together, We Work for Humanity'}
             </p>
           </ScrollReveal>
 
-          <ScrollReveal effect="fade-up" delay={200}>
+          <ScrollReveal effect="fade-up" delay={0.2}>
             <p className="text-sm sm:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed font-sans">
               {isBn
                 ? 'ইনফিনিটি বাংলাদেশ পরিচালিত হয় নির্বাচিত কার্যনির্বাহী পরিষদ, দূরদর্শী স্থায়ী কমিটি এবং দেশব্যাপী হাজারো উদ্যমী তরুণ ভলান্টিয়ারদের সমন্বয়ে।'
@@ -90,7 +90,7 @@ export const TeamOverviewPage: React.FC = () => {
           </ScrollReveal>
 
           {/* Committee Sub-Navigation */}
-          <ScrollReveal effect="fade-up" delay={250}>
+          <ScrollReveal effect="fade-up" delay={0.25}>
             <div className="pt-4 flex flex-wrap justify-center items-center gap-2.5 sm:gap-3">
               <Link
                 to="team"

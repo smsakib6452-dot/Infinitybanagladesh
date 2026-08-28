@@ -179,7 +179,7 @@ export const HomePage: React.FC = () => {
                 </ScrollReveal>
 
                 {/* Right Column: Hero Real Photography Container */}
-                <ScrollReveal effect="slide-left" delay={200} className="lg:col-span-5 relative mt-4 lg:mt-0">
+                <ScrollReveal effect="slide-left" delay={0.2} className="lg:col-span-5 relative mt-4 lg:mt-0">
                   <div className="absolute -inset-3 bg-gradient-to-tr from-[#D97706]/20 via-[#006A4E]/15 to-transparent rounded-[2.5rem] blur-xl" />
                   <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-[#D97706]/15 rounded-full blur-2xl" />
 
@@ -275,7 +275,7 @@ export const HomePage: React.FC = () => {
                 </ScrollReveal>
 
                 {/* Right Column: Mission Story */}
-                <ScrollReveal effect="slide-left" delay={200} className="lg:col-span-7 space-y-5 sm:space-y-6 order-1 lg:order-2">
+                <ScrollReveal effect="slide-left" delay={0.2} className="lg:col-span-7 space-y-5 sm:space-y-6 order-1 lg:order-2">
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E6F3EF] text-[#00523C] text-xs font-extrabold uppercase tracking-wider border border-[#C2E2D7]">
                     {tText(aboutPreview.eyebrow)}
                   </div>
@@ -533,7 +533,7 @@ export const HomePage: React.FC = () => {
                   </p>
                 </ScrollReveal>
 
-                <ScrollReveal effect="slide-left" delay={200} className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-3 justify-center">
+                <ScrollReveal effect="slide-left" delay={0.2} className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-3 justify-center">
                   <Link
                     to={volBanner?.primaryButtonUrl || volBanner?.primaryCtaUrl || 'volunteer'}
                     className="w-full py-3.5 px-6 rounded-2xl bg-[#006A4E] hover:bg-[#008562] active:bg-[#004D38] text-white font-extrabold text-xs sm:text-sm shadow-warm-md transition-all flex items-center justify-center gap-2 cursor-pointer transform hover:-translate-y-0.5"

@@ -786,7 +786,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
             {/* Left Column: Hero Brand Hierarchy & Live Stats */}
             <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-              <ScrollReveal effect="fade-up" delay={100}>
+              <ScrollReveal effect="fade-up" delay={0.1}>
                 {/* Top Badge: Emergency Blood Donation & Coordination */}
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold bg-[#0D2E24]/90 text-emerald-200 border border-emerald-700/30 backdrop-blur-md shadow-xs">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -895,7 +895,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
 
             {/* Right Column: Hero CTA Card (matching screenshot) */}
             <div className="lg:col-span-5 relative">
-              <ScrollReveal effect="slide-left" delay={200}>
+              <ScrollReveal effect="slide-left" delay={0.2}>
                 <div className="relative rounded-[32px] bg-white p-7 sm:p-8 text-slate-900 shadow-2xl space-y-6">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
@@ -976,8 +976,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
 
       {/* 2. NAVIGATION TABS */}
       <section id="blood-tabs-nav" className="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-[#EAE3D9] shadow-xs">
-        <ScrollReveal effect="fade-up" delay={200}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-3 scroll-smooth">
               {[
                 { id: 'find-donor', label: isBn ? 'রক্তদাতা খুঁজুন' : 'Find a Donor', icon: Search },
@@ -1013,7 +1012,6 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
               })}
             </div>
           </div>
-        </ScrollReveal>
       </section>
 
       {/* 3. TAB VIEWS CONTENT */}
@@ -1170,7 +1168,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
             </ScrollReveal>
 
             {/* Donor Results Grid */}
-            <ScrollReveal effect="fade-up" delay={100} className="space-y-4">
+            <ScrollReveal effect="fade-up" delay={0.1} className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-extrabold text-slate-900 font-display">
                   {isBn ? 'উপলব্ধ রক্তদাতাবৃন্দ' : 'Available Blood Donors'} ({filteredDonors.length})

@@ -292,7 +292,7 @@ export const ExecutiveCommitteePage: React.FC = () => {
       </ScrollReveal>
 
       {/* Official Hierarchy & Search Bar */}
-      <ScrollReveal effect="fade-up" delay={100} className="bg-white rounded-[2.5rem] border border-[#EAE3D9] p-6 sm:p-10 space-y-10 sm:space-y-12 shadow-warm-md">
+      <ScrollReveal effect="fade-up" delay={0.1} className="bg-white rounded-[2.5rem] border border-[#EAE3D9] p-6 sm:p-10 space-y-10 sm:space-y-12 shadow-warm-md">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-6">
           <div className="space-y-1">
             <h2 className="text-xl font-extrabold text-slate-900 font-display flex items-center gap-2">

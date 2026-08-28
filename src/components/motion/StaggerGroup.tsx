@@ -14,7 +14,7 @@ export const StaggerGroup: React.FC<StaggerGroupProps> = ({
   staggerDelay = 0.08,
   delayChildren = 0,
   className = '',
-  viewportMargin = '-40px'
+  viewportMargin = '0px'
 }) => {
   const shouldReduceMotion = useReducedMotion();
 
@@ -38,7 +38,7 @@ export const StaggerGroup: React.FC<StaggerGroupProps> = ({
       variants={containerVariants}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, margin: viewportMargin as any }}
+      viewport={{ once: true, margin: viewportMargin as any, amount: 0.02 }}
       className={className}
     >
       {children}

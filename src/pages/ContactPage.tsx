@@ -60,7 +60,7 @@ export const ContactPage: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         {/* Contact Form */}
-        <ScrollReveal effect="fade-up" delay={100} className="lg:col-span-7">
+        <ScrollReveal effect="fade-up" delay={0.1} className="lg:col-span-7">
           {isSent ? (
             <div className="bg-white rounded-3xl border border-emerald-200 p-8 sm:p-12 text-center space-y-6 shadow-warm-md animate-in zoom-in-95">
               <div className="w-16 h-16 bg-[#E6F3EF] text-[#006A4E] rounded-full flex items-center justify-center mx-auto">
@@ -179,7 +179,7 @@ export const ContactPage: React.FC = () => {
         </ScrollReveal>
 
         {/* Right Info Column */}
-        <ScrollReveal effect="slide-left" delay={200} className="lg:col-span-5 space-y-6">
+        <ScrollReveal effect="slide-left" delay={0.2} className="lg:col-span-5 space-y-6">
           <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
             <h3 className="text-lg font-bold text-slate-900 font-display">
               {isBn ? 'অফিসিয়াল যোগাযোগের ঠিকানা' : 'Official Contact Information'}

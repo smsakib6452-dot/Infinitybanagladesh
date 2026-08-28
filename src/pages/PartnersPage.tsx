@@ -80,7 +80,7 @@ export const PartnersPage: React.FC = () => {
         </ScrollReveal>
 
         {/* Category Filters */}
-        <ScrollReveal effect="fade-up" delay={100} className="flex flex-wrap items-center justify-center gap-2 max-w-3xl mx-auto">
+        <ScrollReveal effect="fade-up" delay={0.1} className="flex flex-wrap items-center justify-center gap-2 max-w-3xl mx-auto">
           {categories.map((cat) => (
             <button
               key={cat.key}
@@ -152,7 +152,7 @@ export const PartnersPage: React.FC = () => {
         </StaggerGroup>
 
         {/* Partnership Proposal Form */}
-        <ScrollReveal effect="fade-up" delay={200} className="bg-white rounded-3xl border border-[#EAE3D9] p-8 sm:p-12 shadow-warm-md max-w-4xl mx-auto space-y-8">
+        <ScrollReveal effect="fade-up" delay={0.2} className="bg-white rounded-3xl border border-[#EAE3D9] p-8 sm:p-12 shadow-warm-md max-w-4xl mx-auto space-y-8">
           <div className="text-center space-y-2">
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-display">
               {isBn ? 'আমাদের সাথে যৌথভাবে কাজ করতে চান?' : 'Interested in Partnering With Us?'}

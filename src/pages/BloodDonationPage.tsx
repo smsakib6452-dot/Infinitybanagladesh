@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
 import { useRouter } from '../context/RouterContext';
@@ -103,14 +103,52 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
     return initialTab;
   });
 
+  // Smooth animated scroll to active form / content section
+  const scrollToFormSection = useCallback((tabId?: 'find-donor' | 'become-donor' | 'update-donor' | 'emergency-request' | 'donors' | 'statistics' | 'guidelines') => {
+    if (tabId) {
+      setActiveTab(tabId);
+    }
+    const executeScroll = () => {
+      const targetEl =
+        (tabId === 'become-donor' ? document.getElementById('become-donor-section') : null) ||
+        (tabId === 'update-donor' ? document.getElementById('update-donor-section') : null) ||
+        (tabId === 'emergency-request' ? document.getElementById('emergency-request-section') : null) ||
+        document.getElementById('blood-main-content-section') ||
+        document.getElementById('blood-tabs-nav');
+
+      if (targetEl) {
+        const yOffset = -80; // offset for sticky header & sticky tabs
+        const y = targetEl.getBoundingClientRect().top + window.pageYOffset + yOffset;
+        window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+      }
+    };
+
+    setTimeout(executeScroll, 50);
+    setTimeout(executeScroll, 180);
+  }, []);
+
   useEffect(() => {
-    if (currentPage === 'blood-donation/find-donor') setActiveTab('find-donor');
-    else if (currentPage === 'blood-donation/become-donor') setActiveTab('become-donor');
-    else if (currentPage === 'blood-donation/update-donor') setActiveTab('update-donor');
-    else if (currentPage === 'blood-donation/emergency-request') setActiveTab('emergency-request');
-    else if (currentPage === 'blood-donation/statistics') setActiveTab('statistics');
-    else if (initialTab) setActiveTab(initialTab);
-  }, [currentPage, initialTab]);
+    if (currentPage === 'blood-donation/find-donor') {
+      setActiveTab('find-donor');
+    } else if (currentPage === 'blood-donation/become-donor') {
+      setActiveTab('become-donor');
+      scrollToFormSection('become-donor');
+    } else if (currentPage === 'blood-donation/update-donor') {
+      setActiveTab('update-donor');
+      scrollToFormSection('update-donor');
+    } else if (currentPage === 'blood-donation/emergency-request') {
+      setActiveTab('emergency-request');
+      scrollToFormSection('emergency-request');
+    } else if (currentPage === 'blood-donation/statistics') {
+      setActiveTab('statistics');
+      scrollToFormSection('statistics');
+    } else if (initialTab) {
+      setActiveTab(initialTab);
+      if (initialTab !== 'find-donor') {
+        scrollToFormSection(initialTab);
+      }
+    }
+  }, [currentPage, initialTab, scrollToFormSection]);
 
   // Modals state
   const [selectedDonorForProfile, setSelectedDonorForProfile] = useState<BloodDonor | null>(null);
@@ -868,8 +906,8 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                 <div className="space-y-2.5 pt-1">
                   <button
                     type="button"
-                    onClick={() => setActiveTab('become-donor')}
-                    className="w-full py-3.5 sm:py-4 rounded-2xl bg-[#006A4E] hover:bg-[#00553E] text-white font-extrabold text-sm shadow-warm-md transition-all flex items-center justify-center gap-2.5 cursor-pointer transform hover:-translate-y-0.5"
+                    onClick={() => scrollToFormSection('become-donor')}
+                    className="w-full py-3.5 sm:py-4 rounded-2xl bg-[#006A4E] hover:bg-[#00553E] text-white font-extrabold text-sm shadow-warm-md transition-all flex items-center justify-center gap-2.5 cursor-pointer transform hover:-translate-y-0.5 active:scale-98"
                   >
                     <UserPlus className="w-4 h-4" />
                     <span>
@@ -879,8 +917,8 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
 
                   <button
                     type="button"
-                    onClick={() => setActiveTab('emergency-request')}
-                    className="w-full py-3.5 sm:py-4 rounded-2xl bg-[#E11D48] hover:bg-[#BE123C] text-white font-extrabold text-sm shadow-warm-md transition-all flex items-center justify-center gap-2.5 cursor-pointer transform hover:-translate-y-0.5"
+                    onClick={() => scrollToFormSection('emergency-request')}
+                    className="w-full py-3.5 sm:py-4 rounded-2xl bg-[#E11D48] hover:bg-[#BE123C] text-white font-extrabold text-sm shadow-warm-md transition-all flex items-center justify-center gap-2.5 cursor-pointer transform hover:-translate-y-0.5 active:scale-98"
                   >
                     <AlertTriangle className="w-4 h-4" />
                     <span>
@@ -890,11 +928,8 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
 
                   <button
                     type="button"
-                    onClick={() => {
-                      setActiveTab('update-donor');
-                      window.scrollTo({ top: 380, behavior: 'smooth' });
-                    }}
-                    className="w-full py-2.5 rounded-xl bg-[#FAF7F2] hover:bg-[#F3EFE8] text-[#006A4E] border border-[#006A4E]/25 font-bold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs hover:border-[#006A4E]/50"
+                    onClick={() => scrollToFormSection('update-donor')}
+                    className="w-full py-2.5 rounded-xl bg-[#FAF7F2] hover:bg-[#F3EFE8] text-[#006A4E] border border-[#006A4E]/25 font-bold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs hover:border-[#006A4E]/50 active:scale-98"
                   >
                     <Edit3 className="w-3.5 h-3.5 text-[#006A4E]" />
                     <span>
@@ -925,7 +960,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
       </section>
 
       {/* 2. NAVIGATION TABS */}
-      <section className="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-[#EAE3D9] shadow-xs">
+      <section id="blood-tabs-nav" className="sticky top-16 z-30 bg-white/95 backdrop-blur-md border-b border-[#EAE3D9] shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-3 scroll-smooth">
             {[
@@ -943,10 +978,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                 <button
                   key={tab.id}
                   type="button"
-                  onClick={() => {
-                    setActiveTab(tab.id as any);
-                    window.scrollTo({ top: 380, behavior: 'smooth' });
-                  }}
+                  onClick={() => scrollToFormSection(tab.id as any)}
                   className={`px-4 sm:px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all duration-200 cursor-pointer flex items-center gap-2 ${
                     isSelected
                       ? 'bg-[#006A4E] text-white shadow-warm-sm ring-2 ring-emerald-500/20 scale-[1.02]'
@@ -968,7 +1000,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
       </section>
 
       {/* 3. TAB VIEWS CONTENT */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-12">
+      <main id="blood-main-content-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-12 scroll-mt-28">
         {/* ==================================================== */}
         {/* TAB 1: FIND A DONOR (ADVANCED SEARCH) */}
         {/* ==================================================== */}
@@ -1143,8 +1175,8 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                   </div>
                   <button
                     type="button"
-                    onClick={() => setActiveTab('emergency-request')}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs shadow-warm-sm transition-all cursor-pointer"
+                    onClick={() => scrollToFormSection('emergency-request')}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs shadow-warm-sm transition-all cursor-pointer transform hover:-translate-y-0.5 active:scale-98"
                   >
                     <AlertTriangle className="w-4 h-4" />
                     <span>{isBn ? 'জরুরি রক্তের আবেদন করুন' : 'Post Emergency Request'}</span>
@@ -1298,7 +1330,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
         {/* TAB 2: BECOME A DONOR (REGISTRATION FORM) */}
         {/* ==================================================== */}
         {activeTab === 'become-donor' && (
-          <div className="max-w-3xl mx-auto space-y-8 animate-in fade-in">
+          <div id="become-donor-section" className="max-w-3xl mx-auto space-y-8 animate-in fade-in zoom-in-95 duration-300">
             {regSubmitted ? (
               <div className="p-8 sm:p-12 text-center bg-white rounded-3xl border border-emerald-200 shadow-warm-lg space-y-5">
                 <div className="w-16 h-16 rounded-full bg-emerald-100 text-[#006A4E] mx-auto flex items-center justify-center">
@@ -1888,7 +1920,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
         {/* TAB 3: UPDATE DONOR PROFILE & LAST DONATION RECORD */}
         {/* ==================================================== */}
         {activeTab === 'update-donor' && (
-          <div className="max-w-3xl mx-auto space-y-8 animate-in fade-in">
+          <div id="update-donor-section" className="max-w-3xl mx-auto space-y-8 animate-in fade-in zoom-in-95 duration-300">
             {/* Header Card */}
             <div className="bg-white rounded-3xl p-7 sm:p-9 border border-[#EAE3D9] shadow-warm-sm space-y-4 text-center sm:text-left">
               <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-4">
@@ -2633,7 +2665,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
         {/* TAB 4: EMERGENCY BLOOD REQUEST (FORM & LIVE BOARD) */}
         {/* ==================================================== */}
         {activeTab === 'emergency-request' && (
-          <div className="space-y-10 animate-in fade-in">
+          <div id="emergency-request-section" className="space-y-10 animate-in fade-in zoom-in-95 duration-300">
             {/* Urgent Hotline Top Banner */}
             <div className="p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-rose-600 via-rose-700 to-rose-900 text-white shadow-warm-md flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-3 text-center sm:text-left">
@@ -3265,8 +3297,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
           onUpdateClick={(donor) => {
             setSelectedDonorForProfile(null);
             populateUpdateForm(donor);
-            setActiveTab('update-donor');
-            window.scrollTo({ top: 380, behavior: 'smooth' });
+            scrollToFormSection('update-donor');
           }}
         />
       )}
@@ -3280,7 +3311,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
           onClose={() => setSelectedDonorForContact(null)}
           onOpenEmergencyRequest={() => {
             setSelectedDonorForContact(null);
-            setActiveTab('emergency-request');
+            scrollToFormSection('emergency-request');
           }}
         />
       )}

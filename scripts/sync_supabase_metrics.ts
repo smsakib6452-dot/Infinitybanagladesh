@@ -14,7 +14,7 @@ async function main() {
       value: m.value,
       description: m.description,
       icon_name: m.iconName,
-      order: m.order,
+      display_order: m.order || 0,
       updated_at: new Date().toISOString()
     });
     if (error) console.error(`Error on ${m.id}:`, error.message);

@@ -49,49 +49,51 @@ export const Footer: React.FC = () => {
   return (
     <footer className="bg-[#11241E] text-emerald-100 border-t border-emerald-900/60 selection:bg-emerald-800 selection:text-white">
       {/* 1. Top Callout Banner: United for Humanity */}
-      <div className="bg-gradient-to-r from-[#0D1C17] via-[#132A23] to-[#0D1C17] py-10 sm:py-12 border-b border-emerald-900/40 relative overflow-hidden">
-        {/* Subtle ambient background glow */}
-        <div className="absolute top-0 right-1/4 w-80 h-80 bg-emerald-600/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-10 w-60 h-60 bg-[#D97706]/10 rounded-full blur-3xl pointer-events-none" />
+      {footerSettings?.showCallout !== false && (
+        <div className="bg-gradient-to-r from-[#0D1C17] via-[#132A23] to-[#0D1C17] py-10 sm:py-12 border-b border-emerald-900/40 relative overflow-hidden">
+          {/* Subtle ambient background glow */}
+          <div className="absolute top-0 right-1/4 w-80 h-80 bg-emerald-600/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-10 w-60 h-60 bg-[#D97706]/10 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="text-center md:text-left space-y-2 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-600/40 text-emerald-300 text-xs font-bold uppercase tracking-wider">
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-              <span>
-                {tText(footerSettings.calloutEyebrow) || `${settings.teamIdentity || 'Team Infinity'} — ${isBn ? (settings.primary_slogan?.bn || 'মানবতার জন্য একতাবদ্ধ') : (settings.primary_slogan?.en || settings.tagline || 'United for Humanity')}`}
-              </span>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="text-center md:text-left space-y-2 max-w-2xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-600/40 text-emerald-300 text-xs font-bold uppercase tracking-wider">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span>
+                  {tText(footerSettings.calloutEyebrow) || `${settings.teamIdentity || 'Team Infinity'} — ${isBn ? (settings.primary_slogan?.bn || 'মানবতার জন্য একতাবদ্ধ') : (settings.primary_slogan?.en || settings.tagline || 'United for Humanity')}`}
+                </span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight font-display">
+                {tText(footerSettings.calloutTitle) || (isBn
+                  ? 'সুবিধাবঞ্চিত মানুষের মুখে হাসি ফোটাতে আমাদের সাথে যোগ দিন'
+                  : 'Stand with us to bring dignity, joy, and hope to communities in need.')}
+              </h2>
+              <p className="text-emerald-200/80 text-xs sm:text-sm leading-relaxed">
+                {tText(footerSettings.calloutSubtitle) || (isBn
+                  ? 'স্বেচ্ছাসেবী হিসেবে কিংবা সহযোগিতার হাত বাড়িয়ে দিয়ে আপনিও হতে পারেন মানবকল্যাণের অগ্রণী অংশ।'
+                  : 'Whether as an active youth volunteer or a transparent supporter, your empathy creates lasting change.')}
+              </p>
             </div>
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight font-display">
-              {tText(footerSettings.calloutTitle) || (isBn
-                ? 'সুবিধাবঞ্চিত মানুষের মুখে হাসি ফোটাতে আমাদের সাথে যোগ দিন'
-                : 'Stand with us to bring dignity, joy, and hope to communities in need.')}
-            </h2>
-            <p className="text-emerald-200/80 text-xs sm:text-sm leading-relaxed">
-              {tText(footerSettings.calloutSubtitle) || (isBn
-                ? 'স্বেচ্ছাসেবী হিসেবে কিংবা সহযোগিতার হাত বাড়িয়ে দিয়ে আপনিও হতে পারেন মানবকল্যাণের অগ্রণী অংশ।'
-                : 'Whether as an active youth volunteer or a transparent supporter, your empathy creates lasting change.')}
-            </p>
-          </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-3 shrink-0">
-            <Link
-              to={footerSettings.volunteerCtaUrl || 'volunteer'}
-              className="px-6 py-3 rounded-xl bg-[#006A4E] hover:bg-[#008562] active:bg-[#004D38] text-white font-bold text-xs sm:text-sm shadow-warm-md transition-all duration-200 inline-flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5"
-            >
-              <span>{tText(footerSettings.volunteerCtaText) || (isBn ? 'স্বেচ্ছাসেবী হিসেবে যোগ দিন' : 'Become a Volunteer')}</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link
-              to={footerSettings.supportCtaUrl || 'donate'}
-              className="px-6 py-3 rounded-xl bg-white hover:bg-emerald-50 active:bg-emerald-100 text-[#006A4E] font-bold text-xs sm:text-sm shadow-warm-sm border border-emerald-200 transition-all duration-200 inline-flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5"
-            >
-              <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />
-              <span>{tText(footerSettings.supportCtaText) || (isBn ? 'সহায়তা করুন' : 'Support Our Work')}</span>
-            </Link>
+            <div className="flex flex-wrap items-center justify-center gap-3 shrink-0">
+              <Link
+                to={footerSettings.volunteerCtaUrl || 'volunteer'}
+                className="px-6 py-3 rounded-xl bg-[#006A4E] hover:bg-[#008562] active:bg-[#004D38] text-white font-bold text-xs sm:text-sm shadow-warm-md transition-all duration-200 inline-flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5"
+              >
+                <span>{tText(footerSettings.volunteerCtaText) || (isBn ? 'স্বেচ্ছাসেবী হিসেবে যোগ দিন' : 'Become a Volunteer')}</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link
+                to={footerSettings.supportCtaUrl || 'donate'}
+                className="px-6 py-3 rounded-xl bg-white hover:bg-emerald-50 active:bg-emerald-100 text-[#006A4E] font-bold text-xs sm:text-sm shadow-warm-sm border border-emerald-200 transition-all duration-200 inline-flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5"
+              >
+                <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />
+                <span>{tText(footerSettings.supportCtaText) || (isBn ? 'সহায়তা করুন' : 'Support Our Work')}</span>
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* 2. Main Footer Directory */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 lg:py-16">

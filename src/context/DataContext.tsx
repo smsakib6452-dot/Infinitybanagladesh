@@ -698,6 +698,16 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setEvents(parsed);
         } else if (entityKey === 'journeyVideos' && Array.isArray(parsed)) {
           setJourneyVideos(parsed);
+        } else if (entityKey === 'homepageConfig' && parsed && typeof parsed === 'object') {
+          setHomepageConfig(parsed);
+        } else if (entityKey === 'aboutSettings' && parsed && typeof parsed === 'object') {
+          setAboutSettings(parsed);
+        } else if (entityKey === 'headerSettings' && parsed && typeof parsed === 'object') {
+          setHeaderSettings(parsed);
+        } else if (entityKey === 'footerSettings' && parsed && typeof parsed === 'object') {
+          setFooterSettings(parsed);
+        } else if (entityKey === 'settings' && parsed && typeof parsed === 'object') {
+          setSettings(parsed);
         }
       } catch (err) {
         console.warn('Storage sync error:', err);
@@ -1959,6 +1969,13 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         sectionVisibility: newConfig.sectionVisibility ? { ...prev.sectionVisibility, ...newConfig.sectionVisibility } : prev.sectionVisibility
       };
       logAudit('UPDATE', 'HomepageConfig', 'homepage', 'Updated homepage hero, sections, or visibility');
+
+      try {
+        localStorage.setItem(`${STORAGE_PREFIX}homepageConfig`, JSON.stringify(updated));
+        window.dispatchEvent(new CustomEvent('infinity_homepage_config_updated', { detail: updated }));
+      } catch (e) {
+        console.warn('Failed to save homepageConfig to localStorage:', e);
+      }
 
       const safeVolunteerBanner = {
         ...(updated.volunteerBanner || {}),

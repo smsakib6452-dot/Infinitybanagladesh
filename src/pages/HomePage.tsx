@@ -282,7 +282,8 @@ export const HomePage: React.FC = () => {
           </section>
         );
 
-      case 'impact': {
+      case 'impact':
+      case 'impact_section': {
         const impactCfg = homepageConfig.impactSection;
         return (
           <section key="impact" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -309,7 +310,8 @@ export const HomePage: React.FC = () => {
         );
       }
 
-      case 'about': {
+      case 'about':
+      case 'about_preview': {
         const defaultEyebrow = { en: 'Who We Are', bn: 'আমাদের পরিচয় ও লক্ষ্য' };
         const defaultTitleMain = { en: 'People First. Humanity Always.', bn: 'মানুষের পাশে দাঁড়ানোর অঙ্গীকারে রত —' };
         const defaultTitleHighlight = { en: 'Serving with Empathy.', bn: 'অকৃত্রিম সেবায়, ভালোবাসার বন্ধনে।' };
@@ -399,7 +401,8 @@ export const HomePage: React.FC = () => {
         );
       }
 
-      case 'programs': {
+      case 'programs':
+      case 'programs_section': {
         const progCfg = homepageConfig.programsSection;
         return (
           <section key="programs" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -436,7 +439,8 @@ export const HomePage: React.FC = () => {
         );
       }
 
-      case 'campaigns': {
+      case 'campaigns':
+      case 'campaigns_section': {
         const campCfg = homepageConfig.campaignsSection;
         return (
           <section key="campaigns" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -515,7 +519,8 @@ export const HomePage: React.FC = () => {
         );
       }
 
-      case 'stories': {
+      case 'stories':
+      case 'stories_section': {
         const storCfg = homepageConfig.storiesSection;
         return (
           <section key="stories" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -554,7 +559,8 @@ export const HomePage: React.FC = () => {
 
       {/* INFINITY LIFELINE — SPECIALIZED BLOOD INITIATIVE SPOTLIGHT */}
       case 'lifeline':
-      case 'blood_donation': {
+      case 'blood_donation':
+      case 'lifeline_section': {
         const lifeCfg = homepageConfig.lifelineSection;
         return (
           <section key="lifeline" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -755,7 +761,8 @@ export const HomePage: React.FC = () => {
         );
       }
 
-      case 'gallery': {
+      case 'gallery':
+      case 'gallery_section': {
         const gallCfg = homepageConfig.gallerySection;
         return (
           <section key="gallery" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -819,7 +826,8 @@ export const HomePage: React.FC = () => {
         );
       }
 
-      case 'volunteer': {
+      case 'volunteer':
+      case 'volunteer_banner': {
         const volBanner = homepageConfig.volunteerBanner;
         return (
           <section key="volunteer" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -868,7 +876,8 @@ export const HomePage: React.FC = () => {
         );
       }
 
-      case 'press': {
+      case 'press':
+      case 'press_section': {
         const pressCfg = homepageConfig.pressSection;
         const featuredPress = pressCoverages.filter(p => p.status === 'published').slice(0, 3);
         if (featuredPress.length === 0) return null;
@@ -930,13 +939,15 @@ export const HomePage: React.FC = () => {
       }
 
       case 'transparency':
+      case 'transparency_section':
         return (
           <ScrollReveal effect="fade-up" key="transparency" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <VerifiedOrganizationPledge config={homepageConfig.transparencySection} />
           </ScrollReveal>
         );
 
-      case 'support': {
+      case 'support':
+      case 'support_banner': {
         const supBanner = homepageConfig.supportBanner;
         return (
           <ScrollReveal effect="fade-up" key="support" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

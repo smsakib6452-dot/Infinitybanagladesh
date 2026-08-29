@@ -64,6 +64,69 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
   const totalActiveDonors = bloodDonors.filter(d => d.approvalStatus === 'APPROVED' && d.availabilityStatus !== 'UNAVAILABLE').length;
   const pendingBloodRequests = emergencyBloodRequests.filter(r => r.status === 'PENDING' || r.status === 'PROCESSING').length;
 
+  const toggleSectionVisibility = (sectionKey: string) => {
+    const isCurrentlyVisible = homepageConfig.sectionVisibility?.[sectionKey] !== false;
+    const nextState = !isCurrentlyVisible;
+    const newVis: Record<string, boolean> = {
+      ...(homepageConfig.sectionVisibility || {}),
+      [sectionKey]: nextState
+    };
+
+    // Sync alias variations to ensure 100% reliability across all keys
+    if (sectionKey === 'volunteer') {
+      newVis.volunteerBanner = nextState;
+      newVis.volunteer_banner = nextState;
+    } else if (sectionKey === 'support') {
+      newVis.supportBanner = nextState;
+      newVis.support_banner = nextState;
+    } else if (sectionKey === 'transparency') {
+      newVis.transparencySection = nextState;
+      newVis.transparency_section = nextState;
+    } else if (sectionKey === 'lifeline' || sectionKey === 'blood_donation') {
+      newVis.lifeline = nextState;
+      newVis.blood_donation = nextState;
+      newVis.lifelineSection = nextState;
+    } else if (sectionKey === 'about' || sectionKey === 'about_preview') {
+      newVis.about = nextState;
+      newVis.about_preview = nextState;
+      newVis.aboutPreview = nextState;
+    } else if (sectionKey === 'programs') {
+      newVis.programsSection = nextState;
+    } else if (sectionKey === 'campaigns') {
+      newVis.campaignsSection = nextState;
+    } else if (sectionKey === 'stories') {
+      newVis.storiesSection = nextState;
+    } else if (sectionKey === 'gallery') {
+      newVis.gallerySection = nextState;
+    } else if (sectionKey === 'press') {
+      newVis.pressSection = nextState;
+    } else if (sectionKey === 'impact') {
+      newVis.impactSection = nextState;
+    }
+
+    updateHomepageConfig({ sectionVisibility: newVis });
+    showToast(nextState ? (isBn ? `হোমপেজে '${sectionKey}' সক্রিয় করা হয়েছে` : `Shown '${sectionKey}' on homepage`) : (isBn ? `হোমপেজ থেকে '${sectionKey}' লুকানো হয়েছে` : `Hidden '${sectionKey}' from homepage`));
+  };
+
+  const renderSectionVisibilityButton = (sectionKey: string) => {
+    const isVisible = homepageConfig.sectionVisibility?.[sectionKey] !== false;
+    return (
+      <button
+        type="button"
+        onClick={() => toggleSectionVisibility(sectionKey)}
+        className={`px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 cursor-pointer transition-all shadow-2xs ${
+          isVisible
+            ? 'bg-[#E6F3EF] text-[#00523C] border border-[#C2E2D7] hover:bg-[#D1ECE3]'
+            : 'bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100'
+        }`}
+        title={isVisible ? 'Click to hide this section from Homepage' : 'Click to show this section on Homepage'}
+      >
+        {isVisible ? <Eye className="w-3.5 h-3.5 text-[#006A4E]" /> : <EyeOff className="w-3.5 h-3.5 text-rose-600" />}
+        <span>{isVisible ? (isBn ? 'হোমপেজে দৃশ্যমান (Active)' : 'Active on Homepage') : (isBn ? 'লুকানো রয়েছে (Hidden)' : 'Hidden from Homepage')}</span>
+      </button>
+    );
+  };
+
   return (
     <div className="space-y-8">
       {/* Top Header Control Bar */}
@@ -216,40 +279,11 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
                   {/* Toggle Visibility */}
                   <button
                     type="button"
-                    onClick={() => {
-                      const nextState = !isVisible;
-                      const newVis: Record<string, boolean> = {
-                        ...(homepageConfig.sectionVisibility || {}),
-                        [sectionKey]: nextState
-                      };
-
-                      // Sync alias variations to ensure 100% reliability
-                      if (sectionKey === 'volunteer') {
-                        newVis.volunteerBanner = nextState;
-                        newVis.volunteer_banner = nextState;
-                      } else if (sectionKey === 'support') {
-                        newVis.supportBanner = nextState;
-                        newVis.support_banner = nextState;
-                      } else if (sectionKey === 'transparency') {
-                        newVis.transparencySection = nextState;
-                        newVis.transparency_section = nextState;
-                      } else if (sectionKey === 'lifeline' || sectionKey === 'blood_donation') {
-                        newVis.lifeline = nextState;
-                        newVis.blood_donation = nextState;
-                        newVis.lifelineSection = nextState;
-                      } else if (sectionKey === 'about' || sectionKey === 'about_preview') {
-                        newVis.about = nextState;
-                        newVis.about_preview = nextState;
-                        newVis.aboutPreview = nextState;
-                      }
-
-                      updateHomepageConfig({ sectionVisibility: newVis });
-                      showToast(nextState ? `Shown ${sectionKey} on homepage` : `Hidden ${sectionKey} from homepage`);
-                    }}
+                    onClick={() => toggleSectionVisibility(sectionKey)}
                     className={`p-1.5 rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors ${
                       isVisible ? 'bg-[#E6F3EF] text-[#00523C]' : 'bg-slate-200 text-slate-600'
                     }`}
-                    title={isVisible ? 'Visible on Homepage' : 'Hidden from Homepage'}
+                    title={isVisible ? 'Visible on Homepage (Click to hide)' : 'Hidden from Homepage (Click to show)'}
                   >
                     {isVisible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
                   </button>
@@ -279,9 +313,12 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
               </p>
             </div>
           </div>
-          <span className="text-[11px] text-slate-500 bg-[#FAF7F2] px-3 py-1 rounded-xl border border-[#EAE3D9] font-mono">
-            sectionKey: 'hero'
-          </span>
+          <div className="flex items-center gap-2">
+            {renderSectionVisibilityButton('hero')}
+            <span className="text-[11px] text-slate-500 bg-[#FAF7F2] px-3 py-1 rounded-xl border border-[#EAE3D9] font-mono">
+              sectionKey: 'hero'
+            </span>
+          </div>
         </div>
 
         {/* Slogan & Eyebrow */}
@@ -555,11 +592,10 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
                     onClick={() => updateHomepageConfig({
                       hero: { ...homepageConfig.hero, heroImageCropPosition: pos }
                     })}
-                    className={`px-2 py-0.5 rounded-md text-[10px] font-bold cursor-pointer transition-colors ${
-                      (homepageConfig.hero.heroImageCropPosition || 'center center') === pos
+                    className={`px-2 py-0.5 rounded-md text-[10px] font-bold cursor-pointer transition-colors ${(homepageConfig.hero.heroImageCropPosition || 'center center') === pos
                         ? 'bg-[#006A4E] text-white'
                         : 'bg-white text-slate-600 border border-slate-200 hover:border-[#006A4E]'
-                    }`}
+                      }`}
                   >
                     {pos}
                   </button>
@@ -589,9 +625,8 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
                       updatedIndicators[idx] = { ...updatedIndicators[idx], active: !updatedIndicators[idx].active };
                       updateHomepageConfig({ hero: { ...homepageConfig.hero, trustIndicators: updatedIndicators } });
                     }}
-                    className={`px-2 py-0.5 rounded-md text-[10px] font-bold cursor-pointer transition-colors ${
-                      indicator.active ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'
-                    }`}
+                    className={`px-2 py-0.5 rounded-md text-[10px] font-bold cursor-pointer transition-colors ${indicator.active ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'
+                      }`}
                   >
                     {indicator.active ? 'Active' : 'Hidden'}
                   </button>
@@ -656,11 +691,10 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
                     primaryCta: { ...homepageConfig.hero.primaryCta, active: !homepageConfig.hero.primaryCta.active }
                   }
                 })}
-                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold cursor-pointer transition-colors ${
-                  homepageConfig.hero.primaryCta.active
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold cursor-pointer transition-colors ${homepageConfig.hero.primaryCta.active
                     ? 'bg-emerald-100 text-emerald-800'
                     : 'bg-slate-200 text-slate-600'
-                }`}
+                  }`}
               >
                 {homepageConfig.hero.primaryCta.active ? 'Active' : 'Hidden'}
               </button>
@@ -735,11 +769,10 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
                     secondaryCta: { ...homepageConfig.hero.secondaryCta, active: !homepageConfig.hero.secondaryCta.active }
                   }
                 })}
-                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold cursor-pointer transition-colors ${
-                  homepageConfig.hero.secondaryCta.active
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold cursor-pointer transition-colors ${homepageConfig.hero.secondaryCta.active
                     ? 'bg-emerald-100 text-emerald-800'
                     : 'bg-slate-200 text-slate-600'
-                }`}
+                  }`}
               >
                 {homepageConfig.hero.secondaryCta.active ? 'Active' : 'Hidden'}
               </button>
@@ -814,11 +847,10 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
                     storyCta: { ...homepageConfig.hero.storyCta, active: !homepageConfig.hero.storyCta.active }
                   }
                 })}
-                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold cursor-pointer transition-colors ${
-                  homepageConfig.hero.storyCta.active
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold cursor-pointer transition-colors ${homepageConfig.hero.storyCta.active
                     ? 'bg-emerald-100 text-emerald-800'
                     : 'bg-slate-200 text-slate-600'
-                }`}
+                  }`}
               >
                 {homepageConfig.hero.storyCta.active ? 'Active' : 'Hidden'}
               </button>
@@ -895,6 +927,12 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
                 Controls Homepage: "People First. Humanity Always" — Headline, Mission/Vision, CTAs & Photo
               </p>
             </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {renderSectionVisibilityButton('about')}
+            <span className="text-[11px] text-slate-500 bg-[#FAF7F2] px-3 py-1 rounded-xl border border-[#EAE3D9] font-mono">
+              sectionKey: 'about'
+            </span>
           </div>
         </div>
 
@@ -1164,11 +1202,10 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
                           imageCrop: preset.val
                         }
                       })}
-                      className={`px-2 py-1 rounded-lg text-xs font-bold border transition-all cursor-pointer text-center ${
-                        (homepageConfig.aboutPreview?.imageCrop || 'center center') === preset.val
+                      className={`px-2 py-1 rounded-lg text-xs font-bold border transition-all cursor-pointer text-center ${(homepageConfig.aboutPreview?.imageCrop || 'center center') === preset.val
                           ? 'bg-[#006A4E] text-white border-[#006A4E] shadow-2xs'
                           : 'bg-white text-slate-700 border-[#EAE3D9] hover:bg-slate-50'
-                      }`}
+                        }`}
                     >
                       {preset.label}
                     </button>
@@ -1577,9 +1614,12 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
               </p>
             </div>
           </div>
-          <span className="text-[11px] text-slate-500 bg-[#FAF7F2] px-3 py-1 rounded-xl border border-[#EAE3D9] font-mono">
-            sectionKey: 'programs'
-          </span>
+          <div className="flex items-center gap-2">
+            {renderSectionVisibilityButton('programs')}
+            <span className="text-[11px] text-slate-500 bg-[#FAF7F2] px-3 py-1 rounded-xl border border-[#EAE3D9] font-mono">
+              sectionKey: 'programs'
+            </span>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1751,9 +1791,12 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
               </p>
             </div>
           </div>
-          <span className="text-[11px] text-slate-500 bg-[#FAF7F2] px-3 py-1 rounded-xl border border-[#EAE3D9] font-mono">
-            sectionKey: 'campaigns'
-          </span>
+          <div className="flex items-center gap-2">
+            {renderSectionVisibilityButton('campaigns')}
+            <span className="text-[11px] text-slate-500 bg-[#FAF7F2] px-3 py-1 rounded-xl border border-[#EAE3D9] font-mono">
+              sectionKey: 'campaigns'
+            </span>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -2006,9 +2049,12 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
               </p>
             </div>
           </div>
-          <span className="text-[11px] text-slate-500 bg-[#FAF7F2] px-3 py-1 rounded-xl border border-[#EAE3D9] font-mono">
-            sectionKey: 'stories'
-          </span>
+          <div className="flex items-center gap-2">
+            {renderSectionVisibilityButton('stories')}
+            <span className="text-[11px] text-slate-500 bg-[#FAF7F2] px-3 py-1 rounded-xl border border-[#EAE3D9] font-mono">
+              sectionKey: 'stories'
+            </span>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -2151,9 +2197,12 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
               </p>
             </div>
           </div>
-          <span className="text-[11px] text-slate-500 bg-[#FAF7F2] px-3 py-1 rounded-xl border border-[#EAE3D9] font-mono">
-            sectionKey: 'lifeline'
-          </span>
+          <div className="flex items-center gap-2">
+            {renderSectionVisibilityButton('lifeline')}
+            <span className="text-[11px] text-slate-500 bg-[#FAF7F2] px-3 py-1 rounded-xl border border-[#EAE3D9] font-mono">
+              sectionKey: 'lifeline'
+            </span>
+          </div>
         </div>
 
         {/* ------------------------------------------------------------- */}
@@ -2705,9 +2754,12 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
               </p>
             </div>
           </div>
-          <span className="text-[11px] text-slate-500 bg-[#FAF7F2] px-3 py-1 rounded-xl border border-[#EAE3D9] font-mono">
-            sectionKey: 'gallery'
-          </span>
+          <div className="flex items-center gap-2">
+            {renderSectionVisibilityButton('gallery')}
+            <span className="text-[11px] text-slate-500 bg-[#FAF7F2] px-3 py-1 rounded-xl border border-[#EAE3D9] font-mono">
+              sectionKey: 'gallery'
+            </span>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -2846,9 +2898,12 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
               </p>
             </div>
           </div>
-          <span className="text-[11px] text-slate-500 bg-[#FAF7F2] px-3 py-1 rounded-xl border border-[#EAE3D9] font-mono">
-            sectionKey: 'press'
-          </span>
+          <div className="flex items-center gap-2">
+            {renderSectionVisibilityButton('press')}
+            <span className="text-[11px] text-slate-500 bg-[#FAF7F2] px-3 py-1 rounded-xl border border-[#EAE3D9] font-mono">
+              sectionKey: 'press'
+            </span>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -3018,9 +3073,12 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
               </p>
             </div>
           </div>
-          <span className="text-[11px] text-slate-500 bg-[#FAF7F2] px-3 py-1 rounded-xl border border-[#EAE3D9] font-mono">
-            sectionKey: 'volunteer'
-          </span>
+          <div className="flex items-center gap-2">
+            {renderSectionVisibilityButton('volunteer')}
+            <span className="text-[11px] text-slate-500 bg-[#FAF7F2] px-3 py-1 rounded-xl border border-[#EAE3D9] font-mono">
+              sectionKey: 'volunteer'
+            </span>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -3253,9 +3311,12 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
               </p>
             </div>
           </div>
-          <span className="text-[11px] text-slate-500 bg-[#FAF7F2] px-3 py-1 rounded-xl border border-[#EAE3D9] font-mono">
-            sectionKey: 'transparency'
-          </span>
+          <div className="flex items-center gap-2">
+            {renderSectionVisibilityButton('transparency')}
+            <span className="text-[11px] text-slate-500 bg-[#FAF7F2] px-3 py-1 rounded-xl border border-[#EAE3D9] font-mono">
+              sectionKey: 'transparency'
+            </span>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -3493,9 +3554,12 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
               </p>
             </div>
           </div>
-          <span className="text-[11px] text-slate-500 bg-[#FAF7F2] px-3 py-1 rounded-xl border border-[#EAE3D9] font-mono">
-            sectionKey: 'support'
-          </span>
+          <div className="flex items-center gap-2">
+            {renderSectionVisibilityButton('support')}
+            <span className="text-[11px] text-slate-500 bg-[#FAF7F2] px-3 py-1 rounded-xl border border-[#EAE3D9] font-mono">
+              sectionKey: 'support'
+            </span>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

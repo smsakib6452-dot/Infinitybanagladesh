@@ -1106,35 +1106,111 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
             </div>
           </div>
 
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-700">CTA Button Text (English)</label>
-            <input
-              type="text"
-              value={homepageConfig.aboutPreview?.ctaText?.en || ''}
-              onChange={(e) => updateHomepageConfig({
-                aboutPreview: {
-                  ...homepageConfig.aboutPreview,
-                  ctaText: { ...(homepageConfig.aboutPreview?.ctaText || { en: '', bn: '' }), en: e.target.value }
-                }
-              })}
-              placeholder="Read Our Full Story"
-              className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
-            />
-          </div>
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-700">বোতামের লেখা (বাংলা)</label>
-            <input
-              type="text"
-              value={homepageConfig.aboutPreview?.ctaText?.bn || ''}
-              onChange={(e) => updateHomepageConfig({
-                aboutPreview: {
-                  ...homepageConfig.aboutPreview,
-                  ctaText: { ...(homepageConfig.aboutPreview?.ctaText || { en: '', bn: '' }), bn: e.target.value }
-                }
-              })}
-              placeholder="আমাদের সম্পূর্ণ যাত্রা পড়ুন"
-              className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
-            />
+          {/* Primary & Secondary About CTAs */}
+          <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+            {/* Primary Story CTA */}
+            <div className="p-3 bg-[#FAF7F2] rounded-xl border border-[#EAE3D9] space-y-2">
+              <span className="text-[11px] font-bold text-[#006A4E] block">Primary Button (সম্পূর্ণ গল্প পড়ুন)</span>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-[10px] text-slate-500 font-medium">Text (EN)</label>
+                  <input
+                    type="text"
+                    value={homepageConfig.aboutPreview?.ctaText?.en || ''}
+                    onChange={(e) => updateHomepageConfig({
+                      aboutPreview: {
+                        ...homepageConfig.aboutPreview,
+                        ctaText: { ...(homepageConfig.aboutPreview?.ctaText || { en: '', bn: '' }), en: e.target.value }
+                      }
+                    })}
+                    placeholder="Read Our Full Story"
+                    className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] text-slate-500 font-medium">লেখা (বাংলা)</label>
+                  <input
+                    type="text"
+                    value={homepageConfig.aboutPreview?.ctaText?.bn || ''}
+                    onChange={(e) => updateHomepageConfig({
+                      aboutPreview: {
+                        ...homepageConfig.aboutPreview,
+                        ctaText: { ...(homepageConfig.aboutPreview?.ctaText || { en: '', bn: '' }), bn: e.target.value }
+                      }
+                    })}
+                    placeholder="আমাদের সম্পূর্ণ যাত্রা পড়ুন"
+                    className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-[10px] text-slate-500 font-medium">Target Route</label>
+                <input
+                  type="text"
+                  value={homepageConfig.aboutPreview?.ctaUrl || 'about/story'}
+                  onChange={(e) => updateHomepageConfig({
+                    aboutPreview: {
+                      ...homepageConfig.aboutPreview,
+                      ctaUrl: e.target.value
+                    }
+                  })}
+                  placeholder="about/story"
+                  className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-mono"
+                />
+              </div>
+            </div>
+
+            {/* Secondary Team CTA */}
+            <div className="p-3 bg-[#FAF7F2] rounded-xl border border-[#EAE3D9] space-y-2">
+              <span className="text-[11px] font-bold text-slate-700 block">Secondary Button (নেতৃত্ব কমিটি)</span>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-[10px] text-slate-500 font-medium">Text (EN)</label>
+                  <input
+                    type="text"
+                    value={homepageConfig.aboutPreview?.secondaryCtaText?.en || ''}
+                    onChange={(e) => updateHomepageConfig({
+                      aboutPreview: {
+                        ...homepageConfig.aboutPreview,
+                        secondaryCtaText: { ...(homepageConfig.aboutPreview?.secondaryCtaText || { en: '', bn: '' }), en: e.target.value }
+                      }
+                    })}
+                    placeholder="Executive Team"
+                    className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] text-slate-500 font-medium">লেখা (বাংলা)</label>
+                  <input
+                    type="text"
+                    value={homepageConfig.aboutPreview?.secondaryCtaText?.bn || ''}
+                    onChange={(e) => updateHomepageConfig({
+                      aboutPreview: {
+                        ...homepageConfig.aboutPreview,
+                        secondaryCtaText: { ...(homepageConfig.aboutPreview?.secondaryCtaText || { en: '', bn: '' }), bn: e.target.value }
+                      }
+                    })}
+                    placeholder="নেতৃত্ব কমিটি"
+                    className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-[10px] text-slate-500 font-medium">Target Route</label>
+                <input
+                  type="text"
+                  value={homepageConfig.aboutPreview?.secondaryCtaUrl || 'about/executive-committee'}
+                  onChange={(e) => updateHomepageConfig({
+                    aboutPreview: {
+                      ...homepageConfig.aboutPreview,
+                      secondaryCtaUrl: e.target.value
+                    }
+                  })}
+                  placeholder="about/executive-committee"
+                  className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-mono"
+                />
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1739,35 +1815,98 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
           </div>
 
           {/* 3 LifeLine Action CTA Button Text Overrides */}
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-700">Find Donor CTA Text (EN)</label>
-            <input
-              type="text"
-              value={homepageConfig.lifelineSection?.findDonorBtnText?.en || ''}
-              onChange={(e) => updateHomepageConfig({
-                lifelineSection: {
-                  ...(homepageConfig.lifelineSection || {}),
-                  findDonorBtnText: { ...(homepageConfig.lifelineSection?.findDonorBtnText || { en: '', bn: '' }), en: e.target.value }
-                }
-              })}
-              placeholder="Find a Donor"
-              className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
-            />
-          </div>
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-700">রক্তদাতা খুঁজুন বাটন (বাংলা)</label>
-            <input
-              type="text"
-              value={homepageConfig.lifelineSection?.findDonorBtnText?.bn || ''}
-              onChange={(e) => updateHomepageConfig({
-                lifelineSection: {
-                  ...(homepageConfig.lifelineSection || {}),
-                  findDonorBtnText: { ...(homepageConfig.lifelineSection?.findDonorBtnText || { en: '', bn: '' }), bn: e.target.value }
-                }
-              })}
-              placeholder="রক্তদাতা খুঁজুন"
-              className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
-            />
+          <div className="sm:col-span-2 space-y-3 pt-2 border-t border-slate-100">
+            <h5 className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider">
+              LifeLine Action Buttons (৩টি অ্যাকশন বাটন টেক্সট)
+            </h5>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {/* 1. Find Donor */}
+              <div className="p-3 bg-[#FAF7F2] rounded-xl border border-[#EAE3D9] space-y-2">
+                <span className="text-[11px] font-bold text-rose-700 block">1. Find a Donor (রক্তদাতা খুঁজুন)</span>
+                <input
+                  type="text"
+                  value={homepageConfig.lifelineSection?.findDonorBtnText?.en || ''}
+                  onChange={(e) => updateHomepageConfig({
+                    lifelineSection: {
+                      ...(homepageConfig.lifelineSection || {}),
+                      findDonorBtnText: { ...(homepageConfig.lifelineSection?.findDonorBtnText || { en: '', bn: '' }), en: e.target.value }
+                    }
+                  })}
+                  placeholder="Find a Donor (EN)"
+                  className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs"
+                />
+                <input
+                  type="text"
+                  value={homepageConfig.lifelineSection?.findDonorBtnText?.bn || ''}
+                  onChange={(e) => updateHomepageConfig({
+                    lifelineSection: {
+                      ...(homepageConfig.lifelineSection || {}),
+                      findDonorBtnText: { ...(homepageConfig.lifelineSection?.findDonorBtnText || { en: '', bn: '' }), bn: e.target.value }
+                    }
+                  })}
+                  placeholder="রক্তদাতা খুঁজুন (বাংলা)"
+                  className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali"
+                />
+              </div>
+
+              {/* 2. Become a Donor */}
+              <div className="p-3 bg-[#FAF7F2] rounded-xl border border-[#EAE3D9] space-y-2">
+                <span className="text-[11px] font-bold text-[#006A4E] block">2. Become Donor (রক্তদাতা হোন)</span>
+                <input
+                  type="text"
+                  value={homepageConfig.lifelineSection?.becomeDonorBtnText?.en || ''}
+                  onChange={(e) => updateHomepageConfig({
+                    lifelineSection: {
+                      ...(homepageConfig.lifelineSection || {}),
+                      becomeDonorBtnText: { ...(homepageConfig.lifelineSection?.becomeDonorBtnText || { en: '', bn: '' }), en: e.target.value }
+                    }
+                  })}
+                  placeholder="Become a Blood Donor (EN)"
+                  className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs"
+                />
+                <input
+                  type="text"
+                  value={homepageConfig.lifelineSection?.becomeDonorBtnText?.bn || ''}
+                  onChange={(e) => updateHomepageConfig({
+                    lifelineSection: {
+                      ...(homepageConfig.lifelineSection || {}),
+                      becomeDonorBtnText: { ...(homepageConfig.lifelineSection?.becomeDonorBtnText || { en: '', bn: '' }), bn: e.target.value }
+                    }
+                  })}
+                  placeholder="রক্তদাতা হোন (বাংলা)"
+                  className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali"
+                />
+              </div>
+
+              {/* 3. Emergency Request */}
+              <div className="p-3 bg-[#FAF7F2] rounded-xl border border-[#EAE3D9] space-y-2">
+                <span className="text-[11px] font-bold text-slate-700 block">3. Emergency Request (রক্তের আবেদন)</span>
+                <input
+                  type="text"
+                  value={homepageConfig.lifelineSection?.emergencyReqBtnText?.en || ''}
+                  onChange={(e) => updateHomepageConfig({
+                    lifelineSection: {
+                      ...(homepageConfig.lifelineSection || {}),
+                      emergencyReqBtnText: { ...(homepageConfig.lifelineSection?.emergencyReqBtnText || { en: '', bn: '' }), en: e.target.value }
+                    }
+                  })}
+                  placeholder="Emergency Request (EN)"
+                  className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs"
+                />
+                <input
+                  type="text"
+                  value={homepageConfig.lifelineSection?.emergencyReqBtnText?.bn || ''}
+                  onChange={(e) => updateHomepageConfig({
+                    lifelineSection: {
+                      ...(homepageConfig.lifelineSection || {}),
+                      emergencyReqBtnText: { ...(homepageConfig.lifelineSection?.emergencyReqBtnText || { en: '', bn: '' }), bn: e.target.value }
+                    }
+                  })}
+                  placeholder="জরুরি রক্তের আবেদন (বাংলা)"
+                  className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali"
+                />
+              </div>
+            </div>
           </div>
         </div>
 

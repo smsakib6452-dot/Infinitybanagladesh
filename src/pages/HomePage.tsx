@@ -312,11 +312,11 @@ export const HomePage: React.FC = () => {
                   </Link>
 
                   <Link
-                    to="about/executive-committee"
+                    to={aboutPreview.secondaryCtaUrl || "about/executive-committee"}
                     className="px-5 py-3 rounded-2xl bg-[#FAF7F2] hover:bg-[#F2ECE1] text-slate-800 text-xs sm:text-sm font-bold border border-[#D8CFC4] transition-all flex items-center gap-2 cursor-pointer"
                   >
                     <Users className="w-4 h-4 text-[#006A4E]" />
-                    <span>{isBn ? 'নেতৃত্ব কমিটি' : 'Executive Team'}</span>
+                    <span>{tText(aboutPreview.secondaryCtaText) || (isBn ? 'নেতৃত্ব কমিটি' : 'Executive Team')}</span>
                   </Link>
                 </div>
               </ScrollReveal>

@@ -118,6 +118,8 @@ export interface AboutPreviewConfig {
   quoteAuthor: string;
   ctaText: BilingualText;
   ctaUrl: string;
+  secondaryCtaText?: BilingualText;
+  secondaryCtaUrl?: string;
   imageUrl: string;
 }
 

@@ -326,28 +326,28 @@ export const INITIAL_HOMEPAGE_CONFIG: HomepageConfig = {
     "imageUrl": "https://res.cloudinary.com/evj6fhsf/image/upload/v1787561961/650149425_122117114961217591_1763045846250955844_n.jpg"
   },
   "volunteerBanner": {
-    "eyebrow": {
-      "bn": "স্বেচ্ছাসেবী পরিবারে স্বাগতম",
-      "en": "Be Part of Team Infinity"
-    },
     "title": {
       "bn": "মানবতার সেবায় আপনিও হতে পারেন অগ্রদূত",
       "en": "Empower Communities with Your Time & Passion"
+    },
+    "eyebrow": {
+      "bn": "স্বেচ্ছাসেবী পরিবারে স্বাগতম",
+      "en": "Be Part of Team Infinity"
     },
     "description": {
       "bn": "টিম ইনফিনিটি একটি তারুণ্যনির্ভর স্বচ্ছ মানবিক পরিবার। আপনার মেধা ও সহমর্মিতা দিয়ে একজন মানুষের মুখে হাসি ফোটাতে আমাদের সাথে যুক্ত হোন।",
       "en": "Join a vibrant, ethical youth community committed to transparent grassroots humanitarian action across Bangladesh."
     },
+    "primaryCtaUrl": "volunteer",
     "primaryCtaText": {
       "bn": "স্বেচ্ছাসেবী হিসেবে যোগ দিন",
       "en": "Become a Volunteer"
     },
-    "primaryCtaUrl": "volunteer",
+    "secondaryCtaUrl": "about/executive-committee",
     "secondaryCtaText": {
       "bn": "আমাদের নেতৃত্ব দেখুন",
       "en": "Meet Our Team"
-    },
-    "secondaryCtaUrl": "about/executive-committee"
+    }
   },
   "supportBanner": {
     "title": {
@@ -358,16 +358,16 @@ export const INITIAL_HOMEPAGE_CONFIG: HomepageConfig = {
       "bn": "আপনার আর্থিক সহযোগিতা সরাসরি সুবিধাবঞ্চিত শিশুদের নতুন পোশাক, রমজানের খাদ্য এবং শীতের কম্বল হিসেবে রূপান্তরিত হয়।",
       "en": "Your contributions directly fund verified clothes, nourishment, and winter protection for those who need it most."
     },
+    "primaryCtaUrl": "donate",
     "primaryCtaText": {
       "bn": "অনলাইন অনুদান প্রদান",
       "en": "Donate to Infinity Bangladesh"
     },
-    "primaryCtaUrl": "donate",
+    "secondaryCtaUrl": "transparency",
     "secondaryCtaText": {
       "bn": "স্বচ্ছতা ও অডিট রিপোর্ট",
       "en": "Audit & Expense Logs"
-    },
-    "secondaryCtaUrl": "transparency"
+    }
   },
   "sectionOrder": [
     "hero",
@@ -383,15 +383,15 @@ export const INITIAL_HOMEPAGE_CONFIG: HomepageConfig = {
   ],
   "sectionVisibility": {
     "hero": true,
-    "impact": true,
     "about": true,
+    "impact": true,
+    "gallery": true,
+    "stories": false,
+    "support": false,
     "programs": true,
     "campaigns": true,
-    "stories": true,
-    "gallery": true,
-    "volunteer": true,
-    "transparency": false,
-    "support": true
+    "volunteer": false,
+    "transparency": false
   }
 };
 
@@ -928,7 +928,7 @@ export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
     "category": "Events",
     "altText": "C-Plus TV তে সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৫ (২০১৯)",
     "caption": "",
-    "uploadedAt": "2026-08-27T15:15:49.346+00:00",
+    "uploadedAt": "2026-08-29T06:02:24.522+00:00",
     "usageTags": [
       "External Media URL"
     ]
@@ -942,7 +942,7 @@ export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
     "category": "General",
     "altText": "Hathazari Darpan এ সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৬ (২০২১)",
     "caption": "",
-    "uploadedAt": "2026-08-27T15:15:49.539+00:00",
+    "uploadedAt": "2026-08-29T06:02:24.681+00:00",
     "usageTags": [
       "External Media URL"
     ]
@@ -956,7 +956,7 @@ export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
     "category": "Events",
     "altText": "সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-১১ (২০২৬)",
     "caption": "",
-    "uploadedAt": "2026-08-27T15:15:49.711+00:00",
+    "uploadedAt": "2026-08-29T06:02:24.843+00:00",
     "usageTags": [
       "External Media URL"
     ]
@@ -970,7 +970,7 @@ export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
     "category": "Relief Campaigns",
     "altText": "Hathazari Darpan এ সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৬ (২০২১)",
     "caption": "Team Infinity official field drive video footage.",
-    "uploadedAt": "2026-08-27T15:15:49.884+00:00",
+    "uploadedAt": "2026-08-29T06:02:25.021+00:00",
     "usageTags": [
       "Video Gallery",
       "Field Footage"
@@ -985,7 +985,7 @@ export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
     "category": "Volunteers",
     "altText": "Standing Committee Official Declaration Poster",
     "caption": "Official roster of 9 standing committee members",
-    "uploadedAt": "2026-08-27T15:15:50.048+00:00",
+    "uploadedAt": "2026-08-29T06:02:25.179+00:00",
     "usageTags": [
       "Standing Committee Page"
     ]
@@ -999,7 +999,7 @@ export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
     "category": "Volunteers",
     "altText": "Executive Committee 2026 Official Declaration Poster",
     "caption": "Official roster of 27 executive leaders",
-    "uploadedAt": "2026-08-27T15:15:50.216+00:00",
+    "uploadedAt": "2026-08-29T06:02:25.337+00:00",
     "usageTags": [
       "Executive Committee Page"
     ]
@@ -1013,7 +1013,7 @@ export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
     "category": "Events",
     "altText": "Team Infinity Volunteers during Winter Blanket Distribution",
     "caption": "Direct ground-level delivery to cold-affected communities",
-    "uploadedAt": "2026-08-27T15:15:50.383+00:00",
+    "uploadedAt": "2026-08-29T06:02:25.497+00:00",
     "usageTags": [
       "About Section Preview",
       "Winter Relief Campaign"
@@ -1028,7 +1028,7 @@ export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
     "category": "Logos",
     "altText": "Infinity Bangladesh Official Authoritative Logo",
     "caption": "United for Humanity Brand Mark with Infinity Wings",
-    "uploadedAt": "2026-08-27T15:15:50.567+00:00",
+    "uploadedAt": "2026-08-29T06:02:25.657+00:00",
     "usageTags": [
       "Header Logo",
       "Footer Logo",
@@ -1044,7 +1044,7 @@ export const INITIAL_MEDIA_LIBRARY: MediaItem[] = [
     "category": "Hero",
     "altText": "Infinity Bangladesh Official Group Photo with Children in Hathazari",
     "caption": "Official Team Infinity Field Gathering with Eid Joy Banner",
-    "uploadedAt": "2026-08-27T15:15:50.746+00:00",
+    "uploadedAt": "2026-08-29T06:02:25.819+00:00",
     "usageTags": [
       "Homepage Hero",
       "About Hero"
@@ -1578,534 +1578,738 @@ export const INITIAL_PROGRAMS: Program[] = [
 ];
 
 export const INITIAL_PROGRAM_EVENTS: ProgramEvent[] = [
-  // Eid Joy for Underprivileged (prog-1 / eid-for-underprivileged) - 11 Editions (2015-2026, skipping 2020)
   {
-    id: "pevt-eid-2026",
-    programId: "prog-1",
-    slug: "eid-joy-2026",
-    title: {
-      en: "Eid Joy 11 (2026) — সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-১১",
-      bn: "সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-১১ (২০২৬)"
+    "id": "pevt-eid-2026",
+    "programId": "prog-1",
+    "slug": "eid-joy-2026",
+    "title": {
+      "en": "Eid Joy 11 (2026) — সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-১১",
+      "bn": "সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-১১ (২০২৬)"
     },
-    year: 2026,
-    dateRange: {
-      en: "Eid-ul-Fitr Season 2026",
-      bn: "পবিত্র ঈদুল ফিতর ২০২৬"
+    "year": 2026,
+    "dateRange": {
+      "en": "Eid-ul-Fitr Season 2026",
+      "bn": "পবিত্র ঈদুল ফিতর ২০২৬"
     },
-    location: {
-      en: "Hathazari, Chattogram & Remote Hubs",
-      bn: "হাটহাজারী, চট্টগ্রাম ও প্রত্যন্ত অঞ্চল"
+    "location": {
+      "en": "Hathazari, Chattogram & Remote Hubs",
+      "bn": "হাটহাজারী, চট্টগ্রাম ও প্রত্যন্ত অঞ্চল"
     },
-    coverImageUrl: "https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=1200&q=80",
-    shortDescription: {
-      en: "11th annual Eid Joy edition targeting 1,000+ underprivileged children with new clothes, gift boxes, and festive packages.",
-      bn: "১১তম বার্ষিক ঈদ আনন্দ আয়োজনে ১,০০০+ সুবিধাবঞ্চিত শিশুর মুখে নতুন পোশাক ও উপহার তুলে দেওয়ার বৃহৎ উদ্যোগ।"
+    "coverImageUrl": "https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=1200&q=80",
+    "shortDescription": {
+      "en": "11th annual Eid Joy edition targeting 1,000+ underprivileged children with new clothes, gift boxes, and festive packages.",
+      "bn": "১১তম বার্ষিক ঈদ আনন্দ আয়োজনে ১,০০০+ সুবিধাবঞ্চিত শিশুর মুখে নতুন পোশাক ও উপহার তুলে দেওয়ার বৃহৎ উদ্যোগ।"
     },
-    fullStory: {
-      en: "Marking over a decade of continuous compassion, the 11th edition of Eid Joy by Team Infinity expands across multiple districts. Volunteers conduct door-to-door surveys to identify street-connected children, orphans, and daily wage earners' families to deliver customized festive apparel.",
-      bn: "এক দশকেরও বেশি সময় ধরে চলা মানবিক যাত্রার অংশ হিসেবে ১১তম ঈদ আনন্দ আয়োজনে টিম ইনফিনিটির সদস্যরা মাঠপর্যায়ে শিশুদের পছন্দ ও মাপ অনুযায়ী নতুন পোশাক এবং বিশেষ ঈদ খাদ্যপ্যাকেজ বিতরণ করছে।"
+    "fullStory": {
+      "en": "Marking over a decade of continuous compassion, the 11th edition of Eid Joy by Team Infinity expands across multiple districts. Volunteers conduct door-to-door surveys to identify street-connected children, orphans, and daily wage earners' families to deliver customized festive apparel.",
+      "bn": "এক দশকেরও বেশি সময় ধরে চলা মানবিক যাত্রার অংশ হিসেবে ১১তম ঈদ আনন্দ আয়োজনে টিম ইনফিনিটির সদস্যরা মাঠপর্যায়ে শিশুদের পছন্দ ও মাপ অনুযায়ী নতুন পোশাক এবং বিশেষ ঈদ খাদ্যপ্যাকেজ বিতরণ করছে।"
     },
-    objectives: {
-      en: [
+    "objectives": {
+      "en": [
         "Deliver tailored new Eid clothes to 1,000+ children across underprivileged settlements",
         "Provide special festive grocery hampers to ultra-poor households",
         "Empower 100+ youth volunteers with field logistics and community empathy training"
       ],
-      bn: [
+      "bn": [
         "১,০০০+ সুবিধাবঞ্চিত শিশুর জন্য মানসম্মত নতুন পোশাক উপহার প্রদান",
         "অসহায় পরিবারের মাঝে বিশেষ সেমাই, চিনি, দুধ ও খাদ্যপণ্য বিতরণ",
         "১০০+ তরুণ স্বেচ্ছাসেবীর অংশগ্রহণে মানবিক মেলবন্ধন তৈরি"
       ]
     },
-    impactMetrics: [
-      { label: { en: "Target Children", bn: "লক্ষ্যমাত্রা শিশু" }, value: "1,000+" },
-      { label: { en: "Active Volunteers", bn: "নিবেদিত স্বেচ্ছাসেবী" }, value: "85+" },
-      { label: { en: "Target Districts", bn: "অঞ্চল ও জেলা" }, value: "3 Districts" }
+    "impactMetrics": [
+      {
+        "label": {
+          "en": "Target Children",
+          "bn": "লক্ষ্যমাত্রা শিশু"
+        },
+        "value": "1,000+"
+      },
+      {
+        "label": {
+          "en": "Active Volunteers",
+          "bn": "নিবেদিত স্বেচ্ছাসেবী"
+        },
+        "value": "85+"
+      },
+      {
+        "label": {
+          "en": "Target Districts",
+          "bn": "অঞ্চল ও জেলা"
+        },
+        "value": "3 Districts"
+      }
     ],
-    status: "ongoing",
-    isFeatured: true,
-    displayOrder: 1
+    "status": "ongoing",
+    "isFeatured": true,
+    "displayOrder": 1
   },
   {
-    id: "pevt-eid-2025",
-    programId: "prog-1",
-    slug: "eid-joy-2025",
-    title: {
-      en: "Eid Joy 10 (2025) — সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-১০",
-      bn: "সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-১০ (২০২৫)"
+    "id": "pevt-eid-2025",
+    "programId": "prog-1",
+    "slug": "eid-joy-2025",
+    "title": {
+      "en": "Eid Joy 10 (2025) — সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-১০",
+      "bn": "সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-১০ (২০২৫)"
     },
-    year: 2025,
-    dateRange: {
-      en: "March 28 – April 2, 2025",
-      bn: "২৮ মার্চ – ২ এপ্রিল, ২০২৫"
+    "year": 2025,
+    "dateRange": {
+      "en": "March 28 – April 2, 2025",
+      "bn": "২৮ মার্চ – ২ এপ্রিল, ২০২৫"
     },
-    location: {
-      en: "Chattogram City & Hathazari",
-      bn: "চট্টগ্রাম মহানগর ও হাটহাজারী"
+    "location": {
+      "en": "Chattogram City & Hathazari",
+      "bn": "চট্টগ্রাম মহানগর ও হাটহাজারী"
     },
-    coverImageUrl: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1200&q=80",
-    shortDescription: {
-      en: "10th landmark jubilee edition reaching 850 children with tailored festive dresses and smile packs.",
-      bn: "১০ম বর্ষপূর্তি বিশেষ আয়োজনে ৮৫০ জন শিশুর হাতে নতুন জামা ও উৎসব উপহার তুলে দেওয়া হয়।"
+    "coverImageUrl": "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1200&q=80",
+    "shortDescription": {
+      "en": "10th landmark jubilee edition reaching 850 children with tailored festive dresses and smile packs.",
+      "bn": "১০ম বর্ষপূর্তি বিশেষ আয়োজনে ৮৫০ জন শিশুর হাতে নতুন জামা ও উৎসব উপহার তুলে দেওয়া হয়।"
     },
-    fullStory: {
-      en: "Celebrating 10 milestone editions, Team Infinity volunteers organized festive gift distribution booths across urban slums and suburban villages, ensuring every child received an outfit they felt proud to wear on Eid day.",
-      bn: "১০ম আসরের বিশেষ আয়োজনে নগরীর বিভিন্ন বস্তি ও হাটহাজারীর বিভিন্ন ইউনিয়নে বিতরণ ক্যাম্প স্থাপন করে শিশুদের পছন্দের পোশাক সম্মানজনক পরিবেশে হস্তান্তর করা হয়।"
+    "fullStory": {
+      "en": "Celebrating 10 milestone editions, Team Infinity volunteers organized festive gift distribution booths across urban slums and suburban villages, ensuring every child received an outfit they felt proud to wear on Eid day.",
+      "bn": "১০ম আসরের বিশেষ আয়োজনে নগরীর বিভিন্ন বস্তি ও হাটহাজারীর বিভিন্ন ইউনিয়নে বিতরণ ক্যাম্প স্থাপন করে শিশুদের পছন্দের পোশাক সম্মানজনক পরিবেশে হস্তান্তর করা হয়।"
     },
-    impactMetrics: [
-      { label: { en: "Children Gifted", bn: "উপকৃত শিশু" }, value: "850+" },
-      { label: { en: "Volunteers Engaged", bn: "স্বেচ্ছাসেবী" }, value: "70+" },
-      { label: { en: "Families Supported", bn: "উপকৃত পরিবার" }, value: "350+" }
+    "impactMetrics": [
+      {
+        "label": {
+          "en": "Children Gifted",
+          "bn": "উপকৃত শিশু"
+        },
+        "value": "850+"
+      },
+      {
+        "label": {
+          "en": "Volunteers Engaged",
+          "bn": "স্বেচ্ছাসেবী"
+        },
+        "value": "70+"
+      },
+      {
+        "label": {
+          "en": "Families Supported",
+          "bn": "উপকৃত পরিবার"
+        },
+        "value": "350+"
+      }
     ],
-    status: "completed",
-    isFeatured: false,
-    displayOrder: 2
+    "status": "completed",
+    "isFeatured": false,
+    "displayOrder": 2
   },
   {
-    id: "pevt-eid-2024",
-    programId: "prog-1",
-    slug: "eid-joy-2024",
-    title: {
-      en: "Eid Joy 9 (2024) — সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৯",
-      bn: "সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৯ (২০২৪)"
+    "id": "pevt-eid-2024",
+    "programId": "prog-1",
+    "slug": "eid-joy-2024",
+    "title": {
+      "en": "Eid Joy 9 (2024) — সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৯",
+      "bn": "সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৯ (২০২৪)"
     },
-    year: 2024,
-    dateRange: {
-      en: "April 6 – April 9, 2024",
-      bn: "৬ এপ্রিল – ৯ এপ্রিল, ২০২৪"
+    "year": 2024,
+    "dateRange": {
+      "en": "April 6 – April 9, 2024",
+      "bn": "৬ এপ্রিল – ৯ এপ্রিল, ২০২৪"
     },
-    location: {
-      en: "Hathazari, Chattogram & Remote Villages",
-      bn: "হাটহাজারী, চট্টগ্রাম ও প্রত্যন্ত গ্রামসমূহ"
+    "location": {
+      "en": "Hathazari, Chattogram & Remote Villages",
+      "bn": "হাটহাজারী, চট্টগ্রাম ও প্রত্যন্ত গ্রামসমূহ"
     },
-    coverImageUrl: "https://res.cloudinary.com/evj6fhsf/image/upload/v1787719148/qhwvqglkgiwfrvdypsjb.jpg",
-    shortDescription: {
-      en: "Reaching 750 children with festive apparel, special sweet boxes, and community celebrations.",
-      bn: "৭৫০ জন সুবিধাবঞ্চিত শিশুর মাঝে নতুন জামা, সেমাই ও মিষ্টি বিতরণ এবং উৎসবের আনন্দ ভাগাভাগি।"
+    "coverImageUrl": "https://res.cloudinary.com/evj6fhsf/image/upload/v1787719148/qhwvqglkgiwfrvdypsjb.jpg",
+    "shortDescription": {
+      "en": "Reaching 750 children with festive apparel, special sweet boxes, and community celebrations.",
+      "bn": "৭৫০ জন সুবিধাবঞ্চিত শিশুর মাঝে নতুন জামা, সেমাই ও মিষ্টি বিতরণ এবং উৎসবের আনন্দ ভাগাভাগি।"
     },
-    fullStory: {
-      en: "The 9th edition witnessed extensive coverage and ground-level participation. Volunteers conducted preliminary surveys across remote wards to ensure the most vulnerable children—many of whom had never worn new Eid clothes—received dignified packages.",
-      bn: "৯ম আসরে হাটহাজারী ও চট্টগ্রামের প্রত্যন্ত অঞ্চলের শিশুদের তালিকা করে মাপ অনুযায়ী নতুন পোশাক উপহার দেওয়া হয়। এর মাধ্যমে শত শত পরিবারের মুখে ঈদের হাসি ফুটে ওঠে।"
+    "fullStory": {
+      "en": "The 9th edition witnessed extensive coverage and ground-level participation. Volunteers conducted preliminary surveys across remote wards to ensure the most vulnerable children—many of whom had never worn new Eid clothes—received dignified packages.",
+      "bn": "৯ম আসরে হাটহাজারী ও চট্টগ্রামের প্রত্যন্ত অঞ্চলের শিশুদের তালিকা করে মাপ অনুযায়ী নতুন পোশাক উপহার দেওয়া হয়। এর মাধ্যমে শত শত পরিবারের মুখে ঈদের হাসি ফুটে ওঠে।"
     },
-    impactMetrics: [
-      { label: { en: "Children Gifted", bn: "পোশাকপ্রাপ্ত শিশু" }, value: "750" },
-      { label: { en: "Volunteers Active", bn: "মাঠপর্যায়ে স্বেচ্ছাসেবী" }, value: "65" },
-      { label: { en: "Distribution Hubs", bn: "বিতরণ পয়েন্ট" }, value: "6 Hubs" }
+    "impactMetrics": [
+      {
+        "label": {
+          "en": "Children Gifted",
+          "bn": "পোশাকপ্রাপ্ত শিশু"
+        },
+        "value": "750"
+      },
+      {
+        "label": {
+          "en": "Volunteers Active",
+          "bn": "মাঠপর্যায়ে স্বেচ্ছাসেবী"
+        },
+        "value": "65"
+      },
+      {
+        "label": {
+          "en": "Distribution Hubs",
+          "bn": "বিতরণ পয়েন্ট"
+        },
+        "value": "6 Hubs"
+      }
     ],
-    status: "completed",
-    isFeatured: true,
-    displayOrder: 3
+    "status": "completed",
+    "isFeatured": true,
+    "displayOrder": 3
   },
   {
-    id: "pevt-eid-2023",
-    programId: "prog-1",
-    slug: "eid-joy-2023",
-    title: {
-      en: "Eid Joy 8 (2023) — সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৮",
-      bn: "সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৮ (২০২৩)"
+    "id": "pevt-eid-2023",
+    "programId": "prog-1",
+    "slug": "eid-joy-2023",
+    "title": {
+      "en": "Eid Joy 8 (2023) — সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৮",
+      "bn": "সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৮ (২০২৩)"
     },
-    year: 2023,
-    dateRange: {
-      en: "April 18 – April 20, 2023",
-      bn: "১৮ এপ্রিল – ২০ এপ্রিল, ২০২৩"
+    "year": 2023,
+    "dateRange": {
+      "en": "April 18 – April 20, 2023",
+      "bn": "১৮ এপ্রিল – ২০ এপ্রিল, ২০২৩"
     },
-    location: {
-      en: "Hathazari & Chattogram",
-      bn: "হাটহাজারী ও চট্টগ্রাম"
+    "location": {
+      "en": "Hathazari & Chattogram",
+      "bn": "হাটহাজারী ও চট্টগ্রাম"
     },
-    coverImageUrl: "/images/infinity-cover-hero.jpg",
-    shortDescription: {
-      en: "Over 600 children gifted with colorful Eid dresses, hygiene kits, and festive smiles.",
-      bn: "৬০০+ শিশুর মাঝে রঙিন নতুন জামা, পরিচ্ছন্নতা সামগ্রী ও ঈদের আনন্দ উপহার।"
+    "coverImageUrl": "/images/infinity-cover-hero.jpg",
+    "shortDescription": {
+      "en": "Over 600 children gifted with colorful Eid dresses, hygiene kits, and festive smiles.",
+      "bn": "৬০০+ শিশুর মাঝে রঙিন নতুন জামা, পরিচ্ছন্নতা সামগ্রী ও ঈদের আনন্দ উপহার।"
     },
-    impactMetrics: [
-      { label: { en: "Children Reached", bn: "উপকৃত শিশু" }, value: "600+" },
-      { label: { en: "Volunteers", bn: "স্বেচ্ছাসেবী" }, value: "50" }
+    "impactMetrics": [
+      {
+        "label": {
+          "en": "Children Reached",
+          "bn": "উপকৃত শিশু"
+        },
+        "value": "600+"
+      },
+      {
+        "label": {
+          "en": "Volunteers",
+          "bn": "স্বেচ্ছাসেবী"
+        },
+        "value": "50"
+      }
     ],
-    status: "completed",
-    displayOrder: 4
+    "status": "completed",
+    "displayOrder": 4
   },
   {
-    id: "pevt-eid-2022",
-    programId: "prog-1",
-    slug: "eid-joy-2022",
-    title: {
-      en: "Eid Joy 7 (2022) — সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৭",
-      bn: "সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৭ (২০২২)"
+    "id": "pevt-eid-2022",
+    "programId": "prog-1",
+    "slug": "eid-joy-2022",
+    "title": {
+      "en": "Eid Joy 7 (2022) — সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৭",
+      "bn": "সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৭ (২০২২)"
     },
-    year: 2022,
-    dateRange: {
-      en: "April 29 – May 1, 2022",
-      bn: "২৯ এপ্রিল – ১ মে, ২০২২"
+    "year": 2022,
+    "dateRange": {
+      "en": "April 29 – May 1, 2022",
+      "bn": "২৯ এপ্রিল – ১ মে, ২০২২"
     },
-    location: {
-      en: "Chattogram & Coastal Hubs",
-      bn: "চট্টগ্রাম ও উপকূলীয় অঞ্চল"
+    "location": {
+      "en": "Chattogram & Coastal Hubs",
+      "bn": "চট্টগ্রাম ও উপকূলীয় অঞ্চল"
     },
-    coverImageUrl: "/images/infinity-cover-hero.jpg",
-    shortDescription: {
-      en: "520 children supported post-pandemic with full festive clothing packs and family food baskets.",
-      bn: "মহামারী-পরবর্তী সময়ে ৫২০ জন শিশুর মাঝে ঈদের নতুন জামা ও পারিবারিক খাদ্যপ্যাকেজ বিতরণ।"
+    "coverImageUrl": "/images/infinity-cover-hero.jpg",
+    "shortDescription": {
+      "en": "520 children supported post-pandemic with full festive clothing packs and family food baskets.",
+      "bn": "মহামারী-পরবর্তী সময়ে ৫২০ জন শিশুর মাঝে ঈদের নতুন জামা ও পারিবারিক খাদ্যপ্যাকেজ বিতরণ।"
     },
-    impactMetrics: [
-      { label: { en: "Children Reached", bn: "উপকৃত শিশু" }, value: "520" },
-      { label: { en: "Volunteers", bn: "স্বেচ্ছাসেবী" }, value: "45" }
+    "impactMetrics": [
+      {
+        "label": {
+          "en": "Children Reached",
+          "bn": "উপকৃত শিশু"
+        },
+        "value": "520"
+      },
+      {
+        "label": {
+          "en": "Volunteers",
+          "bn": "স্বেচ্ছাসেবী"
+        },
+        "value": "45"
+      }
     ],
-    status: "completed",
-    displayOrder: 5
+    "status": "completed",
+    "displayOrder": 5
   },
   {
-    id: "pevt-eid-2021",
-    programId: "prog-1",
-    slug: "eid-joy-2021",
-    title: {
-      en: "Eid Joy 6 (2021) — সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৬",
-      bn: "সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৬ (২০২১)"
+    "id": "pevt-eid-2021",
+    "programId": "prog-1",
+    "slug": "eid-joy-2021",
+    "title": {
+      "en": "Eid Joy 6 (2021) — সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৬",
+      "bn": "সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৬ (২০২১)"
     },
-    year: 2021,
-    dateRange: {
-      en: "May 10 – May 12, 2021",
-      bn: "১০ মে – ১২ মে, ২০২১"
+    "year": 2021,
+    "dateRange": {
+      "en": "May 10 – May 12, 2021",
+      "bn": "১০ মে – ১২ মে, ২০২১"
     },
-    location: {
-      en: "Hathazari, Chattogram",
-      bn: "হাটহাজারী, চট্টগ্রাম"
+    "location": {
+      "en": "Hathazari, Chattogram",
+      "bn": "হাটহাজারী, চট্টগ্রাম"
     },
-    coverImageUrl: "/images/infinity-cover-hero.jpg",
-    shortDescription: {
-      en: "450 children gifted during challenging lockdown recovery, highlighted on Hathazari Darpan media.",
-      bn: "লকডাউন পরবর্তী সময়ে স্বাস্থ্যবিধি মেনে ৪৫০ জন শিশুর মাঝে ঈদের আনন্দ উপহার (হাঠহাজারী দর্পণে প্রচারিত)।"
+    "coverImageUrl": "/images/infinity-cover-hero.jpg",
+    "shortDescription": {
+      "en": "450 children gifted during challenging lockdown recovery, highlighted on Hathazari Darpan media.",
+      "bn": "লকডাউন পরবর্তী সময়ে স্বাস্থ্যবিধি মেনে ৪৫০ জন শিশুর মাঝে ঈদের আনন্দ উপহার (হাঠহাজারী দর্পণে প্রচারিত)।"
     },
-    impactMetrics: [
-      { label: { en: "Children Gifted", bn: "পোশাকপ্রাপ্ত শিশু" }, value: "450" },
-      { label: { en: "Volunteers", bn: "স্বেচ্ছাসেবী" }, value: "35" }
+    "impactMetrics": [
+      {
+        "label": {
+          "en": "Children Gifted",
+          "bn": "পোশাকপ্রাপ্ত শিশু"
+        },
+        "value": "450"
+      },
+      {
+        "label": {
+          "en": "Volunteers",
+          "bn": "স্বেচ্ছাসেবী"
+        },
+        "value": "35"
+      }
     ],
-    status: "completed",
-    displayOrder: 6
-  },
-  // NOTE: 2020 HAD NO EVENT DUE TO COVID PANDEMIC LOCKDOWN - PROUDLY SKIPPED AS DIRECTED
-  {
-    id: "pevt-eid-2019",
-    programId: "prog-1",
-    slug: "eid-joy-2019",
-    title: {
-      en: "Eid Joy 5 (2019) — সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৫",
-      bn: "সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৫ (২০১৯)"
-    },
-    year: 2019,
-    dateRange: {
-      en: "June 2 – June 4, 2019",
-      bn: "২ জুন – ৪ জুন, ২০১৯"
-    },
-    location: {
-      en: "Hathazari & Rural Slums, Chattogram",
-      bn: "হাটহাজারী ও গ্রামীণ সুবিধাবঞ্চিত এলাকা"
-    },
-    coverImageUrl: "/images/infinity-cover-hero.jpg",
-    shortDescription: {
-      en: "5th edition reaching 400 street children, featured nationally on C-Plus TV news broadcast.",
-      bn: "৫ম আসরে ৪০০ শিশুর মাঝে নতুন পোশাক বিতরণ, যা সি-প্লাস টিভিতে জাতীয়ভাবে সম্প্রচারিত হয়।"
-    },
-    impactMetrics: [
-      { label: { en: "Children Gifted", bn: "উপকৃত শিশু" }, value: "400" },
-      { label: { en: "Volunteers", bn: "স্বেচ্ছাসেবী" }, value: "30" }
-    ],
-    status: "completed",
-    displayOrder: 7
+    "status": "completed",
+    "displayOrder": 6
   },
   {
-    id: "pevt-eid-2018",
-    programId: "prog-1",
-    slug: "eid-joy-2018",
-    title: {
-      en: "Eid Joy 4 (2018) — সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৪",
-      bn: "সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৪ (২০১৮)"
+    "id": "pevt-eid-2019",
+    "programId": "prog-1",
+    "slug": "eid-joy-2019",
+    "title": {
+      "en": "Eid Joy 5 (2019) — সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৫",
+      "bn": "সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৫ (২০১৯)"
     },
-    year: 2018,
-    dateRange: {
-      en: "June 12 – June 14, 2018",
-      bn: "১২ জুন – ১৪ জুন, ২০১৮"
+    "year": 2019,
+    "dateRange": {
+      "en": "June 2 – June 4, 2019",
+      "bn": "২ জুন – ৪ জুন, ২০১৯"
     },
-    location: {
-      en: "Hathazari & Raozan, Chattogram",
-      bn: "হাটহাজারী ও রাউজান, চট্টগ্রাম"
+    "location": {
+      "en": "Hathazari & Rural Slums, Chattogram",
+      "bn": "হাটহাজারী ও গ্রামীণ সুবিধাবঞ্চিত এলাকা"
     },
-    coverImageUrl: "/images/infinity-cover-hero.jpg",
-    shortDescription: {
-      en: "320 children gifted with festive garments and sweet gift packs across multiple sub-districts.",
-      bn: "৩২০ জন শিশুর মাঝে নতুন পোশাক ও মিষ্টির প্যাকেট উপহার প্রদান।"
+    "coverImageUrl": "/images/infinity-cover-hero.jpg",
+    "shortDescription": {
+      "en": "5th edition reaching 400 street children, featured nationally on C-Plus TV news broadcast.",
+      "bn": "৫ম আসরে ৪০০ শিশুর মাঝে নতুন পোশাক বিতরণ, যা সি-প্লাস টিভিতে জাতীয়ভাবে সম্প্রচারিত হয়।"
     },
-    impactMetrics: [
-      { label: { en: "Children Gifted", bn: "উপকৃত শিশু" }, value: "320" },
-      { label: { en: "Volunteers", bn: "স্বেচ্ছাসেবী" }, value: "25" }
+    "impactMetrics": [
+      {
+        "label": {
+          "en": "Children Gifted",
+          "bn": "উপকৃত শিশু"
+        },
+        "value": "400"
+      },
+      {
+        "label": {
+          "en": "Volunteers",
+          "bn": "স্বেচ্ছাসেবী"
+        },
+        "value": "30"
+      }
     ],
-    status: "completed",
-    displayOrder: 8
+    "status": "completed",
+    "displayOrder": 7
   },
   {
-    id: "pevt-eid-2017",
-    programId: "prog-1",
-    slug: "eid-joy-2017",
-    title: {
-      en: "Eid Joy 3 (2017) — সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৩",
-      bn: "সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৩ (২০১৭)"
+    "id": "pevt-eid-2018",
+    "programId": "prog-1",
+    "slug": "eid-joy-2018",
+    "title": {
+      "en": "Eid Joy 4 (2018) — সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৪",
+      "bn": "সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৪ (২০১৮)"
     },
-    year: 2017,
-    dateRange: {
-      en: "June 23 – June 25, 2017",
-      bn: "২৩ জুন – ২৫ জুন, ২০১৭"
+    "year": 2018,
+    "dateRange": {
+      "en": "June 12 – June 14, 2018",
+      "bn": "১২ জুন – ১৪ জুন, ২০১৮"
     },
-    location: {
-      en: "Hathazari, Chattogram",
-      bn: "হাটহাজারী, চট্টগ্রাম"
+    "location": {
+      "en": "Hathazari & Raozan, Chattogram",
+      "bn": "হাটহাজারী ও রাউজান, চট্টগ্রাম"
     },
-    coverImageUrl: "/images/infinity-cover-hero.jpg",
-    shortDescription: {
-      en: "250 children supported with tailored Eid shirts, frocks, and accessories.",
-      bn: "২৫০ জন সুবিধাবঞ্চিত শিশুর মুখে নতুন জামার অনাবিল হাসি।"
+    "coverImageUrl": "/images/infinity-cover-hero.jpg",
+    "shortDescription": {
+      "en": "320 children gifted with festive garments and sweet gift packs across multiple sub-districts.",
+      "bn": "৩২০ জন শিশুর মাঝে নতুন পোশাক ও মিষ্টির প্যাকেট উপহার প্রদান।"
     },
-    impactMetrics: [
-      { label: { en: "Children Gifted", bn: "উপকৃত শিশু" }, value: "250" },
-      { label: { en: "Volunteers", bn: "স্বেচ্ছাসেবী" }, value: "22" }
+    "impactMetrics": [
+      {
+        "label": {
+          "en": "Children Gifted",
+          "bn": "উপকৃত শিশু"
+        },
+        "value": "320"
+      },
+      {
+        "label": {
+          "en": "Volunteers",
+          "bn": "স্বেচ্ছাসেবী"
+        },
+        "value": "25"
+      }
     ],
-    status: "completed",
-    displayOrder: 9
+    "status": "completed",
+    "displayOrder": 8
   },
   {
-    id: "pevt-eid-2016",
-    programId: "prog-1",
-    slug: "eid-joy-2016",
-    title: {
-      en: "Eid Joy 2 (2016) — সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-২",
-      bn: "সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-২ (২০১৬)"
+    "id": "pevt-eid-2017",
+    "programId": "prog-1",
+    "slug": "eid-joy-2017",
+    "title": {
+      "en": "Eid Joy 3 (2017) — সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৩",
+      "bn": "সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-৩ (২০১৭)"
     },
-    year: 2016,
-    dateRange: {
-      en: "July 4 – July 6, 2016",
-      bn: "৪ জুলাই – ৬ জুলাই, ২০১৬"
+    "year": 2017,
+    "dateRange": {
+      "en": "June 23 – June 25, 2017",
+      "bn": "২৩ জুন – ২৫ জুন, ২০১৭"
     },
-    location: {
-      en: "Hathazari, Chattogram",
-      bn: "হাটহাজারী, চট্টগ্রাম"
+    "location": {
+      "en": "Hathazari, Chattogram",
+      "bn": "হাটহাজারী, চট্টগ্রাম"
     },
-    coverImageUrl: "/images/infinity-cover-hero.jpg",
-    shortDescription: {
-      en: "180 underprivileged street children received new outfits in our 2nd successful annual drive.",
-      bn: "১৮০ জন শিশুর মাঝে নতুন জামা ও উৎসব সামগ্রী উপহার।"
+    "coverImageUrl": "/images/infinity-cover-hero.jpg",
+    "shortDescription": {
+      "en": "250 children supported with tailored Eid shirts, frocks, and accessories.",
+      "bn": "২৫০ জন সুবিধাবঞ্চিত শিশুর মুখে নতুন জামার অনাবিল হাসি।"
     },
-    impactMetrics: [
-      { label: { en: "Children Gifted", bn: "উপকৃত শিশু" }, value: "180" },
-      { label: { en: "Volunteers", bn: "স্বেচ্ছাসেবী" }, value: "18" }
+    "impactMetrics": [
+      {
+        "label": {
+          "en": "Children Gifted",
+          "bn": "উপকৃত শিশু"
+        },
+        "value": "250"
+      },
+      {
+        "label": {
+          "en": "Volunteers",
+          "bn": "স্বেচ্ছাসেবী"
+        },
+        "value": "22"
+      }
     ],
-    status: "completed",
-    displayOrder: 10
+    "status": "completed",
+    "displayOrder": 9
   },
   {
-    id: "pevt-eid-2015",
-    programId: "prog-1",
-    slug: "eid-joy-2015",
-    title: {
-      en: "Eid Joy 1 (2015) — সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-১ (যাত্রার সূচনা)",
-      bn: "সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-১ (২০১৫ — যাত্রার সূচনা)"
+    "id": "pevt-eid-2016",
+    "programId": "prog-1",
+    "slug": "eid-joy-2016",
+    "title": {
+      "en": "Eid Joy 2 (2016) — সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-২",
+      "bn": "সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-২ (২০১৬)"
     },
-    year: 2015,
-    dateRange: {
-      en: "July 16 – July 17, 2015",
-      bn: "১৬ জুলাই – ১৭ জুলাই, ২০১৫"
+    "year": 2016,
+    "dateRange": {
+      "en": "July 4 – July 6, 2016",
+      "bn": "৪ জুলাই – ৬ জুলাই, ২০১৬"
     },
-    location: {
-      en: "Hathazari, Chattogram",
-      bn: "হাটহাজারী, চট্টগ্রাম"
+    "location": {
+      "en": "Hathazari, Chattogram",
+      "bn": "হাটহাজারী, চট্টগ্রাম"
     },
-    coverImageUrl: "/images/infinity-cover-hero.jpg",
-    shortDescription: {
-      en: "The inception initiative of Infinity Bangladesh! 120 street children gifted with new clothes by founding youth volunteers.",
-      bn: "ইনফিনিটি বাংলাদেশের ঐতিহাসিক প্রথম মানবিক উদ্যোগ! ১২০ জন শিশুর মুখে হাসি ফুটিয়ে যাত্রা শুরু।"
+    "coverImageUrl": "/images/infinity-cover-hero.jpg",
+    "shortDescription": {
+      "en": "180 underprivileged street children received new outfits in our 2nd successful annual drive.",
+      "bn": "১৮০ জন শিশুর মাঝে নতুন জামা ও উৎসব সামগ্রী উপহার।"
     },
-    fullStory: {
-      en: "In the summer of 2015, a small group of determined high school and college youths in Hathazari collected personal savings to buy Eid clothes for street children who had never experienced the joy of new clothes. This single compassionate act birthed Team Infinity.",
-      bn: "২০১৫ সালের ঈদুল ফিতরে হাটহাজারীর একদল তরুণ নিজস্ব হাতখরচের টাকা জমিয়ে ১২০ জন সুবিধাবঞ্চিত শিশুর জন্য নতুন পোশাক কিনে দেওয়ার মাধ্যমে শুরু হয় টিম ইনফিনিটির পথচলা।"
-    },
-    impactMetrics: [
-      { label: { en: "Children Gifted", bn: "উপকৃত শিশু" }, value: "120" },
-      { label: { en: "Founding Youths", bn: "প্রতিষ্ঠাতা তরুণ" }, value: "15" }
+    "impactMetrics": [
+      {
+        "label": {
+          "en": "Children Gifted",
+          "bn": "উপকৃত শিশু"
+        },
+        "value": "180"
+      },
+      {
+        "label": {
+          "en": "Volunteers",
+          "bn": "স্বেচ্ছাসেবী"
+        },
+        "value": "18"
+      }
     ],
-    status: "completed",
-    displayOrder: 11
-  },
-
-  // Winter Warmth Initiative Editions
-  {
-    id: "pevt-winter-2024",
-    programId: "prog-3",
-    slug: "winter-warmth-2024-25",
-    title: {
-      en: "Winter Warmth & Blanket Relief Drive 2024–25",
-      bn: "শীতবস্ত্র ও কম্বল বিতরণ ২০২৪–২৫"
-    },
-    year: 2024,
-    dateRange: {
-      en: "December 2024 – January 2025",
-      bn: "ডিসেম্বর ২০২৪ – জানুয়ারি ২০২৫"
-    },
-    location: {
-      en: "Northern Cold Belt & Chattogram Rural Wards",
-      bn: "উত্তরাঞ্চলের শৈত্যপ্রবাহ এলাকা ও চট্টগ্রাম"
-    },
-    coverImageUrl: "/images/events/winter-warmth.jpg",
-    shortDescription: {
-      en: "1,200 heavy blankets and thermal jackets distributed directly to pavement dwellers and rural elderly.",
-      bn: "১,২০০টি ভারী কম্বল ও শীতের পোশাক সরাসরি ফুটপাতের ভাসমান ও প্রত্যন্ত প্রবীণদের মাঝে বিতরণ।"
-    },
-    impactMetrics: [
-      { label: { en: "Blankets Delivered", bn: "বিতরণকৃত কম্বল" }, value: "1,200" },
-      { label: { en: "Volunteers Active", bn: "স্বেচ্ছাসেবী" }, value: "40" }
-    ],
-    status: "completed",
-    displayOrder: 1
+    "status": "completed",
+    "displayOrder": 10
   },
   {
-    id: "pevt-winter-2023",
-    programId: "prog-3",
-    slug: "winter-warmth-2023-24",
-    title: {
-      en: "Winter Warmth & Blanket Relief Drive 2023–24",
-      bn: "শীতবস্ত্র ও কম্বল বিতরণ ২০২৩–২৪"
+    "id": "pevt-eid-2015",
+    "programId": "prog-1",
+    "slug": "eid-joy-2015",
+    "title": {
+      "en": "Eid Joy 1 (2015) — সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-১ (যাত্রার সূচনা)",
+      "bn": "সুবিধাবঞ্চিতদের সাথে ঈদ আনন্দ-১ (২০১৫ — যাত্রার সূচনা)"
     },
-    year: 2023,
-    dateRange: {
-      en: "December 2023 – January 2024",
-      bn: "ডিসেম্বর ২০২৩ – জানুয়ারি ২০২৪"
+    "year": 2015,
+    "dateRange": {
+      "en": "July 16 – July 17, 2015",
+      "bn": "১৬ জুলাই – ১৭ জুলাই, ২০১৫"
     },
-    location: {
-      en: "Hathazari & Cold Pockets",
-      bn: "হাটহাজারী ও শীতপ্রবণ এলাকা"
+    "location": {
+      "en": "Hathazari, Chattogram",
+      "bn": "হাটহাজারী, চট্টগ্রাম"
     },
-    coverImageUrl: "/images/events/winter-warmth.jpg",
-    shortDescription: {
-      en: "850 high quality warm blankets delivered through late night sweeps.",
-      bn: "৮৫০টি মানসম্পন্ন কম্বল গভীর রাতে সরেজমিনে শীতার্তদের কাছে হস্তান্তর।"
+    "coverImageUrl": "/images/infinity-cover-hero.jpg",
+    "shortDescription": {
+      "en": "The inception initiative of Infinity Bangladesh! 120 street children gifted with new clothes by founding youth volunteers.",
+      "bn": "ইনফিনিটি বাংলাদেশের ঐতিহাসিক প্রথম মানবিক উদ্যোগ! ১২০ জন শিশুর মুখে হাসি ফুটিয়ে যাত্রা শুরু।"
     },
-    impactMetrics: [
-      { label: { en: "Blankets Delivered", bn: "বিতরণকৃত কম্বল" }, value: "850" },
-      { label: { en: "Volunteers Active", bn: "স্বেচ্ছাসেবী" }, value: "35" }
+    "fullStory": {
+      "en": "In the summer of 2015, a small group of determined high school and college youths in Hathazari collected personal savings to buy Eid clothes for street children who had never experienced the joy of new clothes. This single compassionate act birthed Team Infinity.",
+      "bn": "২০১৫ সালের ঈদুল ফিতরে হাটহাজারীর একদল তরুণ নিজস্ব হাতখরচের টাকা জমিয়ে ১২০ জন সুবিধাবঞ্চিত শিশুর জন্য নতুন পোশাক কিনে দেওয়ার মাধ্যমে শুরু হয় টিম ইনফিনিটির পথচলা।"
+    },
+    "impactMetrics": [
+      {
+        "label": {
+          "en": "Children Gifted",
+          "bn": "উপকৃত শিশু"
+        },
+        "value": "120"
+      },
+      {
+        "label": {
+          "en": "Founding Youths",
+          "bn": "প্রতিষ্ঠাতা তরুণ"
+        },
+        "value": "15"
+      }
     ],
-    status: "completed",
-    displayOrder: 2
+    "status": "completed",
+    "displayOrder": 11
   },
-
-  // Emergency & Disaster Response Editions
   {
-    id: "pevt-flood-2024",
-    programId: "prog-5",
-    slug: "feni-flood-emergency-2024",
-    title: {
-      en: "Feni & East Coast Flood Emergency Aid 2024",
-      bn: "ফেনী ও পূর্বাঞ্চল বন্যা জরুরি ত্রাণ ২০২৪"
+    "id": "pevt-winter-2024",
+    "programId": "prog-3",
+    "slug": "winter-warmth-2024-25",
+    "title": {
+      "en": "Winter Warmth & Blanket Relief Drive 2024–25",
+      "bn": "শীতবস্ত্র ও কম্বল বিতরণ ২০২৪–২৫"
     },
-    year: 2024,
-    dateRange: {
-      en: "August 2024",
-      bn: "আগস্ট ২০২৪"
+    "year": 2024,
+    "dateRange": {
+      "en": "December 2024 – January 2025",
+      "bn": "ডিসেম্বর ২০২৪ – জানুয়ারি ২০২৫"
     },
-    location: {
-      en: "Feni, Noakhali & Mirsharai",
-      bn: "ফেনী, নোয়াখালী ও মীরসরাই"
+    "location": {
+      "en": "Northern Cold Belt & Chattogram Rural Wards",
+      "bn": "উত্তরাঞ্চলের শৈত্যপ্রবাহ এলাকা ও চট্টগ্রাম"
     },
-    coverImageUrl: "https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?auto=format&fit=crop&w=1200&q=80",
-    shortDescription: {
-      en: "Emergency water rescue squads, 5,000+ dry food relief packets, and water purification tablets delivered within 48 hours.",
-      bn: "বন্যাদুর্গত এলাকায় জরুরি স্পিডবোট উদ্ধার, ৫,০০০+ শুকনা খাদ্য প্যাকেট ও বিশুদ্ধকরণ ট্যাবলেট সরবরাহ।"
+    "coverImageUrl": "/images/events/winter-warmth.jpg",
+    "shortDescription": {
+      "en": "1,200 heavy blankets and thermal jackets distributed directly to pavement dwellers and rural elderly.",
+      "bn": "১,২০০টি ভারী কম্বল ও শীতের পোশাক সরাসরি ফুটপাতের ভাসমান ও প্রত্যন্ত প্রবীণদের মাঝে বিতরণ।"
     },
-    impactMetrics: [
-      { label: { en: "Relief Packs", bn: "ত্রাণ প্যাকেট" }, value: "5,000+" },
-      { label: { en: "Water Tablets", bn: "পানি বিশুদ্ধকরণ" }, value: "25,000+" },
-      { label: { en: "Rescue Squad", bn: "উদ্ধারকর্মী" }, value: "30" }
+    "impactMetrics": [
+      {
+        "label": {
+          "en": "Blankets Delivered",
+          "bn": "বিতরণকৃত কম্বল"
+        },
+        "value": "1,200"
+      },
+      {
+        "label": {
+          "en": "Volunteers Active",
+          "bn": "স্বেচ্ছাসেবী"
+        },
+        "value": "40"
+      }
     ],
-    status: "completed",
-    displayOrder: 1
+    "status": "completed",
+    "displayOrder": 1
+  },
+  {
+    "id": "pevt-winter-2023",
+    "programId": "prog-3",
+    "slug": "winter-warmth-2023-24",
+    "title": {
+      "en": "Winter Warmth & Blanket Relief Drive 2023–24",
+      "bn": "শীতবস্ত্র ও কম্বল বিতরণ ২০২৩–২৪"
+    },
+    "year": 2023,
+    "dateRange": {
+      "en": "December 2023 – January 2024",
+      "bn": "ডিসেম্বর ২০২৩ – জানুয়ারি ২০২৪"
+    },
+    "location": {
+      "en": "Hathazari & Cold Pockets",
+      "bn": "হাটহাজারী ও শীতপ্রবণ এলাকা"
+    },
+    "coverImageUrl": "/images/events/winter-warmth.jpg",
+    "shortDescription": {
+      "en": "850 high quality warm blankets delivered through late night sweeps.",
+      "bn": "৮৫০টি মানসম্পন্ন কম্বল গভীর রাতে সরেজমিনে শীতার্তদের কাছে হস্তান্তর।"
+    },
+    "impactMetrics": [
+      {
+        "label": {
+          "en": "Blankets Delivered",
+          "bn": "বিতরণকৃত কম্বল"
+        },
+        "value": "850"
+      },
+      {
+        "label": {
+          "en": "Volunteers Active",
+          "bn": "স্বেচ্ছাসেবী"
+        },
+        "value": "35"
+      }
+    ],
+    "status": "completed",
+    "displayOrder": 2
+  },
+  {
+    "id": "pevt-flood-2024",
+    "programId": "prog-5",
+    "slug": "feni-flood-emergency-2024",
+    "title": {
+      "en": "Feni & East Coast Flood Emergency Aid 2024",
+      "bn": "ফেনী ও পূর্বাঞ্চল বন্যা জরুরি ত্রাণ ২০২৪"
+    },
+    "year": 2024,
+    "dateRange": {
+      "en": "August 2024",
+      "bn": "আগস্ট ২০২৪"
+    },
+    "location": {
+      "en": "Feni, Noakhali & Mirsharai",
+      "bn": "ফেনী, নোয়াখালী ও মীরসরাই"
+    },
+    "coverImageUrl": "https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?auto=format&fit=crop&w=1200&q=80",
+    "shortDescription": {
+      "en": "Emergency water rescue squads, 5,000+ dry food relief packets, and water purification tablets delivered within 48 hours.",
+      "bn": "বন্যাদুর্গত এলাকায় জরুরি স্পিডবোট উদ্ধার, ৫,০০০+ শুকনা খাদ্য প্যাকেট ও বিশুদ্ধকরণ ট্যাবলেট সরবরাহ।"
+    },
+    "impactMetrics": [
+      {
+        "label": {
+          "en": "Relief Packs",
+          "bn": "ত্রাণ প্যাকেট"
+        },
+        "value": "5,000+"
+      },
+      {
+        "label": {
+          "en": "Water Tablets",
+          "bn": "পানি বিশুদ্ধকরণ"
+        },
+        "value": "25,000+"
+      },
+      {
+        "label": {
+          "en": "Rescue Squad",
+          "bn": "উদ্ধারকর্মী"
+        },
+        "value": "30"
+      }
+    ],
+    "status": "completed",
+    "displayOrder": 1
   }
 ];
 
 export const INITIAL_EVENT_MEDIA: EventMedia[] = [
-  // Eid Joy 2026
   {
-    id: "em-2026-1",
-    eventId: "pevt-eid-2026",
-    mediaId: "med-1787513124016-73mc",
-    isHighlight: true,
-    highlightOrder: 1,
-    customCaption: { en: "Official Video Announcement for Eid Joy 11 (2026)", bn: "ঈদ আনন্দ-১১ (২০২৬) অফিশিয়াল ভিডিও ঘোষণা" }
+    "id": "em-2026-1",
+    "eventId": "pevt-eid-2026",
+    "mediaId": "med-1787513124016-73mc",
+    "isHighlight": true,
+    "highlightOrder": 1,
+    "customCaption": {
+      "en": "Official Video Announcement for Eid Joy 11 (2026)",
+      "bn": "ঈদ আনন্দ-১১ (২০২৬) অফিশিয়াল ভিডিও ঘোষণা"
+    }
   },
   {
-    id: "em-2026-2",
-    eventId: "pevt-eid-2026",
-    mediaId: "med-hero-1",
-    isHighlight: true,
-    highlightOrder: 2,
-    customCaption: { en: "Volunteer census team gathering for 2026 drive", bn: "২০২৬ ঈদ আনন্দ মাঠপর্যায়ের সমীক্ষা টিম" }
-  },
-
-  // Eid Joy 2024
-  {
-    id: "em-2024-1",
-    eventId: "pevt-eid-2024",
-    mediaId: "med-hero-1",
-    isHighlight: true,
-    highlightOrder: 1,
-    customCaption: { en: "Team Infinity with happy children in Hathazari holding Eid Joy banner", bn: "ব্যানার হাতে হাসিমুখের শিশুদের সাথে টিম ইনফিনিটি" }
+    "id": "em-2026-2",
+    "eventId": "pevt-eid-2026",
+    "mediaId": "med-hero-1",
+    "isHighlight": true,
+    "highlightOrder": 2,
+    "customCaption": {
+      "en": "Volunteer census team gathering for 2026 drive",
+      "bn": "২০২৬ ঈদ আনন্দ মাঠপর্যায়ের সমীক্ষা টিম"
+    }
   },
   {
-    id: "em-2024-2",
-    eventId: "pevt-eid-2024",
-    mediaId: "med-event-1",
-    isHighlight: true,
-    highlightOrder: 2,
-    customCaption: { en: "Dignified gift package handover to street children", bn: "শিশুদের মাঝে সম্মানজনক উপহার হস্তান্তর" }
-  },
-
-  // Eid Joy 2021
-  {
-    id: "em-2021-1",
-    eventId: "pevt-eid-2021",
-    mediaId: "med-1787512571793-d8o9",
-    isHighlight: true,
-    highlightOrder: 1,
-    customCaption: { en: "Hathazari Darpan news documentary on Eid Joy 6 (2021)", bn: "হাটহাজারী দর্পণে প্রচারিত ঈদ আনন্দ-৬ প্রতিবেদন" }
+    "id": "em-2024-1",
+    "eventId": "pevt-eid-2024",
+    "mediaId": "med-hero-1",
+    "isHighlight": true,
+    "highlightOrder": 1,
+    "customCaption": {
+      "en": "Team Infinity with happy children in Hathazari holding Eid Joy banner",
+      "bn": "ব্যানার হাতে হাসিমুখের শিশুদের সাথে টিম ইনফিনিটি"
+    }
   },
   {
-    id: "em-2021-2",
-    eventId: "pevt-eid-2021",
-    mediaId: "med-hero-1",
-    isHighlight: false,
-    customCaption: { en: "Field gathering in 2021", bn: "২০২১ মাঠপর্যায়ের সম্মেলন" }
-  },
-
-  // Eid Joy 2019
-  {
-    id: "em-2019-1",
-    eventId: "pevt-eid-2019",
-    mediaId: "med-1787510104630-ge4c",
-    isHighlight: true,
-    highlightOrder: 1,
-    customCaption: { en: "C-Plus TV National Broadcast on Eid Joy 5 (2019)", bn: "সি-প্লাস টিভিতে প্রচারিত ঈদ আনন্দ-৫ বিশেষ প্রতিবেদন" }
+    "id": "em-2024-2",
+    "eventId": "pevt-eid-2024",
+    "mediaId": "med-event-1",
+    "isHighlight": true,
+    "highlightOrder": 2,
+    "customCaption": {
+      "en": "Dignified gift package handover to street children",
+      "bn": "শিশুদের মাঝে সম্মানজনক উপহার হস্তান্তর"
+    }
   },
   {
-    id: "em-2019-2",
-    eventId: "pevt-eid-2019",
-    mediaId: "med-hero-1",
-    isHighlight: false,
-    customCaption: { en: "Children receiving Eid gift bags in 2019", bn: "২০১৯ সালে উপহার সামগ্রী বিতরণ" }
+    "id": "em-2021-1",
+    "eventId": "pevt-eid-2021",
+    "mediaId": "med-1787512571793-d8o9",
+    "isHighlight": true,
+    "highlightOrder": 1,
+    "customCaption": {
+      "en": "Hathazari Darpan news documentary on Eid Joy 6 (2021)",
+      "bn": "হাটহাজারী দর্পণে প্রচারিত ঈদ আনন্দ-৬ প্রতিবেদন"
+    }
   },
-
-  // Winter Warmth 2024
   {
-    id: "em-winter-2024-1",
-    eventId: "pevt-winter-2024",
-    mediaId: "med-event-1",
-    isHighlight: true,
-    highlightOrder: 1,
-    customCaption: { en: "Late night blanket distribution to cold affected elders", bn: "গভীর রাতে শীতার্ত প্রবীণদের মাঝে উষ্ণ কম্বল বিতরণ" }
+    "id": "em-2021-2",
+    "eventId": "pevt-eid-2021",
+    "mediaId": "med-hero-1",
+    "isHighlight": false,
+    "customCaption": {
+      "en": "Field gathering in 2021",
+      "bn": "২০২১ মাঠপর্যায়ের সম্মেলন"
+    }
+  },
+  {
+    "id": "em-2019-1",
+    "eventId": "pevt-eid-2019",
+    "mediaId": "med-1787510104630-ge4c",
+    "isHighlight": true,
+    "highlightOrder": 1,
+    "customCaption": {
+      "en": "C-Plus TV National Broadcast on Eid Joy 5 (2019)",
+      "bn": "সি-প্লাস টিভিতে প্রচারিত ঈদ আনন্দ-৫ বিশেষ প্রতিবেদন"
+    }
+  },
+  {
+    "id": "em-2019-2",
+    "eventId": "pevt-eid-2019",
+    "mediaId": "med-hero-1",
+    "isHighlight": false,
+    "customCaption": {
+      "en": "Children receiving Eid gift bags in 2019",
+      "bn": "২০১৯ সালে উপহার সামগ্রী বিতরণ"
+    }
+  },
+  {
+    "id": "em-winter-2024-1",
+    "eventId": "pevt-winter-2024",
+    "mediaId": "med-event-1",
+    "isHighlight": true,
+    "highlightOrder": 1,
+    "customCaption": {
+      "en": "Late night blanket distribution to cold affected elders",
+      "bn": "গভীর রাতে শীতার্ত প্রবীণদের মাঝে উষ্ণ কম্বল বিতরণ"
+    }
   }
 ];
 
@@ -2688,7 +2892,7 @@ export const INITIAL_JOURNEY_VIDEOS: JourneyVideo[] = [
     "isPublished": true,
     "isFeatured": true,
     "createdAt": "2026-01-01T00:00:00+00:00",
-    "updatedAt": "2026-08-27T15:15:52.268+00:00"
+    "updatedAt": "2026-08-28T04:00:17.728+00:00"
   },
   {
     "id": "jvid-2019-2025",
@@ -2713,7 +2917,7 @@ export const INITIAL_JOURNEY_VIDEOS: JourneyVideo[] = [
     "isPublished": true,
     "isFeatured": false,
     "createdAt": "2026-01-02T00:00:00+00:00",
-    "updatedAt": "2026-08-27T15:15:52.456+00:00"
+    "updatedAt": "2026-08-28T04:00:17.892+00:00"
   }
 ];
 
@@ -2831,6 +3035,24 @@ export const INITIAL_COMMITTEES: Committee[] = [
     "status": "ACTIVE",
     "sortOrder": 2,
     "isFeatured": true,
+    "bannerImageUrl": ""
+  },
+  {
+    "id": "comm-exec-2025",
+    "slug": "executive-committee-2025",
+    "name": {
+      "bn": "ইনফিনিটি বাংলাদেশ কার্যনির্বাহী কমিটি — ২০২৫",
+      "en": "Infinity Bangladesh Executive Committee — 2025"
+    },
+    "type": "PAST",
+    "year": "2025",
+    "description": {
+      "bn": "২০২৫ সালের জন্য ইনফিনিটি বাংলাদেশের দায়িত্ব পালনকারী প্রাক্তন কার্যনির্বাহী পরিষদ।",
+      "en": "Archived executive leadership of Infinity Bangladesh for the service year 2025."
+    },
+    "status": "ARCHIVED",
+    "sortOrder": 5,
+    "isFeatured": false,
     "bannerImageUrl": ""
   }
 ];
@@ -4160,6 +4382,18 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "status": "ACTIVE"
   },
   {
+    "id": "cm-sc-2",
+    "committeeId": "comm-stand-central",
+    "personId": "person-sc-2",
+    "positionId": "pos-vice-chairman",
+    "serialNumber": 2,
+    "sortOrder": 2,
+    "isFeaturedLeader": true,
+    "startDate": "",
+    "endDate": "",
+    "status": "ACTIVE"
+  },
+  {
     "id": "cm-2",
     "committeeId": "comm-exec-2026",
     "personId": "person-2",
@@ -4184,12 +4418,12 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "status": "ARCHIVED"
   },
   {
-    "id": "cm-sc-2",
-    "committeeId": "comm-stand-central",
-    "personId": "person-sc-2",
-    "positionId": "pos-vice-chairman",
-    "serialNumber": 2,
-    "sortOrder": 2,
+    "id": "cm-3",
+    "committeeId": "comm-exec-2026",
+    "personId": "person-3",
+    "positionId": "pos-3",
+    "serialNumber": 3,
+    "sortOrder": 3,
     "isFeaturedLeader": true,
     "startDate": "",
     "endDate": "",
@@ -4220,25 +4454,13 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "status": "ARCHIVED"
   },
   {
-    "id": "cm-3",
-    "committeeId": "comm-exec-2026",
-    "personId": "person-3",
-    "positionId": "pos-3",
-    "serialNumber": 3,
-    "sortOrder": 3,
-    "isFeaturedLeader": true,
-    "startDate": "",
-    "endDate": "",
-    "status": "ACTIVE"
-  },
-  {
-    "id": "cm-4",
-    "committeeId": "comm-exec-2026",
-    "personId": "person-4",
-    "positionId": "pos-3",
+    "id": "cm-sc-4",
+    "committeeId": "comm-stand-central",
+    "personId": "person-sc-4",
+    "positionId": "pos-member",
     "serialNumber": 4,
     "sortOrder": 4,
-    "isFeaturedLeader": true,
+    "isFeaturedLeader": false,
     "startDate": "",
     "endDate": "",
     "status": "ACTIVE"
@@ -4254,18 +4476,6 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "startDate": "",
     "endDate": "",
     "status": "ARCHIVED"
-  },
-  {
-    "id": "cm-sc-4",
-    "committeeId": "comm-stand-central",
-    "personId": "person-sc-4",
-    "positionId": "pos-member",
-    "serialNumber": 4,
-    "sortOrder": 4,
-    "isFeaturedLeader": false,
-    "startDate": "",
-    "endDate": "",
-    "status": "ACTIVE"
   },
   {
     "id": "cm-past-23-4",
@@ -4292,13 +4502,13 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "status": "ARCHIVED"
   },
   {
-    "id": "cm-sc-5",
-    "committeeId": "comm-stand-central",
-    "personId": "person-sc-5",
-    "positionId": "pos-member",
-    "serialNumber": 5,
-    "sortOrder": 5,
-    "isFeaturedLeader": false,
+    "id": "cm-4",
+    "committeeId": "comm-exec-2026",
+    "personId": "person-4",
+    "positionId": "pos-3",
+    "serialNumber": 4,
+    "sortOrder": 4,
+    "isFeaturedLeader": true,
     "startDate": "",
     "endDate": "",
     "status": "ACTIVE"
@@ -4311,6 +4521,18 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "serialNumber": 5,
     "sortOrder": 5,
     "isFeaturedLeader": true,
+    "startDate": "",
+    "endDate": "",
+    "status": "ACTIVE"
+  },
+  {
+    "id": "cm-sc-5",
+    "committeeId": "comm-stand-central",
+    "personId": "person-sc-5",
+    "positionId": "pos-member",
+    "serialNumber": 5,
+    "sortOrder": 5,
+    "isFeaturedLeader": false,
     "startDate": "",
     "endDate": "",
     "status": "ACTIVE"
@@ -4340,18 +4562,6 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "status": "ACTIVE"
   },
   {
-    "id": "cm-7",
-    "committeeId": "comm-exec-2026",
-    "personId": "person-7",
-    "positionId": "pos-5",
-    "serialNumber": 7,
-    "sortOrder": 7,
-    "isFeaturedLeader": false,
-    "startDate": "",
-    "endDate": "",
-    "status": "ACTIVE"
-  },
-  {
     "id": "cm-sc-7",
     "committeeId": "comm-stand-central",
     "personId": "person-sc-7",
@@ -4364,12 +4574,12 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "status": "ACTIVE"
   },
   {
-    "id": "cm-8",
+    "id": "cm-7",
     "committeeId": "comm-exec-2026",
-    "personId": "person-8",
+    "personId": "person-7",
     "positionId": "pos-5",
-    "serialNumber": 8,
-    "sortOrder": 8,
+    "serialNumber": 7,
+    "sortOrder": 7,
     "isFeaturedLeader": false,
     "startDate": "",
     "endDate": "",
@@ -4388,12 +4598,12 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "status": "ACTIVE"
   },
   {
-    "id": "cm-9",
+    "id": "cm-8",
     "committeeId": "comm-exec-2026",
-    "personId": "person-9",
+    "personId": "person-8",
     "positionId": "pos-5",
-    "serialNumber": 9,
-    "sortOrder": 9,
+    "serialNumber": 8,
+    "sortOrder": 8,
     "isFeaturedLeader": false,
     "startDate": "",
     "endDate": "",
@@ -4404,6 +4614,18 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "committeeId": "comm-stand-central",
     "personId": "person-sc-9",
     "positionId": "pos-member",
+    "serialNumber": 9,
+    "sortOrder": 9,
+    "isFeaturedLeader": false,
+    "startDate": "",
+    "endDate": "",
+    "status": "ACTIVE"
+  },
+  {
+    "id": "cm-9",
+    "committeeId": "comm-exec-2026",
+    "personId": "person-9",
+    "positionId": "pos-5",
     "serialNumber": 9,
     "sortOrder": 9,
     "isFeaturedLeader": false,
@@ -4628,4 +4850,3 @@ export const INITIAL_COMMITTEE_MEMBERS: CommitteeMember[] = [
     "status": "ACTIVE"
   }
 ];
-

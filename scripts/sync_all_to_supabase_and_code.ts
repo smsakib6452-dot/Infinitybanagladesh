@@ -105,6 +105,10 @@ export const INITIAL_CAMPAIGNS: Campaign[] = ${formatTs(data.campaigns || [])};
 
 export const INITIAL_PROGRAMS: Program[] = ${formatTs(data.programs || [])};
 
+export const INITIAL_PROGRAM_EVENTS: ProgramEvent[] = ${formatTs(data.programEvents || [])};
+
+export const INITIAL_EVENT_MEDIA: EventMedia[] = ${formatTs(data.eventMediaList || [])};
+
 export const INITIAL_IMPACT_METRICS: ImpactMetric[] = ${formatTs(data.metrics || [])};
 
 export const INITIAL_IMPACT_STORIES: ImpactStory[] = ${formatTs(data.stories || [])};

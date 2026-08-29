@@ -466,8 +466,12 @@ export const VolunteerPage: React.FC = () => {
       return;
     }
 
-    if (!validateStep(8)) {
-      return;
+    for (let step = 1; step <= 8; step++) {
+      if (!validateStep(step)) {
+        setCurrentStep(step);
+        window.scrollTo({ top: 350, behavior: 'smooth' });
+        return;
+      }
     }
 
     setIsSubmitting(true);

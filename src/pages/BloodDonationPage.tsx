@@ -657,8 +657,8 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
     e.preventDefault();
     setRegFormError(null);
 
-    if (!regFullName.trim() || !regPhone.trim() || !regDistrict || !regUpazila || !regDateOfBirth) {
-      setRegFormError(isBn ? 'অনুগ্রহ করে সকল আবশ্যকীয় তথ্য পূরণ করুন (জন্ম তারিখসহ)।' : 'Please fill in all required fields including Date of Birth.');
+    if (!regFullName.trim() || !regPhone.trim() || !regDistrict || !regUpazila || !regDateOfBirth || regDateOfBirth.length < 10) {
+      setRegFormError(isBn ? 'অনুগ্রহ করে জন্ম তারিখসহ (দিন, মাস, বছর) সকল আবশ্যকীয় তথ্য সঠিকভাবে পূরণ করুন।' : 'Please fill in all required fields including a complete Date of Birth (Day, Month, Year).');
       return;
     }
 

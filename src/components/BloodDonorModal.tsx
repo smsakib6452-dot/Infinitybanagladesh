@@ -420,6 +420,7 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
                     value={dateOfBirth}
                     onChange={(val) => setDateOfBirth(val)}
                     isBn={isBn}
+                    required
                     max={new Date().toISOString().split('T')[0]}
                     minYear={1940}
                     maxYear={new Date().getFullYear()}

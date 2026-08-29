@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { toBengaliNumerals } from '../lib/utils/formatters';
 
 export interface DateInputProps {
@@ -63,27 +63,35 @@ export const DateInput: React.FC<DateInputProps> = ({
   yearOrder = 'desc',
   compact = false,
 }) => {
-  // Parse value (format: YYYY-MM-DD)
-  const [selectedYear, selectedMonth, selectedDay] = useMemo(() => {
-    if (!value || typeof value !== 'string' || !value.includes('-')) {
-      return ['', '', ''];
+  // Local state for 3 parts so user can select in any order
+  const [localYear, setLocalYear] = useState<string>('');
+  const [localMonth, setLocalMonth] = useState<string>('');
+  const [localDay, setLocalDay] = useState<string>('');
+
+  // Sync from incoming value prop
+  useEffect(() => {
+    if (value && typeof value === 'string' && value.includes('-')) {
+      const parts = value.split('-');
+      if (parts.length >= 3) {
+        setLocalYear(parts[0] || '');
+        setLocalMonth(parts[1] ? parts[1].padStart(2, '0') : '');
+        setLocalDay(parts[2] ? parts[2].padStart(2, '0') : '');
+        return;
+      }
     }
-    const parts = value.split('-');
-    if (parts.length >= 3) {
-      const y = parts[0] || '';
-      const m = parts[1] ? parts[1].padStart(2, '0') : '';
-      const d = parts[2] ? parts[2].padStart(2, '0') : '';
-      return [y, m, d];
+    if (!value) {
+      setLocalYear('');
+      setLocalMonth('');
+      setLocalDay('');
     }
-    return ['', '', ''];
   }, [value]);
 
   // Calculate days in selected month and year
   const daysInMonth = useMemo(() => {
-    const y = parseInt(selectedYear, 10) || 2026;
-    const m = parseInt(selectedMonth, 10) || 1;
+    const y = parseInt(localYear, 10) || 2026;
+    const m = parseInt(localMonth, 10) || 1;
     return new Date(y, m, 0).getDate();
-  }, [selectedYear, selectedMonth]);
+  }, [localYear, localMonth]);
 
   // Generate day options 01 - daysInMonth
   const dayOptions = useMemo(() => {
@@ -127,47 +135,39 @@ export const DateInput: React.FC<DateInputProps> = ({
     return years;
   }, [minYear, maxYear, yearOrder, isBn]);
 
-  // Update date state handler
-  const handlePartChange = (newDay: string, newMonth: string, newYear: string) => {
-    if (!newDay && !newMonth && !newYear) {
-      onChange('');
-      return;
-    }
-
-    // When all 3 parts are selected, construct YYYY-MM-DD
-    if (newYear && newMonth && newDay) {
-      const y = parseInt(newYear, 10);
-      const m = parseInt(newMonth, 10);
-      const maxDays = new Date(y, m, 0).getDate();
-      let clampedDay = newDay;
-      if (parseInt(newDay, 10) > maxDays) {
+  // Trigger onChange ONLY when all 3 parts are selected
+  const updateCombinedDate = (d: string, m: string, y: string) => {
+    if (d && m && y) {
+      const yearNum = parseInt(y, 10);
+      const monthNum = parseInt(m, 10);
+      const maxDays = new Date(yearNum, monthNum, 0).getDate();
+      let clampedDay = d;
+      if (parseInt(d, 10) > maxDays) {
         clampedDay = String(maxDays).padStart(2, '0');
+        setLocalDay(clampedDay);
       }
-      onChange(`${newYear}-${newMonth}-${clampedDay}`);
+      onChange(`${y}-${m}-${clampedDay}`);
     } else {
       onChange('');
     }
   };
 
   const handleDayChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const val = e.target.value;
-    const y = selectedYear || String(new Date().getFullYear());
-    const m = selectedMonth || '01';
-    handlePartChange(val, m, y);
+    const newDay = e.target.value;
+    setLocalDay(newDay);
+    updateCombinedDate(newDay, localMonth, localYear);
   };
 
   const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const val = e.target.value;
-    const y = selectedYear || String(new Date().getFullYear());
-    const d = selectedDay || '01';
-    handlePartChange(d, val, y);
+    const newMonth = e.target.value;
+    setLocalMonth(newMonth);
+    updateCombinedDate(localDay, newMonth, localYear);
   };
 
   const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const val = e.target.value;
-    const m = selectedMonth || '01';
-    const d = selectedDay || '01';
-    handlePartChange(d, m, val);
+    const newYear = e.target.value;
+    setLocalYear(newYear);
+    updateCombinedDate(localDay, localMonth, newYear);
   };
 
   const selectStyles = `w-full rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-slate-800 font-semibold focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:border-[#006A4E] focus:outline-none transition-all cursor-pointer ${
@@ -175,10 +175,10 @@ export const DateInput: React.FC<DateInputProps> = ({
   } ${disabled ? 'opacity-60 cursor-not-allowed bg-slate-100' : ''}`;
 
   return (
-    <div className={`grid grid-cols-3 gap-2 ${className}`} id={id}>
+    <div className={`grid grid-cols-3 gap-2 relative ${className}`} id={id}>
       {/* 1. DAY (DD) */}
       <select
-        value={selectedDay}
+        value={localDay}
         onChange={handleDayChange}
         disabled={disabled}
         required={required}
@@ -195,7 +195,7 @@ export const DateInput: React.FC<DateInputProps> = ({
 
       {/* 2. MONTH (MM) */}
       <select
-        value={selectedMonth}
+        value={localMonth}
         onChange={handleMonthChange}
         disabled={disabled}
         required={required}
@@ -212,7 +212,7 @@ export const DateInput: React.FC<DateInputProps> = ({
 
       {/* 3. YEAR (YYYY) */}
       <select
-        value={selectedYear}
+        value={localYear}
         onChange={handleYearChange}
         disabled={disabled}
         required={required}

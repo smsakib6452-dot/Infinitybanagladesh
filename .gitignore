@@ -8,3 +8,5 @@ scratch/
 .env*
 !.env.example
 .vercel
+supabase/.temp/
+.temp/

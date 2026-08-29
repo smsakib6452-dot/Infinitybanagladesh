@@ -7,8 +7,6 @@ import { CampaignCard } from '../components/CampaignCard';
 import { ProgramCard } from '../components/ProgramCard';
 import { ImpactCounter } from '../components/ImpactCounter';
 import { StoryCard } from '../components/StoryCard';
-import { NewsCard } from '../components/NewsCard';
-import { EventCard } from '../components/EventCard';
 import { GalleryLightbox } from '../components/GalleryLightbox';
 import { VerifiedOrganizationPledge } from '../components/OfficialInfoBadge';
 import { getAssetUrl } from '../lib/utils/assetHelper';
@@ -22,22 +20,19 @@ import {
   Sparkles,
   CheckCircle2,
   Calendar,
-  Image as ImageIcon,
   MapPin,
   Clock,
   Play,
   Award,
   HandHeart,
   TrendingUp,
-  FileCheck,
-  Gift,
-  Utensils,
-  Sun,
-  BookOpen,
+  Droplet,
+  Search,
+  ExternalLink,
   ShieldAlert,
-  ExternalLink
+  Target,
+  Eye
 } from 'lucide-react';
-import { PageRoute } from '../types';
 
 export const HomePage: React.FC = () => {
   const { isBn, tText } = useLanguage();
@@ -46,12 +41,13 @@ export const HomePage: React.FC = () => {
     programs,
     metrics,
     stories,
-    news,
-    events,
     gallery,
     pressCoverages,
     homepageConfig,
-    aboutSettings
+    aboutSettings,
+    bloodDonationSettings,
+    bloodDonors,
+    emergencyBloodRequests
   } = useData();
 
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
@@ -64,6 +60,9 @@ export const HomePage: React.FC = () => {
   const otherCampaigns = campaigns.filter(c => c.id !== featuredCampaign?.id && c.status !== 'archived').slice(0, 3);
   const featuredStories = stories.filter(s => s.status !== 'archived').slice(0, 2);
   const activeMetrics = metrics.filter(m => m.active !== false).sort((a, b) => (a.order || 0) - (b.order || 0));
+
+  const totalRegisteredDonors = bloodDonationSettings.statTotalDonorsOverride || bloodDonors.length;
+  const pendingBloodRequests = emergencyBloodRequests.filter(r => r.status === 'PENDING' || r.status === 'PROCESSING').length;
 
   const renderTrustIcon = (iconName: string) => {
     switch (iconName) {
@@ -239,7 +238,7 @@ export const HomePage: React.FC = () => {
             />
 
             <StaggerGroup className="flex flex-wrap justify-center gap-5 sm:gap-6">
-              {activeMetrics.map((m, idx) => (
+              {activeMetrics.map((m) => (
                 <StaggerItem key={m.id} className="w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(25%-1.15rem)] max-w-xs flex">
                   <ImpactCounter metric={m} />
                 </StaggerItem>
@@ -251,77 +250,79 @@ export const HomePage: React.FC = () => {
       case 'about':
         return (
           <section key="about" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="bg-white rounded-[2.5rem] border border-[#EAE3D9] p-7 sm:p-12 lg:p-14 shadow-warm-md relative overflow-hidden">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-                {/* Left Column: About Photo */}
-                <ScrollReveal effect="scale-up" className="lg:col-span-5 relative order-2 lg:order-1">
-                  <div className="rounded-3xl overflow-hidden shadow-warm-lg border-2 border-white aspect-4/3 sm:aspect-1/1 bg-slate-100">
-                    <img
-                      src={getAssetUrl(aboutPreview.imageUrl || '/images/events/winter-warmth.jpg')}
-                      alt="Team Infinity Community Service"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center bg-white rounded-[2.5rem] border border-[#EAE3D9] p-6 sm:p-10 lg:p-12 shadow-warm-md">
+              <ScrollReveal effect="slide-right" className="lg:col-span-6 space-y-5 text-left">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#E6F3EF] border border-[#C2E2D7] text-[#00523C] text-xs font-bold uppercase tracking-wider">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                  <span>{tText(aboutPreview.eyebrow) || (isBn ? 'সংগঠন পরিচিতি' : 'About Infinity Bangladesh')}</span>
+                </div>
 
-                  {/* Floating Quote Card */}
-                  <div className="absolute -bottom-4 -right-4 sm:-bottom-6 sm:-right-6 bg-[#006A4E] text-white p-4 sm:p-5 rounded-2xl shadow-warm-lg text-xs sm:text-sm font-semibold max-w-[260px] border border-emerald-400/40">
-                    <p className="leading-snug">
-                      {tText(aboutPreview.quoteText)}
-                    </p>
-                    <span className="block text-[11px] text-emerald-200 mt-1 font-bold">
-                      — {aboutPreview.quoteAuthor || 'Team Infinity'}
-                    </span>
-                  </div>
-                </ScrollReveal>
+                <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 font-display leading-tight">
+                  {tText(aboutPreview.titleMain)}{' '}
+                  <span className="text-[#006A4E]">{tText(aboutPreview.titleHighlight)}</span>
+                </h2>
 
-                {/* Right Column: Mission Story */}
-                <ScrollReveal effect="slide-left" delay={0.2} className="lg:col-span-7 space-y-5 sm:space-y-6 order-1 lg:order-2">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E6F3EF] text-[#00523C] text-xs font-extrabold uppercase tracking-wider border border-[#C2E2D7]">
-                    {tText(aboutPreview.eyebrow)}
-                  </div>
+                <p className="text-sm sm:text-base text-slate-700 leading-relaxed font-normal">
+                  {tText(aboutPreview.description)}
+                </p>
 
-                  <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight font-display">
-                    {tText(aboutPreview.titleMain)} <br />
-                    <span className="text-[#006A4E]">{tText(aboutPreview.titleHighlight)}</span>
-                  </h2>
-
-                  <p className="text-sm sm:text-base text-slate-700 leading-relaxed font-normal">
-                    {tText(aboutPreview.description)}
-                  </p>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                    <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-1.5">
-                      <div className="flex items-center gap-2 text-xs font-extrabold text-[#00523C] uppercase tracking-wider">
-                        <Heart className="w-4 h-4 text-[#006A4E]" />
-                        <span>{isBn ? 'আমাদের লক্ষ্য' : 'Our Mission'}</span>
-                      </div>
-                      <p className="text-xs text-slate-700 leading-relaxed font-medium">
-                        {tText(aboutSettings.mission)}
-                      </p>
-                    </div>
-
-                    <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-1.5">
-                      <div className="flex items-center gap-2 text-xs font-extrabold text-[#00523C] uppercase tracking-wider">
-                        <Sparkles className="w-4 h-4 text-amber-600" />
-                        <span>{isBn ? 'আমাদের দর্শন' : 'Our Vision'}</span>
-                      </div>
-                      <p className="text-xs text-slate-700 leading-relaxed font-medium">
-                        {tText(aboutSettings.vision)}
-                      </p>
+                {/* Mission & Vision Feature Highlights */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                  <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-[#FAF7F2] border border-[#EAE3D9]/80">
+                    <Target className="w-4 h-4 text-[#006A4E] shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="text-xs font-bold text-slate-900">{isBn ? 'আমাদের লক্ষ্য' : 'Our Mission'}</h4>
+                      <p className="text-[11px] text-slate-600 mt-0.5 leading-snug line-clamp-2">{tText(aboutSettings.mission)}</p>
                     </div>
                   </div>
 
-                  <div className="pt-2">
-                    <Link
-                      to={aboutPreview.ctaUrl || 'about'}
-                      className="px-6 py-3 rounded-xl bg-[#006A4E] hover:bg-[#00523C] text-white font-bold text-xs sm:text-sm shadow-warm-sm transition-all inline-flex items-center gap-2 cursor-pointer"
-                    >
-                      <span>{tText(aboutPreview.ctaText)}</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </Link>
+                  <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-[#FAF7F2] border border-[#EAE3D9]/80">
+                    <Eye className="w-4 h-4 text-[#006A4E] shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="text-xs font-bold text-slate-900">{isBn ? 'আমাদের দর্শন' : 'Our Vision'}</h4>
+                      <p className="text-[11px] text-slate-600 mt-0.5 leading-snug line-clamp-2">{tText(aboutSettings.vision)}</p>
+                    </div>
                   </div>
-                </ScrollReveal>
-              </div>
+                </div>
+
+                <div className="pt-2 flex items-center gap-3">
+                  <Link
+                    to={aboutPreview.ctaUrl || 'about/story'}
+                    className="px-6 py-3 rounded-2xl bg-[#006A4E] hover:bg-[#00523C] text-white text-xs sm:text-sm font-bold shadow-warm-sm transition-all flex items-center gap-2 cursor-pointer"
+                  >
+                    <span>{tText(aboutPreview.ctaText) || (isBn ? 'আমাদের সম্পূর্ণ যাত্রা পড়ুন' : 'Read Our Full Story')}</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+
+                  <Link
+                    to="about/executive-committee"
+                    className="px-5 py-3 rounded-2xl bg-[#FAF7F2] hover:bg-[#F2ECE1] text-slate-800 text-xs sm:text-sm font-bold border border-[#D8CFC4] transition-all flex items-center gap-2 cursor-pointer"
+                  >
+                    <Users className="w-4 h-4 text-[#006A4E]" />
+                    <span>{isBn ? 'নেতৃত্ব কমিটি' : 'Executive Team'}</span>
+                  </Link>
+                </div>
+              </ScrollReveal>
+
+              <ScrollReveal effect="slide-left" delay={0.2} className="lg:col-span-6">
+                <div className="rounded-3xl overflow-hidden shadow-warm-lg border-2 border-white aspect-4/3 bg-slate-900 relative">
+                  <img
+                    src={getAssetUrl(aboutSettings.heroImageUrl || aboutPreview.imageUrl || 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=1000&q=80')}
+                    alt="Team Infinity Bangladesh"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent flex items-end p-6">
+                    <div className="text-white space-y-1">
+                      <p className="text-xs font-bold text-amber-300 uppercase tracking-wider">
+                        {isBn ? 'টিম ইনফিনিটি — মানবতার জন্য একতাবদ্ধ' : 'Team Infinity — United for Humanity'}
+                      </p>
+                      <p className="text-sm font-medium text-slate-200">
+                        {isBn ? '২০১৫ সাল থেকে সুবিধাবঞ্চিত মানুষের পাশে' : 'Serving underserved communities since 2015'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </ScrollReveal>
             </div>
           </section>
         );
@@ -330,22 +331,32 @@ export const HomePage: React.FC = () => {
         return (
           <section key="programs" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <SectionHeading
-              badge={isBn ? 'সেবামূলক কর্মপরিকল্পনা' : 'Our Initiatives'}
-              title={isBn ? 'আমাদের প্রধান মানবিক কার্যক্রম' : 'Our Core Programs & Relief Operations'}
+              badge={isBn ? 'স্থায়ী কার্যক্রম' : 'Flagship Programs'}
+              title={isBn ? 'ধারাবাহিক মানবিক কর্মসূচি ও ইভেন্ট' : 'Sustainable Humanitarian Initiatives'}
               subtitle={
                 isBn
-                  ? 'সুবিধাবঞ্চিত শিশুদের উৎসব আনন্দ থেকে শুরু করে দুর্যোগকালীন খাদ্য ও শিক্ষা সহায়তা কার্যক্রম।'
-                  : 'Comprehensive field programs delivering dignified aid, education kits, and seasonal warmth across Bangladesh.'
+                  ? 'প্রতি বছর নিয়মিতভাবে আয়োজিত সুবিধাবঞ্চিত মানুষের ঈদ আনন্দ, শীতবস্ত্র ও জরুরি খাদ্য কর্মসূচি।'
+                  : 'Recurring seasonal programs providing dignified Eid gifts, winter protection, and relief.'
               }
             />
 
             <StaggerGroup className="flex flex-wrap justify-center gap-6 sm:gap-8">
-              {programs.filter(p => p.status !== 'archived').map((prog, idx) => (
-                <StaggerItem key={prog.id} className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.35rem)] max-w-sm flex">
-                  <ProgramCard program={prog} />
+              {programs.slice(0, 3).map((program) => (
+                <StaggerItem key={program.id} className="w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.35rem)] max-w-sm flex">
+                  <ProgramCard program={program} />
                 </StaggerItem>
               ))}
             </StaggerGroup>
+
+            <div className="text-center pt-8">
+              <Link
+                to="programs"
+                className="px-6 py-3 rounded-2xl bg-white hover:bg-[#FAF7F2] text-slate-800 text-xs sm:text-sm font-bold border border-[#EAE3D9] shadow-warm-xs transition-all inline-flex items-center gap-2 cursor-pointer"
+              >
+                <span>{isBn ? 'সকল কর্মসূচি ও ইভেন্ট তালিকা দেখুন' : 'View All Programs & Events'}</span>
+                <ArrowRight className="w-4 h-4 text-[#006A4E]" />
+              </Link>
+            </div>
           </section>
         );
 
@@ -353,71 +364,67 @@ export const HomePage: React.FC = () => {
         return (
           <section key="campaigns" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <SectionHeading
-              badge={isBn ? 'মাঠপর্যায়ের উদ্যোগ' : 'Active & Seasonal Drives'}
-              title={isBn ? 'চলমান ও সাম্প্রতিক ক্যাম্পেইন' : 'Featured Field Campaigns'}
+              badge={isBn ? 'মাঠপর্যায়ের ক্যাম্পেইন' : 'Active Field Drives'}
+              title={isBn ? 'চলমান মানবিক ক্যাম্পেইন ও সেবা' : 'Ongoing Relief Drives & Campaigns'}
               subtitle={
                 isBn
-                  ? 'পবিত্র ঈদ আনন্দ, শীতবস্ত্র বিতরণ এবং জরুরি মানবিক সহায়তা পৌঁছে দেওয়ার উদ্যোগ।'
-                  : 'Transparent, volunteer-managed drives creating immediate relief on the ground.'
+                  ? 'জরুরি মুহূর্ত ও ক্রান্তিলগ্নে সুবিধাবঞ্চিত অসহায় মানুষের পাশে আমাদের বিশেষ কর্মসূচি।'
+                  : 'Targeted emergency drives reaching marginalized families and vulnerable communities.'
               }
             />
 
             <div className="space-y-8">
               {featuredCampaign && (
                 <ScrollReveal effect="fade-up">
-                <div className="p-6 sm:p-10 rounded-[2.5rem] bg-white border border-[#EAE3D9] shadow-warm-lg grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-                  <div className="lg:col-span-6 space-y-5">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-[#E6F3EF] text-[#00523C] border border-[#C2E2D7]">
-                        {featuredCampaign.category}
-                      </span>
-                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
-                        {isBn ? 'বিশেষ আলোচিত' : 'Featured Campaign'}
-                      </span>
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-white rounded-[2.5rem] border border-[#EAE3D9] p-6 sm:p-8 lg:p-10 shadow-warm-md">
+                    <div className="lg:col-span-6 space-y-4 text-left">
+                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-[#006A4E] text-xs font-extrabold border border-emerald-200">
+                        <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                        <span>{isBn ? 'বিশেষ ফিচার্ড ক্যাম্পেইন' : 'Featured Campaign'}</span>
+                      </div>
+
+                      <h3 className="text-xl sm:text-3xl font-extrabold text-slate-900 font-display">
+                        {tText(featuredCampaign.title)}
+                      </h3>
+
+                      <p className="text-sm sm:text-base text-slate-700 leading-relaxed font-normal">
+                        {tText(featuredCampaign.description)}
+                      </p>
+
+                      <div className="pt-2 flex flex-wrap items-center gap-3">
+                        <Link
+                          to="campaigns/detail"
+                          slug={featuredCampaign.slug}
+                          className="px-6 py-3 rounded-2xl bg-[#006A4E] hover:bg-[#00523C] text-white text-xs sm:text-sm font-bold shadow-warm-sm transition-all flex items-center gap-2 cursor-pointer"
+                        >
+                          <span>{isBn ? 'ক্যাম্পেইন বিবরণ দেখুন' : 'View Campaign Details'}</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </Link>
+
+                        <Link
+                          to="donate"
+                          className="px-6 py-3 rounded-2xl bg-[#FAF7F2] hover:bg-[#F2ECE1] text-slate-800 text-xs sm:text-sm font-bold border border-[#EAE3D9] transition-all flex items-center gap-2 cursor-pointer"
+                        >
+                          <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />
+                          <span>{isBn ? 'সহায়তা করুন' : 'Support Campaign'}</span>
+                        </Link>
+                      </div>
                     </div>
 
-                    <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight font-display">
-                      {tText(featuredCampaign.title)}
-                    </h3>
-
-                    <p className="text-sm sm:text-base text-slate-700 leading-relaxed font-normal">
-                      {tText(featuredCampaign.description)}
-                    </p>
-
-                    <div className="pt-2 flex flex-wrap items-center gap-3">
-                      <Link
-                        to="campaigns/detail"
-                        slug={featuredCampaign.slug}
-                        className="px-6 py-3 rounded-2xl bg-[#006A4E] hover:bg-[#00523C] text-white text-xs sm:text-sm font-bold shadow-warm-sm transition-all flex items-center gap-2 cursor-pointer"
-                      >
-                        <span>{isBn ? 'ক্যাম্পেইন বিবরণ দেখুন' : 'View Campaign Details'}</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </Link>
-
-                      <Link
-                        to="donate"
-                        className="px-6 py-3 rounded-2xl bg-[#FAF7F2] hover:bg-[#F2ECE1] text-slate-800 text-xs sm:text-sm font-bold border border-[#EAE3D9] transition-all flex items-center gap-2 cursor-pointer"
-                      >
-                        <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />
-                        <span>{isBn ? 'সহায়তা করুন' : 'Support Campaign'}</span>
-                      </Link>
+                    <div className="lg:col-span-6 rounded-3xl overflow-hidden shadow-warm-md border-2 border-white aspect-16/10 bg-slate-100">
+                      <img
+                        src={getAssetUrl(featuredCampaign.imageUrl)}
+                        alt={tText(featuredCampaign.title)}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                   </div>
-
-                  <div className="lg:col-span-6 rounded-3xl overflow-hidden shadow-warm-md border-2 border-white aspect-16/10 bg-slate-100">
-                    <img
-                      src={getAssetUrl(featuredCampaign.imageUrl)}
-                      alt={tText(featuredCampaign.title)}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                </div>
                 </ScrollReveal>
               )}
 
               {otherCampaigns.length > 0 && (
                 <StaggerGroup className="flex flex-wrap justify-center gap-6 pt-4">
-                  {otherCampaigns.map((c, idx) => (
+                  {otherCampaigns.map((c) => (
                     <StaggerItem key={c.id} className="w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] max-w-sm flex">
                       <CampaignCard campaign={c} />
                     </StaggerItem>
@@ -442,7 +449,7 @@ export const HomePage: React.FC = () => {
             />
 
             <StaggerGroup className="flex flex-wrap justify-center gap-8">
-              {featuredStories.map((story, idx) => (
+              {featuredStories.map((story) => (
                 <StaggerItem key={story.id} className="w-full md:w-[calc(50%-1rem)] max-w-lg flex">
                   <StoryCard story={story} />
                 </StaggerItem>
@@ -458,6 +465,116 @@ export const HomePage: React.FC = () => {
                 <ArrowRight className="w-4 h-4 text-[#006A4E]" />
               </Link>
             </div>
+          </section>
+        );
+
+      {/* INFINITY LIFELINE — SPECIALIZED BLOOD INITIATIVE SPOTLIGHT */}
+      case 'lifeline':
+      case 'blood_donation':
+        return (
+          <section key="lifeline" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <ScrollReveal effect="fade-up">
+              <div className="bg-[#0B0F17] text-white rounded-[2.5rem] p-8 sm:p-12 lg:p-14 border border-rose-900/40 relative overflow-hidden shadow-2xl">
+                {/* Ambient Crimson Glows & Ripple Motifs */}
+                <div className="absolute top-0 right-0 w-96 h-96 bg-rose-600/15 rounded-full blur-3xl pointer-events-none animate-lifeline-glow" />
+                <div className="absolute bottom-0 left-0 w-80 h-80 bg-red-800/10 rounded-full blur-3xl pointer-events-none" />
+
+                <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                  <div className="lg:col-span-7 space-y-5 text-left">
+                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-rose-950/80 border border-rose-500/40 text-rose-300 text-xs font-extrabold uppercase tracking-wider">
+                      <Droplet className="w-3.5 h-3.5 text-rose-500 fill-rose-500 animate-heartbeat" />
+                      <span>{isBn ? 'ইনফিনিটি লাইফলাইন — জরুরি রক্তদান' : 'Infinity LifeLine — Blood Initiative'}</span>
+                    </div>
+
+                    <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight font-display text-white leading-tight">
+                      JUST ONE DROP,{' '}
+                      <span className="text-rose-500 inline-block">INFINITY HOPE</span>
+                    </h2>
+
+                    <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-normal max-w-2xl">
+                      {isBn
+                        ? 'ইনফিনিটি বাংলাদেশের জরুরি রক্তদান ও সমন্বয় উইং। এক ব্যাগ রক্তে বাঁচে একটি অমূল্য প্রাণ। জরুরি প্রয়োজনে রক্তদাতা খুঁজুন কিংবা একজন স্বেচ্ছাসেবী রক্তদাতা হিসেবে নিবন্ধন করুন।'
+                        : 'A dedicated emergency blood coordination network powered by Infinity Bangladesh. Finding donors in critical hours and connecting voluntary donors directly with patients.'}
+                    </p>
+
+                    {/* 4-Step Narrative Pill */}
+                    <div className="flex flex-wrap items-center gap-2 text-xs font-bold text-rose-200/90 pt-1">
+                      <span className="px-2.5 py-1 rounded-lg bg-rose-950/60 border border-rose-800/40">ONE DROP</span>
+                      <span>&rarr;</span>
+                      <span className="px-2.5 py-1 rounded-lg bg-rose-950/60 border border-rose-800/40">ONE LIFE</span>
+                      <span>&rarr;</span>
+                      <span className="px-2.5 py-1 rounded-lg bg-rose-950/60 border border-rose-800/40">ONE RIPPLE</span>
+                      <span>&rarr;</span>
+                      <span className="px-2.5 py-1 rounded-lg bg-rose-900/60 border border-rose-600/60 text-white font-extrabold">INFINITE HOPE</span>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="pt-3 flex flex-wrap items-center gap-3">
+                      <Link
+                        to="blood-donation/find-donor"
+                        className="px-6 py-3.5 rounded-2xl btn-lifeline-crimson text-xs sm:text-sm font-extrabold flex items-center gap-2 cursor-pointer shadow-lg transform hover:-translate-y-0.5"
+                      >
+                        <Search className="w-4 h-4" />
+                        <span>{isBn ? 'রক্তদাতা খুঁজুন' : 'Find a Donor'}</span>
+                      </Link>
+
+                      <Link
+                        to="blood-donation/become-donor"
+                        className="px-6 py-3.5 rounded-2xl btn-lifeline-ghost text-xs sm:text-sm font-bold flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5"
+                      >
+                        <Droplet className="w-4 h-4 text-rose-400" />
+                        <span>{isBn ? 'রক্তদাতা হিসেবে নিবন্ধন করুন' : 'Become a Blood Donor'}</span>
+                      </Link>
+
+                      <Link
+                        to="blood-donation/emergency-request"
+                        className="px-5 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-rose-200 text-xs sm:text-sm font-bold transition-colors cursor-pointer flex items-center gap-1.5"
+                      >
+                        <ShieldAlert className="w-4 h-4 text-rose-400" />
+                        <span>{isBn ? 'জরুরি রক্তের আবেদন' : 'Emergency Request'}</span>
+                      </Link>
+                    </div>
+                  </div>
+
+                  {/* Right Column: LifeLine Live Metrics Box */}
+                  <div className="lg:col-span-5 bg-slate-900/80 rounded-3xl border border-rose-900/40 p-6 sm:p-8 space-y-6 backdrop-blur-md">
+                    <div className="flex items-center justify-between border-b border-rose-900/30 pb-4">
+                      <span className="text-xs font-bold text-rose-300 uppercase tracking-wider">
+                        {isBn ? 'লাইভ সমন্বয় পরিসংখ্যান' : 'Live Coordination Network'}
+                      </span>
+                      <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-4 rounded-2xl bg-rose-950/40 border border-rose-800/30 text-center">
+                        <p className="text-2xl sm:text-3xl font-extrabold text-white font-display">
+                          {totalRegisteredDonors}+
+                        </p>
+                        <p className="text-[11px] text-rose-200/80 font-medium mt-1">
+                          {isBn ? 'নিবন্ধিত স্বেচ্ছাসেবী রক্তদাতা' : 'Registered Donors'}
+                        </p>
+                      </div>
+
+                      <div className="p-4 rounded-2xl bg-rose-950/40 border border-rose-800/30 text-center">
+                        <p className="text-2xl sm:text-3xl font-extrabold text-rose-400 font-display">
+                          8+
+                        </p>
+                        <p className="text-[11px] text-rose-200/80 font-medium mt-1">
+                          {isBn ? 'সকল ব্লাড গ্রুপ নেটওয়ার্ক' : 'Blood Groups Covered'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="p-3.5 rounded-xl bg-slate-800/60 border border-slate-700/50 flex items-center justify-between text-xs text-slate-300">
+                      <span>{isBn ? '২৪/৭ জরুরি হেল্পলাইন:' : '24/7 Helpline:'}</span>
+                      <span className="font-bold text-rose-300 font-mono">
+                        {bloodDonationSettings.emergencyHelpline || '+880 1830-106452'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </ScrollReveal>
           </section>
         );
 
@@ -482,7 +599,8 @@ export const HomePage: React.FC = () => {
                 >
                   <div
                     onClick={() => setLightboxIndex(i)}
-                    className="group relative aspect-square w-full rounded-2xl overflow-hidden bg-slate-900 cursor-pointer shadow-warm-xs hover:shadow-warm-md border border-[#EAE3D9] transition-all transform hover:-translate-y-1"
+                    data-cursor="view"
+                    className="gallery-lightbox-trigger group relative aspect-square w-full rounded-2xl overflow-hidden bg-slate-900 cursor-pointer shadow-warm-xs hover:shadow-warm-md border border-[#EAE3D9] transition-all transform hover:-translate-y-1"
                   >
                     <img
                       src={getAssetUrl(photo.imageUrl)}
@@ -591,7 +709,7 @@ export const HomePage: React.FC = () => {
             </div>
 
             <StaggerGroup className="flex flex-wrap justify-center gap-6">
-              {featuredPress.map((item, idx) => (
+              {featuredPress.map((item) => (
                 <StaggerItem
                   key={item.id}
                   className="w-full md:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] max-w-sm bg-white rounded-3xl border border-[#EAE3D9] p-5 shadow-warm-sm hover:shadow-warm-md transition-all flex flex-col justify-between space-y-4 group"
@@ -683,20 +801,26 @@ export const HomePage: React.FC = () => {
     }
   };
 
-
-  const orderedSections = homepageConfig.sectionOrder || [
+  const defaultSectionOrder = [
     'hero',
     'impact',
     'about',
     'programs',
     'campaigns',
     'stories',
+    'lifeline',
     'gallery',
     'press',
     'volunteer',
     'transparency',
     'support'
   ];
+
+  const orderedSections = homepageConfig.sectionOrder && homepageConfig.sectionOrder.length > 0
+    ? homepageConfig.sectionOrder.includes('lifeline') || homepageConfig.sectionOrder.includes('blood_donation')
+      ? homepageConfig.sectionOrder
+      : [...homepageConfig.sectionOrder.slice(0, 6), 'lifeline', ...homepageConfig.sectionOrder.slice(6)]
+    : defaultSectionOrder;
 
   return (
     <div className="space-y-16 sm:space-y-24 lg:space-y-28 pb-20 overflow-hidden">

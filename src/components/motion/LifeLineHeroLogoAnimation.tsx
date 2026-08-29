@@ -24,6 +24,44 @@ export const LifeLineHeroLogoAnimation: React.FC<LifeLineHeroLogoAnimationProps>
 
   const hasAnimatedRef = useRef(false);
 
+  const runAnimationSequence = useCallback(() => {
+    if (shouldReduceMotion) {
+      setAnimationPhase('settled');
+      onAnimationComplete?.();
+      return;
+    }
+
+    setAnimationPhase('falling');
+
+    // 1. 0-650ms: Drop falls straight down from top
+    const tImpact = setTimeout(() => {
+      setAnimationPhase('impact');
+    }, 650);
+
+    // 2. 650-950ms: Drop lands, blood drop glows + ECG heartbeat pulse traces
+    const tPulse = setTimeout(() => {
+      setAnimationPhase('pulse');
+    }, 850);
+
+    // 3. 950-1300ms: Soft radial glow dissipates smoothly
+    const tSettling = setTimeout(() => {
+      setAnimationPhase('settling');
+    }, 1250);
+
+    // 4. 1500ms: Back to 100% clean resting normal state
+    const tSettle = setTimeout(() => {
+      setAnimationPhase('settled');
+      onAnimationComplete?.();
+    }, 1550);
+
+    return () => {
+      clearTimeout(tImpact);
+      clearTimeout(tPulse);
+      clearTimeout(tSettling);
+      clearTimeout(tSettle);
+    };
+  }, [shouldReduceMotion, onAnimationComplete]);
+
   useEffect(() => {
     if (shouldReduceMotion) {
       setAnimationPhase('settled');
@@ -31,49 +69,14 @@ export const LifeLineHeroLogoAnimation: React.FC<LifeLineHeroLogoAnimationProps>
       return;
     }
 
-    if (hasAnimatedRef.current) {
-      setAnimationPhase('settled');
-      return;
+    if (!hasAnimatedRef.current) {
+      hasAnimatedRef.current = true;
+      const timer = setTimeout(() => {
+        runAnimationSequence();
+      }, 150);
+      return () => clearTimeout(timer);
     }
-
-    hasAnimatedRef.current = true;
-
-    // Timeline matching exact 1.5s visual infographic specification:
-    // 0ms: Hero starts clean
-    // 100ms: Drop begins falling from (x: 20.7%, y: -100px)
-    const tStart = setTimeout(() => {
-      setAnimationPhase('falling');
-    }, 100);
-
-    // 750ms: Drop lands directly on logo blood drop & merges
-    const tImpact = setTimeout(() => {
-      setAnimationPhase('impact');
-    }, 750);
-
-    // 880ms: Blood drop glows + single ECG heartbeat pulse activates
-    const tPulse = setTimeout(() => {
-      setAnimationPhase('pulse');
-    }, 880);
-
-    // 1200ms: Glow softly settles
-    const tSettling = setTimeout(() => {
-      setAnimationPhase('settling');
-    }, 1200);
-
-    // 1500ms: Back to 100% normal pristine static state
-    const tSettle = setTimeout(() => {
-      setAnimationPhase('settled');
-      onAnimationComplete?.();
-    }, 1500);
-
-    return () => {
-      clearTimeout(tStart);
-      clearTimeout(tImpact);
-      clearTimeout(tPulse);
-      clearTimeout(tSettling);
-      clearTimeout(tSettle);
-    };
-  }, [shouldReduceMotion, onAnimationComplete]);
+  }, [shouldReduceMotion, runAnimationSequence, onAnimationComplete]);
 
   // Exact target coordinates specified in infographic:
   // Drop center: x = 20.7%, y = 49.5%
@@ -82,7 +85,13 @@ export const LifeLineHeroLogoAnimation: React.FC<LifeLineHeroLogoAnimationProps>
 
   return (
     <div
-      className="relative select-none"
+      className="relative select-none cursor-pointer group"
+      onClick={() => {
+        if (animationPhase === 'settled') {
+          runAnimationSequence();
+        }
+      }}
+      title="Click to replay opening animation"
       style={{
         width: `${logoSize}px`,
         maxWidth: '100%'
@@ -92,7 +101,7 @@ export const LifeLineHeroLogoAnimation: React.FC<LifeLineHeroLogoAnimationProps>
       <motion.div
         animate={
           animationPhase === 'pulse' && !shouldReduceMotion
-            ? { scale: [1, 1.028, 1], transition: { duration: 0.35, ease: 'easeOut' } }
+            ? { scale: [1, 1.025, 1], transition: { duration: 0.35, ease: 'easeOut' } }
             : { scale: 1 }
         }
         className="relative w-full overflow-visible"
@@ -117,25 +126,25 @@ export const LifeLineHeroLogoAnimation: React.FC<LifeLineHeroLogoAnimationProps>
               <motion.div
                 initial={{
                   x: '-50%',
-                  y: '-100px',
+                  y: '-120px',
                   scaleX: 0.85,
-                  scaleY: 1.22,
+                  scaleY: 1.25,
                   opacity: 0
                 }}
                 animate={
                   animationPhase === 'falling'
                     ? {
-                        y: ['-100px', '-45px', '0px'],
+                        y: ['-120px', '-50px', '0px'],
                         opacity: [0, 1, 1],
-                        scaleX: [0.85, 0.9, 1],
-                        scaleY: [1.22, 1.1, 1],
+                        scaleX: [0.85, 0.92, 1],
+                        scaleY: [1.25, 1.12, 1],
                         transition: {
                           duration: 0.65,
-                          ease: [0.45, 0.05, 0.25, 1]
+                          ease: [0.4, 0.0, 0.2, 1]
                         }
                       }
                     : {
-                        scale: [1, 1.25, 0],
+                        scale: [1, 1.3, 0],
                         opacity: [1, 0.8, 0],
                         transition: { duration: 0.2, ease: 'easeOut' }
                       }
@@ -145,17 +154,22 @@ export const LifeLineHeroLogoAnimation: React.FC<LifeLineHeroLogoAnimationProps>
                   left: `${targetLeftPercent}%`,
                   top: `${targetTopPercent}%`
                 }}
-                className="z-30 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none"
+                className="z-30 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center pointer-events-none"
               >
+                {/* Luminous Light Particle Trail */}
+                {animationPhase === 'falling' && (
+                  <div className="w-0.5 h-14 bg-gradient-to-t from-[#E63946] via-[#E63946]/50 to-transparent -mb-1 filter drop-shadow-[0_0_6px_rgba(230,57,70,0.8)]" />
+                )}
+
                 {/* Luminous Brand Red Teardrop SVG (#E63946) */}
                 <svg
                   viewBox="0 0 24 32"
-                  className="w-5 h-7 sm:w-6 sm:h-8 filter drop-shadow-[0_4px_14px_rgba(230,57,70,0.85)]"
+                  className="w-5 h-7 sm:w-6 sm:h-8 filter drop-shadow-[0_4px_16px_rgba(230,57,70,0.95)]"
                   fill="none"
                 >
                   <defs>
                     <linearGradient id="lifelineDropGrad" x1="12" y1="0" x2="12" y2="32" gradientUnits="userSpaceOnUse">
-                      <stop offset="0%" stopColor="#FF6B7A" />
+                      <stop offset="0%" stopColor="#FF7D8A" />
                       <stop offset="35%" stopColor="#E63946" />
                       <stop offset="100%" stopColor="#9B111E" />
                     </linearGradient>
@@ -173,33 +187,48 @@ export const LifeLineHeroLogoAnimation: React.FC<LifeLineHeroLogoAnimationProps>
               </motion.div>
             )}
 
-            {/* B. Blood Drop Glow (Soft radial brand red glow on impact) */}
-            {(animationPhase === 'impact' || animationPhase === 'pulse' || animationPhase === 'settling') && (
+            {/* B. Impact Ripple Wave Ring */}
+            {animationPhase === 'impact' && (
               <motion.div
-                initial={{ scale: 0.5, opacity: 0 }}
-                animate={
-                  animationPhase === 'settling'
-                    ? { opacity: 0, scale: 1.6, transition: { duration: 0.3 } }
-                    : {
-                        scale: [0.5, 1.3, 1.6],
-                        opacity: [0, 0.95, 0.4]
-                      }
-                }
-                transition={{ duration: 0.45, ease: 'easeOut' }}
+                initial={{ scale: 0.3, opacity: 0.9 }}
+                animate={{ scale: 2.2, opacity: 0 }}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
                 style={{
                   position: 'absolute',
                   left: `${targetLeftPercent}%`,
                   top: `${targetTopPercent}%`
                 }}
-                className="z-20 -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full bg-radial from-[#E63946]/70 via-[#E63946]/30 to-transparent blur-xs pointer-events-none"
+                className="z-25 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full border-2 border-[#E63946] filter drop-shadow-[0_0_8px_rgba(230,57,70,0.8)] pointer-events-none"
               />
             )}
 
-            {/* C. ECG Heartbeat Pulse Line Activation (Emits a single pulse from center under text) */}
+            {/* C. Blood Drop Glow (Soft radial brand red glow on impact) */}
+            {(animationPhase === 'impact' || animationPhase === 'pulse' || animationPhase === 'settling') && (
+              <motion.div
+                initial={{ scale: 0.4, opacity: 0 }}
+                animate={
+                  animationPhase === 'settling'
+                    ? { opacity: 0, scale: 1.8, transition: { duration: 0.3 } }
+                    : {
+                        scale: [0.4, 1.35, 1.6],
+                        opacity: [0, 0.95, 0.35]
+                      }
+                }
+                transition={{ duration: 0.5, ease: 'easeOut' }}
+                style={{
+                  position: 'absolute',
+                  left: `${targetLeftPercent}%`,
+                  top: `${targetTopPercent}%`
+                }}
+                className="z-20 -translate-x-1/2 -translate-y-1/2 w-24 h-24 rounded-full bg-radial from-[#E63946]/80 via-[#E63946]/35 to-transparent blur-xs pointer-events-none"
+              />
+            )}
+
+            {/* D. ECG Heartbeat Pulse Line Activation (Traces from center through the wave) */}
             {(animationPhase === 'impact' || animationPhase === 'pulse' || animationPhase === 'settling') && (
               <svg
                 viewBox="0 0 340 50"
-                className="absolute left-[19%] top-[52%] w-[72%] h-auto z-20 pointer-events-none overflow-visible filter drop-shadow-[0_0_10px_rgba(230,57,70,0.9)]"
+                className="absolute left-[19%] top-[52%] w-[72%] h-auto z-20 pointer-events-none overflow-visible filter drop-shadow-[0_0_12px_rgba(230,57,70,0.95)]"
                 fill="none"
               >
                 <motion.path
@@ -211,18 +240,18 @@ export const LifeLineHeroLogoAnimation: React.FC<LifeLineHeroLogoAnimationProps>
                   initial={{ pathLength: 0, opacity: 0 }}
                   animate={
                     animationPhase === 'settling'
-                      ? { opacity: 0, transition: { duration: 0.3 } }
+                      ? { opacity: 0, transition: { duration: 0.35 } }
                       : {
                           pathLength: [0, 1, 1],
-                          opacity: [0, 1, 0.85],
-                          transition: { duration: 0.55, ease: 'easeInOut' }
+                          opacity: [0, 1, 0.9],
+                          transition: { duration: 0.6, ease: 'easeInOut' }
                         }
                   }
                 />
               </svg>
             )}
 
-            {/* D. Ambient Soft Green & Emerald Life Halo */}
+            {/* E. Ambient Soft Green & Emerald Life Halo */}
             {(animationPhase === 'pulse' || animationPhase === 'settling') && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}

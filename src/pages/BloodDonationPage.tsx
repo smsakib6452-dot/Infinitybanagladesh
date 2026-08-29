@@ -719,8 +719,8 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
       lastDonationDate: regLastDonationDate || undefined,
       totalDonations: Number(regTotalDonations) || 0,
       experienceNotes: regExperienceNotes.trim() || undefined,
-      isVerified: true,
-      approvalStatus: 'APPROVED', // Live immediately across Directory and Stats
+      isVerified: false,
+      approvalStatus: 'PENDING', // Sent to Admin Pending Queue for review & approval
       privacyConsent: regConsent,
       showPhonePublicly: regShowPhone,
       donationHistory: []
@@ -733,12 +733,6 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
     );
     const waUrl = `https://wa.me/${cleanHelpline}?text=${whatsappMsg}`;
     setRegWhatsAppUrl(waUrl);
-
-    try {
-      window.open(waUrl, '_blank');
-    } catch (e) {
-      // Pop-up blocker fallback handled in UI button
-    }
 
     setRegRefId(newDonor.id);
     setRegSubmitted(true);
@@ -1389,6 +1383,21 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                   Reference ID: <span className="text-[#006A4E]">{regRefId}</span>
                 </div>
 
+                {/* Helpful Admin Notification Info Tip */}
+                <div className="p-4 rounded-2xl bg-emerald-50/80 border border-emerald-200/90 text-left max-w-lg mx-auto flex items-start gap-3 shadow-2xs">
+                  <Sparkles className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
+                  <div className="space-y-1 text-xs">
+                    <p className="font-extrabold text-emerald-950">
+                      {isBn ? '💡 দ্রুত প্রোফাইল লাইভ করার জন্য:' : '💡 For Faster Live Verification:'}
+                    </p>
+                    <p className="text-slate-600 leading-relaxed">
+                      {isBn
+                        ? 'আপনার রেজিস্ট্রেশনটি অ্যাডমিন অনুমোদনের অপেক্ষায় জমা হয়েছে। ওয়েবসাইটে প্রোফাইল দ্রুত লাইভ করার জন্য আপনি চাইলে নিচের বাটনে ক্লিক করে সরাসরি অ্যাডমিনকে হোয়াটসঅ্যাপে জানিয়ে দিতে পারেন।'
+                        : 'Your registration is in the admin review queue. To have your profile verified and made live on the website faster, you can optionally notify the admin via WhatsApp below.'}
+                    </p>
+                  </div>
+                </div>
+
                 <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
                   {regWhatsAppUrl && (
                     <a
@@ -1398,7 +1407,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                       className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-warm-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <MessageCircle className="w-4 h-4" />
-                      <span>{isBn ? 'হোয়াটসঅ্যাপে অ্যাডমিনকে নিশ্চিত করুন' : 'Notify Admin on WhatsApp'}</span>
+                      <span>{isBn ? 'হোয়াটসঅ্যাপে অ্যাডমিনকে জানান' : 'Notify Admin on WhatsApp'}</span>
                     </a>
                   )}
 

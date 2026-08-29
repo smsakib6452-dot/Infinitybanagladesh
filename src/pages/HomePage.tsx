@@ -214,7 +214,7 @@ export const HomePage: React.FC = () => {
                           </div>
                           <div>
                             <p className="text-xs font-extrabold text-slate-900 font-display">
-                              {isBn ? `প্রতিষ্ঠিত ${hero.badgeYear || '২০১৫'}` : `Established ${hero.badgeYear || '2015'}`}
+                              {tText(hero.badgeTitle) || (isBn ? `প্রতিষ্ঠিত ${hero.badgeYear || '২০১৫'}` : `Established ${hero.badgeYear || '2015'}`)}
                             </p>
                             <p className="text-[11px] text-slate-600 flex items-center gap-1 font-medium">
                               <MapPin className="w-3 h-3 text-[#006A4E]" />
@@ -288,16 +288,16 @@ export const HomePage: React.FC = () => {
                   <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-[#FAF7F2] border border-[#EAE3D9]/80">
                     <Target className="w-4 h-4 text-[#006A4E] shrink-0 mt-0.5" />
                     <div>
-                      <h4 className="text-xs font-bold text-slate-900">{isBn ? 'আমাদের লক্ষ্য' : 'Our Mission'}</h4>
-                      <p className="text-[11px] text-slate-600 mt-0.5 leading-snug line-clamp-2">{tText(aboutSettings.mission)}</p>
+                      <h4 className="text-xs font-bold text-slate-900">{tText(aboutPreview.missionHeading) || (isBn ? 'আমাদের লক্ষ্য' : 'Our Mission')}</h4>
+                      <p className="text-[11px] text-slate-600 mt-0.5 leading-snug line-clamp-2">{tText(aboutPreview.missionText) || tText(aboutSettings.mission)}</p>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-[#FAF7F2] border border-[#EAE3D9]/80">
                     <Eye className="w-4 h-4 text-[#006A4E] shrink-0 mt-0.5" />
                     <div>
-                      <h4 className="text-xs font-bold text-slate-900">{isBn ? 'আমাদের দর্শন' : 'Our Vision'}</h4>
-                      <p className="text-[11px] text-slate-600 mt-0.5 leading-snug line-clamp-2">{tText(aboutSettings.vision)}</p>
+                      <h4 className="text-xs font-bold text-slate-900">{tText(aboutPreview.visionHeading) || (isBn ? 'আমাদের দর্শন' : 'Our Vision')}</h4>
+                      <p className="text-[11px] text-slate-600 mt-0.5 leading-snug line-clamp-2">{tText(aboutPreview.visionText) || tText(aboutSettings.vision)}</p>
                     </div>
                   </div>
                 </div>
@@ -325,16 +325,17 @@ export const HomePage: React.FC = () => {
                 <div className="rounded-3xl overflow-hidden shadow-warm-lg border-2 border-white aspect-4/3 bg-slate-900 relative">
                   <img
                     src={getAssetUrl(aboutSettings.heroImageUrl || aboutPreview.imageUrl || 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=1000&q=80')}
-                    alt="Team Infinity Bangladesh"
+                    alt={aboutPreview.imageAlt || "Team Infinity Bangladesh"}
+                    style={{ objectPosition: aboutPreview.imageCrop || 'center center' }}
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent flex items-end p-6">
                     <div className="text-white space-y-1">
                       <p className="text-xs font-bold text-amber-300 uppercase tracking-wider">
-                        {isBn ? 'টিম ইনফিনিটি — মানবতার জন্য একতাবদ্ধ' : 'Team Infinity — United for Humanity'}
+                        {tText(aboutPreview.imageBadgeTitle) || (isBn ? 'টিম ইনফিনিটি — মানবতার জন্য একতাবদ্ধ' : 'Team Infinity — United for Humanity')}
                       </p>
                       <p className="text-sm font-medium text-slate-200">
-                        {isBn ? '২০১৫ সাল থেকে সুবিধাবঞ্চিত মানুষের পাশে' : 'Serving underserved communities since 2015'}
+                        {tText(aboutPreview.imageBadgeSubtitle) || (isBn ? '২০১৫ সাল থেকে সুবিধাবঞ্চিত মানুষের পাশে' : 'Serving underserved communities since 2015')}
                       </p>
                     </div>
                   </div>
@@ -417,20 +418,20 @@ export const HomePage: React.FC = () => {
 
                       <div className="pt-2 flex flex-wrap items-center gap-3">
                         <Link
-                          to="campaigns/detail"
+                          to={campCfg?.featuredDetailsUrl || "campaigns/detail"}
                           slug={featuredCampaign.slug}
                           className="px-6 py-3 rounded-2xl bg-[#006A4E] hover:bg-[#00523C] text-white text-xs sm:text-sm font-bold shadow-warm-sm transition-all flex items-center gap-2 cursor-pointer"
                         >
-                          <span>{isBn ? 'ক্যাম্পেইন বিবরণ দেখুন' : 'View Campaign Details'}</span>
+                          <span>{tText(campCfg?.featuredDetailsText) || (isBn ? 'ক্যাম্পেইন বিবরণ দেখুন' : 'View Campaign Details')}</span>
                           <ArrowRight className="w-4 h-4" />
                         </Link>
 
                         <Link
-                          to="donate"
+                          to={campCfg?.featuredSupportUrl || "donate"}
                           className="px-6 py-3 rounded-2xl bg-[#FAF7F2] hover:bg-[#F2ECE1] text-slate-800 text-xs sm:text-sm font-bold border border-[#EAE3D9] transition-all flex items-center gap-2 cursor-pointer"
                         >
                           <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />
-                          <span>{isBn ? 'সহায়তা করুন' : 'Support Campaign'}</span>
+                          <span>{tText(campCfg?.featuredSupportText) || (isBn ? 'সহায়তা করুন' : 'Support Campaign')}</span>
                         </Link>
                       </div>
                     </div>
@@ -561,19 +562,19 @@ export const HomePage: React.FC = () => {
                     {/* Story Chips: ONE DROP → ONE LIFE → ONE RIPPLE → INFINITE HOPE */}
                     <div className="flex flex-wrap items-center justify-center lg:justify-start gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-bold text-rose-100/90 pt-1">
                       <span className="px-2.5 py-1 rounded-lg bg-[#0B2A21]/90 border border-emerald-700/40 text-emerald-200 backdrop-blur-xs">
-                        {isBn ? '১ ফোঁটা রক্ত' : 'ONE DROP'}
+                        {tText(lifeCfg?.chip1) || (isBn ? '১ ফোঁটা রক্ত' : 'ONE DROP')}
                       </span>
                       <span className="text-emerald-500/70">&rarr;</span>
                       <span className="px-2.5 py-1 rounded-lg bg-[#0B2A21]/90 border border-emerald-700/40 text-emerald-200 backdrop-blur-xs">
-                        {isBn ? '১টি জীবন' : 'ONE LIFE'}
+                        {tText(lifeCfg?.chip2) || (isBn ? '১টি জীবন' : 'ONE LIFE')}
                       </span>
                       <span className="text-emerald-500/70">&rarr;</span>
                       <span className="px-2.5 py-1 rounded-lg bg-[#0B2A21]/90 border border-emerald-700/40 text-emerald-200 backdrop-blur-xs">
-                        {isBn ? '১ শুভপ্রভাব' : 'ONE RIPPLE'}
+                        {tText(lifeCfg?.chip3) || (isBn ? '১ শুভপ্রভাব' : 'ONE RIPPLE')}
                       </span>
                       <span className="text-rose-500/80">&rarr;</span>
                       <span className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-rose-950 to-rose-900 border border-rose-600/60 text-white font-extrabold shadow-xs">
-                        {isBn ? 'অনন্ত আশা' : 'INFINITE HOPE'}
+                        {tText(lifeCfg?.chip4) || (isBn ? 'অনন্ত আশা' : 'INFINITE HOPE')}
                       </span>
                     </div>
 
@@ -617,11 +618,11 @@ export const HomePage: React.FC = () => {
                         <div className="flex items-center gap-2">
                           <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
                           <span className="text-xs font-bold text-emerald-200 uppercase tracking-wider">
-                            {isBn ? 'লাইভ রক্তদান সমন্বয় নেটওয়ার্ক' : 'Live Coordination Network'}
+                            {tText(lifeCfg?.coordinationTitle) || (isBn ? 'লাইভ রক্তদান সমন্বয় নেটওয়ার্ক' : 'Live Coordination Network')}
                           </span>
                         </div>
                         <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-emerald-950/80 text-emerald-300 border border-emerald-800/40">
-                          {isBn ? 'সক্রিয়' : 'LIVE'}
+                          {tText(lifeCfg?.coordinationBadge) || (isBn ? 'সক্রিয়' : 'LIVE')}
                         </span>
                       </div>
 
@@ -703,10 +704,10 @@ export const HomePage: React.FC = () => {
                       {/* Gateway Footnote link to full Blood Donation experience */}
                       <div className="pt-1 text-center">
                         <Link
-                          to="blood-donation"
+                          to={lifeCfg?.portalUrl || "blood-donation"}
                           className="text-xs text-emerald-300/80 hover:text-emerald-200 font-semibold inline-flex items-center gap-1 transition-colors"
                         >
-                          <span>{isBn ? 'সম্পূর্ণ রক্তদান কার্যক্রম ও নির্দেশিকা দেখুন' : 'Explore Full LifeLine Portal & Guidelines'}</span>
+                          <span>{tText(lifeCfg?.portalLinkText) || (isBn ? 'সম্পূর্ণ রক্তদান কার্যক্রম ও নির্দেশিকা দেখুন' : 'Explore Full LifeLine Portal & Guidelines')}</span>
                           <ArrowRight className="w-3.5 h-3.5" />
                         </Link>
                       </div>
@@ -884,7 +885,7 @@ export const HomePage: React.FC = () => {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 text-xs font-bold text-[#006A4E] hover:text-[#00523C] pt-2 border-t border-slate-100"
                   >
-                    <span>{isBn ? 'প্রতিবেদন পড়ুন' : 'Read Article'}</span>
+                    <span>{tText(pressCfg?.readArticleText) || (isBn ? 'প্রতিবেদন পড়ুন' : 'Read Article')}</span>
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                 </StaggerItem>
@@ -897,7 +898,7 @@ export const HomePage: React.FC = () => {
       case 'transparency':
         return (
           <ScrollReveal effect="fade-up" key="transparency" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <VerifiedOrganizationPledge />
+            <VerifiedOrganizationPledge config={homepageConfig.transparencySection} />
           </ScrollReveal>
         );
 

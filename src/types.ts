@@ -106,6 +106,7 @@ export interface HeroConfig {
   badgeYear: string;
   badgeLocation: string;
   badgeTag: string;
+  badgeTitle?: BilingualText;
   trustIndicators: HeroTrustIndicator[];
 }
 
@@ -114,13 +115,21 @@ export interface AboutPreviewConfig {
   titleMain: BilingualText;
   titleHighlight: BilingualText;
   description: BilingualText;
-  quoteText: BilingualText;
-  quoteAuthor: string;
+  quoteText?: BilingualText;
+  quoteAuthor?: string;
+  missionHeading?: BilingualText;
+  missionText?: BilingualText;
+  visionHeading?: BilingualText;
+  visionText?: BilingualText;
   ctaText: BilingualText;
   ctaUrl: string;
   secondaryCtaText?: BilingualText;
   secondaryCtaUrl?: string;
   imageUrl: string;
+  imageAlt?: string;
+  imageCrop?: string;
+  imageBadgeTitle?: BilingualText;
+  imageBadgeSubtitle?: BilingualText;
 }
 
 export interface HomepageVolunteerBanner {
@@ -159,15 +168,24 @@ export interface SectionHeaderConfig {
   subtitle?: BilingualText;
   viewAllText?: BilingualText;
   viewAllUrl?: string;
+  readArticleText?: BilingualText;
   [key: string]: any;
 }
 
 export interface CampaignsSectionConfig extends SectionHeaderConfig {
   featuredBadgeText?: BilingualText;
+  featuredDetailsText?: BilingualText;
+  featuredDetailsUrl?: string;
+  featuredSupportText?: BilingualText;
+  featuredSupportUrl?: string;
 }
 
 export interface LifeLineSectionConfig extends SectionHeaderConfig {
   narrativeChips?: BilingualText[];
+  chip1?: BilingualText;
+  chip2?: BilingualText;
+  chip3?: BilingualText;
+  chip4?: BilingualText;
   description?: BilingualText;
   findDonorBtnText?: BilingualText;
   findDonorBtnUrl?: string;
@@ -175,6 +193,16 @@ export interface LifeLineSectionConfig extends SectionHeaderConfig {
   becomeDonorBtnUrl?: string;
   emergencyReqBtnText?: BilingualText;
   emergencyReqBtnUrl?: string;
+  coordinationTitle?: BilingualText;
+  coordinationBadge?: BilingualText;
+  portalLinkText?: BilingualText;
+  portalUrl?: string;
+}
+
+export interface TransparencySectionConfig extends SectionHeaderConfig {
+  pill1?: BilingualText;
+  pill2?: BilingualText;
+  pill3?: BilingualText;
 }
 
 export interface HomepageConfig {
@@ -189,7 +217,7 @@ export interface HomepageConfig {
   lifelineSection?: LifeLineSectionConfig;
   gallerySection?: SectionHeaderConfig;
   pressSection?: SectionHeaderConfig;
-  transparencySection?: SectionHeaderConfig;
+  transparencySection?: TransparencySectionConfig;
   sectionHeaders?: Record<string, SectionHeaderConfig>;
   sectionOrder: string[]; // e.g. ['hero', 'impact', 'about', 'programs', 'campaigns', 'stories', 'lifeline', 'gallery', 'press', 'volunteer', 'transparency', 'support']
   sectionVisibility: {

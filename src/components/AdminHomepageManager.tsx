@@ -415,6 +415,39 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
                 />
               </div>
 
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-slate-700">Badge Title (EN)</label>
+                  <input
+                    type="text"
+                    value={homepageConfig.hero.badgeTitle?.en || ''}
+                    onChange={(e) => updateHomepageConfig({
+                      hero: {
+                        ...homepageConfig.hero,
+                        badgeTitle: { ...(homepageConfig.hero.badgeTitle || { en: '', bn: '' }), en: e.target.value }
+                      }
+                    })}
+                    placeholder="Established 2015"
+                    className="w-full px-3 py-1.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-slate-700">ব্যাজ শিরোনাম (বাংলা)</label>
+                  <input
+                    type="text"
+                    value={homepageConfig.hero.badgeTitle?.bn || ''}
+                    onChange={(e) => updateHomepageConfig({
+                      hero: {
+                        ...homepageConfig.hero,
+                        badgeTitle: { ...(homepageConfig.hero.badgeTitle || { en: '', bn: '' }), bn: e.target.value }
+                      }
+                    })}
+                    placeholder="প্রতিষ্ঠিত ২০১৫"
+                    className="w-full px-3 py-1.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
+                  />
+                </div>
+              </div>
+
               <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-1">
                   <label className="text-[11px] font-bold text-slate-700">Established Year</label>
@@ -1212,6 +1245,273 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
               </div>
             </div>
           </div>
+          {/* Mission & Vision Homepage Overrides */}
+          <div className="sm:col-span-2 space-y-4 pt-3 border-t border-slate-100">
+            <h5 className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider">
+              Mission & Vision Highlights (লক্ষ্য ও দর্শন হাইলাইটস)
+            </h5>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Mission Card */}
+              <div className="p-3.5 bg-[#FAF7F2] rounded-2xl border border-[#EAE3D9] space-y-2.5">
+                <span className="text-xs font-bold text-[#006A4E] block">1. Mission Highlight (আমাদের লক্ষ্য)</span>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] text-slate-500 font-medium">Heading (EN)</label>
+                    <input
+                      type="text"
+                      value={homepageConfig.aboutPreview?.missionHeading?.en || ''}
+                      onChange={(e) => updateHomepageConfig({
+                        aboutPreview: {
+                          ...homepageConfig.aboutPreview,
+                          missionHeading: { ...(homepageConfig.aboutPreview?.missionHeading || { en: '', bn: '' }), en: e.target.value }
+                        }
+                      })}
+                      placeholder="Our Mission"
+                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-slate-500 font-medium">শিরোনাম (বাংলা)</label>
+                    <input
+                      type="text"
+                      value={homepageConfig.aboutPreview?.missionHeading?.bn || ''}
+                      onChange={(e) => updateHomepageConfig({
+                        aboutPreview: {
+                          ...homepageConfig.aboutPreview,
+                          missionHeading: { ...(homepageConfig.aboutPreview?.missionHeading || { en: '', bn: '' }), bn: e.target.value }
+                        }
+                      })}
+                      placeholder="আমাদের লক্ষ্য"
+                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[10px] text-slate-500 font-medium">Short Text (EN)</label>
+                  <textarea
+                    rows={2}
+                    value={homepageConfig.aboutPreview?.missionText?.en || ''}
+                    onChange={(e) => updateHomepageConfig({
+                      aboutPreview: {
+                        ...homepageConfig.aboutPreview,
+                        missionText: { ...(homepageConfig.aboutPreview?.missionText || { en: '', bn: '' }), en: e.target.value }
+                      }
+                    })}
+                    placeholder="Empower communities through transparent action..."
+                    className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] text-slate-500 font-medium">সংক্ষিপ্ত বিবরণ (বাংলা)</label>
+                  <textarea
+                    rows={2}
+                    value={homepageConfig.aboutPreview?.missionText?.bn || ''}
+                    onChange={(e) => updateHomepageConfig({
+                      aboutPreview: {
+                        ...homepageConfig.aboutPreview,
+                        missionText: { ...(homepageConfig.aboutPreview?.missionText || { en: '', bn: '' }), bn: e.target.value }
+                      }
+                    })}
+                    placeholder="স্বচ্ছতা ও তারুণ্যের শক্তিতে মানুষের পাশে দাঁড়ানো..."
+                    className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali"
+                  />
+                </div>
+              </div>
+
+              {/* Vision Card */}
+              <div className="p-3.5 bg-[#FAF7F2] rounded-2xl border border-[#EAE3D9] space-y-2.5">
+                <span className="text-xs font-bold text-[#006A4E] block">2. Vision Highlight (আমাদের দর্শন)</span>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] text-slate-500 font-medium">Heading (EN)</label>
+                    <input
+                      type="text"
+                      value={homepageConfig.aboutPreview?.visionHeading?.en || ''}
+                      onChange={(e) => updateHomepageConfig({
+                        aboutPreview: {
+                          ...homepageConfig.aboutPreview,
+                          visionHeading: { ...(homepageConfig.aboutPreview?.visionHeading || { en: '', bn: '' }), en: e.target.value }
+                        }
+                      })}
+                      placeholder="Our Vision"
+                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-slate-500 font-medium">শিরোনাম (বাংলা)</label>
+                    <input
+                      type="text"
+                      value={homepageConfig.aboutPreview?.visionHeading?.bn || ''}
+                      onChange={(e) => updateHomepageConfig({
+                        aboutPreview: {
+                          ...homepageConfig.aboutPreview,
+                          visionHeading: { ...(homepageConfig.aboutPreview?.visionHeading || { en: '', bn: '' }), bn: e.target.value }
+                        }
+                      })}
+                      placeholder="আমাদের দর্শন"
+                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[10px] text-slate-500 font-medium">Short Text (EN)</label>
+                  <textarea
+                    rows={2}
+                    value={homepageConfig.aboutPreview?.visionText?.en || ''}
+                    onChange={(e) => updateHomepageConfig({
+                      aboutPreview: {
+                        ...homepageConfig.aboutPreview,
+                        visionText: { ...(homepageConfig.aboutPreview?.visionText || { en: '', bn: '' }), en: e.target.value }
+                      }
+                    })}
+                    placeholder="Build a resilient and compassionate society..."
+                    className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] text-slate-500 font-medium">সংক্ষিপ্ত বিবরণ (বাংলা)</label>
+                  <textarea
+                    rows={2}
+                    value={homepageConfig.aboutPreview?.visionText?.bn || ''}
+                    onChange={(e) => updateHomepageConfig({
+                      aboutPreview: {
+                        ...homepageConfig.aboutPreview,
+                        visionText: { ...(homepageConfig.aboutPreview?.visionText || { en: '', bn: '' }), bn: e.target.value }
+                      }
+                    })}
+                    placeholder="একটি বৈষম্যহীন ও স্বাবলম্বী সমাজ বিনির্মাণ..."
+                    className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* About Preview Image & Floating Badge Controls */}
+          <div className="sm:col-span-2 space-y-4 pt-3 border-t border-slate-100">
+            <h5 className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider">
+              About Image & Overlay Badge (ছবি ও ওভারলে ব্যাজ)
+            </h5>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-slate-700">Image URL</label>
+                  <input
+                    type="text"
+                    value={homepageConfig.aboutPreview?.imageUrl || ''}
+                    onChange={(e) => updateHomepageConfig({
+                      aboutPreview: {
+                        ...homepageConfig.aboutPreview,
+                        imageUrl: e.target.value
+                      }
+                    })}
+                    placeholder="https://images.unsplash.com/..."
+                    className="w-full px-3 py-1.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-mono"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-bold text-slate-700">Image Alt Text</label>
+                    <input
+                      type="text"
+                      value={homepageConfig.aboutPreview?.imageAlt || ''}
+                      onChange={(e) => updateHomepageConfig({
+                        aboutPreview: {
+                          ...homepageConfig.aboutPreview,
+                          imageAlt: e.target.value
+                        }
+                      })}
+                      placeholder="Team Infinity Bangladesh"
+                      className="w-full px-3 py-1.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-bold text-slate-700">Crop (CSS object-position)</label>
+                    <input
+                      type="text"
+                      value={homepageConfig.aboutPreview?.imageCrop || 'center center'}
+                      onChange={(e) => updateHomepageConfig({
+                        aboutPreview: {
+                          ...homepageConfig.aboutPreview,
+                          imageCrop: e.target.value
+                        }
+                      })}
+                      placeholder="center center"
+                      className="w-full px-3 py-1.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-mono"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3 p-3.5 bg-[#FAF7F2] rounded-2xl border border-[#EAE3D9]">
+                <span className="text-xs font-bold text-slate-900 block">Image Bottom Overlay Card</span>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] text-slate-500 font-medium">Badge Title (EN)</label>
+                    <input
+                      type="text"
+                      value={homepageConfig.aboutPreview?.imageBadgeTitle?.en || ''}
+                      onChange={(e) => updateHomepageConfig({
+                        aboutPreview: {
+                          ...homepageConfig.aboutPreview,
+                          imageBadgeTitle: { ...(homepageConfig.aboutPreview?.imageBadgeTitle || { en: '', bn: '' }), en: e.target.value }
+                        }
+                      })}
+                      placeholder="Team Infinity — United for Humanity"
+                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-slate-500 font-medium">ব্যাজ শিরোনাম (বাংলা)</label>
+                    <input
+                      type="text"
+                      value={homepageConfig.aboutPreview?.imageBadgeTitle?.bn || ''}
+                      onChange={(e) => updateHomepageConfig({
+                        aboutPreview: {
+                          ...homepageConfig.aboutPreview,
+                          imageBadgeTitle: { ...(homepageConfig.aboutPreview?.imageBadgeTitle || { en: '', bn: '' }), bn: e.target.value }
+                        }
+                      })}
+                      placeholder="টিম ইনফিনিটি — মানবতার জন্য একতাবদ্ধ"
+                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] text-slate-500 font-medium">Subtitle (EN)</label>
+                    <input
+                      type="text"
+                      value={homepageConfig.aboutPreview?.imageBadgeSubtitle?.en || ''}
+                      onChange={(e) => updateHomepageConfig({
+                        aboutPreview: {
+                          ...homepageConfig.aboutPreview,
+                          imageBadgeSubtitle: { ...(homepageConfig.aboutPreview?.imageBadgeSubtitle || { en: '', bn: '' }), en: e.target.value }
+                        }
+                      })}
+                      placeholder="Serving underserved communities since 2015"
+                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-slate-500 font-medium">সাবটাইটেল (বাংলা)</label>
+                    <input
+                      type="text"
+                      value={homepageConfig.aboutPreview?.imageBadgeSubtitle?.bn || ''}
+                      onChange={(e) => updateHomepageConfig({
+                        aboutPreview: {
+                          ...homepageConfig.aboutPreview,
+                          imageBadgeSubtitle: { ...(homepageConfig.aboutPreview?.imageBadgeSubtitle || { en: '', bn: '' }), bn: e.target.value }
+                        }
+                      })}
+                      placeholder="২০১৫ সাল থেকে সুবিধাবঞ্চিত মানুষের পাশে"
+                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Mission/Vision & About CMS Shortcut */}
@@ -1527,6 +1827,118 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
                 placeholder="বিশেষ ফিচার্ড ক্যাম্পেইন"
                 className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
               />
+            </div>
+          </div>
+
+          {/* Featured Campaign Action CTA Buttons */}
+          <div className="sm:col-span-2 space-y-3 pt-2 border-t border-slate-100">
+            <h5 className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider">
+              Featured Campaign Action Buttons (ফিচার্ড কার্ডের বোতামসমূহ)
+            </h5>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Primary Details CTA */}
+              <div className="p-3.5 bg-[#FAF7F2] rounded-2xl border border-[#EAE3D9] space-y-2">
+                <span className="text-xs font-bold text-[#006A4E] block">1. Details Button (বিবরণ দেখুন)</span>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] text-slate-500 font-medium">Text (EN)</label>
+                    <input
+                      type="text"
+                      value={homepageConfig.campaignsSection?.featuredDetailsText?.en || ''}
+                      onChange={(e) => updateHomepageConfig({
+                        campaignsSection: {
+                          ...(homepageConfig.campaignsSection || {}),
+                          featuredDetailsText: { ...(homepageConfig.campaignsSection?.featuredDetailsText || { en: '', bn: '' }), en: e.target.value }
+                        }
+                      })}
+                      placeholder="View Campaign Details"
+                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-slate-500 font-medium">লেখা (বাংলা)</label>
+                    <input
+                      type="text"
+                      value={homepageConfig.campaignsSection?.featuredDetailsText?.bn || ''}
+                      onChange={(e) => updateHomepageConfig({
+                        campaignsSection: {
+                          ...(homepageConfig.campaignsSection || {}),
+                          featuredDetailsText: { ...(homepageConfig.campaignsSection?.featuredDetailsText || { en: '', bn: '' }), bn: e.target.value }
+                        }
+                      })}
+                      placeholder="ক্যাম্পেইন বিবরণ দেখুন"
+                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[10px] text-slate-500 font-medium">Target Route</label>
+                  <input
+                    type="text"
+                    value={homepageConfig.campaignsSection?.featuredDetailsUrl || 'campaigns/detail'}
+                    onChange={(e) => updateHomepageConfig({
+                      campaignsSection: {
+                        ...(homepageConfig.campaignsSection || {}),
+                        featuredDetailsUrl: e.target.value
+                      }
+                    })}
+                    placeholder="campaigns/detail"
+                    className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-mono"
+                  />
+                </div>
+              </div>
+
+              {/* Secondary Support CTA */}
+              <div className="p-3.5 bg-[#FAF7F2] rounded-2xl border border-[#EAE3D9] space-y-2">
+                <span className="text-xs font-bold text-rose-700 block">2. Support Button (সহায়তা করুন)</span>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] text-slate-500 font-medium">Text (EN)</label>
+                    <input
+                      type="text"
+                      value={homepageConfig.campaignsSection?.featuredSupportText?.en || ''}
+                      onChange={(e) => updateHomepageConfig({
+                        campaignsSection: {
+                          ...(homepageConfig.campaignsSection || {}),
+                          featuredSupportText: { ...(homepageConfig.campaignsSection?.featuredSupportText || { en: '', bn: '' }), en: e.target.value }
+                        }
+                      })}
+                      placeholder="Support Campaign"
+                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-slate-500 font-medium">লেখা (বাংলা)</label>
+                    <input
+                      type="text"
+                      value={homepageConfig.campaignsSection?.featuredSupportText?.bn || ''}
+                      onChange={(e) => updateHomepageConfig({
+                        campaignsSection: {
+                          ...(homepageConfig.campaignsSection || {}),
+                          featuredSupportText: { ...(homepageConfig.campaignsSection?.featuredSupportText || { en: '', bn: '' }), bn: e.target.value }
+                        }
+                      })}
+                      placeholder="সহায়তা করুন"
+                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[10px] text-slate-500 font-medium">Target Route</label>
+                  <input
+                    type="text"
+                    value={homepageConfig.campaignsSection?.featuredSupportUrl || 'donate'}
+                    onChange={(e) => updateHomepageConfig({
+                      campaignsSection: {
+                        ...(homepageConfig.campaignsSection || {}),
+                        featuredSupportUrl: e.target.value
+                      }
+                    })}
+                    placeholder="donate"
+                    className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-mono"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1908,6 +2320,259 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
               </div>
             </div>
           </div>
+
+          {/* 4 Narrative Chips */}
+          <div className="sm:col-span-2 space-y-3 pt-2 border-t border-slate-100">
+            <h5 className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider">
+              Narrative Progression Chips (৪টি ন্যারেটিভ চিপস)
+            </h5>
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+              {/* Chip 1 */}
+              <div className="p-3 bg-[#FAF7F2] rounded-xl border border-[#EAE3D9] space-y-1.5">
+                <span className="text-[11px] font-bold text-emerald-800 block">1. Chip 1 (১ ফোঁটা রক্ত)</span>
+                <input
+                  type="text"
+                  value={homepageConfig.lifelineSection?.chip1?.en || ''}
+                  onChange={(e) => updateHomepageConfig({
+                    lifelineSection: {
+                      ...(homepageConfig.lifelineSection || {}),
+                      chip1: { ...(homepageConfig.lifelineSection?.chip1 || { en: '', bn: '' }), en: e.target.value }
+                    }
+                  })}
+                  placeholder="ONE DROP"
+                  className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs"
+                />
+                <input
+                  type="text"
+                  value={homepageConfig.lifelineSection?.chip1?.bn || ''}
+                  onChange={(e) => updateHomepageConfig({
+                    lifelineSection: {
+                      ...(homepageConfig.lifelineSection || {}),
+                      chip1: { ...(homepageConfig.lifelineSection?.chip1 || { en: '', bn: '' }), bn: e.target.value }
+                    }
+                  })}
+                  placeholder="১ ফোঁটা রক্ত"
+                  className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bengali"
+                />
+              </div>
+
+              {/* Chip 2 */}
+              <div className="p-3 bg-[#FAF7F2] rounded-xl border border-[#EAE3D9] space-y-1.5">
+                <span className="text-[11px] font-bold text-emerald-800 block">2. Chip 2 (১টি জীবন)</span>
+                <input
+                  type="text"
+                  value={homepageConfig.lifelineSection?.chip2?.en || ''}
+                  onChange={(e) => updateHomepageConfig({
+                    lifelineSection: {
+                      ...(homepageConfig.lifelineSection || {}),
+                      chip2: { ...(homepageConfig.lifelineSection?.chip2 || { en: '', bn: '' }), en: e.target.value }
+                    }
+                  })}
+                  placeholder="ONE LIFE"
+                  className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs"
+                />
+                <input
+                  type="text"
+                  value={homepageConfig.lifelineSection?.chip2?.bn || ''}
+                  onChange={(e) => updateHomepageConfig({
+                    lifelineSection: {
+                      ...(homepageConfig.lifelineSection || {}),
+                      chip2: { ...(homepageConfig.lifelineSection?.chip2 || { en: '', bn: '' }), bn: e.target.value }
+                    }
+                  })}
+                  placeholder="১টি জীবন"
+                  className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bengali"
+                />
+              </div>
+
+              {/* Chip 3 */}
+              <div className="p-3 bg-[#FAF7F2] rounded-xl border border-[#EAE3D9] space-y-1.5">
+                <span className="text-[11px] font-bold text-emerald-800 block">3. Chip 3 (১ শুভপ্রভাব)</span>
+                <input
+                  type="text"
+                  value={homepageConfig.lifelineSection?.chip3?.en || ''}
+                  onChange={(e) => updateHomepageConfig({
+                    lifelineSection: {
+                      ...(homepageConfig.lifelineSection || {}),
+                      chip3: { ...(homepageConfig.lifelineSection?.chip3 || { en: '', bn: '' }), en: e.target.value }
+                    }
+                  })}
+                  placeholder="ONE RIPPLE"
+                  className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs"
+                />
+                <input
+                  type="text"
+                  value={homepageConfig.lifelineSection?.chip3?.bn || ''}
+                  onChange={(e) => updateHomepageConfig({
+                    lifelineSection: {
+                      ...(homepageConfig.lifelineSection || {}),
+                      chip3: { ...(homepageConfig.lifelineSection?.chip3 || { en: '', bn: '' }), bn: e.target.value }
+                    }
+                  })}
+                  placeholder="১ শুভপ্রভাব"
+                  className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bengali"
+                />
+              </div>
+
+              {/* Chip 4 */}
+              <div className="p-3 bg-[#FAF7F2] rounded-xl border border-[#EAE3D9] space-y-1.5">
+                <span className="text-[11px] font-bold text-rose-800 block">4. Chip 4 (অনন্ত আশা)</span>
+                <input
+                  type="text"
+                  value={homepageConfig.lifelineSection?.chip4?.en || ''}
+                  onChange={(e) => updateHomepageConfig({
+                    lifelineSection: {
+                      ...(homepageConfig.lifelineSection || {}),
+                      chip4: { ...(homepageConfig.lifelineSection?.chip4 || { en: '', bn: '' }), en: e.target.value }
+                    }
+                  })}
+                  placeholder="INFINITE HOPE"
+                  className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs"
+                />
+                <input
+                  type="text"
+                  value={homepageConfig.lifelineSection?.chip4?.bn || ''}
+                  onChange={(e) => updateHomepageConfig({
+                    lifelineSection: {
+                      ...(homepageConfig.lifelineSection || {}),
+                      chip4: { ...(homepageConfig.lifelineSection?.chip4 || { en: '', bn: '' }), bn: e.target.value }
+                    }
+                  })}
+                  placeholder="অনন্ত আশা"
+                  className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bengali"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Coordination Network Header & Portal Link */}
+          <div className="sm:col-span-2 space-y-3 pt-2 border-t border-slate-100">
+            <h5 className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider">
+              Coordination Panel & Gateway Link (সমন্বয় নেটওয়ার্ক ও পোর্টাল লিংক)
+            </h5>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Coordination Title & Badge */}
+              <div className="p-3.5 bg-[#FAF7F2] rounded-2xl border border-[#EAE3D9] space-y-2">
+                <span className="text-xs font-bold text-slate-900 block">Coordination Panel Header</span>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] text-slate-500 font-medium">Title (EN)</label>
+                    <input
+                      type="text"
+                      value={homepageConfig.lifelineSection?.coordinationTitle?.en || ''}
+                      onChange={(e) => updateHomepageConfig({
+                        lifelineSection: {
+                          ...(homepageConfig.lifelineSection || {}),
+                          coordinationTitle: { ...(homepageConfig.lifelineSection?.coordinationTitle || { en: '', bn: '' }), en: e.target.value }
+                        }
+                      })}
+                      placeholder="Live Coordination Network"
+                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-slate-500 font-medium">শিরোনাম (বাংলা)</label>
+                    <input
+                      type="text"
+                      value={homepageConfig.lifelineSection?.coordinationTitle?.bn || ''}
+                      onChange={(e) => updateHomepageConfig({
+                        lifelineSection: {
+                          ...(homepageConfig.lifelineSection || {}),
+                          coordinationTitle: { ...(homepageConfig.lifelineSection?.coordinationTitle || { en: '', bn: '' }), bn: e.target.value }
+                        }
+                      })}
+                      placeholder="লাইভ রক্তদান সমন্বয় নেটওয়ার্ক"
+                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] text-slate-500 font-medium">Status Badge (EN)</label>
+                    <input
+                      type="text"
+                      value={homepageConfig.lifelineSection?.coordinationBadge?.en || ''}
+                      onChange={(e) => updateHomepageConfig({
+                        lifelineSection: {
+                          ...(homepageConfig.lifelineSection || {}),
+                          coordinationBadge: { ...(homepageConfig.lifelineSection?.coordinationBadge || { en: '', bn: '' }), en: e.target.value }
+                        }
+                      })}
+                      placeholder="LIVE"
+                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-slate-500 font-medium">স্ট্যাটাস ব্যাজ (বাংলা)</label>
+                    <input
+                      type="text"
+                      value={homepageConfig.lifelineSection?.coordinationBadge?.bn || ''}
+                      onChange={(e) => updateHomepageConfig({
+                        lifelineSection: {
+                          ...(homepageConfig.lifelineSection || {}),
+                          coordinationBadge: { ...(homepageConfig.lifelineSection?.coordinationBadge || { en: '', bn: '' }), bn: e.target.value }
+                        }
+                      })}
+                      placeholder="সক্রিয়"
+                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Gateway Portal Link */}
+              <div className="p-3.5 bg-[#FAF7F2] rounded-2xl border border-[#EAE3D9] space-y-2">
+                <span className="text-xs font-bold text-slate-900 block">Gateway Footnote Portal Link</span>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] text-slate-500 font-medium">Link Text (EN)</label>
+                    <input
+                      type="text"
+                      value={homepageConfig.lifelineSection?.portalLinkText?.en || ''}
+                      onChange={(e) => updateHomepageConfig({
+                        lifelineSection: {
+                          ...(homepageConfig.lifelineSection || {}),
+                          portalLinkText: { ...(homepageConfig.lifelineSection?.portalLinkText || { en: '', bn: '' }), en: e.target.value }
+                        }
+                      })}
+                      placeholder="Explore Full LifeLine Portal & Guidelines"
+                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-slate-500 font-medium">লেখা (বাংলা)</label>
+                    <input
+                      type="text"
+                      value={homepageConfig.lifelineSection?.portalLinkText?.bn || ''}
+                      onChange={(e) => updateHomepageConfig({
+                        lifelineSection: {
+                          ...(homepageConfig.lifelineSection || {}),
+                          portalLinkText: { ...(homepageConfig.lifelineSection?.portalLinkText || { en: '', bn: '' }), bn: e.target.value }
+                        }
+                      })}
+                      placeholder="সম্পূর্ণ রক্তদান কার্যক্রম ও নির্দেশিকা দেখুন"
+                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[10px] text-slate-500 font-medium">Target Route</label>
+                  <input
+                    type="text"
+                    value={homepageConfig.lifelineSection?.portalUrl || 'blood-donation'}
+                    onChange={(e) => updateHomepageConfig({
+                      lifelineSection: {
+                        ...(homepageConfig.lifelineSection || {}),
+                        portalUrl: e.target.value
+                      }
+                    })}
+                    placeholder="blood-donation"
+                    className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-mono"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Blood Donation System & Live Coordination Network Shortcut */}
@@ -2188,6 +2853,37 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
                 }
               })}
               placeholder="সকল সংবাদ দেখুন"
+              className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-700">Article Link Text (EN)</label>
+            <input
+              type="text"
+              value={homepageConfig.pressSection?.readArticleText?.en || ''}
+              onChange={(e) => updateHomepageConfig({
+                pressSection: {
+                  ...(homepageConfig.pressSection || {}),
+                  readArticleText: { ...(homepageConfig.pressSection?.readArticleText || { en: '', bn: '' }), en: e.target.value }
+                }
+              })}
+              placeholder="Read Article"
+              className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-700">প্রতিবেদন লিংক লেখা (বাংলা)</label>
+            <input
+              type="text"
+              value={homepageConfig.pressSection?.readArticleText?.bn || ''}
+              onChange={(e) => updateHomepageConfig({
+                pressSection: {
+                  ...(homepageConfig.pressSection || {}),
+                  readArticleText: { ...(homepageConfig.pressSection?.readArticleText || { en: '', bn: '' }), bn: e.target.value }
+                }
+              })}
+              placeholder="প্রতিবেদন পড়ুন"
               className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
             />
           </div>
@@ -2472,6 +3168,200 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
           <span className="text-[11px] text-slate-500 bg-[#FAF7F2] px-3 py-1 rounded-xl border border-[#EAE3D9] font-mono">
             sectionKey: 'transparency'
           </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-700">Badge Text (EN)</label>
+            <input
+              type="text"
+              value={homepageConfig.transparencySection?.badge?.en || ''}
+              onChange={(e) => updateHomepageConfig({
+                transparencySection: {
+                  ...(homepageConfig.transparencySection || {}),
+                  badge: { ...(homepageConfig.transparencySection?.badge || { en: '', bn: '' }), en: e.target.value }
+                }
+              })}
+              placeholder="Verified Grassroots Organization"
+              className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-700">ব্যাজ লেখা (বাংলা)</label>
+            <input
+              type="text"
+              value={homepageConfig.transparencySection?.badge?.bn || ''}
+              onChange={(e) => updateHomepageConfig({
+                transparencySection: {
+                  ...(homepageConfig.transparencySection || {}),
+                  badge: { ...(homepageConfig.transparencySection?.badge || { en: '', bn: '' }), bn: e.target.value }
+                }
+              })}
+              placeholder="যাচাইকৃত মানবিক সংগঠন"
+              className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-700">Title Heading (EN)</label>
+            <input
+              type="text"
+              value={homepageConfig.transparencySection?.title?.en || ''}
+              onChange={(e) => updateHomepageConfig({
+                transparencySection: {
+                  ...(homepageConfig.transparencySection || {}),
+                  title: { ...(homepageConfig.transparencySection?.title || { en: '', bn: '' }), en: e.target.value }
+                }
+              })}
+              placeholder="Team Infinity Bangladesh"
+              className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-slate-700">মূল শিরোনাম (বাংলা)</label>
+            <input
+              type="text"
+              value={homepageConfig.transparencySection?.title?.bn || ''}
+              onChange={(e) => updateHomepageConfig({
+                transparencySection: {
+                  ...(homepageConfig.transparencySection || {}),
+                  title: { ...(homepageConfig.transparencySection?.title || { en: '', bn: '' }), bn: e.target.value }
+                }
+              })}
+              placeholder="টিম ইনফিনিটি বাংলাদেশ"
+              className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
+            />
+          </div>
+
+          <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-700">Description / Subtitle (EN)</label>
+              <textarea
+                rows={2}
+                value={homepageConfig.transparencySection?.description?.en || homepageConfig.transparencySection?.subtitle?.en || ''}
+                onChange={(e) => updateHomepageConfig({
+                  transparencySection: {
+                    ...(homepageConfig.transparencySection || {}),
+                    description: { ...(homepageConfig.transparencySection?.description || { en: '', bn: '' }), en: e.target.value },
+                    subtitle: { ...(homepageConfig.transparencySection?.subtitle || { en: '', bn: '' }), en: e.target.value }
+                  }
+                })}
+                placeholder="A dedicated voluntary organization based in Hathazari, Chattogram..."
+                className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-700">বিবরণ / সাবটাইটেল (বাংলা)</label>
+              <textarea
+                rows={2}
+                value={homepageConfig.transparencySection?.description?.bn || homepageConfig.transparencySection?.subtitle?.bn || ''}
+                onChange={(e) => updateHomepageConfig({
+                  transparencySection: {
+                    ...(homepageConfig.transparencySection || {}),
+                    description: { ...(homepageConfig.transparencySection?.description || { en: '', bn: '' }), bn: e.target.value },
+                    subtitle: { ...(homepageConfig.transparencySection?.subtitle || { en: '', bn: '' }), bn: e.target.value }
+                  }
+                })}
+                placeholder="চট্টগ্রামের হাটহাজারীতে প্রতিষ্ঠিত একটি নির্ভরযোগ্য ও অলাভজনক মানবিক সংগঠন..."
+                className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
+              />
+            </div>
+          </div>
+
+          {/* 3 Integrity Badges / Pills */}
+          <div className="sm:col-span-2 space-y-3 pt-2 border-t border-slate-100">
+            <h5 className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider">
+              Integrity & Transparency Highlights (৩টি সততা ও নিশ্চয়তা পিল)
+            </h5>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {/* Pill 1 */}
+              <div className="p-3 bg-[#FAF7F2] rounded-xl border border-[#EAE3D9] space-y-1.5">
+                <span className="text-[11px] font-bold text-[#006A4E] block">1. Pill 1 (১০০% স্বচ্ছ হিসাব)</span>
+                <input
+                  type="text"
+                  value={homepageConfig.transparencySection?.pill1?.en || ''}
+                  onChange={(e) => updateHomepageConfig({
+                    transparencySection: {
+                      ...(homepageConfig.transparencySection || {}),
+                      pill1: { ...(homepageConfig.transparencySection?.pill1 || { en: '', bn: '' }), en: e.target.value }
+                    }
+                  })}
+                  placeholder="100% Transparent Accounts"
+                  className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs"
+                />
+                <input
+                  type="text"
+                  value={homepageConfig.transparencySection?.pill1?.bn || ''}
+                  onChange={(e) => updateHomepageConfig({
+                    transparencySection: {
+                      ...(homepageConfig.transparencySection || {}),
+                      pill1: { ...(homepageConfig.transparencySection?.pill1 || { en: '', bn: '' }), bn: e.target.value }
+                    }
+                  })}
+                  placeholder="১০০% স্বচ্ছ হিসাব"
+                  className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bengali"
+                />
+              </div>
+
+              {/* Pill 2 */}
+              <div className="p-3 bg-[#FAF7F2] rounded-xl border border-[#EAE3D9] space-y-1.5">
+                <span className="text-[11px] font-bold text-[#006A4E] block">2. Pill 2 (জিরো ফি বিকল্প)</span>
+                <input
+                  type="text"
+                  value={homepageConfig.transparencySection?.pill2?.en || ''}
+                  onChange={(e) => updateHomepageConfig({
+                    transparencySection: {
+                      ...(homepageConfig.transparencySection || {}),
+                      pill2: { ...(homepageConfig.transparencySection?.pill2 || { en: '', bn: '' }), en: e.target.value }
+                    }
+                  })}
+                  placeholder="Zero Admin Fee Option"
+                  className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs"
+                />
+                <input
+                  type="text"
+                  value={homepageConfig.transparencySection?.pill2?.bn || ''}
+                  onChange={(e) => updateHomepageConfig({
+                    transparencySection: {
+                      ...(homepageConfig.transparencySection || {}),
+                      pill2: { ...(homepageConfig.transparencySection?.pill2 || { en: '', bn: '' }), bn: e.target.value }
+                    }
+                  })}
+                  placeholder="জিরো এডমিন ফি বিকল্প"
+                  className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bengali"
+                />
+              </div>
+
+              {/* Pill 3 */}
+              <div className="p-3 bg-[#FAF7F2] rounded-xl border border-[#EAE3D9] space-y-1.5">
+                <span className="text-[11px] font-bold text-[#006A4E] block">3. Pill 3 (পাবলিক অডিট)</span>
+                <input
+                  type="text"
+                  value={homepageConfig.transparencySection?.pill3?.en || ''}
+                  onChange={(e) => updateHomepageConfig({
+                    transparencySection: {
+                      ...(homepageConfig.transparencySection || {}),
+                      pill3: { ...(homepageConfig.transparencySection?.pill3 || { en: '', bn: '' }), en: e.target.value }
+                    }
+                  })}
+                  placeholder="Open Public Audits"
+                  className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs"
+                />
+                <input
+                  type="text"
+                  value={homepageConfig.transparencySection?.pill3?.bn || ''}
+                  onChange={(e) => updateHomepageConfig({
+                    transparencySection: {
+                      ...(homepageConfig.transparencySection || {}),
+                      pill3: { ...(homepageConfig.transparencySection?.pill3 || { en: '', bn: '' }), bn: e.target.value }
+                    }
+                  })}
+                  placeholder="পাবলিক অডিট রিপোর্টস"
+                  className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bengali"
+                />
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Transparency CMS Shortcut */}

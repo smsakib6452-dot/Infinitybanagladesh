@@ -15,13 +15,15 @@ import {
   ArrowRight,
   Sparkles,
   ExternalLink,
-  MessageSquare
+  MessageSquare,
+  Droplet,
+  ShieldCheck
 } from 'lucide-react';
 import { SocialPlatform } from '../types';
 
 export const Footer: React.FC = () => {
   const { isBn, tText } = useLanguage();
-  const { footerSettings, socialLinks, settings, programs } = useData();
+  const { footerSettings, socialLinks, settings, programs, bloodDonationSettings } = useData();
 
   const renderSocialIcon = (platform: SocialPlatform) => {
     switch (platform) {
@@ -45,10 +47,10 @@ export const Footer: React.FC = () => {
     .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
 
   return (
-    <footer className="bg-[#11241E] text-emerald-100 border-t border-emerald-900/60">
+    <footer className="bg-[#11241E] text-emerald-100 border-t border-emerald-900/60 selection:bg-emerald-800 selection:text-white">
       {/* 1. Top Callout Banner: United for Humanity */}
       <div className="bg-gradient-to-r from-[#0D1C17] via-[#132A23] to-[#0D1C17] py-10 sm:py-12 border-b border-emerald-900/40 relative overflow-hidden">
-        {/* Subtle background glow */}
+        {/* Subtle ambient background glow */}
         <div className="absolute top-0 right-1/4 w-80 h-80 bg-emerald-600/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-10 w-60 h-60 bg-[#D97706]/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -104,6 +106,7 @@ export const Footer: React.FC = () => {
             </p>
 
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-emerald-950/60 border border-emerald-800/60 text-[11px] text-emerald-300 font-semibold">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
               <span>Established {settings.establishedYear || '2015'} &bull; {typeof footerSettings.address === 'object' ? tText(footerSettings.address as any) : (footerSettings.address || settings.officialAddress || 'Hathazari, Chattogram, Bangladesh')}</span>
             </div>
 
@@ -199,29 +202,49 @@ export const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Col 4: Official Contact & Legal Info */}
-          <div className="space-y-3">
-            <span className="text-xs font-extrabold text-white uppercase tracking-wider block">
-              {isBn ? 'অফিসিয়াল যোগাযোগ' : 'Official Contact'}
-            </span>
-            <ul className="space-y-2.5 text-xs text-emerald-200/80">
-              <li className="flex items-start gap-2">
+          {/* Col 4: Infinity LifeLine & Contact */}
+          <div className="space-y-4">
+            {/* LifeLine Special Section */}
+            <div className="p-3 rounded-xl bg-rose-950/40 border border-rose-800/40 space-y-2">
+              <div className="flex items-center gap-1.5 text-rose-300 font-bold text-xs uppercase tracking-wider">
+                <Droplet className="w-3.5 h-3.5 text-rose-500 fill-rose-500 animate-heartbeat" />
+                <span>Infinity LifeLine</span>
+              </div>
+              <p className="text-[11px] text-rose-200/80 leading-relaxed">
+                {isBn ? 'জরুরি রক্তদান ও সমন্বয় নেটওয়ার্ক' : 'Emergency Blood Donation & Coordination'}
+              </p>
+              <div className="flex flex-col gap-1 text-[11px] pt-1">
+                <Link to="blood-donation/find-donor" className="text-rose-300 hover:text-white transition-colors">
+                  &bull; {isBn ? 'রক্তদাতা খুঁজুন' : 'Find a Donor'}
+                </Link>
+                <Link to="blood-donation/emergency-request" className="text-rose-300 hover:text-white transition-colors">
+                  &bull; {isBn ? 'জরুরি রক্তের আবেদন' : 'Emergency Request'}
+                </Link>
+              </div>
+            </div>
+
+            {/* Official Contact Info */}
+            <div className="space-y-2 text-xs text-emerald-200/80">
+              <span className="text-xs font-extrabold text-white uppercase tracking-wider block">
+                {isBn ? 'যোগাযোগ' : 'Contact'}
+              </span>
+              <div className="flex items-start gap-2">
                 <MapPin className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
                 <span>{typeof footerSettings.address === 'object' ? tText(footerSettings.address as any) : (footerSettings.address || settings.officialAddress)}</span>
-              </li>
-              <li className="flex items-center gap-2">
+              </div>
+              <div className="flex items-center gap-2">
                 <Phone className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                 <a href={`tel:${footerSettings.phone || settings.officialPhone}`} className="hover:text-white transition-colors">
                   {footerSettings.phone || settings.officialPhone}
                 </a>
-              </li>
-              <li className="flex items-center gap-2">
+              </div>
+              <div className="flex items-center gap-2">
                 <Mail className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                 <a href={`mailto:${footerSettings.email || settings.officialEmail}`} className="hover:text-white transition-colors">
                   {footerSettings.email || settings.officialEmail}
                 </a>
-              </li>
-            </ul>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -251,4 +274,3 @@ export const Footer: React.FC = () => {
     </footer>
   );
 };
-

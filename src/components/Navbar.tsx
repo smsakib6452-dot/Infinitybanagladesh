@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useRouter } from '../context/RouterContext';
 import { Link } from './Link';
@@ -11,18 +11,15 @@ import {
   X,
   ChevronDown,
   Globe,
-  Users,
   ShieldCheck,
   Sparkles,
   ArrowRight,
-  ExternalLink,
-  Lock
+  Droplet
 } from 'lucide-react';
-import { PageRoute } from '../types';
 
 export const Navbar: React.FC = () => {
   const { language, toggleLanguage, isBn, tText } = useLanguage();
-  const { currentPage, currentSlug, setIsSearchOpen } = useRouter();
+  const { currentPage, setIsSearchOpen } = useRouter();
   const { headerSettings, navigationItems, committees } = useData();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -30,10 +27,10 @@ export const Navbar: React.FC = () => {
   const [activeNestedDropdownId, setActiveNestedDropdownId] = useState<string | null>(null);
   const [mobilePastCommitteesOpen, setMobilePastCommitteesOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const dropdownTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
-  const nestedDropdownTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const nestedDropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Dynamic Past Committees sorted descending
+  // Dynamic Past Committees sorted descending by year
   const pastCommittees = committees
     .filter(c => c.type === 'PAST' || c.status === 'ARCHIVED')
     .sort((a, b) => {
@@ -46,7 +43,7 @@ export const Navbar: React.FC = () => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 15);
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -62,6 +59,18 @@ export const Navbar: React.FC = () => {
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
   }, []);
+
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
 
   const handleMouseEnterDropdown = (itemId: string) => {
     if (dropdownTimeoutRef.current) {
@@ -113,6 +122,7 @@ export const Navbar: React.FC = () => {
     )) return true;
     if (path === 'gallery' && (currentPage === 'gallery' || currentPage === 'videos' || currentPage === 'media-coverage')) return true;
     if (path === 'about' && (currentPage === 'about' || currentPage === 'about/story' || currentPage === 'about/mission-vision' || currentPage === 'about/team')) return true;
+    if (path === 'blood-donation' && currentPage.startsWith('blood-donation')) return true;
     return false;
   };
 
@@ -124,18 +134,18 @@ export const Navbar: React.FC = () => {
     <header className="sticky top-0 z-40 w-full transition-all duration-300">
       {/* 1. Official Top Notice Bar */}
       {headerSettings.showNoticeBar && (
-        <div className="bg-[#11241E] text-emerald-100 text-xs py-1.5 px-4 border-b border-emerald-900/60">
-          <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+        <div className="bg-[#11241E] text-emerald-100 text-xs py-1.5 px-3 sm:px-4 border-b border-emerald-900/60">
+          <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 truncate">
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#006A4E] text-white shrink-0 tracking-wide">
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-[#006A4E] text-white shrink-0 tracking-wider shadow-sm">
                 OFFICIAL
               </span>
-              <span className="truncate text-emerald-200/90 text-xs font-medium">
+              <span className="truncate text-emerald-200/95 text-xs font-medium">
                 {tText(headerSettings.noticeBarText)}
               </span>
             </div>
 
-            <div className="flex items-center gap-3.5 shrink-0 text-emerald-200">
+            <div className="flex items-center gap-3 shrink-0 text-emerald-200">
               {headerSettings.showNoticeBarButton !== false && (
                 <Link
                   to={headerSettings.noticeBarLink || 'transparency'}
@@ -148,7 +158,7 @@ export const Navbar: React.FC = () => {
 
               {headerSettings.showLanguageSwitcher && (
                 <>
-                  <span className="hidden sm:inline text-emerald-800">|</span>
+                  <span className="hidden sm:inline text-emerald-800/80">|</span>
                   <button
                     type="button"
                     onClick={toggleLanguage}
@@ -160,13 +170,12 @@ export const Navbar: React.FC = () => {
                   </button>
                 </>
               )}
-
             </div>
           </div>
         </div>
       )}
 
-      {/* 2. Main Navigation Bar */}
+      {/* 2. Main Editorial Navigation Bar */}
       <nav
         className={`w-full transition-all duration-300 ${
           isScrolled
@@ -181,12 +190,13 @@ export const Navbar: React.FC = () => {
           </Link>
 
           {/* Desktop Navigation Links */}
-          <div className="hidden lg:flex items-center justify-center gap-0.5 xl:gap-1.5 2xl:gap-2 text-[13px] xl:text-[13.5px] 2xl:text-sm font-bold text-slate-700 whitespace-nowrap flex-1 min-w-0 px-1">
+          <div className="hidden lg:flex items-center justify-center gap-0.5 xl:gap-1 2xl:gap-2 text-[13px] xl:text-[13.5px] 2xl:text-sm font-bold text-slate-700 whitespace-nowrap flex-1 min-w-0 px-1">
             {activeNavItems.map(item => {
               if (item.isDropdown && item.children && item.children.length > 0) {
                 const isDropdownOpen = activeDropdownId === item.id;
                 const isChildActive = item.children.some(c => isItemActive(c.path));
                 const isTeamMenu = item.path === 'team' || item.id === 'nav-5';
+                const isLifeLine = item.path === 'blood-donation' || item.id === 'nav-blood';
 
                 return (
                   <div
@@ -196,21 +206,26 @@ export const Navbar: React.FC = () => {
                     onMouseLeave={handleMouseLeaveDropdown}
                   >
                     <div className="flex items-center">
-                      {/* Clickable Main Text */}
                       <Link
                         to={item.path}
                         isExternal={item.isExternal}
                         onClick={() => setActiveDropdownId(null)}
-                        className={`px-2 xl:px-2.5 2xl:px-3 py-1.5 xl:py-2 rounded-l-xl flex items-center gap-1 transition-colors cursor-pointer whitespace-nowrap ${
+                        className={`px-2 xl:px-2.5 py-1.5 xl:py-2 rounded-l-xl flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
                           isChildActive || isItemActive(item.path)
-                            ? 'text-[#006A4E] bg-[#E6F3EF]'
-                            : 'hover:text-[#006A4E] hover:bg-slate-50'
+                            ? isLifeLine
+                              ? 'text-rose-700 bg-rose-50 font-extrabold'
+                              : 'text-[#006A4E] bg-[#E6F3EF] font-extrabold'
+                            : isLifeLine
+                            ? 'hover:text-rose-700 hover:bg-rose-50/60 text-slate-700'
+                            : 'hover:text-[#006A4E] hover:bg-slate-50 text-slate-700'
                         }`}
                       >
+                        {isLifeLine && (
+                          <Droplet className="w-3.5 h-3.5 text-rose-600 fill-rose-600 animate-heartbeat shrink-0" />
+                        )}
                         <span className="whitespace-nowrap">{tText(item.label)}</span>
                       </Link>
 
-                      {/* Dropdown Arrow Toggle Button */}
                       <button
                         type="button"
                         onClick={(e) => {
@@ -219,16 +234,20 @@ export const Navbar: React.FC = () => {
                         }}
                         className={`py-1.5 xl:py-2 pr-1.5 xl:pr-2 pl-0.5 rounded-r-xl transition-colors cursor-pointer shrink-0 ${
                           isChildActive || isItemActive(item.path)
-                            ? 'text-[#006A4E] bg-[#E6F3EF]'
+                            ? isLifeLine
+                              ? 'text-rose-700 bg-rose-50'
+                              : 'text-[#006A4E] bg-[#E6F3EF]'
+                            : isLifeLine
+                            ? 'hover:text-rose-700 hover:bg-rose-50/60 text-rose-400'
                             : 'hover:text-[#006A4E] hover:bg-slate-50 text-slate-400'
                         }`}
                         aria-label="Toggle Submenu"
                       >
-                        <ChevronDown className={`w-3 h-3 xl:w-3.5 xl:h-3.5 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180 text-[#006A4E]' : ''}`} />
+                        <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180 text-[#006A4E]' : ''}`} />
                       </button>
                     </div>
 
-                    {/* Dropdown Menu with Seamless Hover Bridge */}
+                    {/* Submenu Dropdown Card */}
                     {isDropdownOpen && (
                       <div className="absolute top-full left-0 pt-1.5 w-64 z-50 animate-in fade-in zoom-in-95 duration-150">
                         <div className="bg-white rounded-2xl shadow-warm-lg border border-[#EAE3D9] p-2 space-y-1">
@@ -250,58 +269,54 @@ export const Navbar: React.FC = () => {
                                       setActiveDropdownId(null);
                                       setActiveNestedDropdownId(null);
                                     }}
-                                    className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold transition-colors flex items-center justify-between cursor-pointer ${
-                                      currentPage.includes('past-committees')
-                                        ? 'bg-[#E6F3EF] text-[#00523C] font-bold'
-                                        : 'text-slate-700 hover:bg-[#FAF7F2] hover:text-[#006A4E]'
+                                    className={`w-full px-3 py-2 rounded-xl text-xs flex items-center justify-between transition-colors cursor-pointer ${
+                                      isItemActive('team/past-committees')
+                                        ? 'bg-[#E6F3EF] text-[#006A4E] font-bold'
+                                        : 'hover:bg-slate-50 text-slate-700'
                                     }`}
                                   >
                                     <span>{tText(subItem.label)}</span>
-                                    <ChevronDown className="-rotate-90 w-3 h-3 text-slate-400 group-hover/nested:text-[#006A4E]" />
+                                    <ChevronDown className="-rotate-90 w-3 h-3 text-slate-400" />
                                   </Link>
 
-                                  {/* Dynamic Nested Flyout Submenu for Past Committees */}
                                   {isNestedOpen && (
-                                    <div className="absolute left-full top-0 pl-1.5 w-64 z-50 animate-in fade-in zoom-in-95 duration-150">
-                                      <div className="bg-white rounded-2xl shadow-warm-xl border border-[#EAE3D9] p-2 space-y-1">
-                                        <div className="px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 border-b border-slate-100">
-                                          {isBn ? 'প্রাক্তন কার্যনির্বাহী পরিষদ' : 'Historic Executive Councils'}
-                                        </div>
+                                    <div className="absolute top-0 left-full pl-1.5 w-56 z-50 animate-in fade-in zoom-in-95 duration-150">
+                                      <div className="bg-white rounded-2xl shadow-warm-lg border border-[#EAE3D9] p-2 space-y-1 max-h-72 overflow-y-auto">
+                                        <Link
+                                          to="team/past-committees"
+                                          onClick={() => {
+                                            setActiveDropdownId(null);
+                                            setActiveNestedDropdownId(null);
+                                          }}
+                                          className="w-full px-3 py-2 rounded-xl text-xs font-bold text-[#006A4E] bg-emerald-50/60 hover:bg-[#E6F3EF] flex items-center gap-1.5 transition-colors cursor-pointer border-b border-emerald-100/60 mb-1"
+                                        >
+                                          <span>{isBn ? 'সবগুলো প্রাক্তন কমিটি' : 'All Past Committees'}</span>
+                                          <ArrowRight className="w-3 h-3" />
+                                        </Link>
 
-                                        {pastCommittees.map(pComm => (
-                                          <Link
-                                            key={pComm.id}
-                                            to="team/past-committees"
-                                            slug={pComm.id}
-                                            onClick={() => {
-                                              setActiveDropdownId(null);
-                                              setActiveNestedDropdownId(null);
-                                            }}
-                                            className="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold transition-colors flex items-center justify-between text-slate-700 hover:bg-[#FAF7F2] hover:text-[#006A4E] cursor-pointer"
-                                          >
-                                            <span className="truncate">
-                                              {isBn
-                                                ? (pComm.name?.bn || `কার্যনির্বাহী পরিষদ — ${pComm.year}`)
-                                                : (pComm.name?.en || `Executive Committee — ${pComm.year}`)}
-                                            </span>
-                                            <span className="font-mono text-[10px] text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
-                                              {pComm.year}
-                                            </span>
-                                          </Link>
-                                        ))}
-
-                                        <div className="pt-1 border-t border-slate-100">
-                                          <Link
-                                            to="team/past-committees"
-                                            onClick={() => {
-                                              setActiveDropdownId(null);
-                                              setActiveNestedDropdownId(null);
-                                            }}
-                                            className="w-full text-left px-3 py-1.5 rounded-xl text-[11px] font-bold text-[#006A4E] hover:bg-[#E6F3EF] flex items-center justify-between cursor-pointer"
-                                          >
-                                            <span>{isBn ? 'সকল আর্কাইভ ভিউয়ার' : 'All Past Archives →'}</span>
-                                          </Link>
-                                        </div>
+                                        {pastCommittees.length > 0 ? (
+                                          pastCommittees.map(pc => (
+                                            <Link
+                                              key={pc.id}
+                                              to="team/past-committees"
+                                              slug={pc.slug}
+                                              onClick={() => {
+                                                setActiveDropdownId(null);
+                                                setActiveNestedDropdownId(null);
+                                              }}
+                                              className="w-full px-3 py-1.5 rounded-xl text-xs hover:bg-slate-50 text-slate-600 hover:text-[#006A4E] transition-colors cursor-pointer flex items-center justify-between"
+                                            >
+                                              <span className="truncate">{tText(pc.name)}</span>
+                                              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 shrink-0">
+                                                {pc.year}
+                                              </span>
+                                            </Link>
+                                          ))
+                                        ) : (
+                                          <span className="text-[11px] text-slate-400 italic px-3 py-1 block">
+                                            {isBn ? 'কোন আর্কাইভ পাওয়া যায়নি' : 'No archives found'}
+                                          </span>
+                                        )}
                                       </div>
                                     </div>
                                   )}
@@ -314,18 +329,21 @@ export const Navbar: React.FC = () => {
                                 key={subItem.id}
                                 to={subItem.path}
                                 isExternal={subItem.isExternal}
-                                onClick={() => {
-                                  setActiveDropdownId(null);
-                                  setMobileMenuOpen(false);
-                                }}
-                                className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold transition-colors flex items-center justify-between cursor-pointer ${
+                                onClick={() => setActiveDropdownId(null)}
+                                className={`w-full px-3 py-2 rounded-xl text-xs flex items-center gap-2 transition-colors cursor-pointer ${
                                   isItemActive(subItem.path)
-                                    ? 'bg-[#E6F3EF] text-[#00523C] font-bold'
-                                    : 'text-slate-700 hover:bg-[#FAF7F2] hover:text-[#006A4E]'
+                                    ? isLifeLine
+                                      ? 'bg-rose-50 text-rose-700 font-bold'
+                                      : 'bg-[#E6F3EF] text-[#006A4E] font-bold'
+                                    : isLifeLine
+                                    ? 'hover:bg-rose-50/60 hover:text-rose-700 text-slate-700'
+                                    : 'hover:bg-slate-50 hover:text-[#006A4E] text-slate-700'
                                 }`}
                               >
+                                {isLifeLine && (
+                                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
+                                )}
                                 <span>{tText(subItem.label)}</span>
-                                {subItem.isExternal && <ExternalLink className="w-3 h-3 text-slate-400" />}
                               </Link>
                             );
                           })}
@@ -336,167 +354,180 @@ export const Navbar: React.FC = () => {
                 );
               }
 
+              // Normal Link item
+              const isActive = isItemActive(item.path);
               return (
                 <Link
                   key={item.id}
                   to={item.path}
                   isExternal={item.isExternal}
-                  className={`px-2 xl:px-2.5 2xl:px-3 py-1.5 xl:py-2 rounded-xl transition-all duration-200 cursor-pointer shrink-0 whitespace-nowrap nav-link-animated ${
-                    isItemActive(item.path)
-                      ? 'text-[#006A4E] bg-[#E6F3EF] active'
+                  className={`px-2.5 xl:px-3 py-1.5 xl:py-2 rounded-xl transition-all cursor-pointer whitespace-nowrap ${
+                    isActive
+                      ? 'text-[#006A4E] bg-[#E6F3EF] font-extrabold'
                       : 'hover:text-[#006A4E] hover:bg-slate-50'
                   }`}
                 >
-                  <span className="whitespace-nowrap">{tText(item.label)}</span>
+                  {tText(item.label)}
                 </Link>
               );
             })}
           </div>
 
-          {/* Desktop Right Action Cluster (Large Screens) */}
-          <div className="hidden lg:flex items-center gap-1.5 xl:gap-2.5 shrink-0">
+          {/* Right Action Controls: Search & Join Us */}
+          <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
             {headerSettings.showSearch && (
               <button
                 type="button"
                 onClick={() => setIsSearchOpen(true)}
-                className="p-2 xl:p-2.5 rounded-xl bg-[#FAF7F2] hover:bg-[#F2ECE1] text-slate-600 hover:text-[#006A4E] border border-[#EAE3D9] transition-colors cursor-pointer shrink-0"
-                title={isBn ? 'অনুসন্ধান করুন (Search)' : 'Search Infinity Bangladesh'}
-              >
-                <Search className="w-4 h-4" />
-              </button>
-            )}
-
-            {headerSettings.showSupportButton && (
-              <Link
-                to={headerSettings.supportButtonUrl || 'donate'}
-                className="px-3.5 xl:px-5 py-2 xl:py-2.5 rounded-2xl bg-[#006A4E] hover:bg-[#00523C] active:bg-[#00402E] text-white text-xs xl:text-sm font-extrabold shadow-warm-sm hover:shadow-warm-md transition-all flex items-center gap-1.5 xl:gap-2 cursor-pointer transform hover:-translate-y-0.5 whitespace-nowrap shrink-0"
-              >
-                <Heart className="w-3.5 h-3.5 xl:w-4 xl:h-4 fill-white shrink-0" />
-                <span className="whitespace-nowrap">{tText(headerSettings.supportButtonText)}</span>
-              </Link>
-            )}
-          </div>
-
-          {/* Mobile Right Action Cluster (Mobile & Tablet) */}
-          <div className="flex lg:hidden items-center gap-1.5 sm:gap-2 shrink-0">
-            {headerSettings.showSupportButton && (
-              <Link
-                to={headerSettings.supportButtonUrl || 'donate'}
-                className="hidden sm:flex px-3 py-1.5 rounded-xl bg-[#006A4E] hover:bg-[#00523C] active:bg-[#00402E] text-white text-xs font-extrabold shadow-xs transition-all items-center gap-1.5 cursor-pointer shrink-0"
-                title={tText(headerSettings.supportButtonText)}
-              >
-                <Heart className="w-3.5 h-3.5 fill-white shrink-0" />
-                <span className="whitespace-nowrap">{tText(headerSettings.supportButtonText)}</span>
-              </Link>
-            )}
-
-            {headerSettings.showSearch && (
-              <button
-                type="button"
-                onClick={() => setIsSearchOpen(true)}
-                className="p-2 rounded-xl bg-[#FAF7F2] hover:bg-[#F2ECE1] text-slate-700 hover:text-[#006A4E] border border-[#EAE3D9] cursor-pointer shrink-0"
-                title={isBn ? 'অনুসন্ধান করুন (Search)' : 'Search'}
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-[#006A4E] border border-slate-200/80 flex items-center justify-center transition-colors cursor-pointer"
+                title={isBn ? 'অনুসন্ধান করুন (Ctrl + K)' : 'Search (Ctrl + K)'}
                 aria-label="Search"
               >
                 <Search className="w-4 h-4" />
               </button>
             )}
 
+            {headerSettings.showSupportButton && (
+              <Link
+                to={headerSettings.supportButtonUrl || 'volunteer'}
+                className="hidden sm:inline-flex items-center gap-2 px-4 xl:px-5 py-2 sm:py-2.5 rounded-xl btn-primary-green text-xs sm:text-sm font-bold shadow-warm-sm cursor-pointer whitespace-nowrap"
+              >
+                <Heart className="w-4 h-4 text-rose-300 fill-rose-300" />
+                <span>{tText(headerSettings.supportButtonText) || (isBn ? 'আমাদের সাথে যোগ দিন' : 'Join Us')}</span>
+              </Link>
+            )}
+
+            {/* Mobile Menu Toggle Button */}
             <button
               type="button"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle navigation menu"
-              className="p-2 sm:p-2.5 rounded-xl bg-[#006A4E] text-white hover:bg-[#00523C] transition-colors cursor-pointer shrink-0 flex items-center justify-center shadow-xs"
+              onClick={() => setMobileMenuOpen(prev => !prev)}
+              className="lg:hidden w-10 h-10 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 flex items-center justify-center cursor-pointer transition-colors"
+              aria-label="Toggle Mobile Navigation Menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
+      </nav>
 
-        {/* Mobile Navigation Drawer */}
-        {mobileMenuOpen && (
-          <div className="lg:hidden border-t border-[#EAE3D9] bg-white px-4 pt-3 pb-8 space-y-3 animate-in slide-in-from-top-4 max-h-[82vh] overflow-y-auto shadow-2xl">
-            <div className="space-y-1">
+      {/* 3. Mobile Navigation Drawer (Editorial & Accessible) */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="fixed inset-y-0 right-0 w-full max-w-sm bg-white shadow-2xl flex flex-col justify-between overflow-y-auto animate-in slide-in-from-right duration-250">
+            {/* Drawer Header */}
+            <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
+              <BrandLogo size="sm" />
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-9 h-9 rounded-xl bg-white border border-slate-200 text-slate-600 flex items-center justify-center cursor-pointer hover:bg-slate-50"
+                aria-label="Close Mobile Navigation"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Drawer Menu Items */}
+            <div className="p-4 space-y-1.5 flex-1 overflow-y-auto">
               {activeNavItems.map(item => {
-                if (item.isDropdown && item.children && item.children.length > 0) {
+                const isDropdown = item.isDropdown && item.children && item.children.length > 0;
+                const isExpanded = activeDropdownId === item.id;
+                const isActive = isItemActive(item.path);
+                const isLifeLine = item.path === 'blood-donation' || item.id === 'nav-blood';
+
+                if (isDropdown) {
                   return (
                     <div key={item.id} className="space-y-1">
-                      <div className="flex items-center justify-between px-3 py-2 bg-[#FAF7F2] rounded-xl">
-                        <Link
-                          to={item.path}
-                          onClick={() => setMobileMenuOpen(false)}
-                          className="text-xs font-extrabold uppercase text-[#006A4E] tracking-wider cursor-pointer"
-                        >
-                          {tText(item.label)}
-                        </Link>
-                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setActiveDropdownId(prev => (prev === item.id ? null : item.id))}
+                        className={`w-full px-3.5 py-2.5 rounded-xl text-sm font-bold flex items-center justify-between transition-colors cursor-pointer ${
+                          isActive
+                            ? isLifeLine
+                              ? 'bg-rose-50 text-rose-700'
+                              : 'bg-[#E6F3EF] text-[#006A4E]'
+                            : 'text-slate-700 hover:bg-slate-50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          {isLifeLine && <Droplet className="w-4 h-4 text-rose-600 fill-rose-600" />}
+                          <span>{tText(item.label)}</span>
+                        </div>
+                        <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isExpanded ? 'rotate-180 text-[#006A4E]' : 'text-slate-400'}`} />
+                      </button>
 
-                      <div className="pl-3 space-y-1 border-l-2 border-slate-100 ml-3">
-                        {item.children.filter(c => c.active !== false).map(subItem => {
-                          const isPastCommitteeSub = subItem.isNestedDropdown || subItem.id === 'sub-past' || subItem.path.includes('past-committees');
+                      {isExpanded && (
+                        <div className="pl-4 pr-2 py-1 space-y-1 border-l-2 border-slate-100 ml-3">
+                          <Link
+                            to={item.path}
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="w-full px-3 py-2 rounded-lg text-xs font-bold text-[#006A4E] bg-emerald-50/50 hover:bg-[#E6F3EF] flex items-center gap-1.5 transition-colors cursor-pointer"
+                          >
+                            <span>{isBn ? 'মূল পাতা দেখুন' : 'Overview Page'}</span>
+                            <ArrowRight className="w-3 h-3" />
+                          </Link>
 
-                          if (isPastCommitteeSub) {
-                            return (
-                              <div key={subItem.id} className="space-y-1">
-                                <div className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-50">
-                                  <Link
-                                    to="team/past-committees"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className="cursor-pointer"
-                                  >
-                                    {tText(subItem.label)}
-                                  </Link>
+                          {item.children?.filter(c => c.active !== false).map(subItem => {
+                            const isPastCommitteeSub = subItem.isNestedDropdown || subItem.id === 'sub-past' || subItem.path.includes('past-committees');
+
+                            if (isPastCommitteeSub && (item.path === 'team' || item.id === 'nav-5')) {
+                              return (
+                                <div key={subItem.id} className="space-y-1">
                                   <button
                                     type="button"
-                                    onClick={() => setMobilePastCommitteesOpen(!mobilePastCommitteesOpen)}
-                                    className="p-1 text-slate-500 hover:text-[#006A4E] cursor-pointer"
-                                    aria-label="Expand Past Committees"
+                                    onClick={() => setMobilePastCommitteesOpen(prev => !prev)}
+                                    className="w-full px-3 py-2 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 flex items-center justify-between transition-colors cursor-pointer"
                                   >
-                                    <ChevronDown className={`w-3.5 h-3.5 transition-transform ${mobilePastCommitteesOpen ? 'rotate-180 text-[#006A4E]' : ''}`} />
+                                    <span>{tText(subItem.label)}</span>
+                                    <ChevronDown className={`w-3 h-3 transition-transform ${mobilePastCommitteesOpen ? 'rotate-180 text-[#006A4E]' : 'text-slate-400'}`} />
                                   </button>
-                                </div>
 
-                                {mobilePastCommitteesOpen && (
-                                  <div className="pl-3 space-y-1 border-l-2 border-amber-200 ml-3">
-                                    {pastCommittees.map(pComm => (
+                                  {mobilePastCommitteesOpen && (
+                                    <div className="pl-3 py-1 space-y-1 border-l border-slate-200 ml-2">
                                       <Link
-                                        key={pComm.id}
                                         to="team/past-committees"
-                                        slug={pComm.id}
                                         onClick={() => setMobileMenuOpen(false)}
-                                        className="block w-full text-left px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-[#FAF7F2] hover:text-[#006A4E] cursor-pointer"
+                                        className="w-full px-2.5 py-1.5 rounded text-[11px] font-bold text-[#006A4E] bg-emerald-50 block"
                                       >
-                                        <span>
-                                          {isBn
-                                            ? (pComm.name?.bn || `কার্যনির্বাহী পরিষদ ${pComm.year}`)
-                                            : (pComm.name?.en || `Executive Committee ${pComm.year}`)}
-                                        </span>
+                                        {isBn ? 'সকল প্রাক্তন কমিটি' : 'All Past Committees'}
                                       </Link>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          }
+                                      {pastCommittees.map(pc => (
+                                        <Link
+                                          key={pc.id}
+                                          to="team/past-committees"
+                                          slug={pc.slug}
+                                          onClick={() => setMobileMenuOpen(false)}
+                                          className="w-full px-2.5 py-1.5 rounded text-[11px] text-slate-600 hover:text-[#006A4E] hover:bg-slate-50 flex items-center justify-between"
+                                        >
+                                          <span className="truncate">{tText(pc.name)}</span>
+                                          <span className="text-[9px] font-bold px-1 rounded bg-slate-100 text-slate-500">
+                                            {pc.year}
+                                          </span>
+                                        </Link>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            }
 
-                          return (
-                            <Link
-                              key={subItem.id}
-                              to={subItem.path}
-                              isExternal={subItem.isExternal}
-                              onClick={() => setMobileMenuOpen(false)}
-                              className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold transition-colors flex items-center justify-between cursor-pointer ${
-                                isItemActive(subItem.path)
-                                  ? 'bg-[#E6F3EF] text-[#00523C] font-bold'
-                                  : 'text-slate-700 hover:bg-slate-50'
-                              }`}
-                            >
-                              <span>{tText(subItem.label)}</span>
-                              {subItem.isExternal && <ExternalLink className="w-3 h-3 text-slate-400" />}
-                            </Link>
-                          );
-                        })}
-                      </div>
+                            return (
+                              <Link
+                                key={subItem.id}
+                                to={subItem.path}
+                                onClick={() => setMobileMenuOpen(false)}
+                                className={`w-full px-3 py-2 rounded-lg text-xs transition-colors block ${
+                                  isItemActive(subItem.path)
+                                    ? 'bg-[#E6F3EF] text-[#006A4E] font-bold'
+                                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                                }`}
+                              >
+                                {tText(subItem.label)}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
                   );
                 }
@@ -505,12 +536,11 @@ export const Navbar: React.FC = () => {
                   <Link
                     key={item.id}
                     to={item.path}
-                    isExternal={item.isExternal}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`block w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-bold transition-colors cursor-pointer ${
-                      isItemActive(item.path)
-                        ? 'bg-[#E6F3EF] text-[#00523C]'
-                        : 'text-slate-800 hover:bg-slate-50'
+                    className={`w-full px-3.5 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 transition-colors ${
+                      isActive
+                        ? 'bg-[#E6F3EF] text-[#006A4E]'
+                        : 'text-slate-700 hover:bg-slate-50'
                     }`}
                   >
                     {tText(item.label)}
@@ -519,52 +549,33 @@ export const Navbar: React.FC = () => {
               })}
             </div>
 
-            {/* Mobile Footer Links (Transparency, Donate, Volunteer) */}
-            <div className="pt-4 border-t border-slate-100 space-y-2">
-              <Link
-                to="transparency"
-                onClick={() => setMobileMenuOpen(false)}
-                className="w-full py-2.5 px-3 rounded-xl bg-[#FAF7F2] text-slate-700 text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <ShieldCheck className="w-4 h-4 text-[#006A4E]" />
-                <span>{isBn ? 'স্বচ্ছতা ও আর্থিক রিপোর্ট' : 'Transparency & Financial Reports'}</span>
-              </Link>
+            {/* Drawer Footer Actions */}
+            <div className="p-4 border-t border-slate-100 bg-slate-50/80 space-y-2.5">
+              {headerSettings.showLanguageSwitcher && (
+                <button
+                  type="button"
+                  onClick={toggleLanguage}
+                  className="w-full py-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow-sm hover:bg-slate-50"
+                >
+                  <Globe className="w-4 h-4 text-[#006A4E]" />
+                  <span>{language === 'en' ? 'বাংলা সংস্করণ দেখুন' : 'Switch to English Version'}</span>
+                </button>
+              )}
 
-              <Link
-                to="volunteer"
-                onClick={() => setMobileMenuOpen(false)}
-                className="w-full py-2.5 px-3 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <Users className="w-4 h-4 text-[#006A4E]" />
-                <span>{isBn ? 'স্বেচ্ছাসেবী হিসেবে যোগ দিন' : 'Join as Volunteer'}</span>
-              </Link>
-            </div>
-
-            <div className="pt-4 border-t border-slate-100 space-y-2.5">
-              <Link
-                to={headerSettings.supportButtonUrl || 'donate'}
-                onClick={() => setMobileMenuOpen(false)}
-                className="w-full py-3 rounded-2xl bg-[#006A4E] text-white font-extrabold text-sm shadow-warm-sm flex items-center justify-center gap-2"
-              >
-                <Heart className="w-4 h-4 fill-white" />
-                <span>{tText(headerSettings.supportButtonText)}</span>
-              </Link>
-
-              <button
-                type="button"
-                onClick={() => {
-                  toggleLanguage();
-                  setMobileMenuOpen(false);
-                }}
-                className="w-full py-2.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <Globe className="w-4 h-4" />
-                <span>Language: {language === 'en' ? 'Switch to বাংলা' : 'Switch to English'}</span>
-              </button>
+              {headerSettings.showSupportButton && (
+                <Link
+                  to={headerSettings.supportButtonUrl || 'volunteer'}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full py-3 rounded-xl btn-primary-green text-xs font-bold text-center flex items-center justify-center gap-2 shadow-warm-sm cursor-pointer"
+                >
+                  <Heart className="w-4 h-4 text-rose-300 fill-rose-300" />
+                  <span>{tText(headerSettings.supportButtonText) || (isBn ? 'আমাদের সাথে যোগ দিন' : 'Join Us')}</span>
+                </Link>
+              )}
             </div>
           </div>
-        )}
-      </nav>
+        </div>
+      )}
     </header>
   );
 };

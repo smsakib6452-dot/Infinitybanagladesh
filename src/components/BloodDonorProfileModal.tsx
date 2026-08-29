@@ -3,6 +3,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { BloodDonor } from '../types';
 import { getAssetUrl } from '../lib/utils/assetHelper';
 import { calculateAge, getCooldownStatusInfo, BLOOD_DONATION_COOLDOWN_DAYS, cleanBloodDonor } from '../data/bloodDonationData';
+import { formatDateDDMMYYYY } from '../lib/utils/formatters';
 import {
   X,
   ShieldCheck,
@@ -183,7 +184,7 @@ export const BloodDonorProfileModal: React.FC<BloodDonorProfileModalProps> = ({
                   {age !== null ? (isBn ? `${age} বছর` : `${age} years`) : (isBn ? 'নির্দিষ্ট নয়' : 'Not specified')}
                   {(donor.dateOfBirth || donor.dob) ? (
                     <span className="text-[11px] font-normal text-slate-400 ml-1">
-                      ({donor.dateOfBirth || donor.dob})
+                      ({formatDateDDMMYYYY(donor.dateOfBirth || donor.dob || '', isBn)})
                     </span>
                   ) : null}
                 </p>
@@ -201,11 +202,7 @@ export const BloodDonorProfileModal: React.FC<BloodDonorProfileModalProps> = ({
                 </div>
                 <p className="text-sm sm:text-base font-extrabold text-slate-800 font-display">
                   {donor.lastDonationDate ? (
-                    new Date(donor.lastDonationDate).toLocaleDateString(isBn ? 'bn-BD' : 'en-US', {
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric'
-                    })
+                    formatDateDDMMYYYY(donor.lastDonationDate, isBn)
                   ) : (
                     (isBn ? 'রেকর্ড সংরক্ষিত নেই' : 'No Record')
                   )}
@@ -213,7 +210,7 @@ export const BloodDonorProfileModal: React.FC<BloodDonorProfileModalProps> = ({
               </div>
               {donor.lastDonationDate && (
                 <span className="px-3 py-1 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold font-mono">
-                  {donor.lastDonationDate}
+                  {formatDateDDMMYYYY(donor.lastDonationDate, isBn)}
                 </span>
               )}
             </div>

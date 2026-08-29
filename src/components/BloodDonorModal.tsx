@@ -25,6 +25,7 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { MediaPickerModal } from './MediaPickerModal';
+import { DateInput } from './DateInput';
 
 interface BloodDonorModalProps {
   isOpen: boolean;
@@ -415,12 +416,13 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
                       );
                     })()}
                   </div>
-                  <input
-                    type="date"
-                    max={new Date().toISOString().split('T')[0]}
+                  <DateInput
                     value={dateOfBirth}
-                    onChange={(e) => setDateOfBirth(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none font-medium"
+                    onChange={(val) => setDateOfBirth(val)}
+                    isBn={isBn}
+                    max={new Date().toISOString().split('T')[0]}
+                    minYear={1940}
+                    maxYear={new Date().getFullYear()}
                   />
                 </div>
               </div>
@@ -745,24 +747,21 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
                     </span>
                   )}
                 </label>
-                <input
-                  type="date"
-                  max={new Date().toISOString().split('T')[0]}
+                <DateInput
                   value={lastDonationDate}
-                  onChange={(e) => {
-                    const val = e.target.value;
+                  onChange={(val) => {
                     setLastDonationDate(val);
-                    if (val > new Date().toISOString().split('T')[0]) {
+                    if (val && val > new Date().toISOString().split('T')[0]) {
                       setModalError(isBn ? 'সর্বশেষ রক্তদানের তারিখ ভবিষ্যতের হতে পারে না।' : 'Last donation date cannot be in the future.');
                     } else {
                       setModalError(null);
                     }
                   }}
-                  className={`w-full px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm focus:outline-none transition-all ${
-                    lastDonationDate && lastDonationDate > new Date().toISOString().split('T')[0]
-                      ? 'border-rose-500 bg-rose-50 text-rose-900 ring-2 ring-rose-300'
-                      : 'border-[#EAE3D9] bg-[#FAF7F2] focus:bg-white focus:ring-2 focus:ring-[#006A4E]'
-                  }`}
+                  isBn={isBn}
+                  max={new Date().toISOString().split('T')[0]}
+                  minYear={2010}
+                  maxYear={new Date().getFullYear()}
+                  showQuickToday
                 />
                 {lastDonationDate && lastDonationDate > new Date().toISOString().split('T')[0] ? (
                   <p className="text-[11px] text-rose-700 font-bold flex items-center gap-1">
@@ -806,14 +805,23 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
                   <h5 className="text-xs font-extrabold text-emerald-950 font-display">
                     {isBn ? 'নতুন রক্তদানের হিস্টোরি রেকর্ড' : 'Log Donation History Record'}
                   </h5>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <input
-                      type="date"
-                      max={new Date().toISOString().split('T')[0]}
-                      value={newHistDate}
-                      onChange={(e) => setNewHistDate(e.target.value)}
-                      className="px-3 py-2 rounded-xl border border-[#EAE3D9] bg-white text-xs"
-                    />
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                        {isBn ? 'রক্তদানের তারিখ' : 'Donation Date'}
+                      </label>
+                      <DateInput
+                        value={newHistDate}
+                        onChange={(val) => setNewHistDate(val)}
+                        isBn={isBn}
+                        max={new Date().toISOString().split('T')[0]}
+                        minYear={2010}
+                        maxYear={new Date().getFullYear()}
+                        compact
+                        showQuickToday
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <input
                       type="text"
                       placeholder="Hospital Name (e.g. CMCH)"
@@ -848,7 +856,8 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
                     </button>
                   </div>
                 </div>
-              )}
+              </div>
+            )}
 
               {/* History List */}
               {donationHistory.length > 0 && (

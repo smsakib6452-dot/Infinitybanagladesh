@@ -3,6 +3,7 @@ import { X, Play, Video, AlertCircle, Check, Smartphone, Monitor } from 'lucide-
 import { VideoItem } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 import { detectAndNormalizeMedia, DEFAULT_VIDEO_THUMBNAIL, isPortraitVideo } from '../lib/utils/mediaHelper';
+import { DateInput } from './DateInput';
 
 interface VideoModalProps {
   isOpen: boolean;
@@ -357,11 +358,14 @@ export const VideoModal: React.FC<VideoModalProps> = ({
 
             <div className="space-y-1">
               <label className="block font-bold text-slate-700">Publication Date</label>
-              <input
-                type="date"
+              <DateInput
                 value={date}
-                onChange={e => setDate(e.target.value)}
-                className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs focus:outline-none focus:border-[#006A4E]"
+                onChange={(val) => setDate(val)}
+                isBn={isBn}
+                minYear={2015}
+                maxYear={new Date().getFullYear() + 2}
+                showQuickToday
+                compact
               />
             </div>
           </div>

@@ -28,6 +28,8 @@ import { SectionHeading } from '../components/SectionHeading';
 import { BloodDonorProfileModal } from '../components/BloodDonorProfileModal';
 import { EmergencyBloodContactModal } from '../components/EmergencyBloodContactModal';
 import { ImageEditorModal } from '../components/ImageEditorModal';
+import { DateInput } from '../components/DateInput';
+import { formatDateDDMMYYYY } from '../lib/utils/formatters';
 import {
   Droplet,
   Search,
@@ -1610,14 +1612,14 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                           })()}
                         </div>
 
-                        <input
-                          type="date"
-                          required
-                          max={new Date().toISOString().split('T')[0]}
+                        <DateInput
                           value={regDateOfBirth}
-                          onChange={(e) => {
-                            const val = e.target.value;
+                          onChange={(val) => {
                             setRegDateOfBirth(val);
+                            if (!val) {
+                              setRegFormError(null);
+                              return;
+                            }
                             const age = calculateAge(val);
                             if (age !== null && age < 18) {
                               setRegFormError(
@@ -1629,7 +1631,11 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                               setRegFormError(null);
                             }
                           }}
-                          className="w-full px-4 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none font-medium"
+                          isBn={isBn}
+                          required
+                          max={new Date().toISOString().split('T')[0]}
+                          minYear={1940}
+                          maxYear={new Date().getFullYear()}
                         />
 
                         {regDateOfBirth && calculateAge(regDateOfBirth) !== null && calculateAge(regDateOfBirth)! < 18 ? (
@@ -1815,15 +1821,12 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                             <span>{isBn ? 'আজকে রক্তদান করেছি' : 'Donated Today'}</span>
                           </button>
                         </label>
-                        <input
-                          type="date"
-                          max={new Date().toISOString().split('T')[0]}
+                        <DateInput
                           value={regLastDonationDate}
-                          onChange={(e) => {
-                            const val = e.target.value;
+                          onChange={(val) => {
                             setRegLastDonationDate(val);
                             const today = new Date().toISOString().split('T')[0];
-                            if (val > today) {
+                            if (val && val > today) {
                               setRegFormError(
                                 isBn
                                   ? 'সর্বশেষ রক্তদানের তারিখ আজকের বা অতীতের তারিখ হতে হবে, ভবিষ্যতের নয়।'
@@ -1833,11 +1836,11 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                               setRegFormError(null);
                             }
                           }}
-                          className={`w-full px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm transition-all focus:outline-none ${
-                            regLastDonationDate && regLastDonationDate > new Date().toISOString().split('T')[0]
-                              ? 'border-rose-500 bg-rose-50/60 text-rose-900 ring-2 ring-rose-300'
-                              : 'border-[#EAE3D9] bg-[#FAF7F2] focus:bg-white focus:ring-2 focus:ring-[#006A4E]'
-                          }`}
+                          isBn={isBn}
+                          max={new Date().toISOString().split('T')[0]}
+                          minYear={2010}
+                          maxYear={new Date().getFullYear()}
+                          showQuickToday
                         />
                         {regLastDonationDate && regLastDonationDate > new Date().toISOString().split('T')[0] ? (
                           <div className="p-2 rounded-xl bg-rose-100/90 border border-rose-300 text-rose-900 text-[11px] font-bold flex items-center gap-1.5 animate-in fade-in">
@@ -2204,20 +2207,17 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                         <label className="block text-xs font-bold text-slate-800 flex items-center justify-between">
                           <span>{isBn ? 'সর্বশেষ রক্তদানের তারিখ *' : 'Last Donation Date *'}</span>
                           {updLastDonationDate && (
-                            <span className="text-[10px] font-mono text-slate-500 font-bold">
-                              {updLastDonationDate}
+                            <span className="text-[10px] font-mono text-emerald-800 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                              {formatDateDDMMYYYY(updLastDonationDate, isBn)}
                             </span>
                           )}
                         </label>
-                        <input
-                          type="date"
-                          max={new Date().toISOString().split('T')[0]}
+                        <DateInput
                           value={updLastDonationDate}
-                          onChange={(e) => {
-                            const val = e.target.value;
+                          onChange={(val) => {
                             setUpdLastDonationDate(val);
                             const today = new Date().toISOString().split('T')[0];
-                            if (val > today) {
+                            if (val && val > today) {
                               setUpdFormError(
                                 isBn
                                   ? 'সর্বশেষ রক্তদানের তারিখ আজকের বা অতীতের তারিখ হতে হবে, ভবিষ্যতের নয়।'
@@ -2227,11 +2227,11 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                               setUpdFormError(null);
                             }
                           }}
-                          className={`w-full px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm font-medium transition-all focus:outline-none ${
-                            updLastDonationDate && updLastDonationDate > new Date().toISOString().split('T')[0]
-                              ? 'border-rose-500 bg-rose-50 text-rose-900 ring-2 ring-rose-300'
-                              : 'border-[#EAE3D9] bg-white focus:ring-2 focus:ring-[#006A4E]'
-                          }`}
+                          isBn={isBn}
+                          max={new Date().toISOString().split('T')[0]}
+                          minYear={2010}
+                          maxYear={new Date().getFullYear()}
+                          showQuickToday
                         />
                       </div>
 
@@ -2539,11 +2539,13 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                           <Calendar className="w-3.5 h-3.5 text-[#006A4E]" />
                           <span>{isBn ? 'জন্ম তারিখ (Date of Birth)' : 'Date of Birth'}</span>
                         </label>
-                        <input
-                          type="date"
+                        <DateInput
                           value={updDateOfBirth}
-                          onChange={(e) => setUpdDateOfBirth(e.target.value)}
-                          className="w-full px-4 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                          onChange={(val) => setUpdDateOfBirth(val)}
+                          isBn={isBn}
+                          max={new Date().toISOString().split('T')[0]}
+                          minYear={1940}
+                          maxYear={new Date().getFullYear()}
                         />
                       </div>
                     </div>
@@ -2910,12 +2912,15 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
 
                         <div className="space-y-1">
                           <label className="block text-xs font-bold text-slate-800">{isBn ? 'প্রয়োজনের তারিখ *' : 'Required Date *'}</label>
-                          <input
-                            type="date"
-                            required
+                          <DateInput
                             value={emgRequiredDate}
-                            onChange={(e) => setEmgRequiredDate(e.target.value)}
-                            className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
+                            onChange={(val) => setEmgRequiredDate(val)}
+                            isBn={isBn}
+                            required
+                            minYear={new Date().getFullYear() - 1}
+                            maxYear={new Date().getFullYear() + 2}
+                            yearOrder="asc"
+                            showQuickToday
                           />
                         </div>
                       </div>

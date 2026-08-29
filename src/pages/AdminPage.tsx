@@ -128,7 +128,7 @@ import {
   cleanBloodDonor
 } from '../data/bloodDonationData';
 import { getAssetUrl, handleImageError } from '../lib/utils/assetHelper';
-import { formatBDT } from '../lib/utils/formatters';
+import { formatBDT, formatDateDDMMYYYY } from '../lib/utils/formatters';
 import { Toast } from '../components/Toast';
 import { MediaPickerModal } from '../components/MediaPickerModal';
 import { CampaignModal } from '../components/CampaignModal';
@@ -5571,7 +5571,7 @@ export const AdminPage: React.FC = () => {
                                     {donor.lastDonationDate && (
                                       <span className="text-emerald-800 font-bold ml-1.5 inline-flex items-center gap-1">
                                         &bull; <Clock className="w-3 h-3 text-emerald-600 inline" />
-                                        {isBn ? 'সর্বশেষ রক্তদান:' : 'Last Donated:'} {new Date(donor.lastDonationDate).toLocaleDateString(isBn ? 'bn-BD' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                        {isBn ? 'সর্বশেষ রক্তদান:' : 'Last Donated:'} {formatDateDDMMYYYY(donor.lastDonationDate, isBn)}
                                       </span>
                                     )}
                                   </p>
@@ -5691,7 +5691,7 @@ export const AdminPage: React.FC = () => {
                                 <p className="text-xs text-slate-600">
                                   মোবাইল: <span className="font-bold text-slate-900">{donor.phone}</span> &bull; অবস্থান: <span className="font-semibold">{donor.area ? donor.area + ', ' : ''}{donor.upazila}, {donor.district}</span>
                                   {donor.gender && <span> &bull; লিঙ্গ: {donor.gender}</span>}
-                                  {donor.dateOfBirth && <span> &bull; জন্ম তারিখ: {donor.dateOfBirth}</span>}
+                                  {donor.dateOfBirth && <span> &bull; জন্ম তারিখ: {formatDateDDMMYYYY(donor.dateOfBirth, true)}</span>}
                                 </p>
                                 {donor.experienceNotes && (
                                   <p className="text-[11px] text-slate-500 italic">
@@ -5922,11 +5922,7 @@ export const AdminPage: React.FC = () => {
                                         <p className="font-bold text-slate-900 flex items-center gap-1.5">
                                           <Clock className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                                           <span>
-                                            {new Date(donor.lastDonationDate).toLocaleDateString(isBn ? 'bn-BD' : 'en-US', {
-                                              day: 'numeric',
-                                              month: 'short',
-                                              year: 'numeric'
-                                            })}
+                                            {formatDateDDMMYYYY(donor.lastDonationDate, isBn)}
                                           </span>
                                         </p>
                                         <div className="flex items-center gap-1.5">

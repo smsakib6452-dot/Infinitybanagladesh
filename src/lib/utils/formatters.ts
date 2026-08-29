@@ -59,17 +59,43 @@ export function formatDate(dateStr: string, isBn: boolean = false): string {
     const d = new Date(dateStr);
     if (isNaN(d.getTime())) return dateStr;
 
-    if (isBn) {
-      const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
-      const formatted = d.toLocaleDateString('bn-BD', options);
-      return formatted;
-    }
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
 
-    return d.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
+    if (isBn) {
+      return `${toBengaliNumerals(day)}/${toBengaliNumerals(month)}/${toBengaliNumerals(year)}`;
+    }
+    return `${day}/${month}/${year}`;
+  } catch {
+    return dateStr;
+  }
+}
+
+/**
+ * Formats date strictly into DD/MM/YYYY format
+ * Example: 2026-08-29 -> 29/08/2026 | (BN) -> ২৯/০৮/২০২৬
+ */
+export function formatDateDDMMYYYY(dateStr: string, isBn: boolean = false): string {
+  if (!dateStr) return '';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) {
+      // If already in DD/MM/YYYY or YYYY-MM-DD string format
+      if (dateStr.includes('-')) {
+        const parts = dateStr.split('T')[0].split('-');
+        if (parts.length === 3) {
+          const res = `${parts[2]}/${parts[1]}/${parts[0]}`;
+          return isBn ? toBengaliNumerals(res) : res;
+        }
+      }
+      return dateStr;
+    }
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    const formatted = `${day}/${month}/${year}`;
+    return isBn ? toBengaliNumerals(formatted) : formatted;
   } catch {
     return dateStr;
   }

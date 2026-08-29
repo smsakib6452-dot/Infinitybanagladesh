@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useData } from '../context/DataContext';
 import { SectionHeading } from '../components/SectionHeading';
+import { DateInput } from '../components/DateInput';
 import { BANGLADESH_DISTRICTS } from '../data/bangladeshData';
 import { getAssetUrl } from '../lib/utils/assetHelper';
 import {
@@ -1226,12 +1227,14 @@ export const VolunteerPage: React.FC = () => {
                         <label className="block text-xs font-bold text-slate-800">
                           {isBn ? 'জন্ম তারিখ (Date of Birth) *' : 'Date of Birth *'}
                         </label>
-                        <input
-                          type="date"
+                        <DateInput
                           value={dob}
-                          onChange={(e) => setDob(e.target.value)}
-                          className="w-full px-4 py-2.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-2xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#006A4E] focus:bg-white"
+                          onChange={(val) => setDob(val)}
+                          isBn={isBn}
                           required
+                          max={new Date().toISOString().split('T')[0]}
+                          minYear={1940}
+                          maxYear={new Date().getFullYear()}
                         />
                       </div>
 

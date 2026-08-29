@@ -3,6 +3,7 @@ import { X, Upload, Check, Newspaper, Sparkles, ExternalLink, Star, Calendar } f
 import { PressCoverage, PressCoverageType } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 import { uploadToCloudinary } from '../lib/cloudinary';
+import { DateInput } from './DateInput';
 
 interface PressCoverageModalProps {
   isOpen: boolean;
@@ -268,11 +269,14 @@ export const PressCoverageModal: React.FC<PressCoverageModalProps> = ({
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                 Publication Date
               </label>
-              <input
-                type="date"
+              <DateInput
                 value={publishedDate}
-                onChange={(e) => setPublishedDate(e.target.value)}
-                className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-200 bg-[#FAF7F2] focus:bg-white focus:border-[#006A4E] outline-none"
+                onChange={(val) => setPublishedDate(val)}
+                isBn={isBn}
+                minYear={2015}
+                maxYear={new Date().getFullYear() + 2}
+                showQuickToday
+                compact
               />
             </div>
 

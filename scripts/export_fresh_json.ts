@@ -32,7 +32,11 @@ import {
   INITIAL_COMMITTEES,
   INITIAL_PERSONS,
   INITIAL_POSITIONS,
-  INITIAL_COMMITTEE_MEMBERS
+  INITIAL_COMMITTEE_MEMBERS,
+  INITIAL_BLOOD_DONORS,
+  INITIAL_EMERGENCY_REQUESTS,
+  INITIAL_BLOOD_SETTINGS,
+  DEFAULT_DONOR_CATEGORIES
 } from '../src/data/initialData';
 
 const fullData = {
@@ -73,10 +77,16 @@ const fullData = {
   committees: INITIAL_COMMITTEES,
   persons: INITIAL_PERSONS,
   positions: INITIAL_POSITIONS,
-  committeeMembers: INITIAL_COMMITTEE_MEMBERS
+  committeeMembers: INITIAL_COMMITTEE_MEMBERS,
+  bloodDonors: INITIAL_BLOOD_DONORS,
+  emergencyRequests: INITIAL_EMERGENCY_REQUESTS,
+  bloodDonationSettings: INITIAL_BLOOD_SETTINGS,
+  donorCategories: DEFAULT_DONOR_CATEGORIES
 };
 
 const jsonString = JSON.stringify(fullData, null, 2);
 fs.writeFileSync('public/infinity-bangladesh-data.json', jsonString, 'utf8');
 fs.writeFileSync('docs/infinity-bangladesh-data.json', jsonString, 'utf8');
-console.log('✓ Successfully exported fresh JSON with updated metrics to public/ and docs/');
+fs.writeFileSync('scripts/incoming_user_data.json', jsonString, 'utf8');
+console.log('✓ Successfully exported fresh JSON with updated schema and data to public/, docs/, and scripts/incoming_user_data.json');
+

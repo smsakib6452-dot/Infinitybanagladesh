@@ -621,6 +621,7 @@ export const INITIAL_FOOTER_SETTINGS: FooterSettings = {
     "en": "© 2015–2026 Infinity Bangladesh. All rights reserved. United for Humanity."
   },
   "showNewsletter": true,
+  "showCallout": true,
   "calloutEyebrow": {
     "en": "Team Infinity — United for Humanity",
     "bn": "টিম ইনফিনিটি — মানবতার জন্য একতাবদ্ধ"

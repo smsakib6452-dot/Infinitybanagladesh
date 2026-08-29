@@ -114,11 +114,10 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
       <button
         type="button"
         onClick={() => toggleSectionVisibility(sectionKey)}
-        className={`px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 cursor-pointer transition-all shadow-2xs ${
-          isVisible
+        className={`px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 cursor-pointer transition-all shadow-2xs ${isVisible
             ? 'bg-[#E6F3EF] text-[#00523C] border border-[#C2E2D7] hover:bg-[#D1ECE3]'
             : 'bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100'
-        }`}
+          }`}
         title={isVisible ? 'Click to hide this section from Homepage' : 'Click to show this section on Homepage'}
       >
         {isVisible ? <Eye className="w-3.5 h-3.5 text-[#006A4E]" /> : <EyeOff className="w-3.5 h-3.5 text-rose-600" />}
@@ -280,9 +279,8 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
                   <button
                     type="button"
                     onClick={() => toggleSectionVisibility(sectionKey)}
-                    className={`p-1.5 rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors ${
-                      isVisible ? 'bg-[#E6F3EF] text-[#00523C]' : 'bg-slate-200 text-slate-600'
-                    }`}
+                    className={`p-1.5 rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors ${isVisible ? 'bg-[#E6F3EF] text-[#00523C]' : 'bg-slate-200 text-slate-600'
+                      }`}
                     title={isVisible ? 'Visible on Homepage (Click to hide)' : 'Hidden from Homepage (Click to show)'}
                   >
                     {isVisible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
@@ -593,8 +591,8 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
                       hero: { ...homepageConfig.hero, heroImageCropPosition: pos }
                     })}
                     className={`px-2 py-0.5 rounded-md text-[10px] font-bold cursor-pointer transition-colors ${(homepageConfig.hero.heroImageCropPosition || 'center center') === pos
-                        ? 'bg-[#006A4E] text-white'
-                        : 'bg-white text-slate-600 border border-slate-200 hover:border-[#006A4E]'
+                      ? 'bg-[#006A4E] text-white'
+                      : 'bg-white text-slate-600 border border-slate-200 hover:border-[#006A4E]'
                       }`}
                   >
                     {pos}
@@ -692,8 +690,8 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
                   }
                 })}
                 className={`px-2.5 py-1 rounded-lg text-[11px] font-bold cursor-pointer transition-colors ${homepageConfig.hero.primaryCta.active
-                    ? 'bg-emerald-100 text-emerald-800'
-                    : 'bg-slate-200 text-slate-600'
+                  ? 'bg-emerald-100 text-emerald-800'
+                  : 'bg-slate-200 text-slate-600'
                   }`}
               >
                 {homepageConfig.hero.primaryCta.active ? 'Active' : 'Hidden'}
@@ -770,8 +768,8 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
                   }
                 })}
                 className={`px-2.5 py-1 rounded-lg text-[11px] font-bold cursor-pointer transition-colors ${homepageConfig.hero.secondaryCta.active
-                    ? 'bg-emerald-100 text-emerald-800'
-                    : 'bg-slate-200 text-slate-600'
+                  ? 'bg-emerald-100 text-emerald-800'
+                  : 'bg-slate-200 text-slate-600'
                   }`}
               >
                 {homepageConfig.hero.secondaryCta.active ? 'Active' : 'Hidden'}
@@ -848,8 +846,8 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
                   }
                 })}
                 className={`px-2.5 py-1 rounded-lg text-[11px] font-bold cursor-pointer transition-colors ${homepageConfig.hero.storyCta.active
-                    ? 'bg-emerald-100 text-emerald-800'
-                    : 'bg-slate-200 text-slate-600'
+                  ? 'bg-emerald-100 text-emerald-800'
+                  : 'bg-slate-200 text-slate-600'
                   }`}
               >
                 {homepageConfig.hero.storyCta.active ? 'Active' : 'Hidden'}
@@ -1203,8 +1201,8 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
                         }
                       })}
                       className={`px-2 py-1 rounded-lg text-xs font-bold border transition-all cursor-pointer text-center ${(homepageConfig.aboutPreview?.imageCrop || 'center center') === preset.val
-                          ? 'bg-[#006A4E] text-white border-[#006A4E] shadow-2xs'
-                          : 'bg-white text-slate-700 border-[#EAE3D9] hover:bg-slate-50'
+                        ? 'bg-[#006A4E] text-white border-[#006A4E] shadow-2xs'
+                        : 'bg-white text-slate-700 border-[#EAE3D9] hover:bg-slate-50'
                         }`}
                     >
                       {preset.label}

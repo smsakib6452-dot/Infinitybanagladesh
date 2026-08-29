@@ -3565,10 +3565,21 @@ export const AdminPage: React.FC = () => {
 
                 {/* Footer Top Callout Banner */}
                 <div className="space-y-4 pt-4 border-t border-slate-100">
-                  <h3 className="text-sm font-bold text-slate-900 font-display flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-[#006A4E]" />
-                    <span>Footer Top Callout Banner (সব পেজের নিচের কলআউট ও বাটনসমূহ)</span>
-                  </h3>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-bold text-slate-900 font-display flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-[#006A4E]" />
+                      <span>Footer Top Callout Banner (সব পেজের নিচের কলআউট ও বাটনসমূহ)</span>
+                    </h3>
+                    <label className="inline-flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={footerSettings.showCallout !== false}
+                        onChange={(e) => updateFooterSettings({ showCallout: e.target.checked })}
+                        className="rounded text-[#006A4E]"
+                      />
+                      <span>{isBn ? 'কলআউট ব্যানার দেখান' : 'Show Callout Banner'}</span>
+                    </label>
+                  </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1">

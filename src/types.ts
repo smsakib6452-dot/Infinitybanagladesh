@@ -276,6 +276,7 @@ export interface FooterSettings {
   copyrightText: BilingualText;
   establishedYear?: string;
   showNewsletter?: boolean;
+  showCallout?: boolean;
   navColumns?: FooterColumn[];
   calloutEyebrow?: BilingualText;
   calloutTitle?: BilingualText;

@@ -10,6 +10,7 @@ import { AdminErrorBoundary } from './components/AdminErrorBoundary';
 import { ScrollProgressBar } from './components/motion/ScrollProgressBar';
 import { BackToTopButton } from './components/motion/BackToTopButton';
 import { PageTransition } from './components/motion/PageTransition';
+import { CustomCursor } from './components/motion/CustomCursor';
 
 // Pages
 import { HomePage } from './pages/HomePage';
@@ -140,8 +141,11 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans selection:bg-teal-700 selection:text-white relative">
-      {/* Global Reading Progress Indicator */}
+    <div className="min-h-screen flex flex-col bg-[#FAF7F2] text-[#0F172A] selection:bg-[#006A4E]/15 selection:text-[#006A4E]">
+      {/* Desktop Custom Interactive Cursor (auto-disabled on touch & reduced motion) */}
+      <CustomCursor />
+
+      {/* Global Scroll Progress Bar */}
       <ScrollProgressBar />
 
       {/* Top Navigation */}

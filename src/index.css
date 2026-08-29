@@ -2,9 +2,13 @@
 
 @layer base {
   :root {
-    /* Primary Brand Colors (matching the official logo) */
+    /* ============================================================ */
+    /* 1. INFINITY BANGLADESH — PRIMARY BRAND PALETTE               */
+    /* Official Identity: United for Humanity / মানবতার জন্য একতাবদ্ধ */
+    /* ============================================================ */
     --brand-green: #006A4E;
     --brand-green-dark: #004D38;
+    --brand-green-deep: #003829;
     --brand-green-light: #008764;
     --brand-green-subtle: #E6F3EF;
     
@@ -13,12 +17,12 @@
     --brand-red-light: #F42A41;
     --brand-red-subtle: #FDF1F2;
 
-    /* Secondary & Supporting Colors */
+    /* Secondary & Supporting Teal Tones */
     --brand-teal: #0F4C3A;
     --brand-teal-dark: #0A3629;
     --brand-teal-light: #166B53;
 
-    /* Warm Humanitarian Palette */
+    /* Warm Humanitarian Editorial Backgrounds */
     --bg-cream: #FAF7F2;
     --bg-cream-dark: #F2ECE1;
     --bg-cream-light: #FDFBF7;
@@ -26,18 +30,35 @@
     
     --border-warm: #EAE3D9;
     --border-warm-light: #F3EFE9;
+    --border-warm-subtle: rgba(234, 227, 217, 0.6);
 
     /* Gold / Amber Accents */
     --accent-gold: #D97706;
     --accent-gold-light: #F59E0B;
     --accent-gold-subtle: #FEF3C7;
 
-    /* Dark Neutral & Text */
+    /* Dark Neutral & Text Hierarchy */
     --brand-dark: #0F172A;
     --brand-navy: #132238;
     --text-primary: #0F172A;
     --text-secondary: #475569;
     --text-muted: #64748B;
+
+    /* ============================================================ */
+    /* 2. INFINITY LIFELINE — SPECIALIZED BLOOD INITIATIVE PALETTE  */
+    /* Message: JUST ONE DROP, INFINITY HOPE / একটি রক্তবিন্দু, অনন্ত আশা */
+    /* ============================================================ */
+    --lifeline-bg-dark: #0B0F17;
+    --lifeline-bg-surface: #131A26;
+    --lifeline-bg-card: #1A2232;
+    --lifeline-border: rgba(225, 29, 72, 0.2);
+    --lifeline-border-subtle: rgba(255, 255, 255, 0.08);
+
+    --lifeline-crimson: #E11D48;
+    --lifeline-ruby: #BE123C;
+    --lifeline-ruby-dark: #9F1239;
+    --lifeline-rose-light: #FDA4AF;
+    --lifeline-glow: rgba(225, 29, 72, 0.35);
   }
 
   body {
@@ -68,9 +89,17 @@
     backface-visibility: hidden;
     transform: translateZ(0);
   }
+
+  /* Accessible high-contrast focus rings */
+  :focus-visible {
+    outline: 2px solid var(--brand-green);
+    outline-offset: 2px;
+  }
 }
 
-/* Typography Helpers */
+/* ============================================================ */
+/* TYPOGRAPHY HELPERS                                           */
+/* ============================================================ */
 .font-display {
   font-family: 'Plus Jakarta Sans', 'Outfit', 'Hind Siliguri', system-ui, sans-serif;
   font-weight: 800;
@@ -81,7 +110,13 @@
   font-family: 'Hind Siliguri', 'Plus Jakarta Sans', system-ui, sans-serif;
 }
 
-/* Custom Warm Organic UI Styles */
+.font-serif-quote {
+  font-family: 'Playfair Display', Georgia, Cambria, 'Times New Roman', serif;
+}
+
+/* ============================================================ */
+/* WARM HUMANITARIAN PALETTE & CARD STYLES                      */
+/* ============================================================ */
 .bg-cream {
   background-color: #FAF7F2;
 }
@@ -109,6 +144,10 @@
 }
 
 /* Warm Ambient Glow & Shadows */
+.shadow-warm-xs {
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 1px 2px 0 rgba(0, 106, 78, 0.02);
+}
+
 .shadow-warm-sm {
   box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.05), 0 1px 4px -1px rgba(0, 106, 78, 0.04);
 }
@@ -125,7 +164,7 @@
   box-shadow: 0 20px 35px -8px rgba(15, 23, 42, 0.12), 0 8px 16px -4px rgba(0, 106, 78, 0.08);
 }
 
-/* Gold & Green Glow Badges */
+/* Gold, Green & Red Glow Badges */
 .badge-gold {
   background-color: #FEF3C7;
   color: #92400E;
@@ -144,12 +183,14 @@
   border: 1px solid #FCD3D7;
 }
 
-/* Brand Button Styles */
+/* ============================================================ */
+/* BUTTON SYSTEMS (MAIN SITE & LIFELINE)                        */
+/* ============================================================ */
 .btn-primary-green {
   background-color: #006A4E;
   color: #FFFFFF;
   font-weight: 700;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .btn-primary-green:hover {
@@ -168,7 +209,7 @@
   color: #0F172A;
   border: 1.5px solid #D8CFC4;
   font-weight: 600;
-  transition: all 0.2s ease;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .btn-secondary-warm:hover {
@@ -177,6 +218,42 @@
   color: #006A4E;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.06);
+}
+
+/* Infinity LifeLine Crimson Button */
+.btn-lifeline-crimson {
+  background-color: #E11D48;
+  color: #FFFFFF;
+  font-weight: 700;
+  box-shadow: 0 4px 14px 0 rgba(225, 29, 72, 0.38);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-lifeline-crimson:hover {
+  background-color: #BE123C;
+  box-shadow: 0 6px 20px 0 rgba(225, 29, 72, 0.52);
+  transform: translateY(-1px);
+}
+
+.btn-lifeline-crimson:active {
+  background-color: #9F1239;
+  transform: translateY(0);
+}
+
+.btn-lifeline-ghost {
+  background-color: rgba(255, 255, 255, 0.06);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-lifeline-ghost:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+  border-color: rgba(225, 29, 72, 0.6);
+  color: #FDA4AF;
+  transform: translateY(-1px);
 }
 
 /* Paper Cut Decorative Border */
@@ -249,7 +326,7 @@ body {
 }
 
 /* ============================================================ */
-/* INFINITY BANGLADESH — PREMIUM MOTION SYSTEM TOKENS & UTILITIES */
+/* INFINITY BANGLADESH — MOTION SYSTEM TOKENS & UTILITIES       */
 /* ============================================================ */
 
 /* Animated Nav Link Underline */
@@ -353,14 +430,43 @@ body {
   animation: ambient-shimmer 6s ease-in-out infinite;
 }
 
-/* Timeline Line Draw Animation */
-@keyframes draw-line {
-  from {
-    height: 0%;
+/* ============================================================ */
+/* INFINITY LIFELINE — RIPPLE & BLOOD DROP KEYFRAME ANIMATIONS  */
+/* ============================================================ */
+
+@keyframes lifeline-ripple-expand {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.8;
   }
-  to {
-    height: 100%;
+  50% {
+    transform: scale(1.15);
+    opacity: 0.4;
   }
+  100% {
+    transform: scale(1.45);
+    opacity: 0;
+  }
+}
+
+.animate-lifeline-ripple {
+  animation: lifeline-ripple-expand 3.6s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  transform-origin: center center;
+}
+
+@keyframes lifeline-glow-pulse {
+  0%, 100% {
+    opacity: 0.25;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(1.08);
+  }
+}
+
+.animate-lifeline-glow {
+  animation: lifeline-glow-pulse 4s ease-in-out infinite;
 }
 
 /* Reduced Motion Accessibility Overrides */
@@ -376,6 +482,8 @@ body {
 
   .animate-heartbeat,
   .animate-ambient-shimmer,
+  .animate-lifeline-ripple,
+  .animate-lifeline-glow,
   .animate-pulse,
   .animate-spin {
     animation: none !important;
@@ -394,6 +502,3 @@ body {
     transform: none !important;
   }
 }
-
-
-

@@ -264,23 +264,31 @@ export const HomePage: React.FC = () => {
         );
       }
 
-      case 'about':
+      case 'about': {
+        const defaultEyebrow = { en: 'Who We Are', bn: 'আমাদের পরিচয় ও লক্ষ্য' };
+        const defaultTitleMain = { en: 'People First. Humanity Always.', bn: 'মানুষের পাশে দাঁড়ানোর অঙ্গীকারে রত —' };
+        const defaultTitleHighlight = { en: 'Serving with Empathy.', bn: 'অকৃত্রিম সেবায়, ভালোবাসার বন্ধনে।' };
+        const defaultDesc = {
+          en: 'Founded in Hathazari, Chattogram in 2015, Infinity Bangladesh has grown into a transparent youth humanitarian platform.',
+          bn: '২০১৫ সালে চট্টগ্রামের হাটহাজারী থেকে যাত্রা শুরু করে ইনফিনিটি বাংলাদেশ আজ দেশজুড়ে এক স্বচ্ছ ও নিবেদিত তারুণ্যের শক্তিতে পরিণত হয়েছে।'
+        };
+
         return (
           <section key="about" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center bg-white rounded-[2.5rem] border border-[#EAE3D9] p-6 sm:p-10 lg:p-12 shadow-warm-md">
               <ScrollReveal effect="slide-right" className="lg:col-span-6 space-y-5 text-left">
                 <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#E6F3EF] border border-[#C2E2D7] text-[#00523C] text-xs font-bold uppercase tracking-wider">
                   <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                  <span>{tText(aboutPreview.eyebrow) || (isBn ? 'সংগঠন পরিচিতি' : 'About Infinity Bangladesh')}</span>
+                  <span>{tText(aboutPreview?.eyebrow) || tText(defaultEyebrow)}</span>
                 </div>
 
                 <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 font-display leading-tight">
-                  {tText(aboutPreview.titleMain)}{' '}
-                  <span className="text-[#006A4E]">{tText(aboutPreview.titleHighlight)}</span>
+                  {tText(aboutPreview?.titleMain) || tText(defaultTitleMain)}{' '}
+                  <span className="text-[#006A4E]">{tText(aboutPreview?.titleHighlight) || tText(defaultTitleHighlight)}</span>
                 </h2>
 
                 <p className="text-sm sm:text-base text-slate-700 leading-relaxed font-normal">
-                  {tText(aboutPreview.description)}
+                  {tText(aboutPreview?.description) || tText(defaultDesc)}
                 </p>
 
                 {/* Mission & Vision Feature Highlights */}
@@ -288,35 +296,35 @@ export const HomePage: React.FC = () => {
                   <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-[#FAF7F2] border border-[#EAE3D9]/80">
                     <Target className="w-4 h-4 text-[#006A4E] shrink-0 mt-0.5" />
                     <div>
-                      <h4 className="text-xs font-bold text-slate-900">{tText(aboutPreview.missionHeading) || (isBn ? 'আমাদের লক্ষ্য' : 'Our Mission')}</h4>
-                      <p className="text-[11px] text-slate-600 mt-0.5 leading-snug line-clamp-2">{tText(aboutPreview.missionText) || tText(aboutSettings.mission)}</p>
+                      <h4 className="text-xs font-bold text-slate-900">{tText(aboutPreview?.missionHeading) || (isBn ? 'আমাদের লক্ষ্য' : 'Our Mission')}</h4>
+                      <p className="text-[11px] text-slate-600 mt-0.5 leading-snug line-clamp-2">{tText(aboutPreview?.missionText) || tText(aboutSettings.mission)}</p>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-[#FAF7F2] border border-[#EAE3D9]/80">
                     <Eye className="w-4 h-4 text-[#006A4E] shrink-0 mt-0.5" />
                     <div>
-                      <h4 className="text-xs font-bold text-slate-900">{tText(aboutPreview.visionHeading) || (isBn ? 'আমাদের দর্শন' : 'Our Vision')}</h4>
-                      <p className="text-[11px] text-slate-600 mt-0.5 leading-snug line-clamp-2">{tText(aboutPreview.visionText) || tText(aboutSettings.vision)}</p>
+                      <h4 className="text-xs font-bold text-slate-900">{tText(aboutPreview?.visionHeading) || (isBn ? 'আমাদের দর্শন' : 'Our Vision')}</h4>
+                      <p className="text-[11px] text-slate-600 mt-0.5 leading-snug line-clamp-2">{tText(aboutPreview?.visionText) || tText(aboutSettings.vision)}</p>
                     </div>
                   </div>
                 </div>
 
                 <div className="pt-2 flex items-center gap-3">
                   <Link
-                    to={aboutPreview.ctaUrl || 'about/story'}
+                    to={aboutPreview?.ctaUrl || 'about/story'}
                     className="px-6 py-3 rounded-2xl bg-[#006A4E] hover:bg-[#00523C] text-white text-xs sm:text-sm font-bold shadow-warm-sm transition-all flex items-center gap-2 cursor-pointer"
                   >
-                    <span>{tText(aboutPreview.ctaText) || (isBn ? 'আমাদের সম্পূর্ণ যাত্রা পড়ুন' : 'Read Our Full Story')}</span>
+                    <span>{tText(aboutPreview?.ctaText) || (isBn ? 'আমাদের সম্পূর্ণ যাত্রা পড়ুন' : 'Read Our Full Story')}</span>
                     <ArrowRight className="w-4 h-4" />
                   </Link>
 
                   <Link
-                    to={aboutPreview.secondaryCtaUrl || "about/executive-committee"}
+                    to={aboutPreview?.secondaryCtaUrl || "about/executive-committee"}
                     className="px-5 py-3 rounded-2xl bg-[#FAF7F2] hover:bg-[#F2ECE1] text-slate-800 text-xs sm:text-sm font-bold border border-[#D8CFC4] transition-all flex items-center gap-2 cursor-pointer"
                   >
                     <Users className="w-4 h-4 text-[#006A4E]" />
-                    <span>{tText(aboutPreview.secondaryCtaText) || (isBn ? 'নেতৃত্ব কমিটি' : 'Executive Team')}</span>
+                    <span>{tText(aboutPreview?.secondaryCtaText) || (isBn ? 'নেতৃত্ব কমিটি' : 'Executive Team')}</span>
                   </Link>
                 </div>
               </ScrollReveal>
@@ -324,18 +332,18 @@ export const HomePage: React.FC = () => {
               <ScrollReveal effect="slide-left" delay={0.2} className="lg:col-span-6">
                 <div className="rounded-3xl overflow-hidden shadow-warm-lg border-2 border-white aspect-4/3 bg-slate-900 relative">
                   <img
-                    src={getAssetUrl(aboutSettings.heroImageUrl || aboutPreview.imageUrl || 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=1000&q=80')}
-                    alt={aboutPreview.imageAlt || "Team Infinity Bangladesh"}
-                    style={{ objectPosition: aboutPreview.imageCrop || 'center center' }}
+                    src={getAssetUrl(aboutPreview?.imageUrl || aboutSettings.heroImageUrl || 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=1000&q=80')}
+                    alt={aboutPreview?.imageAlt || "Team Infinity Bangladesh"}
+                    style={{ objectPosition: aboutPreview?.imageCrop || 'center center' }}
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent flex items-end p-6">
                     <div className="text-white space-y-1">
                       <p className="text-xs font-bold text-amber-300 uppercase tracking-wider">
-                        {tText(aboutPreview.imageBadgeTitle) || (isBn ? 'টিম ইনফিনিটি — মানবতার জন্য একতাবদ্ধ' : 'Team Infinity — United for Humanity')}
+                        {tText(aboutPreview?.imageBadgeTitle) || (isBn ? 'টিম ইনফিনিটি — মানবতার জন্য একতাবদ্ধ' : 'TEAM INFINITY — UNITED FOR HUMANITY')}
                       </p>
                       <p className="text-sm font-medium text-slate-200">
-                        {tText(aboutPreview.imageBadgeSubtitle) || (isBn ? '২০১৫ সাল থেকে সুবিধাবঞ্চিত মানুষের পাশে' : 'Serving underserved communities since 2015')}
+                        {tText(aboutPreview?.imageBadgeSubtitle) || (isBn ? '২০১৫ সাল থেকে সুবিধাবঞ্চিত মানুষের পাশে' : 'Serving underserved communities since 2015')}
                       </p>
                     </div>
                   </div>
@@ -344,6 +352,7 @@ export const HomePage: React.FC = () => {
             </div>
           </section>
         );
+      }
 
       case 'programs': {
         const progCfg = homepageConfig.programsSection;
@@ -505,22 +514,25 @@ export const HomePage: React.FC = () => {
         return (
           <section key="lifeline" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <ScrollReveal effect="fade-up">
-              <div className="relative overflow-hidden rounded-[2.5rem] bg-[#04140F] bg-gradient-to-br from-[#03130E] via-[#08221A] to-[#04120D] text-white p-7 sm:p-10 lg:p-14 border border-emerald-900/40 shadow-2xl">
+              <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#02130D] via-[#062017] to-[#03150E] text-white p-6 sm:p-9 lg:p-12 border border-emerald-600/25 ring-1 ring-white/5 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.7)]">
                 {/* 1. Ambient Emerald & Ruby Atmosphere + Subtle Dot Matrix */}
                 <div className="absolute inset-0 bg-[radial-gradient(#006A4E_1px,transparent_1px)] [background-size:24px_24px] opacity-15 pointer-events-none" />
-                <div className="absolute top-0 right-0 w-[28rem] h-[28rem] bg-rose-600/12 rounded-full blur-3xl pointer-events-none animate-lifeline-glow" />
-                <div className="absolute -bottom-10 -left-10 w-[24rem] h-[24rem] bg-[#006A4E]/20 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute -top-16 -right-16 w-80 h-80 bg-rose-600/15 rounded-full blur-3xl pointer-events-none animate-lifeline-glow" />
+                <div className="absolute -bottom-16 -left-16 w-80 h-80 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
                 <div className="absolute top-1/2 left-1/3 w-64 h-64 bg-rose-900/10 rounded-full blur-2xl pointer-events-none" />
 
-                <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-7 lg:gap-10 items-center">
                   
                   {/* LEFT / PRIMARY VISUAL AREA: Brand Identity, Storytelling & CTAs */}
-                  <div className="lg:col-span-7 space-y-5 sm:space-y-6 text-center lg:text-left">
+                  <div className="lg:col-span-7 space-y-4 sm:space-y-5 text-center lg:text-left flex flex-col justify-center">
                     
                     {/* Eyebrow Badge: Emergency Blood Initiative */}
                     <div className="flex items-center justify-center lg:justify-start">
-                      <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0D2E24]/90 text-emerald-200 border border-emerald-700/40 text-xs font-extrabold uppercase tracking-wider backdrop-blur-md shadow-xs">
-                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                      <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-500/30 text-[11px] font-extrabold uppercase tracking-wider backdrop-blur-md shadow-inner">
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                        </span>
                         <Droplet className="w-3.5 h-3.5 text-rose-400 fill-rose-400 animate-heartbeat" />
                         <span>
                           {tText(lifeCfg?.badge) || tText(bloodDonationSettings.heroBadge) || (isBn ? 'ইনফিনিটি লাইফলাইন — জরুরি রক্তদান' : 'INFINITY LIFELINE — BLOOD INITIATIVE')}
@@ -529,19 +541,19 @@ export const HomePage: React.FC = () => {
                     </div>
 
                     {/* Official Sub-brand Animated Logo */}
-                    <div className="flex items-center justify-center lg:justify-start pt-1">
+                    <div className="flex items-center justify-center lg:justify-start py-0.5">
                       <LifeLineHeroLogoAnimation
                         logoUrl={bloodDonationSettings.wingLogoUrl || '/brand/Infinitylifeline-logo.svg'}
-                        logoSize={420}
+                        logoSize={440}
                         logoZoom={bloodDonationSettings.wingLogoZoom || 1}
                         logoCrop={bloodDonationSettings.wingLogoCrop || 'contain'}
                       />
                     </div>
 
-                    {/* Brand Bridge / Subtitle */}
+                    {/* Initiative Tagline (Single Crisp Line) */}
                     <div className="text-center lg:text-left">
                       <p className="text-xs sm:text-sm font-semibold text-emerald-200/90 tracking-wide flex items-center justify-center lg:justify-start gap-1.5">
-                        <HeartPulse className="w-4 h-4 text-rose-400 shrink-0" />
+                        <HeartPulse className="w-4 h-4 text-rose-400 shrink-0 animate-pulse" />
                         <span>
                           {tText(lifeCfg?.subtitle) || tText(bloodDonationSettings.heroSubtitle) || (
                             isBn
@@ -552,76 +564,53 @@ export const HomePage: React.FC = () => {
                       </p>
                     </div>
 
-                    {/* Short Supporting Description */}
-                    <p className="text-xs sm:text-sm md:text-[15px] text-slate-300/95 leading-relaxed font-normal max-w-2xl mx-auto lg:mx-0">
-                      {tText(lifeCfg?.description) || (isBn
-                        ? 'সংকটাপন্ন মুহূর্তে রোগীদের জন্য দ্রুত রক্তদাতা অনুসন্ধান এবং মানবিক সেবায় স্বেচ্ছাসেবী রক্তদাতাদের সরাসরি যুক্ত করার একটি স্বয়ংক্রিয় ও দায়িত্বশীল প্ল্যাটফর্ম।'
-                        : 'A dedicated voluntary emergency blood coordination network powered by Infinity Bangladesh. Connecting donors with patients in critical hours across all blood groups.')}
-                    </p>
-
-                    {/* Story Chips: ONE DROP → ONE LIFE → ONE RIPPLE → INFINITE HOPE */}
-                    <div className="flex flex-wrap items-center justify-center lg:justify-start gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-bold text-rose-100/90 pt-1">
-                      <span className="px-2.5 py-1 rounded-lg bg-[#0B2A21]/90 border border-emerald-700/40 text-emerald-200 backdrop-blur-xs">
-                        {tText(lifeCfg?.chip1) || (isBn ? '১ ফোঁটা রক্ত' : 'ONE DROP')}
-                      </span>
-                      <span className="text-emerald-500/70">&rarr;</span>
-                      <span className="px-2.5 py-1 rounded-lg bg-[#0B2A21]/90 border border-emerald-700/40 text-emerald-200 backdrop-blur-xs">
-                        {tText(lifeCfg?.chip2) || (isBn ? '১টি জীবন' : 'ONE LIFE')}
-                      </span>
-                      <span className="text-emerald-500/70">&rarr;</span>
-                      <span className="px-2.5 py-1 rounded-lg bg-[#0B2A21]/90 border border-emerald-700/40 text-emerald-200 backdrop-blur-xs">
-                        {tText(lifeCfg?.chip3) || (isBn ? '১ শুভপ্রভাব' : 'ONE RIPPLE')}
-                      </span>
-                      <span className="text-rose-500/80">&rarr;</span>
-                      <span className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-rose-950 to-rose-900 border border-rose-600/60 text-white font-extrabold shadow-xs">
-                        {tText(lifeCfg?.chip4) || (isBn ? 'অনন্ত আশা' : 'INFINITE HOPE')}
-                      </span>
-                    </div>
-
-                    {/* Action CTA Buttons */}
-                    <div className="pt-3 flex flex-wrap items-center justify-center lg:justify-start gap-3">
+                    {/* 3 Action CTA Buttons (Single Elegant Row on Desktop) */}
+                    <div className="pt-2 flex flex-wrap sm:flex-nowrap items-center justify-center lg:justify-start gap-2.5 sm:gap-3">
                       {/* PRIMARY: Find a Donor */}
                       <Link
                         to={lifeCfg?.findDonorBtnUrl || "blood-donation/find-donor"}
-                        className="px-5 sm:px-6 py-3.5 rounded-2xl btn-lifeline-crimson text-xs sm:text-sm font-extrabold flex items-center justify-center gap-2 cursor-pointer shadow-lg transform hover:-translate-y-0.5 active:scale-98 min-h-[44px]"
+                        className="px-4.5 sm:px-5 py-3 rounded-2xl bg-gradient-to-r from-rose-600 via-rose-500 to-red-600 hover:from-rose-500 hover:to-red-500 text-white text-xs sm:text-sm font-extrabold flex items-center justify-center gap-2 cursor-pointer shadow-[0_4px_20px_rgba(225,29,72,0.4)] hover:shadow-[0_6px_25px_rgba(225,29,72,0.6)] transform hover:-translate-y-0.5 active:scale-98 min-h-[44px] shrink-0 transition-all duration-200"
                       >
-                        <Search className="w-4 h-4" />
+                        <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         <span>{tText(lifeCfg?.findDonorBtnText) || (isBn ? 'রক্তদাতা খুঁজুন' : 'Find a Donor')}</span>
                       </Link>
 
                       {/* SECONDARY: Become a Blood Donor */}
                       <Link
                         to={lifeCfg?.becomeDonorBtnUrl || "blood-donation/become-donor"}
-                        className="px-5 sm:px-6 py-3.5 rounded-2xl bg-[#006A4E] hover:bg-[#00553E] text-white border border-emerald-500/40 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 cursor-pointer shadow-md transform hover:-translate-y-0.5 active:scale-98 min-h-[44px] transition-all"
+                        className="px-4.5 sm:px-5 py-3 rounded-2xl bg-gradient-to-r from-[#006A4E] to-[#008763] hover:from-[#007A5A] hover:to-[#009970] text-white border border-emerald-400/30 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 cursor-pointer shadow-[0_4px_20px_rgba(0,106,78,0.35)] hover:shadow-[0_6px_25px_rgba(0,106,78,0.5)] transform hover:-translate-y-0.5 active:scale-98 min-h-[44px] transition-all duration-200 shrink-0"
                       >
-                        <Droplet className="w-4 h-4 text-rose-300 fill-rose-300" />
+                        <Droplet className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-rose-300 fill-rose-300" />
                         <span>{tText(lifeCfg?.becomeDonorBtnText) || (isBn ? 'রক্তদাতা হোন' : 'Become a Blood Donor')}</span>
                       </Link>
 
                       {/* TERTIARY: Emergency Request */}
                       <Link
                         to={lifeCfg?.emergencyReqBtnUrl || "blood-donation/emergency-request"}
-                        className="px-4 sm:px-5 py-3.5 rounded-2xl bg-white/10 hover:bg-white/15 text-rose-200 border border-rose-800/30 text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 min-h-[44px] hover:border-rose-500/50"
+                        className="px-4 sm:px-4.5 py-3 rounded-2xl bg-rose-950/40 hover:bg-rose-900/50 text-rose-200 border border-rose-600/40 hover:border-rose-400 text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer flex items-center justify-center gap-1.5 min-h-[44px] shadow-sm transform hover:-translate-y-0.5 active:scale-98 shrink-0"
                       >
-                        <ShieldAlert className="w-4 h-4 text-rose-400" />
-                        <span>{tText(lifeCfg?.emergencyReqBtnText) || (isBn ? 'জরুরি রক্তের আবেদন' : 'Emergency Request')}</span>
+                        <ShieldAlert className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-rose-400" />
+                        <span>{tText(lifeCfg?.emergencyReqBtnText) || (isBn ? 'জরুরি আবেদন' : 'Emergency Request')}</span>
                       </Link>
                     </div>
                   </div>
 
                   {/* RIGHT COLUMN: Refined Live Coordination Panel */}
                   <div className="lg:col-span-5 relative">
-                    <div className="rounded-3xl bg-[#072018]/90 border border-emerald-800/40 p-6 sm:p-7 space-y-5 backdrop-blur-md shadow-xl hover:border-emerald-700/60 transition-all">
+                    <div className="rounded-[2rem] bg-[#051B13]/90 border border-emerald-500/25 p-5 sm:p-6 lg:p-7 space-y-4 sm:space-y-5 backdrop-blur-xl shadow-2xl hover:border-emerald-400/40 transition-all duration-300">
                       
                       {/* Panel Header */}
-                      <div className="flex items-center justify-between border-b border-emerald-800/30 pb-4">
+                      <div className="flex items-center justify-between border-b border-emerald-800/40 pb-3.5">
                         <div className="flex items-center gap-2">
-                          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                          <span className="relative flex h-2.5 w-2.5">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400" />
+                          </span>
                           <span className="text-xs font-bold text-emerald-200 uppercase tracking-wider">
                             {tText(lifeCfg?.coordinationTitle) || (isBn ? 'লাইভ রক্তদান সমন্বয় নেটওয়ার্ক' : 'Live Coordination Network')}
                           </span>
                         </div>
-                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-emerald-950/80 text-emerald-300 border border-emerald-800/40">
+                        <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-950/90 text-emerald-300 border border-emerald-500/40 tracking-wider">
                           {tText(lifeCfg?.coordinationBadge) || (isBn ? 'সক্রিয়' : 'LIVE')}
                         </span>
                       </div>
@@ -629,33 +618,33 @@ export const HomePage: React.FC = () => {
                       {/* 4 Real Metric Cards */}
                       <div className="grid grid-cols-2 gap-3">
                         {/* 1. Total Registered Donors */}
-                        <div className="p-3.5 sm:p-4 rounded-2xl bg-[#0B2A21]/90 border border-emerald-800/30 text-center flex flex-col items-center justify-center gap-1 hover:border-emerald-500/40 transition-all">
+                        <div className="p-3.5 rounded-2xl bg-[#07241A]/90 border border-emerald-600/25 text-center flex flex-col items-center justify-center gap-1 hover:border-emerald-400/50 hover:bg-[#0A2E22] transform hover:-translate-y-1 transition-all duration-200 shadow-sm">
                           <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center">
                             <Users className="w-4 h-4" />
                           </div>
                           <p className="text-xl sm:text-2xl font-extrabold text-white font-display">
                             <AnimatedCounter value={totalRegisteredDonors} />+
                           </p>
-                          <p className="text-[11px] font-medium text-slate-300">
+                          <p className="text-[11px] font-medium text-emerald-200/80">
                             {tText(bloodDonationSettings.statTotalDonorsLabel) || (isBn ? 'নিবন্ধিত রক্তদাতা' : 'Registered Donors')}
                           </p>
                         </div>
 
                         {/* 2. Active Emergency Donors */}
-                        <div className="p-3.5 sm:p-4 rounded-2xl bg-[#0B2A21]/90 border border-emerald-800/30 text-center flex flex-col items-center justify-center gap-1 hover:border-emerald-500/40 transition-all">
+                        <div className="p-3.5 rounded-2xl bg-[#07241A]/90 border border-emerald-600/25 text-center flex flex-col items-center justify-center gap-1 hover:border-emerald-400/50 hover:bg-[#0A2E22] transform hover:-translate-y-1 transition-all duration-200 shadow-sm">
                           <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center">
                             <UserCheck className="w-4 h-4" />
                           </div>
                           <p className="text-xl sm:text-2xl font-extrabold text-white font-display">
                             <AnimatedCounter value={totalActiveDonors} />+
                           </p>
-                          <p className="text-[11px] font-medium text-slate-300">
+                          <p className="text-[11px] font-medium text-emerald-200/80">
                             {tText(bloodDonationSettings.statActiveDonorsLabel) || (isBn ? 'জরুরিতে প্রস্তুত' : 'Ready Donors')}
                           </p>
                         </div>
 
                         {/* 3. Blood Groups Covered */}
-                        <div className="p-3.5 sm:p-4 rounded-2xl bg-[#0B2A21]/90 border border-emerald-800/30 text-center flex flex-col items-center justify-center gap-1 hover:border-rose-500/40 transition-all">
+                        <div className="p-3.5 rounded-2xl bg-[#0A1F1B]/90 border border-rose-800/25 text-center flex flex-col items-center justify-center gap-1 hover:border-rose-500/40 hover:bg-[#122722] transform hover:-translate-y-1 transition-all duration-200 shadow-sm">
                           <div className="w-8 h-8 rounded-full bg-rose-500/20 text-rose-300 flex items-center justify-center">
                             <Droplet className="w-4 h-4 fill-current" />
                           </div>
@@ -666,20 +655,20 @@ export const HomePage: React.FC = () => {
                               '8/8'
                             )}
                           </p>
-                          <p className="text-[11px] font-medium text-slate-300">
+                          <p className="text-[11px] font-medium text-rose-200/80">
                             {tText(bloodDonationSettings.statGroupsLabel) || (isBn ? 'সকল ব্লাড গ্রুপ' : 'Blood Groups')}
                           </p>
                         </div>
 
                         {/* 4. Lives Impacted */}
-                        <div className="p-3.5 sm:p-4 rounded-2xl bg-[#0B2A21]/90 border border-emerald-800/30 text-center flex flex-col items-center justify-center gap-1 hover:border-amber-500/40 transition-all">
+                        <div className="p-3.5 rounded-2xl bg-[#0A1F1B]/90 border border-amber-700/25 text-center flex flex-col items-center justify-center gap-1 hover:border-amber-400/40 hover:bg-[#122722] transform hover:-translate-y-1 transition-all duration-200 shadow-sm">
                           <div className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-300 flex items-center justify-center">
                             <Heart className="w-4 h-4 fill-current" />
                           </div>
                           <p className="text-xl sm:text-2xl font-extrabold text-amber-300 font-display">
                             <AnimatedCounter value={`${totalLivesImpacted}+`} />
                           </p>
-                          <p className="text-[11px] font-medium text-slate-300">
+                          <p className="text-[11px] font-medium text-amber-200/80">
                             {tText(bloodDonationSettings.statImpactLabel) || (isBn ? 'রক্তদান সম্পন্ন' : 'Lives Impacted')}
                           </p>
                         </div>
@@ -687,28 +676,28 @@ export const HomePage: React.FC = () => {
 
                       {/* 24/7 Helpline Bar */}
                       {bloodDonationSettings.emergencyHelpline && (
-                        <div className="p-3.5 rounded-2xl bg-[#051C15] border border-emerald-700/30 flex items-center justify-between text-xs text-slate-300">
+                        <div className="p-3.5 rounded-2xl bg-[#041610] border border-emerald-600/30 flex items-center justify-between text-xs text-slate-300 shadow-inner">
                           <div className="flex items-center gap-2">
                             <Phone className="w-3.5 h-3.5 text-rose-400 animate-pulse" />
-                            <span className="text-slate-300">{isBn ? '২৪/৭ জরুরি হেল্পলাইন:' : '24/7 Helpline:'}</span>
+                            <span className="text-emerald-100/90 font-medium">{isBn ? '২৪/৭ জরুরি হেল্পলাইন:' : '24/7 Helpline:'}</span>
                           </div>
                           <a
                             href={`tel:${bloodDonationSettings.emergencyHelpline.replace(/[^0-9+]/g, '')}`}
-                            className="font-bold text-emerald-200 hover:text-white font-mono transition-colors"
+                            className="font-bold text-emerald-300 hover:text-white font-mono tracking-wide transition-colors flex items-center gap-1"
                           >
-                            {bloodDonationSettings.emergencyHelpline}
+                            <span>{bloodDonationSettings.emergencyHelpline}</span>
                           </a>
                         </div>
                       )}
 
                       {/* Gateway Footnote link to full Blood Donation experience */}
-                      <div className="pt-1 text-center">
+                      <div className="pt-0.5 text-center">
                         <Link
                           to={lifeCfg?.portalUrl || "blood-donation"}
-                          className="text-xs text-emerald-300/80 hover:text-emerald-200 font-semibold inline-flex items-center gap-1 transition-colors"
+                          className="group text-xs text-emerald-300/90 hover:text-emerald-100 font-semibold inline-flex items-center gap-1.5 transition-all duration-200"
                         >
                           <span>{tText(lifeCfg?.portalLinkText) || (isBn ? 'সম্পূর্ণ রক্তদান কার্যক্রম ও নির্দেশিকা দেখুন' : 'Explore Full LifeLine Portal & Guidelines')}</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
+                          <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform duration-200" />
                         </Link>
                       </div>
                     </div>

@@ -8,6 +8,8 @@ import {
   ListOrdered,
   ArrowUp,
   ArrowDown,
+  ArrowRight,
+  Target,
   Eye,
   EyeOff,
   Sparkles,
@@ -16,12 +18,16 @@ import {
   ShieldCheck,
   Activity,
   Users,
+  UserCheck,
   BookOpen,
   Flag,
   Heart,
+  HeartPulse,
   Droplet,
   Search,
-  Newspaper
+  Newspaper,
+  ShieldAlert,
+  Phone
 } from 'lucide-react';
 import { AdminTab } from '../pages/AdminPage';
 import { getAssetUrl } from '../lib/utils/assetHelper';
@@ -42,6 +48,8 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
     homepageConfig,
     updateHomepageConfig,
     aboutSettings,
+    bloodDonationSettings,
+    updateBloodDonationSettings,
     metrics,
     programs,
     campaigns,
@@ -132,18 +140,18 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
             const isVisible = homepageConfig.sectionVisibility[sectionKey] !== false;
             const sectionNames: Record<string, { num: string; en: string; bn: string }> = {
               hero: { num: '01', en: 'Hero Banner & Slogan', bn: 'হিরো ব্যানার ও মূল স্লোগান' },
-              impact: { num: '02', en: 'Impact Metrics & Audits', bn: 'পরিসংখ্যান ও মানবিক প্রভাব' },
-              about: { num: '03', en: 'About Preview & Purpose', bn: 'সংগঠন পরিচিতি ও লক্ষ্য' },
-              programs: { num: '04', en: 'Flagship Programs', bn: 'ধারাবাহিক মানবিক কর্মসূচি' },
-              campaigns: { num: '05', en: 'Relief Drives & Campaigns', bn: 'মাঠপর্যায়ের ক্যাম্পেইন' },
-              stories: { num: '06', en: 'Impact Stories of Hope', bn: 'বাস্তব জীবনের রূপান্তরের গল্প' },
-              lifeline: { num: '07', en: 'Infinity LifeLine Spotlight', bn: 'ইনফিনিটি লাইফলাইন রক্তদান স্পটলাইট' },
-              blood_donation: { num: '07', en: 'Infinity LifeLine Spotlight', bn: 'ইনফিনিটি লাইফলাইন রক্তদান স্পটলাইট' },
-              gallery: { num: '08', en: 'Photo Gallery & Moments', bn: 'মাঠপর্যায়ের স্মৃতি ও আলোকচিত্র' },
-              press: { num: '09', en: 'News & Media Coverage', bn: 'গণমাধ্যমে প্রকাশিত প্রতিবেদন' },
-              volunteer: { num: '10', en: 'Volunteer CTA Banner', bn: 'স্বেচ্ছাসেবী আহ্বান ব্যানার' },
-              transparency: { num: '11', en: 'Transparency Pledge', bn: 'স্বচ্ছতা ও সততার অঙ্গীকার' },
-              support: { num: '12', en: 'Support & Donation Banner', bn: 'অনলাইন অনুদান ও সহায়তা ব্যানার' }
+              impact: { num: 'CMS', en: 'Impact Metrics (Managed in Impact CMS)', bn: 'পরিসংখ্যান (ইমপ্যাক্ট ট্যাবে পরিচালিত)' },
+              about: { num: '02', en: 'About Preview & Purpose', bn: 'সংগঠন পরিচিতি ও লক্ষ্য' },
+              programs: { num: '03', en: 'Flagship Programs', bn: 'ধারাবাহিক মানবিক কর্মসূচি' },
+              campaigns: { num: '04', en: 'Relief Drives & Campaigns', bn: 'মাঠপর্যায়ের ক্যাম্পেইন' },
+              stories: { num: '05', en: 'Impact Stories of Hope', bn: 'বাস্তব জীবনের রূপান্তরের গল্প' },
+              lifeline: { num: '06', en: 'Infinity LifeLine Spotlight', bn: 'ইনফিনিটি লাইফলাইন রক্তদান স্পটলাইট' },
+              blood_donation: { num: '06', en: 'Infinity LifeLine Spotlight', bn: 'ইনফিনিটি লাইফলাইন রক্তদান স্পটলাইট' },
+              gallery: { num: '07', en: 'Photo Gallery & Moments', bn: 'মাঠপর্যায়ের স্মৃতি ও আলোকচিত্র' },
+              press: { num: '08', en: 'News & Media Coverage', bn: 'গণমাধ্যমে প্রকাশিত প্রতিবেদন' },
+              volunteer: { num: '09', en: 'Volunteer CTA Banner', bn: 'স্বেচ্ছাসেবী আহ্বান ব্যানার' },
+              transparency: { num: '10', en: 'Transparency Pledge', bn: 'স্বচ্ছতা ও সততার অঙ্গীকার' },
+              support: { num: '11', en: 'Support & Donation Banner', bn: 'অনলাইন অনুদান ও সহায়তা ব্যানার' }
             };
             const sInfo = sectionNames[sectionKey] || { num: `0${index + 1}`, en: `${sectionKey} Section`, bn: `${sectionKey} সেকশন` };
 
@@ -844,271 +852,151 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
           </div>
         </div>
       </div>
-
       {/* ============================================================= */}
-      {/* 02. IMPACT METRICS SECTION */}
+      {/* 02. ABOUT / WHO WE ARE SECTION (UNIFIED SINGLE EDITOR) */}
       {/* ============================================================= */}
-      <div id="sec-02-impact" className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+      <div id="sec-02-about" className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-8 shadow-warm-sm">
+        {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
           <div className="flex items-center gap-3">
-            <span className="w-9 h-9 rounded-2xl bg-[#006A4E] text-white font-extrabold flex items-center justify-center font-mono text-sm shadow-xs">
+            <span className="w-10 h-10 rounded-2xl bg-[#006A4E] text-white font-extrabold flex items-center justify-center font-mono text-sm shadow-warm-xs">
               02
             </span>
             <div>
-              <h3 className="text-base font-extrabold text-slate-900 font-display">
-                {isBn ? 'প্রভাব ও পরিসংখ্যান সেকশন (Impact Metrics)' : 'Impact Metrics Section'}
+              <h3 className="text-lg font-extrabold text-slate-900 font-display">
+                {isBn ? 'সংগঠন পরিচিতি ও মূল বার্তা (About / Who We Are)' : 'About & Purpose Section'}
               </h3>
               <p className="text-xs font-bold text-[#006A4E]">
-                Controls Homepage: "Our Measured Impact Across Communities" — Header & 4 Impact Cards
+                Controls Homepage: "People First. Humanity Always" — Headline, Mission/Vision, CTAs & Photo
               </p>
             </div>
           </div>
-          <span className="text-[11px] text-slate-500 bg-[#FAF7F2] px-3 py-1 rounded-xl border border-[#EAE3D9] font-mono">
-            sectionKey: 'impact'
-          </span>
         </div>
 
-        {/* Section Presentation Headings */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-700">Badge Text (EN)</label>
-            <input
-              type="text"
-              value={homepageConfig.impactSection?.badge?.en || ''}
-              onChange={(e) => updateHomepageConfig({
-                impactSection: {
-                  ...(homepageConfig.impactSection || {}),
-                  badge: { ...(homepageConfig.impactSection?.badge || { en: '', bn: '' }), en: e.target.value }
-                }
-              })}
-              placeholder="Verified Groundwork"
-              className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
-            />
-          </div>
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-700">ব্যাজ লেখা (বাংলা)</label>
-            <input
-              type="text"
-              value={homepageConfig.impactSection?.badge?.bn || ''}
-              onChange={(e) => updateHomepageConfig({
-                impactSection: {
-                  ...(homepageConfig.impactSection || {}),
-                  badge: { ...(homepageConfig.impactSection?.badge || { en: '', bn: '' }), bn: e.target.value }
-                }
-              })}
-              placeholder="আমাদের মাঠপর্যায়ের বিস্তৃতি"
-              className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
-            />
-          </div>
+        {/* ------------------------------------------------------------- */}
+        {/* 1. EYEBROW, HEADLINES & STORY DESCRIPTION */}
+        {/* ------------------------------------------------------------- */}
+        <div className="space-y-4">
+          <h4 className="text-xs font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+            <span>✍️</span>
+            <span>1. Headlines, Eyebrow & Story Description (আইব্রো, মূল শিরোনাম ও পরিচিতি)</span>
+          </h4>
 
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-700">Title Heading (EN)</label>
-            <input
-              type="text"
-              value={homepageConfig.impactSection?.title?.en || ''}
-              onChange={(e) => updateHomepageConfig({
-                impactSection: {
-                  ...(homepageConfig.impactSection || {}),
-                  title: { ...(homepageConfig.impactSection?.title || { en: '', bn: '' }), en: e.target.value }
-                }
-              })}
-              placeholder="Our Measured Impact Across Communities"
-              className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
-            />
-          </div>
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-700">মূল শিরোনাম (বাংলা)</label>
-            <input
-              type="text"
-              value={homepageConfig.impactSection?.title?.bn || ''}
-              onChange={(e) => updateHomepageConfig({
-                impactSection: {
-                  ...(homepageConfig.impactSection || {}),
-                  title: { ...(homepageConfig.impactSection?.title || { en: '', bn: '' }), bn: e.target.value }
-                }
-              })}
-              placeholder="পরিসংখ্যান ও মানবিক প্রভাব"
-              className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
-            />
-          </div>
-
-          <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Eyebrow Pill */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-700">Subtitle Description (EN)</label>
-              <textarea
-                rows={2}
-                value={homepageConfig.impactSection?.subtitle?.en || ''}
+              <label className="text-xs font-bold text-slate-700">Eyebrow Pill (English)</label>
+              <input
+                type="text"
+                value={homepageConfig.aboutPreview?.eyebrow?.en || ''}
                 onChange={(e) => updateHomepageConfig({
-                  impactSection: {
-                    ...(homepageConfig.impactSection || {}),
-                    subtitle: { ...(homepageConfig.impactSection?.subtitle || { en: '', bn: '' }), en: e.target.value }
+                  aboutPreview: {
+                    ...homepageConfig.aboutPreview,
+                    eyebrow: { ...(homepageConfig.aboutPreview?.eyebrow || { en: '', bn: '' }), en: e.target.value }
                   }
                 })}
-                placeholder="Ground-level metrics verified by Team Infinity audits across communities."
-                className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                placeholder="Who We Are"
+                className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
               />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-700">সাবটাইটেল বিবরণ (বাংলা)</label>
-              <textarea
-                rows={2}
-                value={homepageConfig.impactSection?.subtitle?.bn || ''}
+              <label className="text-xs font-bold text-slate-700">আইব্রো ব্যাজ (বাংলা)</label>
+              <input
+                type="text"
+                value={homepageConfig.aboutPreview?.eyebrow?.bn || ''}
                 onChange={(e) => updateHomepageConfig({
-                  impactSection: {
-                    ...(homepageConfig.impactSection || {}),
-                    subtitle: { ...(homepageConfig.impactSection?.subtitle || { en: '', bn: '' }), bn: e.target.value }
+                  aboutPreview: {
+                    ...homepageConfig.aboutPreview,
+                    eyebrow: { ...(homepageConfig.aboutPreview?.eyebrow || { en: '', bn: '' }), bn: e.target.value }
                   }
                 })}
-                placeholder="সকল সংখ্যা ও তথ্য সততা ও নিরপেক্ষতার সাথে যাচাইকৃত।"
-                className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
+                placeholder="আমাদের পরিচয় ও লক্ষ্য"
+                className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
               />
             </div>
           </div>
-        </div>
 
-        {/* Impact Data Source & Shortcut */}
-        <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <div className="space-y-0.5">
-            <p className="text-xs font-extrabold text-slate-900">
-              {isBn ? 'মাঠপর্যায়ের পরিসংখ্যান ও কাউন্টার কার্ড' : 'Homepage 4 Impact Counter Cards'}
-            </p>
-            <p className="text-[11px] text-slate-600">
-              {isBn
-                ? `বর্তমান সক্রিয় সংখ্যা: ${metrics.filter(m => m.active !== false).map(m => `${m.value} (${isBn ? m.label.bn : m.label.en})`).join(', ')}`
-                : `Currently displaying: ${metrics.filter(m => m.active !== false).map(m => `${m.value} ${m.label.en}`).join(', ')}`}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setActiveTab('impact')}
-            className="px-4 py-2 rounded-xl bg-white hover:bg-[#E6F3EF] text-[#006A4E] text-xs font-bold border border-[#C2E2D7] shadow-2xs transition-all cursor-pointer flex items-center gap-1.5 shrink-0"
-          >
-            <Activity className="w-3.5 h-3.5" />
-            <span>{isBn ? 'পরিসংখ্যান ও কাউন্টার ম্যানেজ করুন →' : 'Manage Metrics in Impact CMS →'}</span>
-          </button>
-        </div>
-      </div>
+          {/* Main Title & Highlight Accent */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* English Headline */}
+            <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-3">
+              <span className="text-[11px] font-extrabold text-slate-900 uppercase tracking-wider block">
+                English Headline Structure
+              </span>
+              <div className="space-y-1">
+                <label className="text-[10px] text-slate-500 font-bold">Main Title (Dark Text)</label>
+                <input
+                  type="text"
+                  value={homepageConfig.aboutPreview?.titleMain?.en || ''}
+                  onChange={(e) => updateHomepageConfig({
+                    aboutPreview: {
+                      ...homepageConfig.aboutPreview,
+                      titleMain: { ...(homepageConfig.aboutPreview?.titleMain || { en: '', bn: '' }), en: e.target.value }
+                    }
+                  })}
+                  placeholder="People First. Humanity Always."
+                  className="w-full px-3 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bold text-slate-900"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] text-emerald-700 font-bold">Highlight Accent (Emerald Green)</label>
+                <input
+                  type="text"
+                  value={homepageConfig.aboutPreview?.titleHighlight?.en || ''}
+                  onChange={(e) => updateHomepageConfig({
+                    aboutPreview: {
+                      ...homepageConfig.aboutPreview,
+                      titleHighlight: { ...(homepageConfig.aboutPreview?.titleHighlight || { en: '', bn: '' }), en: e.target.value }
+                    }
+                  })}
+                  placeholder="Serving with Empathy."
+                  className="w-full px-3 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bold text-[#006A4E]"
+                />
+              </div>
+            </div>
 
-      {/* ============================================================= */}
-      {/* 03. ABOUT / WHO WE ARE SECTION */}
-      {/* ============================================================= */}
-      <div id="sec-03-about" className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
-          <div className="flex items-center gap-3">
-            <span className="w-9 h-9 rounded-2xl bg-[#006A4E] text-white font-extrabold flex items-center justify-center font-mono text-sm shadow-xs">
-              03
-            </span>
-            <div>
-              <h3 className="text-base font-extrabold text-slate-900 font-display">
-                {isBn ? 'সংগঠন পরিচিতি ও লক্ষ্য (About Preview / Who We Are)' : 'About / Who We Are Section'}
-              </h3>
-              <p className="text-xs font-bold text-[#006A4E]">
-                Controls Homepage: "People First. Humanity Always" — About Preview & Story CTA
-              </p>
+            {/* Bengali Headline */}
+            <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-3">
+              <span className="text-[11px] font-extrabold text-slate-900 uppercase tracking-wider block">
+                বাংলা শিরোনামের গঠন
+              </span>
+              <div className="space-y-1">
+                <label className="text-[10px] text-slate-500 font-bold">মূল শিরোনাম (কালো অক্ষর)</label>
+                <input
+                  type="text"
+                  value={homepageConfig.aboutPreview?.titleMain?.bn || ''}
+                  onChange={(e) => updateHomepageConfig({
+                    aboutPreview: {
+                      ...homepageConfig.aboutPreview,
+                      titleMain: { ...(homepageConfig.aboutPreview?.titleMain || { en: '', bn: '' }), bn: e.target.value }
+                    }
+                  })}
+                  placeholder="মানুষের পাশে দাঁড়ানোই আমাদের ব্রত —"
+                  className="w-full px-3 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bold font-bengali text-slate-900"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] text-emerald-700 font-bold">হাইলাইট শিরোনাম (সবুজ হাইলাইট)</label>
+                <input
+                  type="text"
+                  value={homepageConfig.aboutPreview?.titleHighlight?.bn || ''}
+                  onChange={(e) => updateHomepageConfig({
+                    aboutPreview: {
+                      ...homepageConfig.aboutPreview,
+                      titleHighlight: { ...(homepageConfig.aboutPreview?.titleHighlight || { en: '', bn: '' }), bn: e.target.value }
+                    }
+                  })}
+                  placeholder="অকৃত্রিম সেবায়, ভালোবাসার বন্ধনে।"
+                  className="w-full px-3 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bold font-bengali text-[#006A4E]"
+                />
+              </div>
             </div>
           </div>
-          <span className="text-[11px] text-slate-500 bg-[#FAF7F2] px-3 py-1 rounded-xl border border-[#EAE3D9] font-mono">
-            sectionKey: 'about'
-          </span>
-        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-700">Eyebrow (English)</label>
-            <input
-              type="text"
-              value={homepageConfig.aboutPreview?.eyebrow?.en || ''}
-              onChange={(e) => updateHomepageConfig({
-                aboutPreview: {
-                  ...homepageConfig.aboutPreview,
-                  eyebrow: { ...(homepageConfig.aboutPreview?.eyebrow || { en: '', bn: '' }), en: e.target.value }
-                }
-              })}
-              placeholder="About Infinity Bangladesh"
-              className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
-            />
-          </div>
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-700">আইব্রো (বাংলা)</label>
-            <input
-              type="text"
-              value={homepageConfig.aboutPreview?.eyebrow?.bn || ''}
-              onChange={(e) => updateHomepageConfig({
-                aboutPreview: {
-                  ...homepageConfig.aboutPreview,
-                  eyebrow: { ...(homepageConfig.aboutPreview?.eyebrow || { en: '', bn: '' }), bn: e.target.value }
-                }
-              })}
-              placeholder="সংগঠন পরিচিতি"
-              className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
-            />
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-700">Title Main (English)</label>
-            <input
-              type="text"
-              value={homepageConfig.aboutPreview?.titleMain?.en || ''}
-              onChange={(e) => updateHomepageConfig({
-                aboutPreview: {
-                  ...homepageConfig.aboutPreview,
-                  titleMain: { ...(homepageConfig.aboutPreview?.titleMain || { en: '', bn: '' }), en: e.target.value }
-                }
-              })}
-              placeholder="People First."
-              className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
-            />
-          </div>
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-700">Title Highlight (English)</label>
-            <input
-              type="text"
-              value={homepageConfig.aboutPreview?.titleHighlight?.en || ''}
-              onChange={(e) => updateHomepageConfig({
-                aboutPreview: {
-                  ...homepageConfig.aboutPreview,
-                  titleHighlight: { ...(homepageConfig.aboutPreview?.titleHighlight || { en: '', bn: '' }), en: e.target.value }
-                }
-              })}
-              placeholder="Humanity Always."
-              className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
-            />
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-700">মূল শিরোনাম (বাংলা)</label>
-            <input
-              type="text"
-              value={homepageConfig.aboutPreview?.titleMain?.bn || ''}
-              onChange={(e) => updateHomepageConfig({
-                aboutPreview: {
-                  ...homepageConfig.aboutPreview,
-                  titleMain: { ...(homepageConfig.aboutPreview?.titleMain || { en: '', bn: '' }), bn: e.target.value }
-                }
-              })}
-              placeholder="মানুষের পাশে,"
-              className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
-            />
-          </div>
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-700">হাইলাইট শিরোনাম (বাংলা)</label>
-            <input
-              type="text"
-              value={homepageConfig.aboutPreview?.titleHighlight?.bn || ''}
-              onChange={(e) => updateHomepageConfig({
-                aboutPreview: {
-                  ...homepageConfig.aboutPreview,
-                  titleHighlight: { ...(homepageConfig.aboutPreview?.titleHighlight || { en: '', bn: '' }), bn: e.target.value }
-                }
-              })}
-              placeholder="মানবতার তরে সর্বদা।"
-              className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
-            />
-          </div>
-
-          <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Narrative Story Description */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-700">Description (English)</label>
+              <label className="text-xs font-bold text-slate-700">Narrative Description (English)</label>
               <textarea
                 rows={3}
                 value={homepageConfig.aboutPreview?.description?.en || ''}
@@ -1118,12 +1006,12 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
                     description: { ...(homepageConfig.aboutPreview?.description || { en: '', bn: '' }), en: e.target.value }
                   }
                 })}
-                placeholder="A youth-driven volunteer organization founded in 2015..."
-                className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                placeholder="Founded in Hathazari, Chattogram in 2015, Infinity Bangladesh has grown into a transparent youth humanitarian platform."
+                className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs leading-relaxed"
               />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-700">বিবরণ (বাংলা)</label>
+              <label className="text-xs font-bold text-slate-700">পরিচিতি ও বিবরণ (বাংলা)</label>
               <textarea
                 rows={3}
                 value={homepageConfig.aboutPreview?.description?.bn || ''}
@@ -1133,20 +1021,388 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
                     description: { ...(homepageConfig.aboutPreview?.description || { en: '', bn: '' }), bn: e.target.value }
                   }
                 })}
-                placeholder="২০১৫ সালে চট্টগ্রামের হাটহাজারীতে প্রতিষ্ঠিত..."
-                className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
+                placeholder="২০১৫ সালে চট্টগ্রামের হাটহাজারী থেকে যাত্রা শুরু করে ইনফিনিটি বাংলাদেশ আজ দেশজুড়ে এক স্বচ্ছ ও নিবেদিত তারুণ্যের শক্তিতে পরিণত হয়েছে।"
+                className="w-full px-3.5 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali leading-relaxed"
               />
             </div>
           </div>
+        </div>
 
-          {/* Primary & Secondary About CTAs */}
-          <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
-            {/* Primary Story CTA */}
-            <div className="p-3 bg-[#FAF7F2] rounded-xl border border-[#EAE3D9] space-y-2">
-              <span className="text-[11px] font-bold text-[#006A4E] block">Primary Button (সম্পূর্ণ গল্প পড়ুন)</span>
+        {/* ------------------------------------------------------------- */}
+        {/* 2. COVER PHOTO, CROP PRESETS & FLOATING OVERLAY BADGES */}
+        {/* ------------------------------------------------------------- */}
+        <div className="space-y-4 pt-4 border-t border-slate-100">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-1 gap-2">
+            <h4 className="text-xs font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+              <span>📸</span>
+              <span>2. Cover Photo, Focus Crop & Floating Badges (ছবি, ক্রপ ও ওভারলে ব্যাজ)</span>
+            </h4>
+            <button
+              type="button"
+              onClick={() => openMediaPicker((url) => {
+                updateHomepageConfig({
+                  aboutPreview: {
+                    ...homepageConfig.aboutPreview,
+                    imageUrl: url
+                  }
+                });
+                showToast('About cover photo updated from Media Library');
+              })}
+              className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-emerald-50 text-[#006A4E] text-xs font-bold border border-[#C2E2D7] shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
+            >
+              <FolderOpen className="w-3.5 h-3.5" />
+              <span>{isBn ? 'মিডিয়া গ্যালারি থেকে ছবি নির্বাচন' : 'Pick from Media Library'}</span>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* Live Thumbnail on Left */}
+            <div className="lg:col-span-4 space-y-2">
+              <div className="aspect-4/3 rounded-2xl overflow-hidden border-2 border-white shadow-warm-xs bg-slate-900 relative">
+                <img
+                  src={getAssetUrl(homepageConfig.aboutPreview?.imageUrl || aboutSettings.heroImageUrl || 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=1000&q=80')}
+                  alt={homepageConfig.aboutPreview?.imageAlt || 'About Preview'}
+                  style={{ objectPosition: homepageConfig.aboutPreview?.imageCrop || 'center center' }}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent flex items-end p-3">
+                  <div className="text-white space-y-0.5 min-w-0">
+                    <p className="text-[10px] font-extrabold text-amber-300 uppercase tracking-wide truncate">
+                      {tText(homepageConfig.aboutPreview?.imageBadgeTitle) || 'TEAM INFINITY — UNITED FOR HUMANITY'}
+                    </p>
+                    <p className="text-[9px] text-slate-200 truncate">
+                      {tText(homepageConfig.aboutPreview?.imageBadgeSubtitle) || 'Serving underserved communities since 2015'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="text-center text-[10px] text-slate-500 font-mono">
+                Live Crop: <span className="text-[#006A4E] font-bold">{homepageConfig.aboutPreview?.imageCrop || 'center center'}</span>
+              </div>
+            </div>
+
+            {/* Photo Controls on Right */}
+            <div className="lg:col-span-8 space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                <div className="sm:col-span-8 space-y-1">
+                  <label className="text-xs font-bold text-slate-700">Image Direct URL (ছবির লিংক)</label>
+                  <input
+                    type="text"
+                    value={homepageConfig.aboutPreview?.imageUrl || ''}
+                    onChange={(e) => updateHomepageConfig({
+                      aboutPreview: {
+                        ...homepageConfig.aboutPreview,
+                        imageUrl: e.target.value
+                      }
+                    })}
+                    placeholder="https://res.cloudinary.com/... or /images/..."
+                    className="w-full px-3 py-1.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-mono"
+                  />
+                </div>
+                <div className="sm:col-span-4 space-y-1">
+                  <label className="text-xs font-bold text-slate-700">Alt Text (বিকল্প নাম)</label>
+                  <input
+                    type="text"
+                    value={homepageConfig.aboutPreview?.imageAlt || ''}
+                    onChange={(e) => updateHomepageConfig({
+                      aboutPreview: {
+                        ...homepageConfig.aboutPreview,
+                        imageAlt: e.target.value
+                      }
+                    })}
+                    placeholder="Team Infinity"
+                    className="w-full px-3 py-1.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                  />
+                </div>
+              </div>
+
+              {/* Quick Crop Presets */}
+              <div className="p-3 bg-[#FAF7F2] rounded-xl border border-[#EAE3D9] space-y-1.5">
+                <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider block">
+                  Quick Focus Crop (কুইক ক্রপ পজিশন)
+                </label>
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
+                  {[
+                    { label: 'Center', val: 'center center' },
+                    { label: 'Top', val: 'center top' },
+                    { label: 'Bottom', val: 'center bottom' },
+                    { label: 'Left', val: 'left center' },
+                    { label: 'Right', val: 'right center' },
+                    { label: 'Top-Right', val: 'right top' }
+                  ].map((preset) => (
+                    <button
+                      key={preset.val}
+                      type="button"
+                      onClick={() => updateHomepageConfig({
+                        aboutPreview: {
+                          ...homepageConfig.aboutPreview,
+                          imageCrop: preset.val
+                        }
+                      })}
+                      className={`px-2 py-1 rounded-lg text-xs font-bold border transition-all cursor-pointer text-center ${
+                        (homepageConfig.aboutPreview?.imageCrop || 'center center') === preset.val
+                          ? 'bg-[#006A4E] text-white border-[#006A4E] shadow-2xs'
+                          : 'bg-white text-slate-700 border-[#EAE3D9] hover:bg-slate-50'
+                      }`}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Floating Overlay Badge Texts */}
+              <div className="p-3.5 bg-[#FAF7F2] rounded-xl border border-[#EAE3D9] space-y-2.5">
+                <span className="text-[11px] font-extrabold text-amber-800 uppercase tracking-wider block">
+                  ⭐ Photo Floating Overlay Badge (ছবির উপর ভাসমান হলুদ ও সাদা ব্যাজ)
+                </span>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-amber-700">Yellow Badge Title (EN)</label>
+                    <input
+                      type="text"
+                      value={homepageConfig.aboutPreview?.imageBadgeTitle?.en || ''}
+                      onChange={(e) => updateHomepageConfig({
+                        aboutPreview: {
+                          ...homepageConfig.aboutPreview,
+                          imageBadgeTitle: { ...(homepageConfig.aboutPreview?.imageBadgeTitle || { en: '', bn: '' }), en: e.target.value }
+                        }
+                      })}
+                      placeholder="TEAM INFINITY — UNITED FOR HUMANITY"
+                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bold text-slate-800"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-amber-700">হলুদ ব্যাজ শিরোনাম (বাংলা)</label>
+                    <input
+                      type="text"
+                      value={homepageConfig.aboutPreview?.imageBadgeTitle?.bn || ''}
+                      onChange={(e) => updateHomepageConfig({
+                        aboutPreview: {
+                          ...homepageConfig.aboutPreview,
+                          imageBadgeTitle: { ...(homepageConfig.aboutPreview?.imageBadgeTitle || { en: '', bn: '' }), bn: e.target.value }
+                        }
+                      })}
+                      placeholder="টিম ইনফিনিটি — মানবতার জন্য একতাবদ্ধ"
+                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bold font-bengali text-slate-800"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-600">Subtitle Text (EN)</label>
+                    <input
+                      type="text"
+                      value={homepageConfig.aboutPreview?.imageBadgeSubtitle?.en || ''}
+                      onChange={(e) => updateHomepageConfig({
+                        aboutPreview: {
+                          ...homepageConfig.aboutPreview,
+                          imageBadgeSubtitle: { ...(homepageConfig.aboutPreview?.imageBadgeSubtitle || { en: '', bn: '' }), en: e.target.value }
+                        }
+                      })}
+                      placeholder="Serving underserved communities since 2015"
+                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs text-slate-700"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-600">সাবটাইটেল লেখা (বাংলা)</label>
+                    <input
+                      type="text"
+                      value={homepageConfig.aboutPreview?.imageBadgeSubtitle?.bn || ''}
+                      onChange={(e) => updateHomepageConfig({
+                        aboutPreview: {
+                          ...homepageConfig.aboutPreview,
+                          imageBadgeSubtitle: { ...(homepageConfig.aboutPreview?.imageBadgeSubtitle || { en: '', bn: '' }), bn: e.target.value }
+                        }
+                      })}
+                      placeholder="২০১৫ সাল থেকে সুবিধাবঞ্চিত মানুষের পাশে"
+                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali text-slate-700"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ------------------------------------------------------------- */}
+        {/* 3. MISSION & VISION FEATURE CARDS */}
+        {/* ------------------------------------------------------------- */}
+        <div className="space-y-4 pt-4 border-t border-slate-100">
+          <h4 className="text-xs font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+            <span>🎯</span>
+            <span>3. Mission & Vision Feature Cards (আমাদের লক্ষ্য ও দর্শন সংক্ষিপ্ত কার্ড)</span>
+          </h4>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Mission Card Form */}
+            <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-3">
+              <span className="text-xs font-extrabold text-slate-900 flex items-center gap-1.5">
+                <Target className="w-4 h-4 text-[#006A4E]" />
+                <span>🎯 Mission Card (আমাদের লক্ষ্য)</span>
+              </span>
+
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-[10px] text-slate-500 font-medium">Text (EN)</label>
+                  <label className="text-[10px] text-slate-500 font-bold">Heading (EN)</label>
+                  <input
+                    type="text"
+                    value={homepageConfig.aboutPreview?.missionHeading?.en || ''}
+                    onChange={(e) => updateHomepageConfig({
+                      aboutPreview: {
+                        ...homepageConfig.aboutPreview,
+                        missionHeading: { ...(homepageConfig.aboutPreview?.missionHeading || { en: '', bn: '' }), en: e.target.value }
+                      }
+                    })}
+                    placeholder="Our Mission"
+                    className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] text-slate-500 font-bold">শিরোনাম (বাংলা)</label>
+                  <input
+                    type="text"
+                    value={homepageConfig.aboutPreview?.missionHeading?.bn || ''}
+                    onChange={(e) => updateHomepageConfig({
+                      aboutPreview: {
+                        ...homepageConfig.aboutPreview,
+                        missionHeading: { ...(homepageConfig.aboutPreview?.missionHeading || { en: '', bn: '' }), bn: e.target.value }
+                      }
+                    })}
+                    placeholder="আমাদের লক্ষ্য"
+                    className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] text-slate-500 font-bold">Short Mission Text (EN)</label>
+                <textarea
+                  rows={2}
+                  value={homepageConfig.aboutPreview?.missionText?.en || ''}
+                  onChange={(e) => updateHomepageConfig({
+                    aboutPreview: {
+                      ...homepageConfig.aboutPreview,
+                      missionText: { ...(homepageConfig.aboutPreview?.missionText || { en: '', bn: '' }), en: e.target.value }
+                    }
+                  })}
+                  placeholder="To restore human dignity and bring hope to vulnerable communities."
+                  className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] text-slate-500 font-bold">সংক্ষিপ্ত লক্ষ্য বিবরণ (বাংলা)</label>
+                <textarea
+                  rows={2}
+                  value={homepageConfig.aboutPreview?.missionText?.bn || ''}
+                  onChange={(e) => updateHomepageConfig({
+                    aboutPreview: {
+                      ...homepageConfig.aboutPreview,
+                      missionText: { ...(homepageConfig.aboutPreview?.missionText || { en: '', bn: '' }), bn: e.target.value }
+                    }
+                  })}
+                  placeholder="সুবিধাবঞ্চিত মানুষের মর্যাদা রক্ষা ও আশার আলো ছড়ানো।"
+                  className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali"
+                />
+              </div>
+            </div>
+
+            {/* Vision Card Form */}
+            <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-3">
+              <span className="text-xs font-extrabold text-slate-900 flex items-center gap-1.5">
+                <Eye className="w-4 h-4 text-[#006A4E]" />
+                <span>👁️ Vision Card (আমাদের দর্শন)</span>
+              </span>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-[10px] text-slate-500 font-bold">Heading (EN)</label>
+                  <input
+                    type="text"
+                    value={homepageConfig.aboutPreview?.visionHeading?.en || ''}
+                    onChange={(e) => updateHomepageConfig({
+                      aboutPreview: {
+                        ...homepageConfig.aboutPreview,
+                        visionHeading: { ...(homepageConfig.aboutPreview?.visionHeading || { en: '', bn: '' }), en: e.target.value }
+                      }
+                    })}
+                    placeholder="Our Vision"
+                    className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] text-slate-500 font-bold">শিরোনাম (বাংলা)</label>
+                  <input
+                    type="text"
+                    value={homepageConfig.aboutPreview?.visionHeading?.bn || ''}
+                    onChange={(e) => updateHomepageConfig({
+                      aboutPreview: {
+                        ...homepageConfig.aboutPreview,
+                        visionHeading: { ...(homepageConfig.aboutPreview?.visionHeading || { en: '', bn: '' }), bn: e.target.value }
+                      }
+                    })}
+                    placeholder="আমাদের দর্শন"
+                    className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] text-slate-500 font-bold">Short Vision Text (EN)</label>
+                <textarea
+                  rows={2}
+                  value={homepageConfig.aboutPreview?.visionText?.en || ''}
+                  onChange={(e) => updateHomepageConfig({
+                    aboutPreview: {
+                      ...homepageConfig.aboutPreview,
+                      visionText: { ...(homepageConfig.aboutPreview?.visionText || { en: '', bn: '' }), en: e.target.value }
+                    }
+                  })}
+                  placeholder="A compassionate society where every underprivileged person receives dignity."
+                  className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] text-slate-500 font-bold">সংক্ষিপ্ত দর্শন বিবরণ (বাংলা)</label>
+                <textarea
+                  rows={2}
+                  value={homepageConfig.aboutPreview?.visionText?.bn || ''}
+                  onChange={(e) => updateHomepageConfig({
+                    aboutPreview: {
+                      ...homepageConfig.aboutPreview,
+                      visionText: { ...(homepageConfig.aboutPreview?.visionText || { en: '', bn: '' }), bn: e.target.value }
+                    }
+                  })}
+                  placeholder="একটি সহানুভূতিশীল সমাজ গঠন যেখানে প্রতিটি মানুষ মর্যাদা পাবে।"
+                  className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ------------------------------------------------------------- */}
+        {/* 4. ACTION BUTTONS & ROUTES */}
+        {/* ------------------------------------------------------------- */}
+        <div className="space-y-4 pt-4 border-t border-slate-100">
+          <h4 className="text-xs font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+            <span>🔘</span>
+            <span>4. Action Buttons & Navigation (অ্যাকশন বোতাম ও রুট লিংক)</span>
+          </h4>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Primary Story Button */}
+            <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-3">
+              <span className="text-xs font-extrabold text-[#006A4E] flex items-center gap-1.5">
+                <ArrowRight className="w-3.5 h-3.5" />
+                <span>Primary Button (মূল বোতাম)</span>
+              </span>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-[10px] text-slate-500 font-bold">Button Text (EN)</label>
                   <input
                     type="text"
                     value={homepageConfig.aboutPreview?.ctaText?.en || ''}
@@ -1156,12 +1412,12 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
                         ctaText: { ...(homepageConfig.aboutPreview?.ctaText || { en: '', bn: '' }), en: e.target.value }
                       }
                     })}
-                    placeholder="Read Our Full Story"
-                    className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs"
+                    placeholder="Explore Our Full Journey"
+                    className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bold"
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] text-slate-500 font-medium">লেখা (বাংলা)</label>
+                  <label className="text-[10px] text-slate-500 font-bold">বোতামের লেখা (বাংলা)</label>
                   <input
                     type="text"
                     value={homepageConfig.aboutPreview?.ctaText?.bn || ''}
@@ -1171,13 +1427,14 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
                         ctaText: { ...(homepageConfig.aboutPreview?.ctaText || { en: '', bn: '' }), bn: e.target.value }
                       }
                     })}
-                    placeholder="আমাদের সম্পূর্ণ যাত্রা পড়ুন"
-                    className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali"
+                    placeholder="আমাদের সম্পূর্ণ গল্প পড়ুন"
+                    className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali font-bold"
                   />
                 </div>
               </div>
+
               <div>
-                <label className="text-[10px] text-slate-500 font-medium">Target Route</label>
+                <label className="text-[10px] text-slate-500 font-bold">Target Route / URL (লিংক)</label>
                 <input
                   type="text"
                   value={homepageConfig.aboutPreview?.ctaUrl || 'about/story'}
@@ -1188,17 +1445,21 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
                     }
                   })}
                   placeholder="about/story"
-                  className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-mono"
+                  className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-mono font-bold text-[#006A4E]"
                 />
               </div>
             </div>
 
-            {/* Secondary Team CTA */}
-            <div className="p-3 bg-[#FAF7F2] rounded-xl border border-[#EAE3D9] space-y-2">
-              <span className="text-[11px] font-bold text-slate-700 block">Secondary Button (নেতৃত্ব কমিটি)</span>
+            {/* Secondary Committee Button */}
+            <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-3">
+              <span className="text-xs font-extrabold text-slate-800 flex items-center gap-1.5">
+                <Users className="w-3.5 h-3.5 text-[#006A4E]" />
+                <span>Secondary Button (নেতৃত্ব কমিটি)</span>
+              </span>
+
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-[10px] text-slate-500 font-medium">Text (EN)</label>
+                  <label className="text-[10px] text-slate-500 font-bold">Button Text (EN)</label>
                   <input
                     type="text"
                     value={homepageConfig.aboutPreview?.secondaryCtaText?.en || ''}
@@ -1213,7 +1474,7 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] text-slate-500 font-medium">লেখা (বাংলা)</label>
+                  <label className="text-[10px] text-slate-500 font-bold">বোতামের লেখা (বাংলা)</label>
                   <input
                     type="text"
                     value={homepageConfig.aboutPreview?.secondaryCtaText?.bn || ''}
@@ -1228,8 +1489,9 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
                   />
                 </div>
               </div>
+
               <div>
-                <label className="text-[10px] text-slate-500 font-medium">Target Route</label>
+                <label className="text-[10px] text-slate-500 font-bold">Target Route / URL (লিংক)</label>
                 <input
                   type="text"
                   value={homepageConfig.aboutPreview?.secondaryCtaUrl || 'about/executive-committee'}
@@ -1240,285 +1502,20 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
                     }
                   })}
                   placeholder="about/executive-committee"
-                  className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-mono"
+                  className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-mono font-bold text-slate-700"
                 />
-              </div>
-            </div>
-          </div>
-          {/* Mission & Vision Homepage Overrides */}
-          <div className="sm:col-span-2 space-y-4 pt-3 border-t border-slate-100">
-            <h5 className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider">
-              Mission & Vision Highlights (লক্ষ্য ও দর্শন হাইলাইটস)
-            </h5>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Mission Card */}
-              <div className="p-3.5 bg-[#FAF7F2] rounded-2xl border border-[#EAE3D9] space-y-2.5">
-                <span className="text-xs font-bold text-[#006A4E] block">1. Mission Highlight (আমাদের লক্ষ্য)</span>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="text-[10px] text-slate-500 font-medium">Heading (EN)</label>
-                    <input
-                      type="text"
-                      value={homepageConfig.aboutPreview?.missionHeading?.en || ''}
-                      onChange={(e) => updateHomepageConfig({
-                        aboutPreview: {
-                          ...homepageConfig.aboutPreview,
-                          missionHeading: { ...(homepageConfig.aboutPreview?.missionHeading || { en: '', bn: '' }), en: e.target.value }
-                        }
-                      })}
-                      placeholder="Our Mission"
-                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] text-slate-500 font-medium">শিরোনাম (বাংলা)</label>
-                    <input
-                      type="text"
-                      value={homepageConfig.aboutPreview?.missionHeading?.bn || ''}
-                      onChange={(e) => updateHomepageConfig({
-                        aboutPreview: {
-                          ...homepageConfig.aboutPreview,
-                          missionHeading: { ...(homepageConfig.aboutPreview?.missionHeading || { en: '', bn: '' }), bn: e.target.value }
-                        }
-                      })}
-                      placeholder="আমাদের লক্ষ্য"
-                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="text-[10px] text-slate-500 font-medium">Short Text (EN)</label>
-                  <textarea
-                    rows={2}
-                    value={homepageConfig.aboutPreview?.missionText?.en || ''}
-                    onChange={(e) => updateHomepageConfig({
-                      aboutPreview: {
-                        ...homepageConfig.aboutPreview,
-                        missionText: { ...(homepageConfig.aboutPreview?.missionText || { en: '', bn: '' }), en: e.target.value }
-                      }
-                    })}
-                    placeholder="Empower communities through transparent action..."
-                    className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs"
-                  />
-                </div>
-                <div>
-                  <label className="text-[10px] text-slate-500 font-medium">সংক্ষিপ্ত বিবরণ (বাংলা)</label>
-                  <textarea
-                    rows={2}
-                    value={homepageConfig.aboutPreview?.missionText?.bn || ''}
-                    onChange={(e) => updateHomepageConfig({
-                      aboutPreview: {
-                        ...homepageConfig.aboutPreview,
-                        missionText: { ...(homepageConfig.aboutPreview?.missionText || { en: '', bn: '' }), bn: e.target.value }
-                      }
-                    })}
-                    placeholder="স্বচ্ছতা ও তারুণ্যের শক্তিতে মানুষের পাশে দাঁড়ানো..."
-                    className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali"
-                  />
-                </div>
-              </div>
-
-              {/* Vision Card */}
-              <div className="p-3.5 bg-[#FAF7F2] rounded-2xl border border-[#EAE3D9] space-y-2.5">
-                <span className="text-xs font-bold text-[#006A4E] block">2. Vision Highlight (আমাদের দর্শন)</span>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="text-[10px] text-slate-500 font-medium">Heading (EN)</label>
-                    <input
-                      type="text"
-                      value={homepageConfig.aboutPreview?.visionHeading?.en || ''}
-                      onChange={(e) => updateHomepageConfig({
-                        aboutPreview: {
-                          ...homepageConfig.aboutPreview,
-                          visionHeading: { ...(homepageConfig.aboutPreview?.visionHeading || { en: '', bn: '' }), en: e.target.value }
-                        }
-                      })}
-                      placeholder="Our Vision"
-                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] text-slate-500 font-medium">শিরোনাম (বাংলা)</label>
-                    <input
-                      type="text"
-                      value={homepageConfig.aboutPreview?.visionHeading?.bn || ''}
-                      onChange={(e) => updateHomepageConfig({
-                        aboutPreview: {
-                          ...homepageConfig.aboutPreview,
-                          visionHeading: { ...(homepageConfig.aboutPreview?.visionHeading || { en: '', bn: '' }), bn: e.target.value }
-                        }
-                      })}
-                      placeholder="আমাদের দর্শন"
-                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="text-[10px] text-slate-500 font-medium">Short Text (EN)</label>
-                  <textarea
-                    rows={2}
-                    value={homepageConfig.aboutPreview?.visionText?.en || ''}
-                    onChange={(e) => updateHomepageConfig({
-                      aboutPreview: {
-                        ...homepageConfig.aboutPreview,
-                        visionText: { ...(homepageConfig.aboutPreview?.visionText || { en: '', bn: '' }), en: e.target.value }
-                      }
-                    })}
-                    placeholder="Build a resilient and compassionate society..."
-                    className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs"
-                  />
-                </div>
-                <div>
-                  <label className="text-[10px] text-slate-500 font-medium">সংক্ষিপ্ত বিবরণ (বাংলা)</label>
-                  <textarea
-                    rows={2}
-                    value={homepageConfig.aboutPreview?.visionText?.bn || ''}
-                    onChange={(e) => updateHomepageConfig({
-                      aboutPreview: {
-                        ...homepageConfig.aboutPreview,
-                        visionText: { ...(homepageConfig.aboutPreview?.visionText || { en: '', bn: '' }), bn: e.target.value }
-                      }
-                    })}
-                    placeholder="একটি বৈষম্যহীন ও স্বাবলম্বী সমাজ বিনির্মাণ..."
-                    className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* About Preview Image & Floating Badge Controls */}
-          <div className="sm:col-span-2 space-y-4 pt-3 border-t border-slate-100">
-            <h5 className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider">
-              About Image & Overlay Badge (ছবি ও ওভারলে ব্যাজ)
-            </h5>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-3">
-                <div className="space-y-1">
-                  <label className="text-[11px] font-bold text-slate-700">Image URL</label>
-                  <input
-                    type="text"
-                    value={homepageConfig.aboutPreview?.imageUrl || ''}
-                    onChange={(e) => updateHomepageConfig({
-                      aboutPreview: {
-                        ...homepageConfig.aboutPreview,
-                        imageUrl: e.target.value
-                      }
-                    })}
-                    placeholder="https://images.unsplash.com/..."
-                    className="w-full px-3 py-1.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-mono"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-slate-700">Image Alt Text</label>
-                    <input
-                      type="text"
-                      value={homepageConfig.aboutPreview?.imageAlt || ''}
-                      onChange={(e) => updateHomepageConfig({
-                        aboutPreview: {
-                          ...homepageConfig.aboutPreview,
-                          imageAlt: e.target.value
-                        }
-                      })}
-                      placeholder="Team Infinity Bangladesh"
-                      className="w-full px-3 py-1.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-slate-700">Crop (CSS object-position)</label>
-                    <input
-                      type="text"
-                      value={homepageConfig.aboutPreview?.imageCrop || 'center center'}
-                      onChange={(e) => updateHomepageConfig({
-                        aboutPreview: {
-                          ...homepageConfig.aboutPreview,
-                          imageCrop: e.target.value
-                        }
-                      })}
-                      placeholder="center center"
-                      className="w-full px-3 py-1.5 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-mono"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-3 p-3.5 bg-[#FAF7F2] rounded-2xl border border-[#EAE3D9]">
-                <span className="text-xs font-bold text-slate-900 block">Image Bottom Overlay Card</span>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="text-[10px] text-slate-500 font-medium">Badge Title (EN)</label>
-                    <input
-                      type="text"
-                      value={homepageConfig.aboutPreview?.imageBadgeTitle?.en || ''}
-                      onChange={(e) => updateHomepageConfig({
-                        aboutPreview: {
-                          ...homepageConfig.aboutPreview,
-                          imageBadgeTitle: { ...(homepageConfig.aboutPreview?.imageBadgeTitle || { en: '', bn: '' }), en: e.target.value }
-                        }
-                      })}
-                      placeholder="Team Infinity — United for Humanity"
-                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] text-slate-500 font-medium">ব্যাজ শিরোনাম (বাংলা)</label>
-                    <input
-                      type="text"
-                      value={homepageConfig.aboutPreview?.imageBadgeTitle?.bn || ''}
-                      onChange={(e) => updateHomepageConfig({
-                        aboutPreview: {
-                          ...homepageConfig.aboutPreview,
-                          imageBadgeTitle: { ...(homepageConfig.aboutPreview?.imageBadgeTitle || { en: '', bn: '' }), bn: e.target.value }
-                        }
-                      })}
-                      placeholder="টিম ইনফিনিটি — মানবতার জন্য একতাবদ্ধ"
-                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali"
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="text-[10px] text-slate-500 font-medium">Subtitle (EN)</label>
-                    <input
-                      type="text"
-                      value={homepageConfig.aboutPreview?.imageBadgeSubtitle?.en || ''}
-                      onChange={(e) => updateHomepageConfig({
-                        aboutPreview: {
-                          ...homepageConfig.aboutPreview,
-                          imageBadgeSubtitle: { ...(homepageConfig.aboutPreview?.imageBadgeSubtitle || { en: '', bn: '' }), en: e.target.value }
-                        }
-                      })}
-                      placeholder="Serving underserved communities since 2015"
-                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] text-slate-500 font-medium">সাবটাইটেল (বাংলা)</label>
-                    <input
-                      type="text"
-                      value={homepageConfig.aboutPreview?.imageBadgeSubtitle?.bn || ''}
-                      onChange={(e) => updateHomepageConfig({
-                        aboutPreview: {
-                          ...homepageConfig.aboutPreview,
-                          imageBadgeSubtitle: { ...(homepageConfig.aboutPreview?.imageBadgeSubtitle || { en: '', bn: '' }), bn: e.target.value }
-                        }
-                      })}
-                      placeholder="২০১৫ সাল থেকে সুবিধাবঞ্চিত মানুষের পাশে"
-                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali"
-                    />
-                  </div>
-                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Mission/Vision & About CMS Shortcut */}
+        {/* ------------------------------------------------------------- */}
+        {/* PANEL 5: FULL ABOUT CMS SHORTCUT */}
+        {/* ------------------------------------------------------------- */}
         <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="space-y-0.5">
             <p className="text-xs font-extrabold text-slate-900">
-              {isBn ? 'লক্ষ্য ও দর্শন (Mission & Vision) ডাটা সংযোগ' : 'Mission & Vision Live Cards'}
+              {isBn ? 'লক্ষ্য ও দর্শন (Mission & Vision) পূর্ণাঙ্গ ডাটা সংযোগ' : 'Mission & Vision Full CMS Gateway'}
             </p>
             <p className="text-[11px] text-slate-600">
               {isBn
@@ -1532,19 +1529,19 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
             className="px-4 py-2 rounded-xl bg-white hover:bg-[#E6F3EF] text-[#006A4E] text-xs font-bold border border-[#C2E2D7] shadow-2xs transition-all cursor-pointer flex items-center gap-1.5 shrink-0"
           >
             <BookOpen className="w-3.5 h-3.5" />
-            <span>{isBn ? 'সম্পূর্ণ পরিচিতি এডিট করুন →' : 'Edit Mission/Vision in About CMS →'}</span>
+            <span>{isBn ? 'সম্পূর্ণ পরিচিতি এডিট করুন →' : 'Edit Full Organization About CMS →'}</span>
           </button>
         </div>
       </div>
 
       {/* ============================================================= */}
-      {/* 04. FLAGSHIP PROGRAMS SECTION */}
+      {/* 03. FLAGSHIP PROGRAMS SECTION */}
       {/* ============================================================= */}
-      <div id="sec-04-programs" className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+      <div id="sec-03-programs" className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
           <div className="flex items-center gap-3">
             <span className="w-9 h-9 rounded-2xl bg-[#006A4E] text-white font-extrabold flex items-center justify-center font-mono text-sm shadow-xs">
-              04
+              03
             </span>
             <div>
               <h3 className="text-base font-extrabold text-slate-900 font-display">
@@ -1712,13 +1709,13 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
       </div>
 
       {/* ============================================================= */}
-      {/* 05. RELIEF CAMPAIGNS SECTION */}
+      {/* 04. RELIEF CAMPAIGNS SECTION */}
       {/* ============================================================= */}
-      <div id="sec-05-campaigns" className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+      <div id="sec-04-campaigns" className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
           <div className="flex items-center gap-3">
             <span className="w-9 h-9 rounded-2xl bg-[#006A4E] text-white font-extrabold flex items-center justify-center font-mono text-sm shadow-xs">
-              05
+              04
             </span>
             <div>
               <h3 className="text-base font-extrabold text-slate-900 font-display">
@@ -1967,13 +1964,13 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
       </div>
 
       {/* ============================================================= */}
-      {/* 06. IMPACT STORIES SECTION */}
+      {/* 05. IMPACT STORIES SECTION */}
       {/* ============================================================= */}
-      <div id="sec-06-stories" className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+      <div id="sec-05-stories" className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
           <div className="flex items-center gap-3">
             <span className="w-9 h-9 rounded-2xl bg-[#006A4E] text-white font-extrabold flex items-center justify-center font-mono text-sm shadow-xs">
-              06
+              05
             </span>
             <div>
               <h3 className="text-base font-extrabold text-slate-900 font-display">
@@ -2108,20 +2105,24 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
       </div>
 
       {/* ============================================================= */}
-      {/* 07. INFINITY LIFELINE SPOTLIGHT */}
+      {/* 06. INFINITY LIFELINE SPOTLIGHT */}
       {/* ============================================================= */}
-      <div id="sec-07-lifeline" className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+      <div id="sec-06-lifeline" className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-7 shadow-warm-sm">
+        {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
           <div className="flex items-center gap-3">
-            <span className="w-9 h-9 rounded-2xl bg-[#04140F] text-rose-400 font-extrabold flex items-center justify-center font-mono text-sm shadow-xs border border-emerald-900">
-              07
+            <span className="w-9 h-9 rounded-2xl bg-[#04140F] text-rose-400 font-extrabold flex items-center justify-center font-mono text-sm shadow-xs border border-emerald-900/60">
+              06
             </span>
             <div>
-              <h3 className="text-base font-extrabold text-slate-900 font-display">
-                {isBn ? 'ইনফিনিটি লাইফলাইন স্পটলাইট (Infinity LifeLine Blood Spotlight)' : 'Infinity LifeLine Spotlight'}
+              <h3 className="text-base font-extrabold text-slate-900 font-display flex items-center gap-2">
+                <span>{isBn ? 'ইনফিনিটি লাইফলাইন স্পটলাইট (Infinity LifeLine Blood Spotlight)' : 'Infinity LifeLine Blood Spotlight'}</span>
+                <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
               </h3>
-              <p className="text-xs font-bold text-rose-600">
-                Controls Homepage: Infinity LifeLine Spotlight — Brand Identity, Narrative & 3 Action CTAs
+              <p className="text-xs font-bold text-[#BE123C]">
+                {isBn
+                  ? 'হোমপেজের জরুরি রক্তদান উদ্যোগ — লোগো, বার্তা, গল্প চিপস, ৩টি অ্যাকশন বোতাম ও লাইভ সমন্বয় নেটওয়ার্ক নিয়ন্ত্রণ'
+                  : 'Controls Homepage: Sub-brand Identity, Narrative Story Chips, 3 Action CTAs & Live Coordination Panel'}
               </p>
             </div>
           </div>
@@ -2130,111 +2131,178 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-700">Eyebrow Badge (EN)</label>
-            <input
-              type="text"
-              value={homepageConfig.lifelineSection?.badge?.en || ''}
-              onChange={(e) => updateHomepageConfig({
-                lifelineSection: {
-                  ...(homepageConfig.lifelineSection || {}),
-                  badge: { ...(homepageConfig.lifelineSection?.badge || { en: '', bn: '' }), en: e.target.value }
-                }
-              })}
-              placeholder="INFINITY LIFELINE — BLOOD INITIATIVE"
-              className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
-            />
-          </div>
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-700">আইব্রো ব্যাজ (বাংলা)</label>
-            <input
-              type="text"
-              value={homepageConfig.lifelineSection?.badge?.bn || ''}
-              onChange={(e) => updateHomepageConfig({
-                lifelineSection: {
-                  ...(homepageConfig.lifelineSection || {}),
-                  badge: { ...(homepageConfig.lifelineSection?.badge || { en: '', bn: '' }), bn: e.target.value }
-                }
-              })}
-              placeholder="ইনফিনিটি লাইফলাইন — জরুরি রক্তদান"
-              className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
-            />
+        {/* ------------------------------------------------------------- */}
+        {/* PANEL 1: BRAND IDENTITY, EYEBROW & SUBTITLE TAGLINE */}
+        {/* ------------------------------------------------------------- */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h4 className="text-xs font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+              <HeartPulse className="w-4 h-4 text-rose-500" />
+              <span>{isBn ? '১. আইব্রো ও উদ্যোগের ট্যাগলাইন' : '1. Eyebrow Badge & Initiative Tagline'}</span>
+            </h4>
+            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+              EN & BN Dual Support
+            </span>
           </div>
 
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-700">Subtitle / Bridge Text (EN)</label>
-            <input
-              type="text"
-              value={homepageConfig.lifelineSection?.subtitle?.en || ''}
-              onChange={(e) => updateHomepageConfig({
-                lifelineSection: {
-                  ...(homepageConfig.lifelineSection || {}),
-                  subtitle: { ...(homepageConfig.lifelineSection?.subtitle || { en: '', bn: '' }), en: e.target.value }
-                }
-              })}
-              placeholder="An Emergency Blood Donation Initiative by Infinity Bangladesh 🩸"
-              className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
-            />
-          </div>
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-700">সাবটাইটেল ব্রিজ (বাংলা)</label>
-            <input
-              type="text"
-              value={homepageConfig.lifelineSection?.subtitle?.bn || ''}
-              onChange={(e) => updateHomepageConfig({
-                lifelineSection: {
-                  ...(homepageConfig.lifelineSection || {}),
-                  subtitle: { ...(homepageConfig.lifelineSection?.subtitle || { en: '', bn: '' }), bn: e.target.value }
-                }
-              })}
-              placeholder="ইনফিনিটি বাংলাদেশ-এর একটি জরুরি মানবিক রক্তদান উদ্যোগ 🩸"
-              className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
-            />
-          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* English Narrative Card */}
+            <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-3">
+              <span className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider block border-b border-[#EAE3D9] pb-1.5">
+                English Content (ইংরেজি সংস্করণ)
+              </span>
 
-          <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-700">Narrative Description (EN)</label>
-              <textarea
-                rows={2}
-                value={homepageConfig.lifelineSection?.description?.en || ''}
-                onChange={(e) => updateHomepageConfig({
-                  lifelineSection: {
-                    ...(homepageConfig.lifelineSection || {}),
-                    description: { ...(homepageConfig.lifelineSection?.description || { en: '', bn: '' }), en: e.target.value }
-                  }
-                })}
-                placeholder="A dedicated voluntary emergency blood coordination network powered by Infinity Bangladesh."
-                className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
-              />
+              {/* Eyebrow Badge (EN) */}
+              <div className="space-y-1">
+                <label className="text-[10px] text-slate-500 font-bold">Eyebrow Badge (Top Pill)</label>
+                <input
+                  type="text"
+                  value={homepageConfig.lifelineSection?.badge?.en || ''}
+                  onChange={(e) => updateHomepageConfig({
+                    lifelineSection: {
+                      ...(homepageConfig.lifelineSection || {}),
+                      badge: { ...(homepageConfig.lifelineSection?.badge || { en: '', bn: '' }), en: e.target.value }
+                    }
+                  })}
+                  placeholder="INFINITY LIFELINE — BLOOD INITIATIVE"
+                  className="w-full px-3 py-2 bg-white border border-[#EAE3D9] rounded-xl text-xs font-bold text-emerald-900"
+                />
+              </div>
+
+              {/* Subtitle / Initiative Tagline (EN) */}
+              <div className="space-y-1">
+                <label className="text-[10px] text-slate-500 font-bold">Initiative Tagline / Subtitle</label>
+                <input
+                  type="text"
+                  value={homepageConfig.lifelineSection?.subtitle?.en || ''}
+                  onChange={(e) => updateHomepageConfig({
+                    lifelineSection: {
+                      ...(homepageConfig.lifelineSection || {}),
+                      subtitle: { ...(homepageConfig.lifelineSection?.subtitle || { en: '', bn: '' }), en: e.target.value }
+                    }
+                  })}
+                  placeholder="An Emergency Blood Donation Initiative by Infinity Bangladesh 🩸"
+                  className="w-full px-3 py-2.5 bg-white border border-[#EAE3D9] rounded-xl text-xs font-semibold text-slate-800"
+                />
+              </div>
             </div>
-            <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-700">বিবরণ (বাংলা)</label>
-              <textarea
-                rows={2}
-                value={homepageConfig.lifelineSection?.description?.bn || ''}
-                onChange={(e) => updateHomepageConfig({
-                  lifelineSection: {
-                    ...(homepageConfig.lifelineSection || {}),
-                    description: { ...(homepageConfig.lifelineSection?.description || { en: '', bn: '' }), bn: e.target.value }
-                  }
-                })}
-                placeholder="সংকটাপন্ন মুহূর্তে রোগীদের জন্য দ্রুত রক্তদাতা অনুসন্ধান এবং মানবিক সেবায় স্বেচ্ছাসেবী রক্তদাতাদের সরাসরি যুক্ত করার প্ল্যাটফর্ম।"
-                className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
-              />
+
+            {/* Bengali Narrative Card */}
+            <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-3">
+              <span className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider block border-b border-[#EAE3D9] pb-1.5">
+                বাংলা সংস্করণ (Bengali Content)
+              </span>
+
+              {/* Eyebrow Badge (BN) */}
+              <div className="space-y-1">
+                <label className="text-[10px] text-slate-500 font-bold">আইব্রো ব্যাজ (শীর্ষ পিল)</label>
+                <input
+                  type="text"
+                  value={homepageConfig.lifelineSection?.badge?.bn || ''}
+                  onChange={(e) => updateHomepageConfig({
+                    lifelineSection: {
+                      ...(homepageConfig.lifelineSection || {}),
+                      badge: { ...(homepageConfig.lifelineSection?.badge || { en: '', bn: '' }), bn: e.target.value }
+                    }
+                  })}
+                  placeholder="ইনফিনিটি লাইফলাইন — জরুরি রক্তদান"
+                  className="w-full px-3 py-2 bg-white border border-[#EAE3D9] rounded-xl text-xs font-bold font-bengali text-emerald-900"
+                />
+              </div>
+
+              {/* Subtitle / Initiative Tagline (BN) */}
+              <div className="space-y-1">
+                <label className="text-[10px] text-slate-500 font-bold">উদ্যোগের ট্যাগলাইন / সাবটাইটেল</label>
+                <input
+                  type="text"
+                  value={homepageConfig.lifelineSection?.subtitle?.bn || ''}
+                  onChange={(e) => updateHomepageConfig({
+                    lifelineSection: {
+                      ...(homepageConfig.lifelineSection || {}),
+                      subtitle: { ...(homepageConfig.lifelineSection?.subtitle || { en: '', bn: '' }), bn: e.target.value }
+                    }
+                  })}
+                  placeholder="ইনফিনিটি বাংলাদেশ-এর একটি জরুরি মানবিক রক্তদান উদ্যোগ 🩸"
+                  className="w-full px-3 py-2.5 bg-white border border-[#EAE3D9] rounded-xl text-xs font-semibold font-bengali text-slate-800"
+                />
+              </div>
             </div>
           </div>
 
-          {/* 3 LifeLine Action CTA Button Text Overrides */}
-          <div className="sm:col-span-2 space-y-3 pt-2 border-t border-slate-100">
-            <h5 className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider">
-              LifeLine Action Buttons (৩টি অ্যাকশন বাটন টেক্সট)
-            </h5>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {/* 1. Find Donor */}
-              <div className="p-3 bg-[#FAF7F2] rounded-xl border border-[#EAE3D9] space-y-2">
-                <span className="text-[11px] font-bold text-rose-700 block">1. Find a Donor (রক্তদাতা খুঁজুন)</span>
+          {/* Sub-brand Animated Logo Quick Setup Box */}
+          <div className="p-4 rounded-2xl bg-[#04140F] text-white border border-emerald-900/60 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-xl bg-[#08221A] border border-emerald-700/50 p-2 flex items-center justify-center shrink-0">
+                <img
+                  src={getAssetUrl(bloodDonationSettings.wingLogoUrl || '/brand/Infinitylifeline-logo.svg')}
+                  alt="Infinity LifeLine Logo Preview"
+                  className="max-h-full max-w-full object-contain"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src = '/brand/Infinitylifeline-logo.svg';
+                  }}
+                />
+              </div>
+              <div className="space-y-0.5">
+                <p className="text-xs font-extrabold text-emerald-300 flex items-center gap-1.5">
+                  <Droplet className="w-3.5 h-3.5 text-rose-400 fill-rose-400" />
+                  <span>{isBn ? 'ইনফিনিটি লাইফলাইন এনিমেটেড উইং লোগো' : 'Infinity LifeLine Official Animated Logo'}</span>
+                </p>
+                <p className="text-[11px] text-slate-300 font-mono">
+                  {bloodDonationSettings.wingLogoUrl || '/brand/Infinitylifeline-logo.svg'}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => openMediaPicker((url) => updateBloodDonationSettings({ wingLogoUrl: url }))}
+                className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold border border-white/20 transition-all cursor-pointer flex items-center gap-1.5"
+              >
+                <ImageIcon className="w-3.5 h-3.5" />
+                <span>{isBn ? 'লোগো পরিবর্তন' : 'Change Logo'}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('blood_donation')}
+                className="px-3.5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+              >
+                <Sliders className="w-3.5 h-3.5" />
+                <span>{isBn ? 'লোগো জুম ও ক্রপ কন্ট্রোল →' : 'Logo Zoom & Crop →'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* ------------------------------------------------------------- */}
+        {/* PANEL 2: 3 LIFELINE ACTION BUTTONS (CRIMSON, EMERALD, GHOST) */}
+        {/* ------------------------------------------------------------- */}
+        <div className="space-y-4 pt-4 border-t border-slate-100">
+          <div className="flex items-center justify-between">
+            <h4 className="text-xs font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+              <Search className="w-4 h-4 text-rose-600" />
+              <span>{isBn ? '২. ৩টি লাইফলাইন অ্যাকশন বোতাম ও রুট লিংক' : '2. Three LifeLine Action Buttons & Target Routes'}</span>
+            </h4>
+            <span className="text-[10px] text-slate-500">
+              {isBn ? 'হোমপেজের মূল বোতামসমূহ' : 'Main CTA Triggers on Homepage'}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {/* Button 1: Crimson Red Find a Donor */}
+            <div className="p-4 rounded-2xl bg-[#FFF1F2] border border-rose-200 space-y-3 shadow-2xs">
+              <div className="flex items-center justify-between border-b border-rose-200 pb-2">
+                <span className="text-xs font-extrabold text-rose-900 flex items-center gap-1.5">
+                  <Search className="w-3.5 h-3.5 text-rose-600" />
+                  <span>1. Find a Donor (রক্তদাতা খুঁজুন)</span>
+                </span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-600 text-white">
+                  Crimson
+                </span>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] text-slate-500 font-bold">Button Text (English)</label>
                 <input
                   type="text"
                   value={homepageConfig.lifelineSection?.findDonorBtnText?.en || ''}
@@ -2244,9 +2312,13 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
                       findDonorBtnText: { ...(homepageConfig.lifelineSection?.findDonorBtnText || { en: '', bn: '' }), en: e.target.value }
                     }
                   })}
-                  placeholder="Find a Donor (EN)"
-                  className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs"
+                  placeholder="Find a Donor"
+                  className="w-full px-2.5 py-1.5 bg-white border border-rose-200 rounded-lg text-xs font-bold text-slate-800"
                 />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] text-slate-500 font-bold">বোতামের লেখা (বাংলা)</label>
                 <input
                   type="text"
                   value={homepageConfig.lifelineSection?.findDonorBtnText?.bn || ''}
@@ -2256,14 +2328,42 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
                       findDonorBtnText: { ...(homepageConfig.lifelineSection?.findDonorBtnText || { en: '', bn: '' }), bn: e.target.value }
                     }
                   })}
-                  placeholder="রক্তদাতা খুঁজুন (বাংলা)"
-                  className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali"
+                  placeholder="রক্তদাতা খুঁজুন"
+                  className="w-full px-2.5 py-1.5 bg-white border border-rose-200 rounded-lg text-xs font-bold font-bengali text-slate-800"
                 />
               </div>
 
-              {/* 2. Become a Donor */}
-              <div className="p-3 bg-[#FAF7F2] rounded-xl border border-[#EAE3D9] space-y-2">
-                <span className="text-[11px] font-bold text-[#006A4E] block">2. Become Donor (রক্তদাতা হোন)</span>
+              <div className="space-y-1 pt-1">
+                <label className="text-[10px] text-rose-700 font-bold">Target Route (পেজ লিংক)</label>
+                <input
+                  type="text"
+                  value={homepageConfig.lifelineSection?.findDonorBtnUrl || 'blood-donation/find-donor'}
+                  onChange={(e) => updateHomepageConfig({
+                    lifelineSection: {
+                      ...(homepageConfig.lifelineSection || {}),
+                      findDonorBtnUrl: e.target.value
+                    }
+                  })}
+                  placeholder="blood-donation/find-donor"
+                  className="w-full px-2.5 py-1.5 bg-white border border-rose-200 rounded-lg text-xs font-mono font-bold text-rose-900"
+                />
+              </div>
+            </div>
+
+            {/* Button 2: Emerald Green Become a Blood Donor */}
+            <div className="p-4 rounded-2xl bg-[#E6F3EF] border border-[#C2E2D7] space-y-3 shadow-2xs">
+              <div className="flex items-center justify-between border-b border-[#C2E2D7] pb-2">
+                <span className="text-xs font-extrabold text-[#006A4E] flex items-center gap-1.5">
+                  <Droplet className="w-3.5 h-3.5 text-emerald-600 fill-emerald-600" />
+                  <span>2. Become a Donor (রক্তদাতা হোন)</span>
+                </span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#006A4E] text-white">
+                  Emerald
+                </span>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] text-slate-500 font-bold">Button Text (English)</label>
                 <input
                   type="text"
                   value={homepageConfig.lifelineSection?.becomeDonorBtnText?.en || ''}
@@ -2273,9 +2373,13 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
                       becomeDonorBtnText: { ...(homepageConfig.lifelineSection?.becomeDonorBtnText || { en: '', bn: '' }), en: e.target.value }
                     }
                   })}
-                  placeholder="Become a Blood Donor (EN)"
-                  className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs"
+                  placeholder="Become a Blood Donor"
+                  className="w-full px-2.5 py-1.5 bg-white border border-[#C2E2D7] rounded-lg text-xs font-bold text-slate-800"
                 />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] text-slate-500 font-bold">বোতামের লেখা (বাংলা)</label>
                 <input
                   type="text"
                   value={homepageConfig.lifelineSection?.becomeDonorBtnText?.bn || ''}
@@ -2285,14 +2389,42 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
                       becomeDonorBtnText: { ...(homepageConfig.lifelineSection?.becomeDonorBtnText || { en: '', bn: '' }), bn: e.target.value }
                     }
                   })}
-                  placeholder="রক্তদাতা হোন (বাংলা)"
-                  className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali"
+                  placeholder="রক্তদাতা হোন"
+                  className="w-full px-2.5 py-1.5 bg-white border border-[#C2E2D7] rounded-lg text-xs font-bold font-bengali text-slate-800"
                 />
               </div>
 
-              {/* 3. Emergency Request */}
-              <div className="p-3 bg-[#FAF7F2] rounded-xl border border-[#EAE3D9] space-y-2">
-                <span className="text-[11px] font-bold text-slate-700 block">3. Emergency Request (রক্তের আবেদন)</span>
+              <div className="space-y-1 pt-1">
+                <label className="text-[10px] text-emerald-800 font-bold">Target Route (পেজ লিংক)</label>
+                <input
+                  type="text"
+                  value={homepageConfig.lifelineSection?.becomeDonorBtnUrl || 'blood-donation/become-donor'}
+                  onChange={(e) => updateHomepageConfig({
+                    lifelineSection: {
+                      ...(homepageConfig.lifelineSection || {}),
+                      becomeDonorBtnUrl: e.target.value
+                    }
+                  })}
+                  placeholder="blood-donation/become-donor"
+                  className="w-full px-2.5 py-1.5 bg-white border border-[#C2E2D7] rounded-lg text-xs font-mono font-bold text-emerald-900"
+                />
+              </div>
+            </div>
+
+            {/* Button 3: Outline Rose Emergency Request */}
+            <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-3 shadow-2xs">
+              <div className="flex items-center justify-between border-b border-[#EAE3D9] pb-2">
+                <span className="text-xs font-extrabold text-slate-800 flex items-center gap-1.5">
+                  <ShieldAlert className="w-3.5 h-3.5 text-rose-500" />
+                  <span>3. Emergency Request (আবেদন)</span>
+                </span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-700 text-white">
+                  Ghost
+                </span>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] text-slate-500 font-bold">Button Text (English)</label>
                 <input
                   type="text"
                   value={homepageConfig.lifelineSection?.emergencyReqBtnText?.en || ''}
@@ -2302,9 +2434,13 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
                       emergencyReqBtnText: { ...(homepageConfig.lifelineSection?.emergencyReqBtnText || { en: '', bn: '' }), en: e.target.value }
                     }
                   })}
-                  placeholder="Emergency Request (EN)"
-                  className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs"
+                  placeholder="Emergency Request"
+                  className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bold text-slate-800"
                 />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] text-slate-500 font-bold">বোতামের লেখা (বাংলা)</label>
                 <input
                   type="text"
                   value={homepageConfig.lifelineSection?.emergencyReqBtnText?.bn || ''}
@@ -2314,299 +2450,226 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
                       emergencyReqBtnText: { ...(homepageConfig.lifelineSection?.emergencyReqBtnText || { en: '', bn: '' }), bn: e.target.value }
                     }
                   })}
-                  placeholder="জরুরি রক্তের আবেদন (বাংলা)"
-                  className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* 4 Narrative Chips */}
-          <div className="sm:col-span-2 space-y-3 pt-2 border-t border-slate-100">
-            <h5 className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider">
-              Narrative Progression Chips (৪টি ন্যারেটিভ চিপস)
-            </h5>
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-              {/* Chip 1 */}
-              <div className="p-3 bg-[#FAF7F2] rounded-xl border border-[#EAE3D9] space-y-1.5">
-                <span className="text-[11px] font-bold text-emerald-800 block">1. Chip 1 (১ ফোঁটা রক্ত)</span>
-                <input
-                  type="text"
-                  value={homepageConfig.lifelineSection?.chip1?.en || ''}
-                  onChange={(e) => updateHomepageConfig({
-                    lifelineSection: {
-                      ...(homepageConfig.lifelineSection || {}),
-                      chip1: { ...(homepageConfig.lifelineSection?.chip1 || { en: '', bn: '' }), en: e.target.value }
-                    }
-                  })}
-                  placeholder="ONE DROP"
-                  className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs"
-                />
-                <input
-                  type="text"
-                  value={homepageConfig.lifelineSection?.chip1?.bn || ''}
-                  onChange={(e) => updateHomepageConfig({
-                    lifelineSection: {
-                      ...(homepageConfig.lifelineSection || {}),
-                      chip1: { ...(homepageConfig.lifelineSection?.chip1 || { en: '', bn: '' }), bn: e.target.value }
-                    }
-                  })}
-                  placeholder="১ ফোঁটা রক্ত"
-                  className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bengali"
+                  placeholder="জরুরি রক্তের আবেদন"
+                  className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bold font-bengali text-slate-800"
                 />
               </div>
 
-              {/* Chip 2 */}
-              <div className="p-3 bg-[#FAF7F2] rounded-xl border border-[#EAE3D9] space-y-1.5">
-                <span className="text-[11px] font-bold text-emerald-800 block">2. Chip 2 (১টি জীবন)</span>
+              <div className="space-y-1 pt-1">
+                <label className="text-[10px] text-slate-600 font-bold">Target Route (পেজ লিংক)</label>
                 <input
                   type="text"
-                  value={homepageConfig.lifelineSection?.chip2?.en || ''}
+                  value={homepageConfig.lifelineSection?.emergencyReqBtnUrl || 'blood-donation/emergency-request'}
                   onChange={(e) => updateHomepageConfig({
                     lifelineSection: {
                       ...(homepageConfig.lifelineSection || {}),
-                      chip2: { ...(homepageConfig.lifelineSection?.chip2 || { en: '', bn: '' }), en: e.target.value }
+                      emergencyReqBtnUrl: e.target.value
                     }
                   })}
-                  placeholder="ONE LIFE"
-                  className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs"
+                  placeholder="blood-donation/emergency-request"
+                  className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-mono font-bold text-slate-800"
                 />
-                <input
-                  type="text"
-                  value={homepageConfig.lifelineSection?.chip2?.bn || ''}
-                  onChange={(e) => updateHomepageConfig({
-                    lifelineSection: {
-                      ...(homepageConfig.lifelineSection || {}),
-                      chip2: { ...(homepageConfig.lifelineSection?.chip2 || { en: '', bn: '' }), bn: e.target.value }
-                    }
-                  })}
-                  placeholder="১টি জীবন"
-                  className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bengali"
-                />
-              </div>
-
-              {/* Chip 3 */}
-              <div className="p-3 bg-[#FAF7F2] rounded-xl border border-[#EAE3D9] space-y-1.5">
-                <span className="text-[11px] font-bold text-emerald-800 block">3. Chip 3 (১ শুভপ্রভাব)</span>
-                <input
-                  type="text"
-                  value={homepageConfig.lifelineSection?.chip3?.en || ''}
-                  onChange={(e) => updateHomepageConfig({
-                    lifelineSection: {
-                      ...(homepageConfig.lifelineSection || {}),
-                      chip3: { ...(homepageConfig.lifelineSection?.chip3 || { en: '', bn: '' }), en: e.target.value }
-                    }
-                  })}
-                  placeholder="ONE RIPPLE"
-                  className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs"
-                />
-                <input
-                  type="text"
-                  value={homepageConfig.lifelineSection?.chip3?.bn || ''}
-                  onChange={(e) => updateHomepageConfig({
-                    lifelineSection: {
-                      ...(homepageConfig.lifelineSection || {}),
-                      chip3: { ...(homepageConfig.lifelineSection?.chip3 || { en: '', bn: '' }), bn: e.target.value }
-                    }
-                  })}
-                  placeholder="১ শুভপ্রভাব"
-                  className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bengali"
-                />
-              </div>
-
-              {/* Chip 4 */}
-              <div className="p-3 bg-[#FAF7F2] rounded-xl border border-[#EAE3D9] space-y-1.5">
-                <span className="text-[11px] font-bold text-rose-800 block">4. Chip 4 (অনন্ত আশা)</span>
-                <input
-                  type="text"
-                  value={homepageConfig.lifelineSection?.chip4?.en || ''}
-                  onChange={(e) => updateHomepageConfig({
-                    lifelineSection: {
-                      ...(homepageConfig.lifelineSection || {}),
-                      chip4: { ...(homepageConfig.lifelineSection?.chip4 || { en: '', bn: '' }), en: e.target.value }
-                    }
-                  })}
-                  placeholder="INFINITE HOPE"
-                  className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs"
-                />
-                <input
-                  type="text"
-                  value={homepageConfig.lifelineSection?.chip4?.bn || ''}
-                  onChange={(e) => updateHomepageConfig({
-                    lifelineSection: {
-                      ...(homepageConfig.lifelineSection || {}),
-                      chip4: { ...(homepageConfig.lifelineSection?.chip4 || { en: '', bn: '' }), bn: e.target.value }
-                    }
-                  })}
-                  placeholder="অনন্ত আশা"
-                  className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bengali"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Coordination Network Header & Portal Link */}
-          <div className="sm:col-span-2 space-y-3 pt-2 border-t border-slate-100">
-            <h5 className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider">
-              Coordination Panel & Gateway Link (সমন্বয় নেটওয়ার্ক ও পোর্টাল লিংক)
-            </h5>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Coordination Title & Badge */}
-              <div className="p-3.5 bg-[#FAF7F2] rounded-2xl border border-[#EAE3D9] space-y-2">
-                <span className="text-xs font-bold text-slate-900 block">Coordination Panel Header</span>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="text-[10px] text-slate-500 font-medium">Title (EN)</label>
-                    <input
-                      type="text"
-                      value={homepageConfig.lifelineSection?.coordinationTitle?.en || ''}
-                      onChange={(e) => updateHomepageConfig({
-                        lifelineSection: {
-                          ...(homepageConfig.lifelineSection || {}),
-                          coordinationTitle: { ...(homepageConfig.lifelineSection?.coordinationTitle || { en: '', bn: '' }), en: e.target.value }
-                        }
-                      })}
-                      placeholder="Live Coordination Network"
-                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] text-slate-500 font-medium">শিরোনাম (বাংলা)</label>
-                    <input
-                      type="text"
-                      value={homepageConfig.lifelineSection?.coordinationTitle?.bn || ''}
-                      onChange={(e) => updateHomepageConfig({
-                        lifelineSection: {
-                          ...(homepageConfig.lifelineSection || {}),
-                          coordinationTitle: { ...(homepageConfig.lifelineSection?.coordinationTitle || { en: '', bn: '' }), bn: e.target.value }
-                        }
-                      })}
-                      placeholder="লাইভ রক্তদান সমন্বয় নেটওয়ার্ক"
-                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali"
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="text-[10px] text-slate-500 font-medium">Status Badge (EN)</label>
-                    <input
-                      type="text"
-                      value={homepageConfig.lifelineSection?.coordinationBadge?.en || ''}
-                      onChange={(e) => updateHomepageConfig({
-                        lifelineSection: {
-                          ...(homepageConfig.lifelineSection || {}),
-                          coordinationBadge: { ...(homepageConfig.lifelineSection?.coordinationBadge || { en: '', bn: '' }), en: e.target.value }
-                        }
-                      })}
-                      placeholder="LIVE"
-                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] text-slate-500 font-medium">স্ট্যাটাস ব্যাজ (বাংলা)</label>
-                    <input
-                      type="text"
-                      value={homepageConfig.lifelineSection?.coordinationBadge?.bn || ''}
-                      onChange={(e) => updateHomepageConfig({
-                        lifelineSection: {
-                          ...(homepageConfig.lifelineSection || {}),
-                          coordinationBadge: { ...(homepageConfig.lifelineSection?.coordinationBadge || { en: '', bn: '' }), bn: e.target.value }
-                        }
-                      })}
-                      placeholder="সক্রিয়"
-                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Gateway Portal Link */}
-              <div className="p-3.5 bg-[#FAF7F2] rounded-2xl border border-[#EAE3D9] space-y-2">
-                <span className="text-xs font-bold text-slate-900 block">Gateway Footnote Portal Link</span>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="text-[10px] text-slate-500 font-medium">Link Text (EN)</label>
-                    <input
-                      type="text"
-                      value={homepageConfig.lifelineSection?.portalLinkText?.en || ''}
-                      onChange={(e) => updateHomepageConfig({
-                        lifelineSection: {
-                          ...(homepageConfig.lifelineSection || {}),
-                          portalLinkText: { ...(homepageConfig.lifelineSection?.portalLinkText || { en: '', bn: '' }), en: e.target.value }
-                        }
-                      })}
-                      placeholder="Explore Full LifeLine Portal & Guidelines"
-                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] text-slate-500 font-medium">লেখা (বাংলা)</label>
-                    <input
-                      type="text"
-                      value={homepageConfig.lifelineSection?.portalLinkText?.bn || ''}
-                      onChange={(e) => updateHomepageConfig({
-                        lifelineSection: {
-                          ...(homepageConfig.lifelineSection || {}),
-                          portalLinkText: { ...(homepageConfig.lifelineSection?.portalLinkText || { en: '', bn: '' }), bn: e.target.value }
-                        }
-                      })}
-                      placeholder="সম্পূর্ণ রক্তদান কার্যক্রম ও নির্দেশিকা দেখুন"
-                      className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="text-[10px] text-slate-500 font-medium">Target Route</label>
-                  <input
-                    type="text"
-                    value={homepageConfig.lifelineSection?.portalUrl || 'blood-donation'}
-                    onChange={(e) => updateHomepageConfig({
-                      lifelineSection: {
-                        ...(homepageConfig.lifelineSection || {}),
-                        portalUrl: e.target.value
-                      }
-                    })}
-                    placeholder="blood-donation"
-                    className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-mono"
-                  />
-                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Blood Donation System & Live Coordination Network Shortcut */}
-        <div className="p-4 rounded-2xl bg-[#04140F] text-white border border-emerald-900/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <div className="space-y-0.5">
-            <p className="text-xs font-extrabold text-emerald-300 flex items-center gap-1.5">
-              <Droplet className="w-3.5 h-3.5 text-rose-400 fill-rose-400" />
-              <span>{isBn ? 'লাইভ রক্তদান সমন্বয় প্যানেল ও ডোনার ডেটাবেজ' : 'Live LifeLine Coordination Network & Donor Database'}</span>
+        {/* ------------------------------------------------------------- */}
+        {/* PANEL 3: LIVE COORDINATION NETWORK PANEL & 24/7 HELPLINE */}
+        {/* ------------------------------------------------------------- */}
+        <div className="space-y-4 pt-4 border-t border-slate-100">
+          <div className="flex items-center justify-between">
+            <h4 className="text-xs font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+              <Activity className="w-4 h-4 text-emerald-600" />
+              <span>{isBn ? '৩. লাইভ সমন্বয় প্যানেল হেডার ও ২৪/৭ হেল্পলাইন' : '3. Live Coordination Panel Header & 24/7 Helpline'}</span>
+            </h4>
+            <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 font-semibold">
+              Live Real-Time Indicators
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Panel Header & Badge */}
+            <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-3">
+              <span className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider block border-b border-[#EAE3D9] pb-1.5">
+                Panel Header Titles & Live Badge
+              </span>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-[10px] text-slate-500 font-bold">Panel Title (English)</label>
+                  <input
+                    type="text"
+                    value={homepageConfig.lifelineSection?.coordinationTitle?.en || ''}
+                    onChange={(e) => updateHomepageConfig({
+                      lifelineSection: {
+                        ...(homepageConfig.lifelineSection || {}),
+                        coordinationTitle: { ...(homepageConfig.lifelineSection?.coordinationTitle || { en: '', bn: '' }), en: e.target.value }
+                      }
+                    })}
+                    placeholder="Live Coordination Network"
+                    className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bold text-slate-800"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] text-slate-500 font-bold">প্যানেল শিরোনাম (বাংলা)</label>
+                  <input
+                    type="text"
+                    value={homepageConfig.lifelineSection?.coordinationTitle?.bn || ''}
+                    onChange={(e) => updateHomepageConfig({
+                      lifelineSection: {
+                        ...(homepageConfig.lifelineSection || {}),
+                        coordinationTitle: { ...(homepageConfig.lifelineSection?.coordinationTitle || { en: '', bn: '' }), bn: e.target.value }
+                      }
+                    })}
+                    placeholder="লাইভ রক্তদান সমন্বয় নেটওয়ার্ক"
+                    className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bold font-bengali text-slate-800"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-[10px] text-slate-500 font-bold">Status Badge (English)</label>
+                  <input
+                    type="text"
+                    value={homepageConfig.lifelineSection?.coordinationBadge?.en || ''}
+                    onChange={(e) => updateHomepageConfig({
+                      lifelineSection: {
+                        ...(homepageConfig.lifelineSection || {}),
+                        coordinationBadge: { ...(homepageConfig.lifelineSection?.coordinationBadge || { en: '', bn: '' }), en: e.target.value }
+                      }
+                    })}
+                    placeholder="LIVE"
+                    className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-mono font-bold text-emerald-800"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] text-slate-500 font-bold">স্ট্যাটাস ব্যাজ (বাংলা)</label>
+                  <input
+                    type="text"
+                    value={homepageConfig.lifelineSection?.coordinationBadge?.bn || ''}
+                    onChange={(e) => updateHomepageConfig({
+                      lifelineSection: {
+                        ...(homepageConfig.lifelineSection || {}),
+                        coordinationBadge: { ...(homepageConfig.lifelineSection?.coordinationBadge || { en: '', bn: '' }), bn: e.target.value }
+                      }
+                    })}
+                    placeholder="সক্রিয়"
+                    className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bold font-bengali text-emerald-800"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 24/7 Helpline & Gateway Footnote Link */}
+            <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-3">
+              <span className="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider block border-b border-[#EAE3D9] pb-1.5">
+                24/7 Helpline & Gateway Portal Link
+              </span>
+
+              {/* 24/7 Emergency Helpline Number */}
+              <div className="space-y-1">
+                <label className="text-[10px] text-rose-700 font-bold flex items-center gap-1">
+                  <Phone className="w-3 h-3 text-rose-600" />
+                  <span>২৪/৭ জরুরি হেল্পলাইন নম্বর (24/7 Emergency Helpline Phone)</span>
+                </label>
+                <input
+                  type="text"
+                  value={bloodDonationSettings.emergencyHelpline || '+880 1839-008339'}
+                  onChange={(e) => updateBloodDonationSettings({ emergencyHelpline: e.target.value })}
+                  placeholder="+880 1839-008339"
+                  className="w-full px-3 py-2 bg-white border border-rose-200 rounded-xl text-xs font-mono font-extrabold text-rose-900"
+                />
+              </div>
+
+              {/* Gateway Link Texts */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                <div className="space-y-1">
+                  <label className="text-[10px] text-slate-500 font-bold">Portal Footnote Text (EN)</label>
+                  <input
+                    type="text"
+                    value={homepageConfig.lifelineSection?.portalLinkText?.en || ''}
+                    onChange={(e) => updateHomepageConfig({
+                      lifelineSection: {
+                        ...(homepageConfig.lifelineSection || {}),
+                        portalLinkText: { ...(homepageConfig.lifelineSection?.portalLinkText || { en: '', bn: '' }), en: e.target.value }
+                      }
+                    })}
+                    placeholder="Explore Full LifeLine Portal & Guidelines"
+                    className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] text-slate-500 font-bold">পোর্টাল লিংক লেখা (বাংলা)</label>
+                  <input
+                    type="text"
+                    value={homepageConfig.lifelineSection?.portalLinkText?.bn || ''}
+                    onChange={(e) => updateHomepageConfig({
+                      lifelineSection: {
+                        ...(homepageConfig.lifelineSection || {}),
+                        portalLinkText: { ...(homepageConfig.lifelineSection?.portalLinkText || { en: '', bn: '' }), bn: e.target.value }
+                      }
+                    })}
+                    placeholder="সম্পূর্ণ রক্তদান কার্যক্রম ও নির্দেশিকা দেখুন"
+                    className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-bengali"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] text-slate-500 font-bold">Target Route (পেজ লিংক)</label>
+                <input
+                  type="text"
+                  value={homepageConfig.lifelineSection?.portalUrl || 'blood-donation'}
+                  onChange={(e) => updateHomepageConfig({
+                    lifelineSection: {
+                      ...(homepageConfig.lifelineSection || {}),
+                      portalUrl: e.target.value
+                    }
+                  })}
+                  placeholder="blood-donation"
+                  className="w-full px-2.5 py-1.5 bg-white border border-[#EAE3D9] rounded-lg text-xs font-mono font-bold text-slate-700"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ------------------------------------------------------------- */}
+        {/* PANEL 4: LIVE DATABASE CONNECTION & FULL BLOOD CMS GATEWAY */}
+        {/* ------------------------------------------------------------- */}
+        <div className="p-5 rounded-2xl bg-[#04140F] text-white border border-emerald-900/60 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 shadow-md">
+          <div className="space-y-1.5">
+            <p className="text-xs font-extrabold text-emerald-300 flex items-center gap-2">
+              <Droplet className="w-4 h-4 text-rose-400 fill-rose-400 animate-heartbeat" />
+              <span>{isBn ? 'লাইভ রক্তদান সমন্বয় ডেটাবেজ ও ৪টি মেট্রিক ইনডিকেটর' : 'Live LifeLine Coordination Database & 4 Metric Indicators'}</span>
             </p>
             <p className="text-[11px] text-slate-300">
               {isBn
-                ? `নিবন্ধিত রক্তদাতা: ${totalRegisteredDonors} জন | প্রস্তুত: ${totalActiveDonors} জন | লাইভ আবেদন: ${pendingBloodRequests}টি`
-                : `Registered Donors: ${totalRegisteredDonors} | Active Emergency: ${totalActiveDonors} | Pending Requests: ${pendingBloodRequests}`}
+                ? `নিবন্ধিত রক্তদাতা: ${totalRegisteredDonors} জন | জরুরিতে প্রস্তুত: ${totalActiveDonors} জন | গ্রুপ: ৮/৮ | লাইভ আবেদন: ${pendingBloodRequests}টি`
+                : `Registered Donors: ${totalRegisteredDonors} | Ready: ${totalActiveDonors} | Groups: 8/8 | Live Requests: ${pendingBloodRequests}`}
             </p>
           </div>
           <button
             type="button"
             onClick={() => setActiveTab('blood_donation')}
-            className="px-4 py-2 rounded-xl bg-rose-700 hover:bg-rose-600 text-white text-xs font-bold shadow-2xs transition-all cursor-pointer flex items-center gap-1.5 shrink-0"
+            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-rose-700 to-rose-600 hover:from-rose-600 hover:to-rose-500 text-white text-xs font-extrabold shadow-sm transition-all cursor-pointer flex items-center gap-2 shrink-0 transform hover:-translate-y-0.5 active:scale-98"
           >
-            <Search className="w-3.5 h-3.5" />
-            <span>{isBn ? 'রক্তদান নেটওয়ার্ক ম্যানেজ করুন →' : 'Manage Blood Donation CMS →'}</span>
+            <Users className="w-3.5 h-3.5" />
+            <span>{isBn ? 'সম্পূর্ণ রক্তদান নেটওয়ার্ক CMS পরিচালনা করুন →' : 'Manage Blood Donation CMS →'}</span>
           </button>
         </div>
       </div>
 
       {/* ============================================================= */}
-      {/* 08. PHOTO GALLERY SECTION */}
+      {/* 07. PHOTO GALLERY SECTION */}
       {/* ============================================================= */}
-      <div id="sec-08-gallery" className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+      <div id="sec-07-gallery" className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
           <div className="flex items-center gap-3">
             <span className="w-9 h-9 rounded-2xl bg-[#006A4E] text-white font-extrabold flex items-center justify-center font-mono text-sm shadow-xs">
-              08
+              07
             </span>
             <div>
               <h3 className="text-base font-extrabold text-slate-900 font-display">
@@ -2741,13 +2804,13 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
       </div>
 
       {/* ============================================================= */}
-      {/* 09. PRESS / MEDIA COVERAGE SECTION */}
+      {/* 08. PRESS / MEDIA COVERAGE SECTION */}
       {/* ============================================================= */}
-      <div id="sec-09-press" className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+      <div id="sec-08-press" className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
           <div className="flex items-center gap-3">
             <span className="w-9 h-9 rounded-2xl bg-[#006A4E] text-white font-extrabold flex items-center justify-center font-mono text-sm shadow-xs">
-              09
+              08
             </span>
             <div>
               <h3 className="text-base font-extrabold text-slate-900 font-display">
@@ -2913,13 +2976,13 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
       </div>
 
       {/* ============================================================= */}
-      {/* 10. VOLUNTEER CTA BANNER */}
+      {/* 09. VOLUNTEER CTA BANNER */}
       {/* ============================================================= */}
-      <div id="sec-10-volunteer" className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+      <div id="sec-09-volunteer" className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
           <div className="flex items-center gap-3">
             <span className="w-9 h-9 rounded-2xl bg-[#11241E] text-emerald-300 font-extrabold flex items-center justify-center font-mono text-sm shadow-xs border border-emerald-800">
-              10
+              09
             </span>
             <div>
               <h3 className="text-base font-extrabold text-slate-900 font-display">
@@ -3148,13 +3211,13 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
       </div>
 
       {/* ============================================================= */}
-      {/* 11. INSTITUTIONAL TRANSPARENCY PLEDGE */}
+      {/* 10. INSTITUTIONAL TRANSPARENCY PLEDGE */}
       {/* ============================================================= */}
-      <div id="sec-11-transparency" className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+      <div id="sec-10-transparency" className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
           <div className="flex items-center gap-3">
             <span className="w-9 h-9 rounded-2xl bg-[#006A4E] text-white font-extrabold flex items-center justify-center font-mono text-sm shadow-xs">
-              11
+              10
             </span>
             <div>
               <h3 className="text-base font-extrabold text-slate-900 font-display">
@@ -3388,13 +3451,13 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
       </div>
 
       {/* ============================================================= */}
-      {/* 12. SUPPORT & ONLINE DONATION BANNER */}
+      {/* 11. SUPPORT & ONLINE DONATION BANNER */}
       {/* ============================================================= */}
-      <div id="sec-12-support" className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+      <div id="sec-11-support" className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
           <div className="flex items-center gap-3">
             <span className="w-9 h-9 rounded-2xl bg-amber-600 text-white font-extrabold flex items-center justify-center font-mono text-sm shadow-xs">
-              12
+              11
             </span>
             <div>
               <h3 className="text-base font-extrabold text-slate-900 font-display">

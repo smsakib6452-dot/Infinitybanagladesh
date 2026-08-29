@@ -2215,24 +2215,148 @@ export const AdminPage: React.FC = () => {
             {/* TAB: IMPACT METRICS */}
             {/* -------------------------------------------------------- */}
             {activeTab === 'impact' && (
-              <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-                  <div>
-                    <h2 className="text-xl font-extrabold text-slate-900 font-display">
-                      {isBn ? 'ইমপ্যাক্ট মেট্রিক্স ও পরিসংখ্যান' : 'Impact Metrics & Real-time Numbers'}
-                    </h2>
-                    <p className="text-xs text-slate-500">
-                      {isBn ? 'হোমপেজ ও ইমপ্যাক্ট পেজের সংখ্যাভিত্তিক অগ্রগতি পরিবর্তন করুন।' : 'Update headline numbers, beneficiary totals, volunteer count, and active years.'}
-                    </p>
+              <div className="space-y-6">
+                {/* Homepage Impact Section Header Settings */}
+                <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-5 shadow-warm-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-4 gap-3">
+                    <div>
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E6F3EF] text-[#006A4E] text-xs font-bold mb-1.5 border border-[#C2E2D7]">
+                        <Activity className="w-3.5 h-3.5" />
+                        <span>{isBn ? 'হোমপেজ সেকশন হেডার' : 'Homepage Section Presentation'}</span>
+                      </div>
+                      <h2 className="text-xl font-extrabold text-slate-900 font-display">
+                        {isBn ? 'হোমপেজ ইমপ্যাক্ট সেকশন হেডিং' : 'Homepage Impact Section Header & Text'}
+                      </h2>
+                      <p className="text-xs text-slate-500">
+                        {isBn ? 'হোমপেজে প্রদর্শিত "পরিসংখ্যান ও মানবিক প্রভাব" সেকশনের ব্যাজ, শিরোনাম ও সাবটাইটেল।' : 'Controls homepage impact badge, headline, and verification subtitle description.'}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => showToast(isBn ? 'ইমপ্যাক্ট হেডার সেটিংস সংরক্ষিত' : 'Impact header saved')}
+                      className="px-5 py-2 rounded-xl bg-[#006A4E] text-white font-bold text-xs shadow-warm-sm cursor-pointer hover:bg-[#00523C] transition-colors shrink-0"
+                    >
+                      {isBn ? 'হেডার সংরক্ষণ' : 'Save Header'}
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => showToast('Impact metrics saved')}
-                    className="px-5 py-2 rounded-xl bg-[#006A4E] text-white font-bold text-xs shadow-warm-sm cursor-pointer"
-                  >
-                    Save Metrics
-                  </button>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Badge Text (EN)</label>
+                      <input
+                        type="text"
+                        value={homepageConfig.impactSection?.badge?.en || ''}
+                        onChange={(e) => updateHomepageConfig({
+                          impactSection: {
+                            ...(homepageConfig.impactSection || {}),
+                            badge: { ...(homepageConfig.impactSection?.badge || { en: '', bn: '' }), en: e.target.value }
+                          }
+                        })}
+                        placeholder="Verified Groundwork"
+                        className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">ব্যাজ লেখা (বাংলা)</label>
+                      <input
+                        type="text"
+                        value={homepageConfig.impactSection?.badge?.bn || ''}
+                        onChange={(e) => updateHomepageConfig({
+                          impactSection: {
+                            ...(homepageConfig.impactSection || {}),
+                            badge: { ...(homepageConfig.impactSection?.badge || { en: '', bn: '' }), bn: e.target.value }
+                          }
+                        })}
+                        placeholder="আমাদের মাঠপর্যায়ের বিস্তৃতি"
+                        className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Title Heading (EN)</label>
+                      <input
+                        type="text"
+                        value={homepageConfig.impactSection?.title?.en || ''}
+                        onChange={(e) => updateHomepageConfig({
+                          impactSection: {
+                            ...(homepageConfig.impactSection || {}),
+                            title: { ...(homepageConfig.impactSection?.title || { en: '', bn: '' }), en: e.target.value }
+                          }
+                        })}
+                        placeholder="Our Measured Impact Across Communities"
+                        className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">মূল শিরোনাম (বাংলা)</label>
+                      <input
+                        type="text"
+                        value={homepageConfig.impactSection?.title?.bn || ''}
+                        onChange={(e) => updateHomepageConfig({
+                          impactSection: {
+                            ...(homepageConfig.impactSection || {}),
+                            title: { ...(homepageConfig.impactSection?.title || { en: '', bn: '' }), bn: e.target.value }
+                          }
+                        })}
+                        placeholder="পরিসংখ্যান ও মানবিক প্রভাব"
+                        className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
+                      />
+                    </div>
+
+                    <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-slate-700">Subtitle Description (EN)</label>
+                        <textarea
+                          rows={2}
+                          value={homepageConfig.impactSection?.subtitle?.en || ''}
+                          onChange={(e) => updateHomepageConfig({
+                            impactSection: {
+                              ...(homepageConfig.impactSection || {}),
+                              subtitle: { ...(homepageConfig.impactSection?.subtitle || { en: '', bn: '' }), en: e.target.value }
+                            }
+                          })}
+                          placeholder="Ground-level metrics verified by Team Infinity audits across communities."
+                          className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-slate-700">সাবটাইটেল বিবরণ (বাংলা)</label>
+                        <textarea
+                          rows={2}
+                          value={homepageConfig.impactSection?.subtitle?.bn || ''}
+                          onChange={(e) => updateHomepageConfig({
+                            impactSection: {
+                              ...(homepageConfig.impactSection || {}),
+                              subtitle: { ...(homepageConfig.impactSection?.subtitle || { en: '', bn: '' }), bn: e.target.value }
+                            }
+                          })}
+                          placeholder="সকল সংখ্যা ও তথ্য সততা ও নিরপেক্ষতার সাথে যাচাইকৃত।"
+                          className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#EAE3D9] rounded-xl text-xs font-bengali"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
+
+                {/* Individual Impact Metric Cards */}
+                <div className="bg-white rounded-3xl border border-[#EAE3D9] p-6 sm:p-8 space-y-6 shadow-warm-sm">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <div>
+                      <h2 className="text-xl font-extrabold text-slate-900 font-display">
+                        {isBn ? 'ইমপ্যাক্ট মেট্রিক্স ও পরিসংখ্যান কার্ড' : 'Impact Metrics & Real-time Numbers'}
+                      </h2>
+                      <p className="text-xs text-slate-500">
+                        {isBn ? 'হোমপেজ ও ইমপ্যাক্ট পেজের সংখ্যাভিত্তিক অগ্রগতি পরিবর্তন করুন।' : 'Update headline numbers, beneficiary totals, volunteer count, and active years.'}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => showToast('Impact metrics saved')}
+                      className="px-5 py-2 rounded-xl bg-[#006A4E] text-white font-bold text-xs shadow-warm-sm cursor-pointer hover:bg-[#00523C] transition-colors"
+                    >
+                      Save Metrics
+                    </button>
+                  </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {metrics.map(metric => (
@@ -2286,7 +2410,8 @@ export const AdminPage: React.FC = () => {
                   ))}
                 </div>
               </div>
-            )}
+            </div>
+          )}
 
             {/* -------------------------------------------------------- */}
             {/* TAB: IMPACT STORIES */}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
 import { getAssetUrl } from '../../lib/utils/assetHelper';
 

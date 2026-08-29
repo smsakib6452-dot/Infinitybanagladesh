@@ -5437,6 +5437,19 @@ export const AdminPage: React.FC = () => {
 
                       <button
                         type="button"
+                        onClick={async () => {
+                          await syncWithSupabase();
+                          showToast(isBn ? 'রক্তদাতা ও ডাটাবেজ সফলভাবে রিফ্রেশ হয়েছে!' : 'Database and blood records refreshed!');
+                        }}
+                        className="px-4 py-2.5 rounded-2xl bg-white border border-[#EAE3D9] hover:bg-[#FAF7F2] text-slate-700 font-bold text-xs shadow-warm-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                        title={isBn ? 'ডাটাবেজের সাথে সিঙ্ক ও রিফ্রেশ করুন' : 'Refresh & Sync from Database'}
+                      >
+                        <RefreshCw className={`w-4 h-4 text-[#006A4E] ${isSyncing ? 'animate-spin' : ''}`} />
+                        <span>{isBn ? 'সিঙ্ক / রিফ্রেশ' : 'Sync & Refresh'}</span>
+                      </button>
+
+                      <button
+                        type="button"
                         onClick={handleExportDonorsCSV}
                         className="px-4 py-2.5 rounded-2xl bg-white border border-[#EAE3D9] hover:bg-[#FAF7F2] text-slate-700 font-bold text-xs shadow-warm-xs transition-all flex items-center gap-1.5 cursor-pointer"
                       >

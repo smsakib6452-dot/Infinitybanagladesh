@@ -712,22 +712,26 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setAuditLogs(prev => [newLog, ...prev.slice(0, 99)]);
   }, []);
 
-  // Generic DB Upsert helper with fallback for column compatibility
+  // Generic DB Upsert helper with dynamic recursive schema compatibility fallback
   const safeDbUpsert = useCallback(async (tableName: string, data: any) => {
     if (!supabase || !isSupabaseConfigured) return;
     try {
-      const { error } = await supabase.from(tableName).upsert(data);
-      if (error) {
-        console.warn(`Supabase upsert error on ${tableName}:`, error.message);
-        // Column fallback retry if remote schema is missing extra columns like aspect_ratio or is_shorts
-        if (error.message && (error.message.includes('aspect_ratio') || error.message.includes('is_shorts') || error.message.includes('column'))) {
-          const fallbackData = { ...data };
-          delete fallbackData.aspect_ratio;
-          delete fallbackData.is_shorts;
-          const { error: retryErr } = await supabase.from(tableName).upsert(fallbackData);
-          if (!retryErr) {
-            console.info(`Supabase upsert on ${tableName} succeeded with compatible columns fallback`);
-          }
+      let currentData = { ...data };
+      for (let attempt = 0; attempt < 6; attempt++) {
+        const { error } = await supabase.from(tableName).upsert(currentData);
+        if (!error) {
+          return;
+        }
+        console.warn(`Supabase upsert attempt ${attempt + 1} on ${tableName}:`, error.message);
+        const colMatch = error.message.match(/Could not find the '([^']+)' column/i);
+        if (colMatch && colMatch[1]) {
+          const missingCol = colMatch[1];
+          delete currentData[missingCol];
+        } else if (error.message.includes('aspect_ratio') || error.message.includes('is_shorts')) {
+          delete currentData.aspect_ratio;
+          delete currentData.is_shorts;
+        } else {
+          break;
         }
       }
     } catch (err: any) {
@@ -1474,7 +1478,13 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     window.addEventListener('online', handleRevalidate);
     document.addEventListener('visibilitychange', handleRevalidate);
 
+    // 20s periodic background sync fallback for multi-device instant updates
+    const syncInterval = setInterval(() => {
+      syncWithSupabase();
+    }, 20000);
+
     return () => {
+      clearInterval(syncInterval);
       window.removeEventListener('focus', handleRevalidate);
       window.removeEventListener('online', handleRevalidate);
       document.removeEventListener('visibilitychange', handleRevalidate);

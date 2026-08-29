@@ -535,7 +535,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
         totalDonations: Number(updTotalDonations) || 0,
         experienceNotes: updExperienceNotes.trim() || undefined,
         showPhonePublicly: updShowPhone,
-        approvalStatus: 'PENDING', // Awaiting Admin Approval
+        approvalStatus: 'APPROVED', // Live immediately across Directory and Stats
         updatedAt: new Date().toISOString()
       });
 
@@ -717,8 +717,8 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
       lastDonationDate: regLastDonationDate || undefined,
       totalDonations: Number(regTotalDonations) || 0,
       experienceNotes: regExperienceNotes.trim() || undefined,
-      isVerified: false,
-      approvalStatus: 'PENDING', // Awaiting Admin Review
+      isVerified: true,
+      approvalStatus: 'APPROVED', // Live immediately across Directory and Stats
       privacyConsent: regConsent,
       showPhonePublicly: regShowPhone,
       donationHistory: []
@@ -1164,10 +1164,17 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
 
             {/* Donor Results Grid */}
             <ScrollReveal effect="fade-up" delay={0.1} className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-extrabold text-slate-900 font-display">
-                  {isBn ? 'উপলব্ধ রক্তদাতাবৃন্দ' : 'Available Blood Donors'} ({filteredDonors.length})
-                </h3>
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <h3 className="text-lg font-extrabold text-slate-900 font-display">
+                    {isBn ? 'উপলব্ধ রক্তদাতাবৃন্দ' : 'Available Blood Donors'} ({filteredDonors.length})
+                  </h3>
+                </div>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-[#006A4E] border border-emerald-200 shadow-2xs">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>{isBn ? 'লাইভ ডিরেক্টরি' : 'Live Directory'}</span>
+                </span>
               </div>
 
               {filteredDonors.length === 0 ? (

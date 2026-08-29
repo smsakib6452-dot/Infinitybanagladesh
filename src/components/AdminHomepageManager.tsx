@@ -217,9 +217,34 @@ export const AdminHomepageManager: React.FC<AdminHomepageManagerProps> = ({
                   <button
                     type="button"
                     onClick={() => {
-                      const newVis = { ...homepageConfig.sectionVisibility, [sectionKey]: !isVisible };
+                      const nextState = !isVisible;
+                      const newVis: Record<string, boolean> = {
+                        ...(homepageConfig.sectionVisibility || {}),
+                        [sectionKey]: nextState
+                      };
+
+                      // Sync alias variations to ensure 100% reliability
+                      if (sectionKey === 'volunteer') {
+                        newVis.volunteerBanner = nextState;
+                        newVis.volunteer_banner = nextState;
+                      } else if (sectionKey === 'support') {
+                        newVis.supportBanner = nextState;
+                        newVis.support_banner = nextState;
+                      } else if (sectionKey === 'transparency') {
+                        newVis.transparencySection = nextState;
+                        newVis.transparency_section = nextState;
+                      } else if (sectionKey === 'lifeline' || sectionKey === 'blood_donation') {
+                        newVis.lifeline = nextState;
+                        newVis.blood_donation = nextState;
+                        newVis.lifelineSection = nextState;
+                      } else if (sectionKey === 'about' || sectionKey === 'about_preview') {
+                        newVis.about = nextState;
+                        newVis.about_preview = nextState;
+                        newVis.aboutPreview = nextState;
+                      }
+
                       updateHomepageConfig({ sectionVisibility: newVis });
-                      showToast(`Toggled ${sectionKey} visibility`);
+                      showToast(nextState ? `Shown ${sectionKey} on homepage` : `Hidden ${sectionKey} from homepage`);
                     }}
                     className={`p-1.5 rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors ${
                       isVisible ? 'bg-[#E6F3EF] text-[#00523C]' : 'bg-slate-200 text-slate-600'

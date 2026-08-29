@@ -95,9 +95,54 @@ export const HomePage: React.FC = () => {
     }
   };
 
+  // Robust Section Visibility Evaluator
+  const isSectionVisible = (sectionKey: string): boolean => {
+    if (!visibility) return true;
+    if (visibility[sectionKey] === false) return false;
+
+    // Check alias variations to guarantee 100% sync with Admin
+    if (sectionKey === 'about' || sectionKey === 'about_preview') {
+      return visibility.about !== false && visibility.about_preview !== false && (visibility as any).aboutPreview !== false;
+    }
+    if (sectionKey === 'lifeline' || sectionKey === 'blood_donation') {
+      return visibility.lifeline !== false && visibility.blood_donation !== false && (visibility as any).lifelineSection !== false;
+    }
+    if (sectionKey === 'volunteer') {
+      return visibility.volunteer !== false && (visibility as any).volunteerBanner !== false && (visibility as any).volunteer_banner !== false;
+    }
+    if (sectionKey === 'support') {
+      return visibility.support !== false && (visibility as any).supportBanner !== false && (visibility as any).support_banner !== false;
+    }
+    if (sectionKey === 'transparency') {
+      return visibility.transparency !== false && (visibility as any).transparencySection !== false && (visibility as any).transparency_section !== false;
+    }
+    if (sectionKey === 'programs') {
+      return visibility.programs !== false && (visibility as any).programsSection !== false;
+    }
+    if (sectionKey === 'campaigns') {
+      return visibility.campaigns !== false && (visibility as any).campaignsSection !== false;
+    }
+    if (sectionKey === 'stories') {
+      return visibility.stories !== false && (visibility as any).storiesSection !== false;
+    }
+    if (sectionKey === 'gallery') {
+      return visibility.gallery !== false && (visibility as any).gallerySection !== false;
+    }
+    if (sectionKey === 'press') {
+      return visibility.press !== false && (visibility as any).pressSection !== false;
+    }
+    if (sectionKey === 'impact') {
+      return visibility.impact !== false && (visibility as any).impactSection !== false;
+    }
+    if (sectionKey === 'hero') {
+      return visibility.hero !== false;
+    }
+    return true;
+  };
+
   // Section Rendering Function Map
   const renderSection = (sectionKey: string) => {
-    if (visibility[sectionKey] === false) return null;
+    if (!isSectionVisible(sectionKey)) return null;
 
     switch (sectionKey) {
       case 'hero':
@@ -959,9 +1004,11 @@ export const HomePage: React.FC = () => {
       : [...homepageConfig.sectionOrder.slice(0, 6), 'lifeline', ...homepageConfig.sectionOrder.slice(6)]
     : defaultSectionOrder;
 
+  const visibleSections = orderedSections.filter(sectionKey => isSectionVisible(sectionKey));
+
   return (
     <div className="space-y-16 sm:space-y-24 lg:space-y-28 pb-20 overflow-hidden">
-      {orderedSections.map(sectionKey => renderSection(sectionKey))}
+      {visibleSections.map(sectionKey => renderSection(sectionKey))}
     </div>
   );
 };

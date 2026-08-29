@@ -237,16 +237,19 @@ export const HomePage: React.FC = () => {
           </section>
         );
 
-      case 'impact':
+      case 'impact': {
+        const impactCfg = homepageConfig.impactSection;
         return (
           <section key="impact" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <SectionHeading
-              badge={isBn ? 'আমাদের মাঠপর্যায়ের বিস্তৃতি' : 'Verified Groundwork'}
-              title={isBn ? 'পরিসংখ্যান ও মানবিক প্রভাব' : 'Our Measured Impact Across Communities'}
+              badge={tText(impactCfg?.badge) || (isBn ? 'আমাদের মাঠপর্যায়ের বিস্তৃতি' : 'Verified Groundwork')}
+              title={tText(impactCfg?.title) || (isBn ? 'পরিসংখ্যান ও মানবিক প্রভাব' : 'Our Measured Impact Across Communities')}
               subtitle={
-                isBn
-                  ? 'সকল সংখ্যা ও তথ্য সততা ও নিরপেক্ষতার সাথে যাচাইকৃত।'
-                  : 'Ground-level metrics verified by Team Infinity audits across communities.'
+                tText(impactCfg?.subtitle) || (
+                  isBn
+                    ? 'সকল সংখ্যা ও তথ্য সততা ও নিরপেক্ষতার সাথে যাচাইকৃত।'
+                    : 'Ground-level metrics verified by Team Infinity audits across communities.'
+                )
               }
             />
 
@@ -259,6 +262,7 @@ export const HomePage: React.FC = () => {
             </StaggerGroup>
           </section>
         );
+      }
 
       case 'about':
         return (
@@ -340,16 +344,19 @@ export const HomePage: React.FC = () => {
           </section>
         );
 
-      case 'programs':
+      case 'programs': {
+        const progCfg = homepageConfig.programsSection;
         return (
           <section key="programs" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <SectionHeading
-              badge={isBn ? 'স্থায়ী কার্যক্রম' : 'Flagship Programs'}
-              title={isBn ? 'ধারাবাহিক মানবিক কর্মসূচি ও ইভেন্ট' : 'Sustainable Humanitarian Initiatives'}
+              badge={tText(progCfg?.badge) || (isBn ? 'স্থায়ী কার্যক্রম' : 'Flagship Programs')}
+              title={tText(progCfg?.title) || (isBn ? 'ধারাবাহিক মানবিক কর্মসূচি ও ইভেন্ট' : 'Sustainable Humanitarian Initiatives')}
               subtitle={
-                isBn
-                  ? 'প্রতি বছর নিয়মিতভাবে আয়োজিত সুবিধাবঞ্চিত মানুষের ঈদ আনন্দ, শীতবস্ত্র ও জরুরি খাদ্য কর্মসূচি।'
-                  : 'Recurring seasonal programs providing dignified Eid gifts, winter protection, and relief.'
+                tText(progCfg?.subtitle) || (
+                  isBn
+                    ? 'প্রতি বছর নিয়মিতভাবে আয়োজিত সুবিধাবঞ্চিত মানুষের ঈদ আনন্দ, শীতবস্ত্র ও জরুরি খাদ্য কর্মসূচি।'
+                    : 'Recurring seasonal programs providing dignified Eid gifts, winter protection, and relief.'
+                )
               }
             />
 
@@ -363,26 +370,30 @@ export const HomePage: React.FC = () => {
 
             <div className="text-center pt-8">
               <Link
-                to="programs"
+                to={progCfg?.viewAllUrl || "programs"}
                 className="px-6 py-3 rounded-2xl bg-white hover:bg-[#FAF7F2] text-slate-800 text-xs sm:text-sm font-bold border border-[#EAE3D9] shadow-warm-xs transition-all inline-flex items-center gap-2 cursor-pointer"
               >
-                <span>{isBn ? 'সকল কর্মসূচি ও ইভেন্ট তালিকা দেখুন' : 'View All Programs & Events'}</span>
+                <span>{tText(progCfg?.viewAllText) || (isBn ? 'সকল কর্মসূচি ও ইভেন্ট তালিকা দেখুন' : 'View All Programs & Events')}</span>
                 <ArrowRight className="w-4 h-4 text-[#006A4E]" />
               </Link>
             </div>
           </section>
         );
+      }
 
-      case 'campaigns':
+      case 'campaigns': {
+        const campCfg = homepageConfig.campaignsSection;
         return (
           <section key="campaigns" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <SectionHeading
-              badge={isBn ? 'মাঠপর্যায়ের ক্যাম্পেইন' : 'Active Field Drives'}
-              title={isBn ? 'চলমান মানবিক ক্যাম্পেইন ও সেবা' : 'Ongoing Relief Drives & Campaigns'}
+              badge={tText(campCfg?.badge) || (isBn ? 'মাঠপর্যায়ের ক্যাম্পেইন' : 'Active Field Drives')}
+              title={tText(campCfg?.title) || (isBn ? 'চলমান মানবিক ক্যাম্পেইন ও সেবা' : 'Ongoing Relief Drives & Campaigns')}
               subtitle={
-                isBn
-                  ? 'জরুরি মুহূর্ত ও ক্রান্তিলগ্নে সুবিধাবঞ্চিত অসহায় মানুষের পাশে আমাদের বিশেষ কর্মসূচি।'
-                  : 'Targeted emergency drives reaching marginalized families and vulnerable communities.'
+                tText(campCfg?.subtitle) || (
+                  isBn
+                    ? 'জরুরি মুহূর্ত ও ক্রান্তিলগ্নে সুবিধাবঞ্চিত অসহায় মানুষের পাশে আমাদের বিশেষ কর্মসূচি।'
+                    : 'Targeted emergency drives reaching marginalized families and vulnerable communities.'
+                )
               }
             />
 
@@ -393,7 +404,7 @@ export const HomePage: React.FC = () => {
                     <div className="lg:col-span-6 space-y-4 text-left">
                       <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-[#006A4E] text-xs font-extrabold border border-emerald-200">
                         <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                        <span>{isBn ? 'বিশেষ ফিচার্ড ক্যাম্পেইন' : 'Featured Campaign'}</span>
+                        <span>{tText(campCfg?.featuredBadgeText) || (isBn ? 'বিশেষ ফিচার্ড ক্যাম্পেইন' : 'Featured Campaign')}</span>
                       </div>
 
                       <h3 className="text-xl sm:text-3xl font-extrabold text-slate-900 font-display">
@@ -447,17 +458,21 @@ export const HomePage: React.FC = () => {
             </div>
           </section>
         );
+      }
 
-      case 'stories':
+      case 'stories': {
+        const storCfg = homepageConfig.storiesSection;
         return (
           <section key="stories" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <SectionHeading
-              badge={isBn ? 'মানবিক দলিল' : 'Human Dignity'}
-              title={isBn ? 'বাস্তব জীবনের রূপান্তরের গল্প' : 'Stories of Hope & Grassroots Change'}
+              badge={tText(storCfg?.badge) || (isBn ? 'মানবিক দলিল' : 'Human Dignity')}
+              title={tText(storCfg?.title) || (isBn ? 'বাস্তব জীবনের রূপান্তরের গল্প' : 'Stories of Hope & Grassroots Change')}
               subtitle={
-                isBn
-                  ? 'সম্মতি ও আত্মমর্যাদা বজায় রেখে সংকলিত বাস্তব ঘটনার প্রামাণ্য বিবরণ।'
-                  : 'Authentic accounts of community impact documented with verified beneficiary consent.'
+                tText(storCfg?.subtitle) || (
+                  isBn
+                    ? 'সম্মতি ও আত্মমর্যাদা বজায় রেখে সংকলিত বাস্তব ঘটনার প্রামাণ্য বিবরণ।'
+                    : 'Authentic accounts of community impact documented with verified beneficiary consent.'
+                )
               }
             />
 
@@ -471,19 +486,21 @@ export const HomePage: React.FC = () => {
 
             <div className="text-center pt-8">
               <Link
-                to="stories"
+                to={storCfg?.viewAllUrl || "stories"}
                 className="px-6 py-3 rounded-2xl bg-white hover:bg-[#FAF7F2] text-slate-800 text-xs sm:text-sm font-bold border border-[#EAE3D9] shadow-warm-xs transition-all inline-flex items-center gap-2 cursor-pointer"
               >
-                <span>{isBn ? 'সকল গল্প পড়ুন' : 'Read All Human Stories'}</span>
+                <span>{tText(storCfg?.viewAllText) || (isBn ? 'সকল গল্প পড়ুন' : 'Read All Human Stories')}</span>
                 <ArrowRight className="w-4 h-4 text-[#006A4E]" />
               </Link>
             </div>
           </section>
         );
+      }
 
       {/* INFINITY LIFELINE — SPECIALIZED BLOOD INITIATIVE SPOTLIGHT */}
       case 'lifeline':
-      case 'blood_donation':
+      case 'blood_donation': {
+        const lifeCfg = homepageConfig.lifelineSection;
         return (
           <section key="lifeline" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <ScrollReveal effect="fade-up">
@@ -505,7 +522,7 @@ export const HomePage: React.FC = () => {
                         <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                         <Droplet className="w-3.5 h-3.5 text-rose-400 fill-rose-400 animate-heartbeat" />
                         <span>
-                          {tText(bloodDonationSettings.heroBadge) || (isBn ? 'ইনফিনিটি লাইফলাইন — জরুরি রক্তদান' : 'INFINITY LIFELINE — BLOOD INITIATIVE')}
+                          {tText(lifeCfg?.badge) || tText(bloodDonationSettings.heroBadge) || (isBn ? 'ইনফিনিটি লাইফলাইন — জরুরি রক্তদান' : 'INFINITY LIFELINE — BLOOD INITIATIVE')}
                         </span>
                       </div>
                     </div>
@@ -525,7 +542,7 @@ export const HomePage: React.FC = () => {
                       <p className="text-xs sm:text-sm font-semibold text-emerald-200/90 tracking-wide flex items-center justify-center lg:justify-start gap-1.5">
                         <HeartPulse className="w-4 h-4 text-rose-400 shrink-0" />
                         <span>
-                          {tText(bloodDonationSettings.heroSubtitle) || (
+                          {tText(lifeCfg?.subtitle) || tText(bloodDonationSettings.heroSubtitle) || (
                             isBn
                               ? 'ইনফিনিটি বাংলাদেশ-এর একটি জরুরি মানবিক রক্তদান উদ্যোগ 🩸'
                               : 'An Emergency Blood Donation Initiative by Infinity Bangladesh 🩸'
@@ -536,9 +553,9 @@ export const HomePage: React.FC = () => {
 
                     {/* Short Supporting Description */}
                     <p className="text-xs sm:text-sm md:text-[15px] text-slate-300/95 leading-relaxed font-normal max-w-2xl mx-auto lg:mx-0">
-                      {isBn
+                      {tText(lifeCfg?.description) || (isBn
                         ? 'সংকটাপন্ন মুহূর্তে রোগীদের জন্য দ্রুত রক্তদাতা অনুসন্ধান এবং মানবিক সেবায় স্বেচ্ছাসেবী রক্তদাতাদের সরাসরি যুক্ত করার একটি স্বয়ংক্রিয় ও দায়িত্বশীল প্ল্যাটফর্ম।'
-                        : 'A dedicated voluntary emergency blood coordination network powered by Infinity Bangladesh. Connecting donors with patients in critical hours across all blood groups.'}
+                        : 'A dedicated voluntary emergency blood coordination network powered by Infinity Bangladesh. Connecting donors with patients in critical hours across all blood groups.')}
                     </p>
 
                     {/* Story Chips: ONE DROP → ONE LIFE → ONE RIPPLE → INFINITE HOPE */}
@@ -564,29 +581,29 @@ export const HomePage: React.FC = () => {
                     <div className="pt-3 flex flex-wrap items-center justify-center lg:justify-start gap-3">
                       {/* PRIMARY: Find a Donor */}
                       <Link
-                        to="blood-donation/find-donor"
+                        to={lifeCfg?.findDonorBtnUrl || "blood-donation/find-donor"}
                         className="px-5 sm:px-6 py-3.5 rounded-2xl btn-lifeline-crimson text-xs sm:text-sm font-extrabold flex items-center justify-center gap-2 cursor-pointer shadow-lg transform hover:-translate-y-0.5 active:scale-98 min-h-[44px]"
                       >
                         <Search className="w-4 h-4" />
-                        <span>{isBn ? 'রক্তদাতা খুঁজুন' : 'Find a Donor'}</span>
+                        <span>{tText(lifeCfg?.findDonorBtnText) || (isBn ? 'রক্তদাতা খুঁজুন' : 'Find a Donor')}</span>
                       </Link>
 
                       {/* SECONDARY: Become a Blood Donor */}
                       <Link
-                        to="blood-donation/become-donor"
+                        to={lifeCfg?.becomeDonorBtnUrl || "blood-donation/become-donor"}
                         className="px-5 sm:px-6 py-3.5 rounded-2xl bg-[#006A4E] hover:bg-[#00553E] text-white border border-emerald-500/40 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 cursor-pointer shadow-md transform hover:-translate-y-0.5 active:scale-98 min-h-[44px] transition-all"
                       >
                         <Droplet className="w-4 h-4 text-rose-300 fill-rose-300" />
-                        <span>{isBn ? 'রক্তদাতা হোন' : 'Become a Blood Donor'}</span>
+                        <span>{tText(lifeCfg?.becomeDonorBtnText) || (isBn ? 'রক্তদাতা হোন' : 'Become a Blood Donor')}</span>
                       </Link>
 
                       {/* TERTIARY: Emergency Request */}
                       <Link
-                        to="blood-donation/emergency-request"
+                        to={lifeCfg?.emergencyReqBtnUrl || "blood-donation/emergency-request"}
                         className="px-4 sm:px-5 py-3.5 rounded-2xl bg-white/10 hover:bg-white/15 text-rose-200 border border-rose-800/30 text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 min-h-[44px] hover:border-rose-500/50"
                       >
                         <ShieldAlert className="w-4 h-4 text-rose-400" />
-                        <span>{isBn ? 'জরুরি রক্তের আবেদন' : 'Emergency Request'}</span>
+                        <span>{tText(lifeCfg?.emergencyReqBtnText) || (isBn ? 'জরুরি রক্তের আবেদন' : 'Emergency Request')}</span>
                       </Link>
                     </div>
                   </div>
@@ -701,17 +718,21 @@ export const HomePage: React.FC = () => {
             </ScrollReveal>
           </section>
         );
+      }
 
-      case 'gallery':
+      case 'gallery': {
+        const gallCfg = homepageConfig.gallerySection;
         return (
           <section key="gallery" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <SectionHeading
-              badge={isBn ? 'আলোকচিত্রে টিম ইনফিনিটি' : 'Visual Documentation'}
-              title={isBn ? 'মাঠপর্যায়ের স্মৃতি ও আলোকচিত্র' : 'Moments of Humanity in Action'}
+              badge={tText(gallCfg?.badge) || (isBn ? 'আলোকচিত্রে টিম ইনফিনিটি' : 'Visual Documentation')}
+              title={tText(gallCfg?.title) || (isBn ? 'মাঠপর্যায়ের স্মৃতি ও আলোকচিত্র' : 'Moments of Humanity in Action')}
               subtitle={
-                isBn
-                  ? 'আমাদের প্রতিটি মানবিক মুহূর্তের স্বচ্ছ ও মর্যাদাপূর্ণ আলোকচিত্র দলিল।'
-                  : 'Capturing youth volunteerism, festive smiles, and transparent distribution drives.'
+                tText(gallCfg?.subtitle) || (
+                  isBn
+                    ? 'আমাদের প্রতিটি মানবিক মুহূর্তের স্বচ্ছ ও মর্যাদাপূর্ণ আলোকচিত্র দলিল।'
+                    : 'Capturing youth volunteerism, festive smiles, and transparent distribution drives.'
+                )
               }
             />
 
@@ -744,10 +765,10 @@ export const HomePage: React.FC = () => {
 
             <div className="text-center pt-8">
               <Link
-                to="gallery"
+                to={gallCfg?.viewAllUrl || "gallery"}
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-white hover:bg-[#FAF7F2] text-slate-800 font-extrabold text-xs sm:text-sm border border-[#EAE3D9] shadow-warm-xs hover:shadow-warm-sm transition-all cursor-pointer transform hover:-translate-y-0.5"
               >
-                <span>{isBn ? 'সম্পূর্ণ ফটো গ্যালারি দেখুন' : 'View Full Photo Gallery'}</span>
+                <span>{tText(gallCfg?.viewAllText) || (isBn ? 'সম্পূর্ণ ফটো গ্যালারি দেখুন' : 'View Full Photo Gallery')}</span>
                 <ArrowRight className="w-4 h-4 text-[#006A4E]" />
               </Link>
             </div>
@@ -761,6 +782,7 @@ export const HomePage: React.FC = () => {
             )}
           </section>
         );
+      }
 
       case 'volunteer': {
         const volBanner = homepageConfig.volunteerBanner;
@@ -774,7 +796,7 @@ export const HomePage: React.FC = () => {
                 <ScrollReveal effect="slide-right" className="lg:col-span-8 space-y-4 text-left">
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-600/40 text-emerald-300 text-xs font-bold uppercase tracking-wider">
                     <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                    <span>{tText(volBanner?.badge) || (isBn ? 'স্বেচ্ছাসেবী পরিবারে স্বাগতম' : 'Be Part of Team Infinity')}</span>
+                    <span>{tText(volBanner?.badge || volBanner?.eyebrow) || (isBn ? 'স্বেচ্ছাসেবী পরিবারে স্বাগতম' : 'Be Part of Team Infinity')}</span>
                   </div>
 
                   <h2 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight font-display">
@@ -782,7 +804,7 @@ export const HomePage: React.FC = () => {
                   </h2>
 
                   <p className="text-sm sm:text-base text-emerald-200/90 leading-relaxed max-w-2xl font-normal">
-                    {tText(volBanner?.subtitle) || (isBn
+                    {tText(volBanner?.subtitle || volBanner?.description) || (isBn
                       ? 'টিম ইনফিনিটি একটি তারুণ্যনির্ভর স্বচ্ছ মানবিক পরিবার। আপনার মেধা ও সহমর্মিতা দিয়ে একজন মানুষের মুখে হাসি ফোটাতে আমাদের সাথে যুক্ত হোন।'
                       : 'Join a vibrant, ethical youth community committed to transparent grassroots humanitarian action across Bangladesh.')}
                   </p>
@@ -812,22 +834,23 @@ export const HomePage: React.FC = () => {
       }
 
       case 'press': {
+        const pressCfg = homepageConfig.pressSection;
         const featuredPress = pressCoverages.filter(p => p.status === 'published').slice(0, 3);
         if (featuredPress.length === 0) return null;
         return (
           <section key="press" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
               <SectionHeading
-                badge={isBn ? 'গণমাধ্যমে আমরা' : 'In The News'}
-                title={isBn ? 'জাতীয় গণমাধ্যমে প্রকাশিত প্রতিবেদন' : 'Featured Press & Media Coverage'}
-                subtitle={isBn ? 'ইনফিনিটি বাংলাদেশের মানবিক ত্রাণ বিতরণ ও কার্যক্রম নিয়ে প্রকাশিত খবরের একাংশ।' : 'Independent news articles and TV features covering Team Infinity humanitarian drives.'}
+                badge={tText(pressCfg?.badge) || (isBn ? 'গণমাধ্যমে আমরা' : 'In The News')}
+                title={tText(pressCfg?.title) || (isBn ? 'জাতীয় গণমাধ্যমে প্রকাশিত প্রতিবেদন' : 'Featured Press & Media Coverage')}
+                subtitle={tText(pressCfg?.subtitle) || (isBn ? 'ইনফিনিটি বাংলাদেশের মানবিক ত্রাণ বিতরণ ও কার্যক্রম নিয়ে প্রকাশিত খবরের একাংশ।' : 'Independent news articles and TV features covering Team Infinity humanitarian drives.')}
               />
 
               <Link
-                to="media-coverage"
+                to={pressCfg?.viewAllUrl || "media-coverage"}
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white border border-[#EAE3D9] hover:border-[#006A4E] text-[#006A4E] text-xs font-bold shadow-warm-xs hover:shadow-warm-sm transition-all cursor-pointer group shrink-0"
               >
-                <span>{isBn ? 'সকল সংবাদ দেখুন' : 'View All Press Coverage'}</span>
+                <span>{tText(pressCfg?.viewAllText) || (isBn ? 'সকল সংবাদ দেখুন' : 'View All Press Coverage')}</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>

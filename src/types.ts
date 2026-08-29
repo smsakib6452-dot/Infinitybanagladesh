@@ -151,24 +151,60 @@ export interface HomepageSupportBanner {
   secondaryButtonUrl?: string;
 }
 
+export interface SectionHeaderConfig {
+  badge?: BilingualText;
+  title?: BilingualText;
+  subtitle?: BilingualText;
+  viewAllText?: BilingualText;
+  viewAllUrl?: string;
+  [key: string]: any;
+}
+
+export interface CampaignsSectionConfig extends SectionHeaderConfig {
+  featuredBadgeText?: BilingualText;
+}
+
+export interface LifeLineSectionConfig extends SectionHeaderConfig {
+  narrativeChips?: BilingualText[];
+  description?: BilingualText;
+  findDonorBtnText?: BilingualText;
+  findDonorBtnUrl?: string;
+  becomeDonorBtnText?: BilingualText;
+  becomeDonorBtnUrl?: string;
+  emergencyReqBtnText?: BilingualText;
+  emergencyReqBtnUrl?: string;
+}
+
 export interface HomepageConfig {
   hero: HeroConfig;
   aboutPreview: AboutPreviewConfig;
   volunteerBanner?: HomepageVolunteerBanner;
   supportBanner?: HomepageSupportBanner;
-  sectionOrder: string[]; // e.g. ['hero', 'impact', 'about', 'programs', 'campaigns', 'stories', 'gallery', 'volunteer', 'transparency', 'support']
+  impactSection?: SectionHeaderConfig;
+  programsSection?: SectionHeaderConfig;
+  campaignsSection?: CampaignsSectionConfig;
+  storiesSection?: SectionHeaderConfig;
+  lifelineSection?: LifeLineSectionConfig;
+  gallerySection?: SectionHeaderConfig;
+  pressSection?: SectionHeaderConfig;
+  transparencySection?: SectionHeaderConfig;
+  sectionHeaders?: Record<string, SectionHeaderConfig>;
+  sectionOrder: string[]; // e.g. ['hero', 'impact', 'about', 'programs', 'campaigns', 'stories', 'lifeline', 'gallery', 'press', 'volunteer', 'transparency', 'support']
   sectionVisibility: {
-    hero: boolean;
-    impact: boolean;
-    about: boolean;
-    programs: boolean;
-    campaigns: boolean;
-    stories: boolean;
-    gallery: boolean;
-    volunteer: boolean;
-    transparency: boolean;
-    support: boolean;
-    [key: string]: boolean;
+    hero?: boolean;
+    impact?: boolean;
+    about?: boolean;
+    programs?: boolean;
+    campaigns?: boolean;
+    stories?: boolean;
+    lifeline?: boolean;
+    blood_donation?: boolean;
+    gallery?: boolean;
+    press?: boolean;
+    volunteer?: boolean;
+    transparency?: boolean;
+    support?: boolean;
+    [key: string]: boolean | undefined;
   };
 }
 

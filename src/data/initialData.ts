@@ -369,6 +369,157 @@ export const INITIAL_HOMEPAGE_CONFIG: HomepageConfig = {
       "en": "Audit & Expense Logs"
     }
   },
+  "impactSection": {
+    "badge": {
+      "bn": "আমাদের মাঠপর্যায়ের বিস্তৃতি",
+      "en": "Verified Groundwork"
+    },
+    "title": {
+      "bn": "পরিসংখ্যান ও মানবিক প্রভাব",
+      "en": "Our Measured Impact Across Communities"
+    },
+    "subtitle": {
+      "bn": "সকল সংখ্যা ও তথ্য সততা ও নিরপেক্ষতার সাথে যাচাইকৃত।",
+      "en": "Ground-level metrics verified by Team Infinity audits across communities."
+    }
+  },
+  "programsSection": {
+    "badge": {
+      "bn": "স্থায়ী কার্যক্রম",
+      "en": "Flagship Programs"
+    },
+    "title": {
+      "bn": "ধারাবাহিক মানবিক কর্মসূচি ও ইভেন্ট",
+      "en": "Sustainable Humanitarian Initiatives"
+    },
+    "subtitle": {
+      "bn": "প্রতি বছর নিয়মিতভাবে আয়োজিত সুবিধাবঞ্চিত মানুষের ঈদ আনন্দ, শীতবস্ত্র ও জরুরি খাদ্য কর্মসূচি।",
+      "en": "Recurring seasonal programs providing dignified Eid gifts, winter protection, and relief."
+    },
+    "viewAllText": {
+      "bn": "সকল কর্মসূচি ও ইভেন্ট তালিকা দেখুন",
+      "en": "View All Programs & Events"
+    },
+    "viewAllUrl": "programs"
+  },
+  "campaignsSection": {
+    "badge": {
+      "bn": "মাঠপর্যায়ের ক্যাম্পেইন",
+      "en": "Active Field Drives"
+    },
+    "title": {
+      "bn": "চলমান মানবিক ক্যাম্পেইন ও সেবা",
+      "en": "Ongoing Relief Drives & Campaigns"
+    },
+    "subtitle": {
+      "bn": "জরুরি মুহূর্ত ও ক্রান্তিলগ্নে সুবিধাবঞ্চিত অসহায় মানুষের পাশে আমাদের বিশেষ কর্মসূচি।",
+      "en": "Targeted emergency drives reaching marginalized families and vulnerable communities."
+    },
+    "featuredBadgeText": {
+      "bn": "বিশেষ ফিচার্ড ক্যাম্পেইন",
+      "en": "Featured Campaign"
+    }
+  },
+  "storiesSection": {
+    "badge": {
+      "bn": "মানবিক দলিল",
+      "en": "Human Dignity"
+    },
+    "title": {
+      "bn": "বাস্তব জীবনের রূপান্তরের গল্প",
+      "en": "Stories of Hope & Grassroots Change"
+    },
+    "subtitle": {
+      "bn": "সম্মতি ও আত্মমর্যাদা বজায় রেখে সংকলিত বাস্তব ঘটনার প্রামাণ্য বিবরণ।",
+      "en": "Authentic accounts of community impact documented with verified beneficiary consent."
+    },
+    "viewAllText": {
+      "bn": "সকল গল্প পড়ুন",
+      "en": "Read All Human Stories"
+    },
+    "viewAllUrl": "stories"
+  },
+  "lifelineSection": {
+    "badge": {
+      "bn": "ইনফিনিটি লাইফলাইন — জরুরি রক্তদান",
+      "en": "INFINITY LIFELINE — BLOOD INITIATIVE"
+    },
+    "subtitle": {
+      "bn": "ইনফিনিটি বাংলাদেশ-এর একটি জরুরি মানবিক রক্তদান উদ্যোগ 🩸",
+      "en": "An Emergency Blood Donation Initiative by Infinity Bangladesh 🩸"
+    },
+    "description": {
+      "bn": "সংকটাপন্ন মুহূর্তে রোগীদের জন্য দ্রুত রক্তদাতা অনুসন্ধান এবং মানবিক সেবায় স্বেচ্ছাসেবী রক্তদাতাদের সরাসরি যুক্ত করার একটি স্বয়ংক্রিয় ও দায়িত্বশীল প্ল্যাটফর্ম।",
+      "en": "A dedicated voluntary emergency blood coordination network powered by Infinity Bangladesh. Connecting donors with patients in critical hours across all blood groups."
+    },
+    "findDonorBtnText": {
+      "bn": "রক্তদাতা খুঁজুন",
+      "en": "Find a Donor"
+    },
+    "findDonorBtnUrl": "blood-donation/find-donor",
+    "becomeDonorBtnText": {
+      "bn": "রক্তদাতা হোন",
+      "en": "Become a Blood Donor"
+    },
+    "becomeDonorBtnUrl": "blood-donation/become-donor",
+    "emergencyReqBtnText": {
+      "bn": "জরুরি রক্তের আবেদন",
+      "en": "Emergency Request"
+    },
+    "emergencyReqBtnUrl": "blood-donation/emergency-request"
+  },
+  "gallerySection": {
+    "badge": {
+      "bn": "আলোকচিত্রে টিম ইনফিনিটি",
+      "en": "Visual Documentation"
+    },
+    "title": {
+      "bn": "মাঠপর্যায়ের স্মৃতি ও আলোকচিত্র",
+      "en": "Moments of Humanity in Action"
+    },
+    "subtitle": {
+      "bn": "আমাদের প্রতিটি মানবিক মুহূর্তের স্বচ্ছ ও মর্যাদাপূর্ণ আলোকচিত্র দলিল।",
+      "en": "Capturing youth volunteerism, festive smiles, and transparent distribution drives."
+    },
+    "viewAllText": {
+      "bn": "সম্পূর্ণ ফটো গ্যালারি দেখুন",
+      "en": "View Full Photo Gallery"
+    },
+    "viewAllUrl": "gallery"
+  },
+  "pressSection": {
+    "badge": {
+      "bn": "গণমাধ্যমে আমরা",
+      "en": "In The News"
+    },
+    "title": {
+      "bn": "জাতীয় গণমাধ্যমে প্রকাশিত প্রতিবেদন",
+      "en": "Featured Press & Media Coverage"
+    },
+    "subtitle": {
+      "bn": "ইনফিনিটি বাংলাদেশের মানবিক ত্রাণ বিতরণ ও কার্যক্রম নিয়ে প্রকাশিত খবরের একাংশ।",
+      "en": "Independent news articles and TV features covering Team Infinity humanitarian drives."
+    },
+    "viewAllText": {
+      "bn": "সকল সংবাদ দেখুন",
+      "en": "View All Press Coverage"
+    },
+    "viewAllUrl": "media-coverage"
+  },
+  "transparencySection": {
+    "badge": {
+      "bn": "স্বচ্ছতার অঙ্গীকার",
+      "en": "Institutional Pledge"
+    },
+    "title": {
+      "bn": "সততা ও প্রকাশ্য স্বচ্ছতার অঙ্গীকার",
+      "en": "Strict Transparency & Open Governance"
+    },
+    "subtitle": {
+      "bn": "টিম ইনফিনিটি কোনো অতিরঞ্জিত পরিসংখ্যান বা কৃত্রিম দাবি প্রকাশ করে না। সকল তথ্য, অনুদান এবং কার্যক্রমের হিসাব স্বচ্ছতার সাথে সংরক্ষণ করা হয়।",
+      "en": "Infinity Bangladesh operates strictly on factual reporting. Beneficiary counts, campaign expenditures, and administrative records are audited and verified before publication."
+    }
+  },
   "sectionOrder": [
     "hero",
     "impact",
@@ -376,22 +527,26 @@ export const INITIAL_HOMEPAGE_CONFIG: HomepageConfig = {
     "programs",
     "campaigns",
     "stories",
+    "lifeline",
     "gallery",
+    "press",
     "volunteer",
     "transparency",
     "support"
   ],
   "sectionVisibility": {
     "hero": true,
-    "about": true,
     "impact": true,
-    "gallery": true,
-    "stories": false,
-    "support": false,
+    "about": true,
     "programs": true,
     "campaigns": true,
-    "volunteer": false,
-    "transparency": false
+    "stories": true,
+    "lifeline": true,
+    "gallery": true,
+    "press": true,
+    "volunteer": true,
+    "transparency": true,
+    "support": true
   }
 };
 

@@ -787,6 +787,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             description: prev.hero?.description?.bn ? prev.hero.description : (homeData.hero?.description || prev.hero.description),
             heroImageUrl: getFreshImageUrl(prev.hero?.heroImageUrl || homeData.hero?.heroImageUrl)
           };
+          const secHeaders = (homeData.volunteer_banner as any)?.section_headers || (homeData.hero as any)?.section_headers || {};
           return {
             ...prev,
             hero: syncedHero,
@@ -798,6 +799,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             },
             volunteerBanner: { ...(homeData.volunteer_banner || {}), ...prev.volunteerBanner },
             supportBanner: { ...(homeData.support_banner || {}), ...prev.supportBanner },
+            impactSection: secHeaders.impact || (homeData as any).impact_section || prev.impactSection,
+            programsSection: secHeaders.programs || (homeData as any).programs_section || prev.programsSection,
+            campaignsSection: secHeaders.campaigns || (homeData as any).campaigns_section || prev.campaignsSection,
+            storiesSection: secHeaders.stories || (homeData as any).stories_section || prev.storiesSection,
+            lifelineSection: secHeaders.lifeline || (homeData as any).lifeline_section || prev.lifelineSection,
+            gallerySection: secHeaders.gallery || (homeData as any).gallery_section || prev.gallerySection,
+            pressSection: secHeaders.press || (homeData as any).press_section || prev.pressSection,
+            transparencySection: secHeaders.transparency || (homeData as any).transparency_section || prev.transparencySection,
             sectionOrder: prev.sectionOrder && prev.sectionOrder.length > 0 ? prev.sectionOrder : (homeData.section_order || prev.sectionOrder),
             sectionVisibility: { ...(homeData.section_visibility || {}), ...prev.sectionVisibility }
           };
@@ -1538,11 +1547,25 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       // Homepage config
+      const safeVolBannerForPush = {
+        ...(homepageConfig.volunteerBanner || {}),
+        section_headers: {
+          impact: homepageConfig.impactSection,
+          programs: homepageConfig.programsSection,
+          campaigns: homepageConfig.campaignsSection,
+          stories: homepageConfig.storiesSection,
+          lifeline: homepageConfig.lifelineSection,
+          gallery: homepageConfig.gallerySection,
+          press: homepageConfig.pressSection,
+          transparency: homepageConfig.transparencySection
+        }
+      };
+
       await supabase.from('homepage_config').upsert({
         id: 'default',
         hero: homepageConfig.hero,
         about_preview: homepageConfig.aboutPreview,
-        volunteer_banner: homepageConfig.volunteerBanner,
+        volunteer_banner: safeVolBannerForPush,
         support_banner: homepageConfig.supportBanner,
         section_order: homepageConfig.sectionOrder,
         section_visibility: homepageConfig.sectionVisibility,
@@ -1895,7 +1918,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // MUTATIONS: Global Settings
   const updateHomepageConfig = useCallback((newConfig: Partial<HomepageConfig>) => {
     setHomepageConfig(prev => {
-      const updated = {
+      const updated: HomepageConfig = {
         ...prev,
         ...newConfig,
         hero: newConfig.hero
@@ -1914,15 +1937,38 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           : prev.aboutPreview,
         volunteerBanner: newConfig.volunteerBanner ? { ...prev.volunteerBanner, ...newConfig.volunteerBanner } : prev.volunteerBanner,
         supportBanner: newConfig.supportBanner ? { ...prev.supportBanner, ...newConfig.supportBanner } : prev.supportBanner,
+        impactSection: newConfig.impactSection ? { ...prev.impactSection, ...newConfig.impactSection } : prev.impactSection,
+        programsSection: newConfig.programsSection ? { ...prev.programsSection, ...newConfig.programsSection } : prev.programsSection,
+        campaignsSection: newConfig.campaignsSection ? { ...prev.campaignsSection, ...newConfig.campaignsSection } : prev.campaignsSection,
+        storiesSection: newConfig.storiesSection ? { ...prev.storiesSection, ...newConfig.storiesSection } : prev.storiesSection,
+        lifelineSection: newConfig.lifelineSection ? { ...prev.lifelineSection, ...newConfig.lifelineSection } : prev.lifelineSection,
+        gallerySection: newConfig.gallerySection ? { ...prev.gallerySection, ...newConfig.gallerySection } : prev.gallerySection,
+        pressSection: newConfig.pressSection ? { ...prev.pressSection, ...newConfig.pressSection } : prev.pressSection,
+        transparencySection: newConfig.transparencySection ? { ...prev.transparencySection, ...newConfig.transparencySection } : prev.transparencySection,
+        sectionOrder: newConfig.sectionOrder || prev.sectionOrder,
         sectionVisibility: newConfig.sectionVisibility ? { ...prev.sectionVisibility, ...newConfig.sectionVisibility } : prev.sectionVisibility
       };
       logAudit('UPDATE', 'HomepageConfig', 'homepage', 'Updated homepage hero, sections, or visibility');
+
+      const safeVolunteerBanner = {
+        ...(updated.volunteerBanner || {}),
+        section_headers: {
+          impact: updated.impactSection,
+          programs: updated.programsSection,
+          campaigns: updated.campaignsSection,
+          stories: updated.storiesSection,
+          lifeline: updated.lifelineSection,
+          gallery: updated.gallerySection,
+          press: updated.pressSection,
+          transparency: updated.transparencySection
+        }
+      };
 
       safeDbUpsert('homepage_config', {
         id: 'default',
         hero: updated.hero,
         about_preview: updated.aboutPreview,
-        volunteer_banner: updated.volunteerBanner,
+        volunteer_banner: safeVolunteerBanner,
         support_banner: updated.supportBanner,
         section_order: updated.sectionOrder,
         section_visibility: updated.sectionVisibility,

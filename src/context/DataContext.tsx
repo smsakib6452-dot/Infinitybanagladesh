@@ -390,14 +390,24 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
   const [homepageConfig, setHomepageConfig] = useState<HomepageConfig>(() => {
     const stored = getStoredOrDefault<HomepageConfig>('homepageConfig', INITIAL_HOMEPAGE_CONFIG);
-    if (
-      stored?.hero?.eyebrow?.en === 'TEAM INFINITY — UNITED FOR HUMANITY' ||
-      stored?.hero?.eyebrow?.bn === 'টিম ইনফিনিটি — মানবতার জন্য একতাবদ্ধ' ||
-      stored?.hero?.eyebrow?.bn === 'টিম ইনফিনিটি — ইউনাইটেড ফর হিউম্যানিটি'
-    ) {
-      stored.hero.eyebrow = INITIAL_HOMEPAGE_CONFIG.hero.eyebrow;
-    }
-    return stored;
+    return {
+      ...INITIAL_HOMEPAGE_CONFIG,
+      ...stored,
+      hero: { ...INITIAL_HOMEPAGE_CONFIG.hero, ...(stored?.hero || {}) },
+      aboutPreview: { ...INITIAL_HOMEPAGE_CONFIG.aboutPreview, ...(stored?.aboutPreview || {}) },
+      volunteerBanner: { ...INITIAL_HOMEPAGE_CONFIG.volunteerBanner, ...(stored?.volunteerBanner || {}) },
+      supportBanner: { ...INITIAL_HOMEPAGE_CONFIG.supportBanner, ...(stored?.supportBanner || {}) },
+      impactSection: { ...INITIAL_HOMEPAGE_CONFIG.impactSection, ...(stored?.impactSection || {}) },
+      programsSection: { ...INITIAL_HOMEPAGE_CONFIG.programsSection, ...(stored?.programsSection || {}) },
+      campaignsSection: { ...INITIAL_HOMEPAGE_CONFIG.campaignsSection, ...(stored?.campaignsSection || {}) },
+      storiesSection: { ...INITIAL_HOMEPAGE_CONFIG.storiesSection, ...(stored?.storiesSection || {}) },
+      lifelineSection: { ...INITIAL_HOMEPAGE_CONFIG.lifelineSection, ...(stored?.lifelineSection || {}) },
+      gallerySection: { ...INITIAL_HOMEPAGE_CONFIG.gallerySection, ...(stored?.gallerySection || {}) },
+      pressSection: { ...INITIAL_HOMEPAGE_CONFIG.pressSection, ...(stored?.pressSection || {}) },
+      transparencySection: { ...INITIAL_HOMEPAGE_CONFIG.transparencySection, ...(stored?.transparencySection || {}) },
+      sectionOrder: stored?.sectionOrder && stored.sectionOrder.length > 0 ? stored.sectionOrder : INITIAL_HOMEPAGE_CONFIG.sectionOrder,
+      sectionVisibility: { ...INITIAL_HOMEPAGE_CONFIG.sectionVisibility, ...(stored?.sectionVisibility || {}) }
+    };
   });
   const [aboutSettings, setAboutSettings] = useState<AboutSettings>(() => {
     const stored = getStoredOrDefault<AboutSettings>('aboutSettings', INITIAL_ABOUT_SETTINGS);

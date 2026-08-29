@@ -12,9 +12,12 @@ import { VerifiedOrganizationPledge } from '../components/OfficialInfoBadge';
 import { getAssetUrl } from '../lib/utils/assetHelper';
 import { ScrollReveal } from '../components/motion/ScrollReveal';
 import { StaggerGroup, StaggerItem } from '../components/motion/StaggerGroup';
+import { AnimatedCounter } from '../components/motion/AnimatedCounter';
+import { LifeLineHeroLogoAnimation } from '../components/motion/LifeLineHeroLogoAnimation';
 import {
   Heart,
   Users,
+  UserCheck,
   ShieldCheck,
   ArrowRight,
   Sparkles,
@@ -31,7 +34,9 @@ import {
   ExternalLink,
   ShieldAlert,
   Target,
-  Eye
+  Eye,
+  Phone,
+  HeartPulse
 } from 'lucide-react';
 
 export const HomePage: React.FC = () => {
@@ -61,7 +66,15 @@ export const HomePage: React.FC = () => {
   const featuredStories = stories.filter(s => s.status !== 'archived').slice(0, 2);
   const activeMetrics = metrics.filter(m => m.active !== false).sort((a, b) => (a.order || 0) - (b.order || 0));
 
-  const totalRegisteredDonors = bloodDonationSettings.statTotalDonorsOverride || bloodDonors.length;
+  const approvedDonors = bloodDonors.filter(d => d.approvalStatus === 'APPROVED');
+  const activeDonors = approvedDonors.filter(d => d.availabilityStatus === 'AVAILABLE_EMERGENCY');
+  const totalDonationsCount = approvedDonors.reduce((acc, d) => acc + (d.totalDonations || 0), 0);
+
+  const totalRegisteredDonors = Number(bloodDonationSettings.statTotalDonorsOverride ?? approvedDonors.length) || 0;
+  const totalActiveDonors = Number(bloodDonationSettings.statActiveDonorsOverride ?? activeDonors.length) || 0;
+  const totalLivesImpacted = bloodDonationSettings.statImpactOverride !== null && bloodDonationSettings.statImpactOverride !== undefined
+    ? Number(bloodDonationSettings.statImpactOverride) || 0
+    : totalDonationsCount;
   const pendingBloodRequests = emergencyBloodRequests.filter(r => r.status === 'PENDING' || r.status === 'PROCESSING').length;
 
   const renderTrustIcon = (iconName: string) => {
@@ -474,61 +487,103 @@ export const HomePage: React.FC = () => {
         return (
           <section key="lifeline" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <ScrollReveal effect="fade-up">
-              <div className="bg-[#0B0F17] text-white rounded-[2.5rem] p-8 sm:p-12 lg:p-14 border border-rose-900/40 relative overflow-hidden shadow-2xl">
-                {/* Ambient Crimson Glows & Ripple Motifs */}
-                <div className="absolute top-0 right-0 w-96 h-96 bg-rose-600/15 rounded-full blur-3xl pointer-events-none animate-lifeline-glow" />
-                <div className="absolute bottom-0 left-0 w-80 h-80 bg-red-800/10 rounded-full blur-3xl pointer-events-none" />
+              <div className="relative overflow-hidden rounded-[2.5rem] bg-[#04140F] bg-gradient-to-br from-[#03130E] via-[#08221A] to-[#04120D] text-white p-7 sm:p-10 lg:p-14 border border-emerald-900/40 shadow-2xl">
+                {/* 1. Ambient Emerald & Ruby Atmosphere + Subtle Dot Matrix */}
+                <div className="absolute inset-0 bg-[radial-gradient(#006A4E_1px,transparent_1px)] [background-size:24px_24px] opacity-15 pointer-events-none" />
+                <div className="absolute top-0 right-0 w-[28rem] h-[28rem] bg-rose-600/12 rounded-full blur-3xl pointer-events-none animate-lifeline-glow" />
+                <div className="absolute -bottom-10 -left-10 w-[24rem] h-[24rem] bg-[#006A4E]/20 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute top-1/2 left-1/3 w-64 h-64 bg-rose-900/10 rounded-full blur-2xl pointer-events-none" />
 
-                <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-                  <div className="lg:col-span-7 space-y-5 text-left">
-                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-rose-950/80 border border-rose-500/40 text-rose-300 text-xs font-extrabold uppercase tracking-wider">
-                      <Droplet className="w-3.5 h-3.5 text-rose-500 fill-rose-500 animate-heartbeat" />
-                      <span>{isBn ? 'ইনফিনিটি লাইফলাইন — জরুরি রক্তদান' : 'Infinity LifeLine — Blood Initiative'}</span>
+                <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                  
+                  {/* LEFT / PRIMARY VISUAL AREA: Brand Identity, Storytelling & CTAs */}
+                  <div className="lg:col-span-7 space-y-5 sm:space-y-6 text-center lg:text-left">
+                    
+                    {/* Eyebrow Badge: Emergency Blood Initiative */}
+                    <div className="flex items-center justify-center lg:justify-start">
+                      <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0D2E24]/90 text-emerald-200 border border-emerald-700/40 text-xs font-extrabold uppercase tracking-wider backdrop-blur-md shadow-xs">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                        <Droplet className="w-3.5 h-3.5 text-rose-400 fill-rose-400 animate-heartbeat" />
+                        <span>
+                          {tText(bloodDonationSettings.heroBadge) || (isBn ? 'ইনফিনিটি লাইফলাইন — জরুরি রক্তদান' : 'INFINITY LIFELINE — BLOOD INITIATIVE')}
+                        </span>
+                      </div>
                     </div>
 
-                    <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight font-display text-white leading-tight">
-                      JUST ONE DROP,{' '}
-                      <span className="text-rose-500 inline-block">INFINITY HOPE</span>
-                    </h2>
+                    {/* Official Sub-brand Animated Logo */}
+                    <div className="flex items-center justify-center lg:justify-start pt-1">
+                      <LifeLineHeroLogoAnimation
+                        logoUrl={bloodDonationSettings.wingLogoUrl || '/brand/Infinitylifeline-logo.svg'}
+                        logoSize={420}
+                        logoZoom={bloodDonationSettings.wingLogoZoom || 1}
+                        logoCrop={bloodDonationSettings.wingLogoCrop || 'contain'}
+                      />
+                    </div>
 
-                    <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-normal max-w-2xl">
+                    {/* Brand Bridge / Subtitle */}
+                    <div className="text-center lg:text-left">
+                      <p className="text-xs sm:text-sm font-semibold text-emerald-200/90 tracking-wide flex items-center justify-center lg:justify-start gap-1.5">
+                        <HeartPulse className="w-4 h-4 text-rose-400 shrink-0" />
+                        <span>
+                          {tText(bloodDonationSettings.heroSubtitle) || (
+                            isBn
+                              ? 'ইনফিনিটি বাংলাদেশ-এর একটি জরুরি মানবিক রক্তদান উদ্যোগ 🩸'
+                              : 'An Emergency Blood Donation Initiative by Infinity Bangladesh 🩸'
+                          )}
+                        </span>
+                      </p>
+                    </div>
+
+                    {/* Short Supporting Description */}
+                    <p className="text-xs sm:text-sm md:text-[15px] text-slate-300/95 leading-relaxed font-normal max-w-2xl mx-auto lg:mx-0">
                       {isBn
-                        ? 'ইনফিনিটি বাংলাদেশের জরুরি রক্তদান ও সমন্বয় উইং। এক ব্যাগ রক্তে বাঁচে একটি অমূল্য প্রাণ। জরুরি প্রয়োজনে রক্তদাতা খুঁজুন কিংবা একজন স্বেচ্ছাসেবী রক্তদাতা হিসেবে নিবন্ধন করুন।'
-                        : 'A dedicated emergency blood coordination network powered by Infinity Bangladesh. Finding donors in critical hours and connecting voluntary donors directly with patients.'}
+                        ? 'সংকটাপন্ন মুহূর্তে রোগীদের জন্য দ্রুত রক্তদাতা অনুসন্ধান এবং মানবিক সেবায় স্বেচ্ছাসেবী রক্তদাতাদের সরাসরি যুক্ত করার একটি স্বয়ংক্রিয় ও দায়িত্বশীল প্ল্যাটফর্ম।'
+                        : 'A dedicated voluntary emergency blood coordination network powered by Infinity Bangladesh. Connecting donors with patients in critical hours across all blood groups.'}
                     </p>
 
-                    {/* 4-Step Narrative Pill */}
-                    <div className="flex flex-wrap items-center gap-2 text-xs font-bold text-rose-200/90 pt-1">
-                      <span className="px-2.5 py-1 rounded-lg bg-rose-950/60 border border-rose-800/40">ONE DROP</span>
-                      <span>&rarr;</span>
-                      <span className="px-2.5 py-1 rounded-lg bg-rose-950/60 border border-rose-800/40">ONE LIFE</span>
-                      <span>&rarr;</span>
-                      <span className="px-2.5 py-1 rounded-lg bg-rose-950/60 border border-rose-800/40">ONE RIPPLE</span>
-                      <span>&rarr;</span>
-                      <span className="px-2.5 py-1 rounded-lg bg-rose-900/60 border border-rose-600/60 text-white font-extrabold">INFINITE HOPE</span>
+                    {/* Story Chips: ONE DROP → ONE LIFE → ONE RIPPLE → INFINITE HOPE */}
+                    <div className="flex flex-wrap items-center justify-center lg:justify-start gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-bold text-rose-100/90 pt-1">
+                      <span className="px-2.5 py-1 rounded-lg bg-[#0B2A21]/90 border border-emerald-700/40 text-emerald-200 backdrop-blur-xs">
+                        {isBn ? '১ ফোঁটা রক্ত' : 'ONE DROP'}
+                      </span>
+                      <span className="text-emerald-500/70">&rarr;</span>
+                      <span className="px-2.5 py-1 rounded-lg bg-[#0B2A21]/90 border border-emerald-700/40 text-emerald-200 backdrop-blur-xs">
+                        {isBn ? '১টি জীবন' : 'ONE LIFE'}
+                      </span>
+                      <span className="text-emerald-500/70">&rarr;</span>
+                      <span className="px-2.5 py-1 rounded-lg bg-[#0B2A21]/90 border border-emerald-700/40 text-emerald-200 backdrop-blur-xs">
+                        {isBn ? '১ শুভপ্রভাব' : 'ONE RIPPLE'}
+                      </span>
+                      <span className="text-rose-500/80">&rarr;</span>
+                      <span className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-rose-950 to-rose-900 border border-rose-600/60 text-white font-extrabold shadow-xs">
+                        {isBn ? 'অনন্ত আশা' : 'INFINITE HOPE'}
+                      </span>
                     </div>
 
-                    {/* Action Buttons */}
-                    <div className="pt-3 flex flex-wrap items-center gap-3">
+                    {/* Action CTA Buttons */}
+                    <div className="pt-3 flex flex-wrap items-center justify-center lg:justify-start gap-3">
+                      {/* PRIMARY: Find a Donor */}
                       <Link
                         to="blood-donation/find-donor"
-                        className="px-6 py-3.5 rounded-2xl btn-lifeline-crimson text-xs sm:text-sm font-extrabold flex items-center gap-2 cursor-pointer shadow-lg transform hover:-translate-y-0.5"
+                        className="px-5 sm:px-6 py-3.5 rounded-2xl btn-lifeline-crimson text-xs sm:text-sm font-extrabold flex items-center justify-center gap-2 cursor-pointer shadow-lg transform hover:-translate-y-0.5 active:scale-98 min-h-[44px]"
                       >
                         <Search className="w-4 h-4" />
                         <span>{isBn ? 'রক্তদাতা খুঁজুন' : 'Find a Donor'}</span>
                       </Link>
 
+                      {/* SECONDARY: Become a Blood Donor */}
                       <Link
                         to="blood-donation/become-donor"
-                        className="px-6 py-3.5 rounded-2xl btn-lifeline-ghost text-xs sm:text-sm font-bold flex items-center gap-2 cursor-pointer transform hover:-translate-y-0.5"
+                        className="px-5 sm:px-6 py-3.5 rounded-2xl bg-[#006A4E] hover:bg-[#00553E] text-white border border-emerald-500/40 text-xs sm:text-sm font-bold flex items-center justify-center gap-2 cursor-pointer shadow-md transform hover:-translate-y-0.5 active:scale-98 min-h-[44px] transition-all"
                       >
-                        <Droplet className="w-4 h-4 text-rose-400" />
-                        <span>{isBn ? 'রক্তদাতা হিসেবে নিবন্ধন করুন' : 'Become a Blood Donor'}</span>
+                        <Droplet className="w-4 h-4 text-rose-300 fill-rose-300" />
+                        <span>{isBn ? 'রক্তদাতা হোন' : 'Become a Blood Donor'}</span>
                       </Link>
 
+                      {/* TERTIARY: Emergency Request */}
                       <Link
                         to="blood-donation/emergency-request"
-                        className="px-5 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-rose-200 text-xs sm:text-sm font-bold transition-colors cursor-pointer flex items-center gap-1.5"
+                        className="px-4 sm:px-5 py-3.5 rounded-2xl bg-white/10 hover:bg-white/15 text-rose-200 border border-rose-800/30 text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 min-h-[44px] hover:border-rose-500/50"
                       >
                         <ShieldAlert className="w-4 h-4 text-rose-400" />
                         <span>{isBn ? 'জরুরি রক্তের আবেদন' : 'Emergency Request'}</span>
@@ -536,42 +591,111 @@ export const HomePage: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Right Column: LifeLine Live Metrics Box */}
-                  <div className="lg:col-span-5 bg-slate-900/80 rounded-3xl border border-rose-900/40 p-6 sm:p-8 space-y-6 backdrop-blur-md">
-                    <div className="flex items-center justify-between border-b border-rose-900/30 pb-4">
-                      <span className="text-xs font-bold text-rose-300 uppercase tracking-wider">
-                        {isBn ? 'লাইভ সমন্বয় পরিসংখ্যান' : 'Live Coordination Network'}
-                      </span>
-                      <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="p-4 rounded-2xl bg-rose-950/40 border border-rose-800/30 text-center">
-                        <p className="text-2xl sm:text-3xl font-extrabold text-white font-display">
-                          {totalRegisteredDonors}+
-                        </p>
-                        <p className="text-[11px] text-rose-200/80 font-medium mt-1">
-                          {isBn ? 'নিবন্ধিত স্বেচ্ছাসেবী রক্তদাতা' : 'Registered Donors'}
-                        </p>
+                  {/* RIGHT COLUMN: Refined Live Coordination Panel */}
+                  <div className="lg:col-span-5 relative">
+                    <div className="rounded-3xl bg-[#072018]/90 border border-emerald-800/40 p-6 sm:p-7 space-y-5 backdrop-blur-md shadow-xl hover:border-emerald-700/60 transition-all">
+                      
+                      {/* Panel Header */}
+                      <div className="flex items-center justify-between border-b border-emerald-800/30 pb-4">
+                        <div className="flex items-center gap-2">
+                          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                          <span className="text-xs font-bold text-emerald-200 uppercase tracking-wider">
+                            {isBn ? 'লাইভ রক্তদান সমন্বয় নেটওয়ার্ক' : 'Live Coordination Network'}
+                          </span>
+                        </div>
+                        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-emerald-950/80 text-emerald-300 border border-emerald-800/40">
+                          {isBn ? 'সক্রিয়' : 'LIVE'}
+                        </span>
                       </div>
 
-                      <div className="p-4 rounded-2xl bg-rose-950/40 border border-rose-800/30 text-center">
-                        <p className="text-2xl sm:text-3xl font-extrabold text-rose-400 font-display">
-                          8+
-                        </p>
-                        <p className="text-[11px] text-rose-200/80 font-medium mt-1">
-                          {isBn ? 'সকল ব্লাড গ্রুপ নেটওয়ার্ক' : 'Blood Groups Covered'}
-                        </p>
-                      </div>
-                    </div>
+                      {/* 4 Real Metric Cards */}
+                      <div className="grid grid-cols-2 gap-3">
+                        {/* 1. Total Registered Donors */}
+                        <div className="p-3.5 sm:p-4 rounded-2xl bg-[#0B2A21]/90 border border-emerald-800/30 text-center flex flex-col items-center justify-center gap-1 hover:border-emerald-500/40 transition-all">
+                          <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center">
+                            <Users className="w-4 h-4" />
+                          </div>
+                          <p className="text-xl sm:text-2xl font-extrabold text-white font-display">
+                            <AnimatedCounter value={totalRegisteredDonors} />+
+                          </p>
+                          <p className="text-[11px] font-medium text-slate-300">
+                            {tText(bloodDonationSettings.statTotalDonorsLabel) || (isBn ? 'নিবন্ধিত রক্তদাতা' : 'Registered Donors')}
+                          </p>
+                        </div>
 
-                    <div className="p-3.5 rounded-xl bg-slate-800/60 border border-slate-700/50 flex items-center justify-between text-xs text-slate-300">
-                      <span>{isBn ? '২৪/৭ জরুরি হেল্পলাইন:' : '24/7 Helpline:'}</span>
-                      <span className="font-bold text-rose-300 font-mono">
-                        {bloodDonationSettings.emergencyHelpline || '+880 1830-106452'}
-                      </span>
+                        {/* 2. Active Emergency Donors */}
+                        <div className="p-3.5 sm:p-4 rounded-2xl bg-[#0B2A21]/90 border border-emerald-800/30 text-center flex flex-col items-center justify-center gap-1 hover:border-emerald-500/40 transition-all">
+                          <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center">
+                            <UserCheck className="w-4 h-4" />
+                          </div>
+                          <p className="text-xl sm:text-2xl font-extrabold text-white font-display">
+                            <AnimatedCounter value={totalActiveDonors} />+
+                          </p>
+                          <p className="text-[11px] font-medium text-slate-300">
+                            {tText(bloodDonationSettings.statActiveDonorsLabel) || (isBn ? 'জরুরিতে প্রস্তুত' : 'Ready Donors')}
+                          </p>
+                        </div>
+
+                        {/* 3. Blood Groups Covered */}
+                        <div className="p-3.5 sm:p-4 rounded-2xl bg-[#0B2A21]/90 border border-emerald-800/30 text-center flex flex-col items-center justify-center gap-1 hover:border-rose-500/40 transition-all">
+                          <div className="w-8 h-8 rounded-full bg-rose-500/20 text-rose-300 flex items-center justify-center">
+                            <Droplet className="w-4 h-4 fill-current" />
+                          </div>
+                          <p className="text-xl sm:text-2xl font-extrabold text-white font-display">
+                            {bloodDonationSettings.statGroupsValue ? (
+                              bloodDonationSettings.statGroupsValue
+                            ) : (
+                              '8/8'
+                            )}
+                          </p>
+                          <p className="text-[11px] font-medium text-slate-300">
+                            {tText(bloodDonationSettings.statGroupsLabel) || (isBn ? 'সকল ব্লাড গ্রুপ' : 'Blood Groups')}
+                          </p>
+                        </div>
+
+                        {/* 4. Lives Impacted */}
+                        <div className="p-3.5 sm:p-4 rounded-2xl bg-[#0B2A21]/90 border border-emerald-800/30 text-center flex flex-col items-center justify-center gap-1 hover:border-amber-500/40 transition-all">
+                          <div className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-300 flex items-center justify-center">
+                            <Heart className="w-4 h-4 fill-current" />
+                          </div>
+                          <p className="text-xl sm:text-2xl font-extrabold text-amber-300 font-display">
+                            <AnimatedCounter value={`${totalLivesImpacted}+`} />
+                          </p>
+                          <p className="text-[11px] font-medium text-slate-300">
+                            {tText(bloodDonationSettings.statImpactLabel) || (isBn ? 'রক্তদান সম্পন্ন' : 'Lives Impacted')}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* 24/7 Helpline Bar */}
+                      {bloodDonationSettings.emergencyHelpline && (
+                        <div className="p-3.5 rounded-2xl bg-[#051C15] border border-emerald-700/30 flex items-center justify-between text-xs text-slate-300">
+                          <div className="flex items-center gap-2">
+                            <Phone className="w-3.5 h-3.5 text-rose-400 animate-pulse" />
+                            <span className="text-slate-300">{isBn ? '২৪/৭ জরুরি হেল্পলাইন:' : '24/7 Helpline:'}</span>
+                          </div>
+                          <a
+                            href={`tel:${bloodDonationSettings.emergencyHelpline.replace(/[^0-9+]/g, '')}`}
+                            className="font-bold text-emerald-200 hover:text-white font-mono transition-colors"
+                          >
+                            {bloodDonationSettings.emergencyHelpline}
+                          </a>
+                        </div>
+                      )}
+
+                      {/* Gateway Footnote link to full Blood Donation experience */}
+                      <div className="pt-1 text-center">
+                        <Link
+                          to="blood-donation"
+                          className="text-xs text-emerald-300/80 hover:text-emerald-200 font-semibold inline-flex items-center gap-1 transition-colors"
+                        >
+                          <span>{isBn ? 'সম্পূর্ণ রক্তদান কার্যক্রম ও নির্দেশিকা দেখুন' : 'Explore Full LifeLine Portal & Guidelines'}</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </Link>
+                      </div>
                     </div>
                   </div>
+
                 </div>
               </div>
             </ScrollReveal>

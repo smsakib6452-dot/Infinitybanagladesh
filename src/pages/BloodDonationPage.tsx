@@ -807,11 +807,8 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                   />
                 </div>
 
-                {/* Slogan & Initiative Subtitle (matching reference) */}
-                <div className="space-y-1.5 mt-3 text-center lg:text-left">
-                  <p className="text-xs sm:text-sm uppercase tracking-[0.24em] text-emerald-200 font-bold font-serif">
-                    {isBn ? 'এক বিন্দু রক্ত, অসীম আশা' : 'ONE DROP, INFINITY HOPE'}
-                  </p>
+                {/* Initiative Subtitle */}
+                <div className="mt-3 text-center lg:text-left">
                   <p className="text-xs sm:text-sm text-emerald-100/85 font-medium max-w-xl leading-relaxed flex items-center justify-center lg:justify-start gap-1.5">
                     <span>
                       {tText(bloodDonationSettings.heroSubtitle) || (

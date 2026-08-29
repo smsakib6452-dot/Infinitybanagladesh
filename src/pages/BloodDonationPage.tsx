@@ -732,6 +732,12 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
     const waUrl = `https://wa.me/${cleanHelpline}?text=${whatsappMsg}`;
     setRegWhatsAppUrl(waUrl);
 
+    try {
+      window.open(waUrl, '_blank');
+    } catch (e) {
+      // Pop-up blocker fallback handled in UI button
+    }
+
     setRegRefId(newDonor.id);
     setRegSubmitted(true);
   };
@@ -771,6 +777,18 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
       matchedDonorIds: matched
     });
 
+    const cleanHelpline = (bloodDonationSettings.emergencyHelpline || '+8801839008339').replace(/[^0-9]/g, '');
+    const emgWhatsAppMsg = encodeURIComponent(
+      `🚨 জরুরি রক্তের আবেদন!\n\n📋 বিবরণ:\n• রোগীর নাম: ${emgPatientName.trim()}\n• রক্তের গ্রুপ: ${emgBloodGroup} (${emgUnits || 1} ব্যাগ)\n• হাসপাতাল: ${emgHospital.trim()}\n• অবস্থান: ${emgUpazila}, ${emgDistrict}\n• যোগাযোগের নম্বর: ${cleanPhone}\n• প্রয়োজনীয় তারিখ: ${emgRequiredDate || 'জরুরি'}\n• অনুরোধকারী: ${emgRequesterName.trim()}\n\nঅনুগ্রহ করে জরুরিভাবে রক্তদাতা সমন্বয়ে সহায়তা করুন।`
+    );
+    const emgWaUrl = `https://wa.me/${cleanHelpline}?text=${emgWhatsAppMsg}`;
+
+    try {
+      window.open(emgWaUrl, '_blank');
+    } catch (e) {
+      // Pop-up blocker fallback
+    }
+
     setEmgRefId(newReq.id);
     setEmgSubmitted(true);
   };
@@ -794,7 +812,6 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                   <span>
                     {tText(bloodDonationSettings.heroBadge) || (isBn ? 'জরুরি রক্তদান ও সমন্বয় নেটওয়ার্ক' : 'Emergency Blood Donation & Coordination')}
                   </span>
-                  <Droplet className="w-3.5 h-3.5 text-rose-500 fill-current ml-0.5" />
                 </div>
 
                 {/* Sub-brand Main Logo with Signature Opening Animation */}
@@ -813,11 +830,10 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                     <span>
                       {tText(bloodDonationSettings.heroSubtitle) || (
                         isBn
-                          ? 'ইনফিনিটি বাংলাদেশ-এর একটি জরুরি মানবিক রক্তদান উদ্যোগ'
-                          : 'An Emergency Blood Donation Initiative by Infinity Bangladesh'
+                          ? 'ইনফিনিটি বাংলাদেশ-এর একটি জরুরি মানবিক রক্তদান উদ্যোগ 🩸'
+                          : 'An Emergency Blood Donation Initiative by Infinity Bangladesh 🩸'
                       )}
                     </span>
-                    <Droplet className="w-3.5 h-3.5 text-rose-500 fill-current shrink-0 inline-block" />
                   </p>
                 </div>
 

@@ -351,7 +351,7 @@ export const INITIAL_BLOOD_SETTINGS: BloodDonationSettings = {
     bn: 'ইনফিনিটি বাংলাদেশ রক্তদান নেটওয়ার্ক'
   },
   heroSubtitle: {
-    en: 'An Emergency Blood Donation Initiative by 𝐈𝐧𝐟𝐢𝐧𝐢𝐭𝐲 𝐁𝐚𝐧𝐠𝐥𝐚𝐝𝐞𝐬𝐡 🩸',
+    en: 'An Emergency Blood Donation Initiative by Infinity Bangladesh 🩸',
     bn: 'ইনফিনিটি বাংলাদেশ-এর একটি জরুরি রক্তদান উদ্যোগ 🩸'
   },
   heroCtaBadge: {

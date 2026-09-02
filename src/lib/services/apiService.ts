@@ -425,8 +425,8 @@ export class ApiService {
    * Submit new blood donor registration (enters PENDING approval)
    */
   static async registerBloodDonor(donorData: Omit<BloodDonor, 'id' | 'createdAt' | 'updatedAt'>): Promise<{ success: boolean; id: string; message: string }> {
-    if (!donorData.fullName || !donorData.bloodGroup || !donorData.phone || !donorData.district || !donorData.upazila) {
-      throw new Error('Please provide Full Name, Blood Group, Phone, District, and Upazila.');
+    if (!donorData.fullName || !donorData.bloodGroup || !donorData.phone || !donorData.district || !donorData.upazila || !(donorData.dateOfBirth || donorData.dob)) {
+      throw new Error('Please provide Full Name, Blood Group, Phone, District, Upazila, and Date of Birth.');
     }
 
     const id = `donor_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
@@ -446,7 +446,7 @@ export class ApiService {
           upazila: donorData.upazila,
           area: donorData.area,
           detailed_address: donorData.detailedAddress || null,
-          org_category: donorData.orgCategory || 'Infinity Bangladesh Volunteer',
+          org_category: donorData.orgCategory || 'Open Voluntary Blood Donor',
           committee_position: donorData.committeePosition || null,
           availability_status: donorData.availabilityStatus || 'AVAILABLE_EMERGENCY',
           first_donation_date: donorData.firstDonationDate || null,

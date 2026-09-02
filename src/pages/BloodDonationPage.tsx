@@ -205,7 +205,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
   const [regUpazila, setRegUpazila] = useState('Hathazari');
   const [regArea, setRegArea] = useState('');
   const [regDetailedAddress, setRegDetailedAddress] = useState('');
-  const [regOrgCategory, setRegOrgCategory] = useState('Infinity Bangladesh Volunteer');
+  const [regOrgCategory, setRegOrgCategory] = useState('Open Voluntary Blood Donor');
   const [regCommitteePosition, setRegCommitteePosition] = useState('');
   const [regAvailability, setRegAvailability] = useState<DonorAvailabilityStatus>('AVAILABLE_EMERGENCY');
   const [regLastDonationDate, setRegLastDonationDate] = useState('');
@@ -301,7 +301,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
     setRegUpazila('Hathazari');
     setRegArea('');
     setRegDetailedAddress('');
-    setRegOrgCategory('Infinity Bangladesh Volunteer');
+    setRegOrgCategory('Open Voluntary Blood Donor');
     setRegCommitteePosition('');
     setRegAvailability('AVAILABLE_EMERGENCY');
     setRegLastDonationDate('');
@@ -335,7 +335,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
   const [updUpazila, setUpdUpazila] = useState('Hathazari');
   const [updArea, setUpdArea] = useState('');
   const [updDetailedAddress, setUpdDetailedAddress] = useState('');
-  const [updOrgCategory, setUpdOrgCategory] = useState('Infinity Bangladesh Volunteer');
+  const [updOrgCategory, setUpdOrgCategory] = useState('Open Voluntary Blood Donor');
   const [updCommitteePosition, setUpdCommitteePosition] = useState('');
   const [updAvailability, setUpdAvailability] = useState<DonorAvailabilityStatus>('AVAILABLE_EMERGENCY');
   const [updLastDonationDate, setUpdLastDonationDate] = useState('');
@@ -367,7 +367,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
     setUpdUpazila(toSafeString(donor.upazila, 'Hathazari'));
     setUpdArea(toSafeString(donor.area, ''));
     setUpdDetailedAddress(toSafeString(donor.detailedAddress, ''));
-    setUpdOrgCategory(toSafeString(donor.orgCategory, 'Infinity Bangladesh Volunteer'));
+    setUpdOrgCategory(toSafeString(donor.orgCategory, 'Open Voluntary Blood Donor'));
     setUpdCommitteePosition(toSafeString(donor.committeePosition, ''));
     setUpdAvailability(donor.availabilityStatus || 'AVAILABLE_EMERGENCY');
     setUpdLastDonationDate(toSafeString(donor.lastDonationDate, ''));
@@ -489,8 +489,28 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
     if (!matchedDonor) return;
     setUpdFormError(null);
 
-    if (!updFullName.trim() || !updPhone.trim() || !updDistrict || !updUpazila) {
-      setUpdFormError(isBn ? 'অনুগ্রহ করে সকল আবশ্যকীয় তথ্য পূরণ করুন।' : 'Please fill in all required fields.');
+    if (!updFullName.trim() || !updPhone.trim() || !updDistrict || !updUpazila || !updDateOfBirth || updDateOfBirth.length < 10) {
+      setUpdFormError(
+        isBn
+          ? 'অনুগ্রহ করে জন্ম তারিখসহ (দিন, মাস, বছর) সকল আবশ্যকীয় তথ্য সঠিকভাবে পূরণ করুন।'
+          : 'Please fill in all required fields including a complete Date of Birth (Day, Month, Year).'
+      );
+      return;
+    }
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    if (updDateOfBirth > todayStr) {
+      setUpdFormError(isBn ? 'জন্ম তারিখ আজকের বা অতীতের তারিখ হতে হবে।' : 'Date of birth cannot be in the future.');
+      return;
+    }
+
+    const calculatedAge = calculateAge(updDateOfBirth);
+    if (calculatedAge !== null && calculatedAge < 18) {
+      setUpdFormError(
+        isBn
+          ? `স্বেচ্ছায় রক্তদানের জন্য প্রার্থীর বয়স কমপক্ষে ১৮ বছর হতে হবে (আপনার বর্তমান বয়স ${calculatedAge} বছর)।`
+          : `Minimum age required for voluntary blood donation is 18 years (current calculated age is ${calculatedAge} years).`
+      );
       return;
     }
 
@@ -504,7 +524,6 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
       return;
     }
 
-    const todayStr = new Date().toISOString().split('T')[0];
     if (updLastDonationDate && updLastDonationDate > todayStr) {
       setUpdFormError(
         isBn
@@ -2546,12 +2565,13 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                       <div className="sm:col-span-8 space-y-1.5">
                         <label className="block text-xs font-bold text-slate-800 flex items-center gap-1.5">
                           <Calendar className="w-3.5 h-3.5 text-[#006A4E]" />
-                          <span>{isBn ? 'জন্ম তারিখ (Date of Birth)' : 'Date of Birth'}</span>
+                          <span>{isBn ? 'জন্ম তারিখ (Date of Birth) *' : 'Date of Birth *'}</span>
                         </label>
                         <DateInput
                           value={updDateOfBirth}
                           onChange={(val) => setUpdDateOfBirth(val)}
                           isBn={isBn}
+                          required
                           max={new Date().toISOString().split('T')[0]}
                           minYear={1940}
                           maxYear={new Date().getFullYear()}

@@ -4228,12 +4228,12 @@
   },
   "donorCategories": [
     {
-      "id": "cat-vol",
+      "id": "cat-open",
       "name": {
-        "en": "Infinity Bangladesh Volunteer",
-        "bn": "ইনফিনিটি বাংলাদেশ ভলান্টিয়ার"
+        "en": "Open Voluntary Blood Donor",
+        "bn": "উন্মুক্ত স্বেচ্ছাসেবী রক্তদাতা"
       },
-      "badgeColor": "#006A4E",
+      "badgeColor": "#E11D48",
       "displayOrder": 1,
       "isDefault": true
     },
@@ -4248,22 +4248,24 @@
       "isDefault": true
     },
     {
-      "id": "cat-ext",
-      "name": {
-        "en": "External Blood Donor",
-        "bn": "বহিরাগত স্বেচ্ছাসেবী রক্তদাতা"
-      },
-      "badgeColor": "#E11D48",
-      "displayOrder": 6,
-      "isDefault": true
-    },
-    {
+      "id": "cat-standing",
       "name": {
         "en": "Standing Committee",
         "bn": "স্থায়ী কমিটি"
       },
+      "badgeColor": "#2563EB",
+      "displayOrder": 3,
+      "isDefault": true
+    },
+    {
+      "id": "cat-member",
+      "name": {
+        "en": "Infinity Bangladesh Member",
+        "bn": "ইনফিনিটি বাংলাদেশ পরিবারের সদস্য"
+      },
+      "badgeColor": "#006A4E",
       "displayOrder": 4,
-      "id": "cat-1787889544113"
+      "isDefault": true
     }
   ]
 }

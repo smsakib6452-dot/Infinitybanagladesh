@@ -57,7 +57,7 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
   const [upazila, setUpazila] = useState('Hathazari');
   const [area, setArea] = useState('');
   const [detailedAddress, setDetailedAddress] = useState('');
-  const [orgCategory, setOrgCategory] = useState('Infinity Bangladesh Volunteer');
+  const [orgCategory, setOrgCategory] = useState('Open Voluntary Blood Donor');
   const [committeePosition, setCommitteePosition] = useState('');
   const [availabilityStatus, setAvailabilityStatus] = useState<DonorAvailabilityStatus>('AVAILABLE_EMERGENCY');
   const [approvalStatus, setApprovalStatus] = useState<DonorApprovalStatus>('APPROVED');
@@ -146,7 +146,10 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
       setUpazila(donorToEdit.upazila || 'Hathazari');
       setArea(donorToEdit.area || '');
       setDetailedAddress(donorToEdit.detailedAddress || '');
-      setOrgCategory(donorToEdit.orgCategory || 'Infinity Bangladesh Volunteer');
+      let initialCat = donorToEdit.orgCategory || 'Open Voluntary Blood Donor';
+      if (initialCat === 'Infinity Bangladesh Volunteer') initialCat = 'Infinity Bangladesh Member';
+      if (initialCat === 'External Blood Donor') initialCat = 'Open Voluntary Blood Donor';
+      setOrgCategory(initialCat);
       setCommitteePosition(donorToEdit.committeePosition || '');
       setAvailabilityStatus(donorToEdit.availabilityStatus || 'AVAILABLE_EMERGENCY');
       setApprovalStatus(donorToEdit.approvalStatus || 'APPROVED');
@@ -169,7 +172,7 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
       setUpazila('Hathazari');
       setArea('');
       setDetailedAddress('');
-      setOrgCategory('Infinity Bangladesh Volunteer');
+      setOrgCategory('Open Voluntary Blood Donor');
       setCommitteePosition('');
       setAvailabilityStatus('AVAILABLE_EMERGENCY');
       setApprovalStatus('APPROVED');
@@ -234,8 +237,12 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
     e.preventDefault();
     setModalError(null);
 
-    if (!fullName.trim() || !phone.trim() || !district || !upazila) {
-      setModalError(isBn ? 'অনুগ্রহ করে সকল আবশ্যকীয় তথ্য পূরণ করুন।' : 'Please fill in all required fields.');
+    if (!fullName.trim() || !phone.trim() || !district || !upazila || !dateOfBirth || dateOfBirth.length < 10) {
+      setModalError(
+        isBn
+          ? 'অনুগ্রহ করে জন্ম তারিখসহ (দিন, মাস, বছর) সকল আবশ্যকীয় তথ্য সঠিকভাবে পূরণ করুন।'
+          : 'Please fill in all required fields including a complete Date of Birth (Day, Month, Year).'
+      );
       return;
     }
 
@@ -250,8 +257,28 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
       return;
     }
 
-    // Validate No Future Dates
+    // Validate Date of Birth
     const todayStr = new Date().toISOString().split('T')[0];
+    if (dateOfBirth > todayStr) {
+      setModalError(
+        isBn
+          ? 'জন্ম তারিখ আজকের বা অতীতের তারিখ হতে হবে, ভবিষ্যতের নয়।'
+          : 'Date of birth cannot be in the future.'
+      );
+      return;
+    }
+
+    const calculatedAge = calculateAge(dateOfBirth);
+    if (calculatedAge !== null && calculatedAge < 18) {
+      setModalError(
+        isBn
+          ? `স্বেচ্ছায় রক্তদানের জন্য প্রার্থীর বয়স কমপক্ষে ১৮ বছর হতে হবে (বর্তমান বয়স ${calculatedAge} বছর)।`
+          : `Minimum age required for voluntary blood donation is 18 years (current calculated age is ${calculatedAge} years).`
+      );
+      return;
+    }
+
+    // Validate No Future Dates
     if (lastDonationDate && lastDonationDate > todayStr) {
       setModalError(
         isBn
@@ -404,7 +431,7 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
                   <div className="flex items-center justify-between">
                     <label className="block text-xs font-bold text-slate-800 flex items-center gap-1.5">
                       <Calendar className="w-3.5 h-3.5 text-[#006A4E]" />
-                      <span>{isBn ? 'জন্ম তারিখ (Date of Birth)' : 'Date of Birth'}</span>
+                      <span>{isBn ? 'জন্ম তারিখ (Date of Birth) *' : 'Date of Birth *'}</span>
                     </label>
                     {dateOfBirth && (() => {
                       const calculatedAge = calculateAge(dateOfBirth);

@@ -75,7 +75,12 @@ export function cleanBloodDonor(d: any): BloodDonor {
   const upazila = toSafeString(d.upazila, 'Sadar');
   const area = toSafeString(d.area, '');
   const detailedAddress = toSafeString(d.detailedAddress, '');
-  const orgCategory = toSafeString(d.orgCategory, 'Infinity Bangladesh Volunteer');
+  let orgCategory = toSafeString(d.orgCategory, 'Open Voluntary Blood Donor');
+  if (orgCategory === 'Infinity Bangladesh Volunteer') {
+    orgCategory = 'Infinity Bangladesh Member';
+  } else if (orgCategory === 'External Blood Donor') {
+    orgCategory = 'Open Voluntary Blood Donor';
+  }
   const committeePosition = d.committeePosition ? toSafeString(d.committeePosition, '') : undefined;
   const fullName = toSafeString(d.fullName, '');
   const phone = toSafeString(d.phone, '');
@@ -295,12 +300,12 @@ export function calculateAge(dobString?: string): number | null {
  */
 export const DEFAULT_DONOR_CATEGORIES: DonorCategoryOption[] = [
   {
-    id: 'cat-vol',
+    id: 'cat-open',
     name: {
-      en: 'Infinity Bangladesh Volunteer',
-      bn: 'ইনফিনিটি বাংলাদেশ ভলান্টিয়ার'
+      en: 'Open Voluntary Blood Donor',
+      bn: 'উন্মুক্ত স্বেচ্ছাসেবী রক্তদাতা'
     },
-    badgeColor: '#006A4E',
+    badgeColor: '#E11D48',
     displayOrder: 1,
     isDefault: true
   },
@@ -315,22 +320,24 @@ export const DEFAULT_DONOR_CATEGORIES: DonorCategoryOption[] = [
     isDefault: true
   },
   {
-    id: 'cat-ext',
-    name: {
-      en: 'External Blood Donor',
-      bn: 'বহিরাগত স্বেচ্ছাসেবী রক্তদাতা'
-    },
-    badgeColor: '#E11D48',
-    displayOrder: 6,
-    isDefault: true
-  },
-  {
+    id: 'cat-standing',
     name: {
       en: 'Standing Committee',
       bn: 'স্থায়ী কমিটি'
     },
+    badgeColor: '#2563EB',
+    displayOrder: 3,
+    isDefault: true
+  },
+  {
+    id: 'cat-member',
+    name: {
+      en: 'Infinity Bangladesh Member',
+      bn: 'ইনফিনিটি বাংলাদেশ পরিবারের সদস্য'
+    },
+    badgeColor: '#006A4E',
     displayOrder: 4,
-    id: 'cat-1787889544113'
+    isDefault: true
   }
 ];
 
@@ -456,7 +463,7 @@ export const INITIAL_BLOOD_DONORS: BloodDonor[] = [
     upazila: 'Hathazari',
     area: 'Hathazari',
     detailedAddress: 'Krisi farm road',
-    orgCategory: 'Infinity Bangladesh Volunteer',
+    orgCategory: 'Infinity Bangladesh Member',
     committeePosition: undefined,
     availabilityStatus: 'AVAILABLE_EMERGENCY',
     lastDonationDate: '2024-05-13',

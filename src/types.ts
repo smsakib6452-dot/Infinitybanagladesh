@@ -1034,7 +1034,7 @@ export interface BloodDonor {
   upazila: string;
   area: string;
   detailedAddress?: string; // Private / Admin only
-  orgCategory: string; // 'Infinity Bangladesh Volunteer' | 'Executive Committee' | 'Working Committee' | 'Permanent Committee' | 'Former Member' | 'External Blood Donor' | custom
+  orgCategory: string; // 'Open Voluntary Blood Donor' | 'Executive Committee' | 'Standing Committee' | 'Infinity Bangladesh Member' | custom
   committeePosition?: string;
   availabilityStatus: DonorAvailabilityStatus;
   firstDonationDate?: string;

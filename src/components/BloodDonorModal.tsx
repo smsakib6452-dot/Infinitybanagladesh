@@ -62,7 +62,7 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
   const [availabilityStatus, setAvailabilityStatus] = useState<DonorAvailabilityStatus>('AVAILABLE_EMERGENCY');
   const [approvalStatus, setApprovalStatus] = useState<DonorApprovalStatus>('APPROVED');
   const [isVerified, setIsVerified] = useState<boolean>(true);
-  const [showPhonePublicly, setShowPhonePublicly] = useState<boolean>(false);
+  const [showPhonePublicly, setShowPhonePublicly] = useState<boolean>(true);
   const [lastDonationDate, setLastDonationDate] = useState('');
   const [totalDonations, setTotalDonations] = useState<number>(0);
   const [experienceNotes, setExperienceNotes] = useState('');
@@ -154,7 +154,7 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
       setAvailabilityStatus(donorToEdit.availabilityStatus || 'AVAILABLE_EMERGENCY');
       setApprovalStatus(donorToEdit.approvalStatus || 'APPROVED');
       setIsVerified(donorToEdit.isVerified ?? true);
-      setShowPhonePublicly(donorToEdit.showPhonePublicly ?? false);
+      setShowPhonePublicly(donorToEdit.gender === 'Male' ? true : (donorToEdit.showPhonePublicly ?? false));
       setLastDonationDate(donorToEdit.lastDonationDate || '');
       setTotalDonations(donorToEdit.totalDonations ?? 0);
       setExperienceNotes(donorToEdit.experienceNotes || '');
@@ -177,7 +177,7 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
       setAvailabilityStatus('AVAILABLE_EMERGENCY');
       setApprovalStatus('APPROVED');
       setIsVerified(true);
-      setShowPhonePublicly(false);
+      setShowPhonePublicly(true);
       setLastDonationDate('');
       setTotalDonations(0);
       setExperienceNotes('');
@@ -307,7 +307,7 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
       availabilityStatus,
       approvalStatus,
       isVerified,
-      showPhonePublicly,
+      showPhonePublicly: gender === 'Male' ? true : showPhonePublicly,
       lastDonationDate: lastDonationDate || undefined,
       totalDonations: Number(totalDonations) || donationHistory.length || 0,
       experienceNotes: experienceNotes.trim() || undefined,
@@ -418,7 +418,13 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
                   </label>
                   <select
                     value={gender}
-                    onChange={(e) => setGender(e.target.value)}
+                    onChange={(e) => {
+                      const newGender = e.target.value;
+                      setGender(newGender);
+                      if (newGender === 'Male') {
+                        setShowPhonePublicly(true);
+                      }
+                    }}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
                   >
                     <option value="Male">{isBn ? 'পুরুষ (Male)' : 'Male'}</option>
@@ -735,15 +741,26 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
                   <span>{isBn ? 'যাচাইকৃত রক্তদাতা ব্যাজ (Verified Badge)' : 'Verified Donor Badge'}</span>
                 </label>
 
-                <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-800">
-                  <input
-                    type="checkbox"
-                    checked={showPhonePublicly}
-                    onChange={(e) => setShowPhonePublicly(e.target.checked)}
-                    className="w-4 h-4 text-[#006A4E] rounded-md focus:ring-[#006A4E]"
-                  />
-                  <span>{isBn ? 'পাবলিক প্রোফাইলে সরাসরি কল বাটন দৃশ্যমান রাখুন' : 'Show Direct Phone to Public'}</span>
-                </label>
+                {gender === 'Male' ? (
+                  <div className="flex items-center gap-2 p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-semibold text-[#00523C]">
+                    <ShieldCheck className="w-4 h-4 text-[#006A4E] shrink-0" />
+                    <span>
+                      {isBn
+                        ? 'পুরুষ রক্তদাতাদের মোবাইল নম্বর স্বয়ংক্রিয়ভাবে পাবলিক থাকে (রক্তদানের পর ৯০ দিন সবার নম্বরই হাইড থাকবে)।'
+                        : 'Male donor phone numbers are automatically public (hidden for 90 days after donation).'}
+                    </span>
+                  </div>
+                ) : (
+                  <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-800">
+                    <input
+                      type="checkbox"
+                      checked={showPhonePublicly}
+                      onChange={(e) => setShowPhonePublicly(e.target.checked)}
+                      className="w-4 h-4 text-[#006A4E] rounded-md focus:ring-[#006A4E]"
+                    />
+                    <span>{isBn ? 'নারী রক্তদাতার সরাসরি কল বাটন দৃশ্যমান রাখুন (প্রাইভেসি অপশন)' : 'Show Direct Phone to Public (Female Privacy Option)'}</span>
+                  </label>
+                )}
               </div>
             </div>
 
@@ -809,7 +826,7 @@ export const BloodDonorModal: React.FC<BloodDonorModalProps> = ({
                   );
                 })() : (
                   <p className="text-[10px] text-slate-400">
-                    {isBn ? 'রক্তদানের তারিখ দিলে ১২০ দিনের কুলডাউন স্বয়ংক্রিয়ভাবে হিসাব হবে' : 'Cooldown status is computed based on 120-day interval rule'}
+                    {isBn ? 'রক্তদানের তারিখ দিলে ৯০ দিনের (৩ মাস) কুলডাউন স্বয়ংক্রিয়ভাবে হিসাব হবে' : 'Cooldown status is computed based on 90-day interval rule'}
                   </p>
                 )}
               </div>

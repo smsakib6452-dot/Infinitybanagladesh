@@ -1388,7 +1388,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             totalDonations: Number(d.total_donations) || 0,
             experienceNotes: d.experience_notes,
             privacyConsent: d.privacy_consent ?? d.consent_confirmed ?? true,
-            showPhonePublicly: d.show_phone_publicly ?? d.show_phone_number_publicly ?? false,
+            showPhonePublicly: d.gender === 'Male' ? true : (d.show_phone_publicly ?? d.show_phone_number_publicly ?? false),
             approvalStatus: d.approval_status || 'PENDING',
             isVerified: d.is_verified ?? false,
             donationHistory: Array.isArray(d.blood_donation_history) ? d.blood_donation_history.map((h: any) => ({
@@ -3821,7 +3821,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       isVerified: donor.isVerified ?? false,
       approvalStatus: donor.approvalStatus || 'APPROVED',
       privacyConsent: donor.privacyConsent ?? true,
-      showPhonePublicly: donor.showPhonePublicly ?? false,
+      showPhonePublicly: donor.gender === 'Male' ? true : (donor.showPhonePublicly ?? false),
       donationHistory: (donor.donationHistory || []).map(h => ({ ...h, donorId: id })),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()

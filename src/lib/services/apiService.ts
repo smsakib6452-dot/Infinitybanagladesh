@@ -372,7 +372,7 @@ export class ApiService {
             isVerified: d.is_verified ?? false,
             approvalStatus: d.approval_status ?? 'PENDING',
             privacyConsent: d.privacy_consent ?? true,
-            showPhonePublicly: d.show_phone_publicly ?? false,
+            showPhonePublicly: d.gender === 'Male' ? true : (d.show_phone_publicly ?? false),
             donationHistory: Array.isArray(d.blood_donation_history) ? d.blood_donation_history.map((h: any) => ({
               id: h.id,
               donorId: h.donor_id,
@@ -456,7 +456,7 @@ export class ApiService {
           is_verified: false,
           approval_status: 'PENDING',
           privacy_consent: donorData.privacyConsent ?? true,
-          show_phone_publicly: donorData.showPhonePublicly ?? false
+          show_phone_publicly: donorData.gender === 'Male' ? true : (donorData.showPhonePublicly ?? false)
         }]);
       }
     } catch (err) {

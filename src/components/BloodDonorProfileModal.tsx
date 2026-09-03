@@ -2,7 +2,7 @@ import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { BloodDonor } from '../types';
 import { getAssetUrl } from '../lib/utils/assetHelper';
-import { calculateAge, getCooldownStatusInfo, BLOOD_DONATION_COOLDOWN_DAYS, cleanBloodDonor } from '../data/bloodDonationData';
+import { calculateAge, getCooldownStatusInfo, BLOOD_DONATION_COOLDOWN_DAYS, cleanBloodDonor, getDonorPhoneVisibility } from '../data/bloodDonationData';
 import { formatDateDDMMYYYY } from '../lib/utils/formatters';
 import {
   X,
@@ -192,7 +192,7 @@ export const BloodDonorProfileModal: React.FC<BloodDonorProfileModalProps> = ({
             </div>
           </div>
 
-          {/* Key Milestones (Last Blood Donation & 120-Day Cooldown) */}
+          {/* Key Milestones (Last Blood Donation & 90-Day Cooldown) */}
           <div className="p-4.5 rounded-2xl bg-white border border-[#EAE3D9] space-y-3 shadow-xs">
             <div className="flex items-center justify-between gap-3">
               <div className="space-y-1">
@@ -215,7 +215,7 @@ export const BloodDonorProfileModal: React.FC<BloodDonorProfileModalProps> = ({
               )}
             </div>
 
-            {/* 120-Day Cooldown Eligibility Indicator */}
+            {/* 90-Day Cooldown Eligibility Indicator */}
             {donor.lastDonationDate && (() => {
               const cooldownInfo = getCooldownStatusInfo(donor.lastDonationDate, isBn);
               return (
@@ -233,6 +233,51 @@ export const BloodDonorProfileModal: React.FC<BloodDonorProfileModalProps> = ({
               );
             })()}
           </div>
+
+          {/* Phone & Contact Privacy Status */}
+          {(() => {
+            const phoneVis = getDonorPhoneVisibility(donor);
+            return (
+              <div className="p-4 rounded-2xl bg-[#FAF7F2] border border-[#EAE3D9] space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-slate-800 text-xs font-bold">
+                    <Phone className="w-4 h-4 text-[#006A4E]" />
+                    <span>{isBn ? 'মোবাইল নম্বর ও যোগাযোগ প্রাপ্যতা' : 'Phone & Contact Availability'}</span>
+                  </div>
+                  {phoneVis.isPublic ? (
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                      {isBn ? 'সরাসরি কল উন্মুক্ত' : 'Direct Call Public'}
+                    </span>
+                  ) : (
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-900 border border-amber-300">
+                      {phoneVis.reason === 'WITHIN_90_DAYS_COOLDOWN'
+                        ? (isBn ? '৯০ দিন বিশ্রামে (সুরক্ষিত)' : '90-Day Recovery')
+                        : (isBn ? 'প্রাইভেসি সুরক্ষিত' : 'Private')}
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-between pt-1">
+                  <div className="font-mono text-sm sm:text-base font-extrabold text-slate-800">
+                    {phoneVis.isPublic ? donor.phone : phoneVis.maskedPhone}
+                  </div>
+                  {phoneVis.isPublic && donor.phone && (
+                    <a
+                      href={`tel:${donor.phone.replace(/[^0-9+]/g, '')}`}
+                      className="px-3 py-1.5 rounded-xl bg-[#006A4E] text-white text-xs font-bold hover:bg-[#00523C] flex items-center gap-1 transition-all"
+                    >
+                      <Phone className="w-3.5 h-3.5" />
+                      <span>{isBn ? 'কল করুন' : 'Call'}</span>
+                    </a>
+                  )}
+                </div>
+
+                <p className="text-[11px] text-slate-600 leading-relaxed pt-0.5">
+                  {isBn ? phoneVis.messageBn : phoneVis.messageEn}
+                </p>
+              </div>
+            );
+          })()}
 
           {/* Donation Experience Notes */}
           {donor.experienceNotes && (

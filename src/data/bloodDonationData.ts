@@ -85,10 +85,14 @@ export function cleanBloodDonor(d: any): BloodDonor {
   const fullName = toSafeString(d.fullName, '');
   const phone = toSafeString(d.phone, '');
   const email = toSafeString(d.email, '');
+  const gender = toSafeString(d.gender, 'Male');
+  // Male donors are automatically public; Female/Other donors follow their privacy preference
+  const showPhonePublicly = gender === 'Male' ? true : Boolean(d.showPhonePublicly);
 
   return {
     ...d,
     fullName,
+    gender,
     phone,
     email,
     district,
@@ -96,6 +100,7 @@ export function cleanBloodDonor(d: any): BloodDonor {
     area,
     detailedAddress,
     orgCategory,
+    showPhonePublicly,
     committeePosition: committeePosition || undefined
   };
 }
@@ -179,12 +184,145 @@ export function getUpazilasForDistrict(districtName: any): string[] {
 }
 
 /**
- * Cooldown period in days between blood donations (120 days = 4 months)
+ * Cooldown period in days between blood donations (90 days = 3 months)
  */
-export const BLOOD_DONATION_COOLDOWN_DAYS = 120;
+export const BLOOD_DONATION_COOLDOWN_DAYS = 90;
 
 /**
- * Calculate blood donation eligibility based on 120 days interval
+ * Period in days during which a donor's mobile number is hidden after donating blood (90 days)
+ */
+export const BLOOD_DONATION_PHONE_HIDE_DAYS = 90;
+
+/**
+ * Safely masks a mobile number for privacy (e.g. 01839008339 -> 018•••••39)
+ */
+export function maskPhoneNumber(phone?: string): string {
+  if (!phone) return '';
+  const clean = phone.trim();
+  if (clean.length < 7) return '••••••••';
+  const start = clean.slice(0, 3);
+  const end = clean.slice(-2);
+  return `${start}•••••${end}`;
+}
+
+export type DonorPhoneVisibilityReason =
+  | 'WITHIN_90_DAYS_COOLDOWN'
+  | 'MALE_PUBLIC'
+  | 'FEMALE_OPTED_IN'
+  | 'FEMALE_PRIVATE'
+  | 'OTHER_PRIVATE'
+  | 'NO_PHONE';
+
+export interface DonorPhoneVisibility {
+  isPublic: boolean;
+  reason: DonorPhoneVisibilityReason;
+  messageBn: string;
+  messageEn: string;
+  maskedPhone: string;
+  displayPhone: string;
+  daysPassedSinceDonation: number | null;
+  daysRemainingIn90Days: number | null;
+  isWithin90Days: boolean;
+}
+
+/**
+ * Determines whether a donor's mobile number is publicly callable or hidden:
+ * 1. If within 90 days of last blood donation: ALWAYS hidden for both male and female!
+ * 2. If >= 90 days or never donated:
+ *    - Male: automatically public!
+ *    - Female / Other: follows privacy option (showPhonePublicly)
+ */
+export function getDonorPhoneVisibility(donor: Partial<BloodDonor> | null | undefined): DonorPhoneVisibility {
+  const rawPhone = donor?.phone ? String(donor.phone).trim() : '';
+  const maskedPhone = maskPhoneNumber(rawPhone);
+
+  if (!donor || !rawPhone) {
+    return {
+      isPublic: false,
+      reason: 'NO_PHONE',
+      messageBn: 'কোনো ফোন নম্বর সংরক্ষিত নেই',
+      messageEn: 'No phone number on record',
+      maskedPhone: '',
+      displayPhone: '',
+      daysPassedSinceDonation: null,
+      daysRemainingIn90Days: null,
+      isWithin90Days: false
+    };
+  }
+
+  // Step 1: Check 90-day post-donation cooldown rule (applies to ALL donors, male & female)
+  if (donor.lastDonationDate) {
+    const lastDate = new Date(donor.lastDonationDate);
+    if (!isNaN(lastDate.getTime())) {
+      const today = new Date();
+      const diffMs = today.getTime() - lastDate.getTime();
+      const daysPassed = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+      if (daysPassed >= 0 && daysPassed < BLOOD_DONATION_PHONE_HIDE_DAYS) {
+        const daysRemaining = BLOOD_DONATION_PHONE_HIDE_DAYS - daysPassed;
+        return {
+          isPublic: false,
+          reason: 'WITHIN_90_DAYS_COOLDOWN',
+          messageBn: `রক্তদানের পর ৯০ দিন শারীরিক বিশ্রামের নিয়ম থাকায় নম্বর গোপন রাখা হয়েছে (আর ${daysRemaining} দিন পর নম্বর উন্মুক্ত হবে)।`,
+          messageEn: `Phone number is hidden during the 90-day post-donation recovery period (${daysRemaining} days remaining).`,
+          maskedPhone,
+          displayPhone: maskedPhone,
+          daysPassedSinceDonation: daysPassed,
+          daysRemainingIn90Days: daysRemaining,
+          isWithin90Days: true
+        };
+      }
+    }
+  }
+
+  // Step 2: If NOT within 90 days of donation, check gender rules
+  const gender = donor.gender || 'Male';
+
+  if (gender === 'Male') {
+    // Male donors are automatically public
+    return {
+      isPublic: true,
+      reason: 'MALE_PUBLIC',
+      messageBn: 'পুরুষ রক্তদাতার যোগাযোগের নম্বর উন্মুক্ত (পাবলিক) রয়েছে।',
+      messageEn: 'Male donor phone number is public for direct emergency contact.',
+      maskedPhone,
+      displayPhone: rawPhone,
+      daysPassedSinceDonation: null,
+      daysRemainingIn90Days: null,
+      isWithin90Days: false
+    };
+  }
+
+  // Female or Other: check privacy consent
+  if (donor.showPhonePublicly) {
+    return {
+      isPublic: true,
+      reason: 'FEMALE_OPTED_IN',
+      messageBn: 'রক্তদাতা সরাসরি যোগাযোগের অনুমতি দিয়েছেন।',
+      messageEn: 'Donor has allowed direct public contact.',
+      maskedPhone,
+      displayPhone: rawPhone,
+      daysPassedSinceDonation: null,
+      daysRemainingIn90Days: null,
+      isWithin90Days: false
+    };
+  }
+
+  return {
+    isPublic: false,
+    reason: gender === 'Female' ? 'FEMALE_PRIVATE' : 'OTHER_PRIVATE',
+    messageBn: 'নারী রক্তদাতার ব্যক্তিগত প্রাইভেসি সুরক্ষার স্বার্থে নম্বর গোপন রাখা হয়েছে। হেল্পলাইনের মাধ্যমে যোগাযোগ করুন।',
+    messageEn: 'Phone number is kept hidden for donor privacy. Please contact via 24/7 Helpline.',
+    maskedPhone,
+    displayPhone: maskedPhone,
+    daysPassedSinceDonation: null,
+    daysRemainingIn90Days: null,
+    isWithin90Days: false
+  };
+}
+
+/**
+ * Calculate blood donation eligibility based on 90 days (3 months) interval
  */
 export function isEligibleToDonate(lastDonationDate?: string): {
   eligible: boolean;
@@ -261,8 +399,8 @@ export function getCooldownStatusInfo(lastDonationDate?: string, isBn: boolean =
       badgeText: isBn ? 'রক্তদানে সম্পূর্ণ প্রস্তুত' : 'Ready & Eligible to Donate',
       badgeColorClass: 'bg-emerald-50 text-emerald-800 border-emerald-300',
       description: isBn
-        ? `সর্বশেষ রক্তদানের পর ${result.daysPassed} দিন অতিক্রান্ত হয়েছে (১২০ দিন সম্পন্ন)। আপনি নিরাপদে রক্তদান করতে পারবেন।`
-        : `${result.daysPassed} days have passed since your last donation (120-day cooldown complete). You are ready to donate safely.`
+        ? `সর্বশেষ রক্তদানের পর ${result.daysPassed} দিন অতিক্রান্ত হয়েছে (৯০ দিন সম্পন্ন)। আপনি নিরাপদে রক্তদান করতে পারবেন।`
+        : `${result.daysPassed} days have passed since your last donation (90-day cooldown complete). You are ready to donate safely.`
     };
   }
 
@@ -271,11 +409,11 @@ export function getCooldownStatusInfo(lastDonationDate?: string, isBn: boolean =
     daysRemaining: result.daysRemaining,
     daysPassed: result.daysPassed,
     nextEligibleDateStr: result.nextEligibleDateStr,
-    badgeText: isBn ? `১২০ দিন পূর্ণ হতে আর ${result.daysRemaining} দিন বাকি` : `${result.daysRemaining} days remaining in 120-day cooldown`,
+    badgeText: isBn ? `৯০ দিন পূর্ণ হতে আর ${result.daysRemaining} দিন বাকি` : `${result.daysRemaining} days remaining in 90-day cooldown`,
     badgeColorClass: 'bg-rose-50 text-rose-800 border-rose-300',
     description: isBn
-      ? `আপনার শেষ রক্তদানের পর ${result.daysPassed} দিন পার হয়েছে। সুস্থতার জন্য ১২০ দিন (৪ মাস) পূর্ণ হওয়া পর্যন্ত বিশ্রাম নেওয়া আবশ্যক। আগামী ${result.nextEligibleDateStr} থেকে রক্তদানে সক্ষম হবেন।`
-      : `${result.daysPassed} days passed since last donation. 120-day cooldown required for safe donation. Eligible again on ${result.nextEligibleDateStr}.`
+      ? `আপনার শেষ রক্তদানের পর ${result.daysPassed} দিন পার হয়েছে। সুস্থতার জন্য ৯০ দিন (৩ মাস) পূর্ণ হওয়া পর্যন্ত বিশ্রাম নেওয়া আবশ্যক। আগামী ${result.nextEligibleDateStr} থেকে রক্তদানে সক্ষম হবেন।`
+      : `${result.daysPassed} days passed since last donation. 90-day cooldown required for safe donation. Eligible again on ${result.nextEligibleDateStr}.`
   };
 }
 
@@ -412,8 +550,8 @@ export const INITIAL_BLOOD_SETTINGS: BloodDonationSettings = {
     bn: 'রক্তদানের নীতিমালা ও আবশ্যিক নির্দেশিকা'
   },
   guidelinesText: {
-    en: 'Age: 18-60 years. Minimum Weight: 45kg for females, 50kg for males. Interval: At least 120 days (4 months) between donations.',
-    bn: 'বয়স: ১৮-৬০ বছর। সর্বনিম্ন ওজন: মহিলাদের ৪৫ কেজি, পুরুষদের ৫০ কেজি। ব্যবধান: প্রতি ৪ মাস (১২০ দিন) পর পর রক্তদান করা নিরাপদ।'
+    en: 'Age: 18-60 years. Minimum Weight: 45kg for females, 50kg for males. Interval: At least 90 days (3 months) between donations.',
+    bn: 'বয়স: ১৮-৬০ বছর। সর্বনিম্ন ওজন: মহিলাদের ৪৫ কেজি, পুরুষদের ৫০ কেজি। ব্যবধান: প্রতি ৩ মাস (৯০ দিন) পর পর রক্তদান করা নিরাপদ।'
   },
   consentStatement: {
     en: 'I hereby confirm my willingness to be a voluntary blood donor and consent to Infinity Bangladesh coordinating blood requests.',

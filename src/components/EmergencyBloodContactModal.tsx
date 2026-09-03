@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { BloodDonor } from '../types';
-import { cleanBloodDonor, toSafeString } from '../data/bloodDonationData';
+import { cleanBloodDonor, toSafeString, getDonorPhoneVisibility } from '../data/bloodDonationData';
 import {
   X,
   Phone,
@@ -12,7 +12,9 @@ import {
   Clock,
   HeartHandshake,
   AlertTriangle,
-  Send
+  Send,
+  Lock,
+  HeartPulse
 } from 'lucide-react';
 
 interface EmergencyBloodContactModalProps {
@@ -35,9 +37,10 @@ export const EmergencyBloodContactModal: React.FC<EmergencyBloodContactModalProp
   if (!isOpen || !rawDonor) return null;
 
   const donor = cleanBloodDonor(rawDonor);
+  const phoneVis = getDonorPhoneVisibility(donor);
   const cleanPhone = donor.phone ? donor.phone.replace(/[^0-9+]/g, '') : '';
   const cleanHelpline = emergencyHelpline.replace(/[^0-9+]/g, '');
-  const canDirectContact = donor.showPhonePublicly && Boolean(donor.phone);
+  const canDirectContact = phoneVis.isPublic && Boolean(cleanPhone);
 
   const contactPhone = canDirectContact ? cleanPhone : cleanHelpline;
   const whatsappUrl = `https://wa.me/${contactPhone.replace('+', '')}?text=${encodeURIComponent(
@@ -83,7 +86,7 @@ export const EmergencyBloodContactModal: React.FC<EmergencyBloodContactModalProp
               </p>
               <p className="text-xs text-slate-500 flex items-center gap-1">
                 <MapPin className="w-3 h-3 text-slate-400" />
-                <span>{donor.area}, {donor.upazila}</span>
+                <span>{donor.area ? donor.area + ', ' : ''}{donor.upazila}</span>
               </p>
               <p className="text-[11px] font-bold text-emerald-700">
                 {donor.orgCategory}
@@ -100,6 +103,20 @@ export const EmergencyBloodContactModal: React.FC<EmergencyBloodContactModalProp
           {/* Contact Mode Box */}
           {canDirectContact ? (
             <div className="space-y-3">
+              <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider">
+                    {isBn ? 'রক্তদাতার মোবাইল নম্বর' : 'Donor Mobile Number'}
+                  </p>
+                  <p className="text-base font-extrabold text-slate-900 font-mono mt-0.5">
+                    {donor.phone}
+                  </p>
+                </div>
+                <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                  {isBn ? 'সরাসরি উন্মুক্ত' : 'Public Access'}
+                </span>
+              </div>
+
               <p className="text-xs text-slate-600 font-medium">
                 {isBn
                   ? 'এই রক্তদাতা সরাসরি যোগাযোগের অনুমতি প্রদান করেছেন। কল অথবা হোয়াটসঅ্যাপের মাধ্যমে এখনই যোগাযোগ করতে পারেন:'
@@ -128,17 +145,43 @@ export const EmergencyBloodContactModal: React.FC<EmergencyBloodContactModalProp
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-2">
-                <div className="flex items-center gap-2 text-[#00523C] font-bold text-xs">
-                  <ShieldCheck className="w-4 h-4 text-[#006A4E]" />
-                  <span>{isBn ? 'ইনফিনিটি বাংলাদেশ গোপনীয়তা সুরক্ষা' : 'Privacy Protection Active'}</span>
+              {phoneVis.reason === 'WITHIN_90_DAYS_COOLDOWN' ? (
+                <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 space-y-2">
+                  <div className="flex items-center gap-2 text-amber-900 font-bold text-xs">
+                    <Clock className="w-4 h-4 text-amber-600 shrink-0" />
+                    <span>{isBn ? 'রক্তদান পরবর্তী ৯০ দিন বিশ্রাম (নম্বর সুরক্ষিত)' : 'Post-Donation 90-Day Recovery Active'}</span>
+                  </div>
+                  <p className="text-xs text-amber-950 leading-relaxed">
+                    {isBn
+                      ? `এই রক্তদাতা সম্প্রতি রক্তদান করেছেন${phoneVis.daysPassedSinceDonation !== null ? ` (${phoneVis.daysPassedSinceDonation} দিন পূর্বে)` : ''}। সুস্থতা ও স্বাস্থ্য সুরক্ষার স্বার্থে রক্তদানের পর ৯০ দিন পূর্ণ বিশ্রাম আবশ্যক এবং এই সময়ে পুনরায় রক্তদানের জন্য কাউকে কল করা নিষেধ। তাই উনার নম্বর সুরক্ষিতভাবে গোপন রাখা হয়েছে (আর ${phoneVis.daysRemainingIn90Days} দিন পর নম্বর উন্মুক্ত হবে)। জরুরি প্রয়োজনে হেল্পলাইনে যোগাযোগ করুন, টিম ইনফিনিটি বিকল্প রক্তদাতার ব্যবস্থা করে দেবে।`
+                      : `This donor donated blood recently (${phoneVis.daysPassedSinceDonation} days ago). Donors require a 90-day recovery period before donating again. Their number is safely hidden (${phoneVis.daysRemainingIn90Days} days left). Please call our 24/7 Helpline for alternative donor coordination.`}
+                  </p>
+                  {phoneVis.maskedPhone && (
+                    <div className="pt-1 flex items-center justify-between text-[11px] font-mono font-bold text-amber-900 bg-white/70 px-2.5 py-1.5 rounded-xl border border-amber-200">
+                      <span>{isBn ? 'সুরক্ষিত মোবাইল নম্বর:' : 'Protected Phone:'}</span>
+                      <span>{phoneVis.maskedPhone}</span>
+                    </div>
+                  )}
                 </div>
-                <p className="text-xs text-emerald-950 leading-relaxed">
-                  {isBn
-                    ? 'রক্তদাতার ব্যক্তিগত ফোন নম্বর সুরক্ষিত রয়েছে। ইনফিনিটি বাংলাদেশ ২৪/৭ ব্লাড কো-অর্ডিনেটর ডেস্ক সরাসরি রক্তদাতার সাথে কথা বলে দ্রুত আপনার জন্য রক্তের ব্যবস্থা করে দেবে।'
-                    : 'This donor phone number is safeguarded. Team Infinity 24/7 Blood Coordination Helpline will immediately contact this donor for you.'}
-                </p>
-              </div>
+              ) : (
+                <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 space-y-2">
+                  <div className="flex items-center gap-2 text-[#00523C] font-bold text-xs">
+                    <ShieldCheck className="w-4 h-4 text-[#006A4E] shrink-0" />
+                    <span>{isBn ? 'নারী রক্তদাতার প্রাইভেসি সুরক্ষা সক্রিয়' : 'Female Donor Privacy Active'}</span>
+                  </div>
+                  <p className="text-xs text-emerald-950 leading-relaxed">
+                    {isBn
+                      ? 'নারী রক্তদাতার ব্যক্তিগত গোপনীয়তা ও নিরাপত্তা সুরক্ষার স্বার্থে ফোন নম্বর সম্পূর্ণ গোপন রাখা হয়েছে। ইনফিনিটি বাংলাদেশ ২৪/৭ ব্লাড কো-অর্ডিনেটর ডেস্ক সরাসরি রক্তদাতার সাথে যোগাযোগ করে দ্রুত আপনার জন্য রক্তের ব্যবস্থা করে দেবে।'
+                      : 'This donor phone number is safeguarded under our female privacy policy. Team Infinity 24/7 Blood Coordination Helpline will immediately contact this donor for you.'}
+                  </p>
+                  {phoneVis.maskedPhone && (
+                    <div className="pt-1 flex items-center justify-between text-[11px] font-mono font-bold text-emerald-900 bg-white/70 px-2.5 py-1.5 rounded-xl border border-emerald-200">
+                      <span>{isBn ? 'সুরক্ষিত মোবাইল নম্বর:' : 'Protected Phone:'}</span>
+                      <span>{phoneVis.maskedPhone}</span>
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <a

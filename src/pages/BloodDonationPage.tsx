@@ -16,6 +16,8 @@ import {
   isEligibleToDonate,
   getCooldownStatusInfo,
   BLOOD_DONATION_COOLDOWN_DAYS,
+  getDonorPhoneVisibility,
+  maskPhoneNumber,
   toSafeString,
   cleanBloodDonor,
   cleanEmergencyRequest,
@@ -212,7 +214,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
   const [regTotalDonations, setRegTotalDonations] = useState<number>(0);
   const [regExperienceNotes, setRegExperienceNotes] = useState('');
   const [regConsent, setRegConsent] = useState(true);
-  const [regShowPhone, setRegShowPhone] = useState(false);
+  const [regShowPhone, setRegShowPhone] = useState(true);
   const [regSubmitted, setRegSubmitted] = useState(false);
   const [regRefId, setRegRefId] = useState('');
   const [regWhatsAppUrl, setRegWhatsAppUrl] = useState('');
@@ -308,7 +310,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
     setRegTotalDonations(0);
     setRegExperienceNotes('');
     setRegConsent(true);
-    setRegShowPhone(false);
+    setRegShowPhone(true);
     setRegFormError(null);
     setRegSubmitted(false);
     setRegWhatsAppUrl('');
@@ -341,7 +343,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
   const [updLastDonationDate, setUpdLastDonationDate] = useState('');
   const [updTotalDonations, setUpdTotalDonations] = useState<number>(0);
   const [updExperienceNotes, setUpdExperienceNotes] = useState('');
-  const [updShowPhone, setUpdShowPhone] = useState(false);
+  const [updShowPhone, setUpdShowPhone] = useState(true);
   const [updFormError, setUpdFormError] = useState<string | null>(null);
   const [updSubmitted, setUpdSubmitted] = useState(false);
   const [isUpdatingDonor, setIsUpdatingDonor] = useState(false);
@@ -373,7 +375,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
     setUpdLastDonationDate(toSafeString(donor.lastDonationDate, ''));
     setUpdTotalDonations(Number(donor.totalDonations) || 0);
     setUpdExperienceNotes(toSafeString(donor.experienceNotes, ''));
-    setUpdShowPhone(Boolean(donor.showPhonePublicly));
+    setUpdShowPhone(donor.gender === 'Male' ? true : Boolean(donor.showPhonePublicly));
     setUpdFormError(null);
     setUpdSubmitted(false);
     setUpdSearchError(null);
@@ -555,7 +557,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
         lastDonationDate: updLastDonationDate || undefined,
         totalDonations: Number(updTotalDonations) || 0,
         experienceNotes: updExperienceNotes.trim() || undefined,
-        showPhonePublicly: updShowPhone,
+        showPhonePublicly: updGender === 'Male' ? true : updShowPhone,
         approvalStatus: 'APPROVED', // Live immediately across Directory and Stats
         updatedAt: new Date().toISOString()
       });
@@ -741,7 +743,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
       isVerified: false,
       approvalStatus: 'PENDING', // Sent to Admin Pending Queue for review & approval
       privacyConsent: regConsent,
-      showPhonePublicly: regShowPhone,
+      showPhonePublicly: regGender === 'Male' ? true : regShowPhone,
       donationHistory: []
     });
 
@@ -1326,6 +1328,42 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                                 </div>
                               );
                             })()}
+
+                            {/* Phone Visibility Status Pill on Card */}
+                            {(() => {
+                              const phoneVis = getDonorPhoneVisibility(donor);
+                              if (phoneVis.reason === 'WITHIN_90_DAYS_COOLDOWN') {
+                                return (
+                                  <div className="flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-xl font-bold bg-amber-50 text-amber-900 border border-amber-200">
+                                    <Clock className="w-3 h-3 text-amber-600 shrink-0" />
+                                    <span className="truncate">
+                                      {isBn
+                                        ? `🔒 রক্তদানের পর ৯০ দিন বিশ্রামে (নম্বর হাইড - আর ${phoneVis.daysRemainingIn90Days} দিন)`
+                                        : `🔒 In 90d recovery (Phone hidden - ${phoneVis.daysRemainingIn90Days}d left)`}
+                                    </span>
+                                  </div>
+                                );
+                              }
+                              if (phoneVis.reason === 'FEMALE_PRIVATE' || phoneVis.reason === 'OTHER_PRIVATE') {
+                                return (
+                                  <div className="flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-xl font-bold bg-emerald-50 text-emerald-900 border border-emerald-200">
+                                    <ShieldCheck className="w-3 h-3 text-[#006A4E] shrink-0" />
+                                    <span className="truncate">
+                                      {isBn ? '🔒 প্রাইভেসির জন্য নম্বর গোপন (হেল্পলাইন)' : '🔒 Private (Helpline Coordinated)'}
+                                    </span>
+                                  </div>
+                                );
+                              }
+                              return (
+                                <div className="flex items-center justify-between text-[11px] px-2.5 py-1 rounded-xl font-bold bg-emerald-50/70 text-emerald-950 border border-emerald-200/80">
+                                  <span className="flex items-center gap-1 text-[#006A4E]">
+                                    <Phone className="w-3 h-3 text-[#006A4E] shrink-0" />
+                                    <span>{isBn ? 'সরাসরি কল উন্মুক্ত' : 'Direct Call Public'}</span>
+                                  </span>
+                                  <span className="font-mono text-[11px] text-slate-800">{donor.phone}</span>
+                                </div>
+                              );
+                            })()}
                           </div>
 
                           {donor.experienceNotes && (
@@ -1608,7 +1646,13 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                         <label className="block text-xs font-bold text-slate-800">{isBn ? 'লিঙ্গ (Gender) *' : 'Gender *'}</label>
                         <select
                           value={regGender}
-                          onChange={(e) => setRegGender(e.target.value)}
+                          onChange={(e) => {
+                            const newGender = e.target.value;
+                            setRegGender(newGender);
+                            if (newGender === 'Male') {
+                              setRegShowPhone(true);
+                            }
+                          }}
                           className="w-full px-4 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
                         >
                           <option value="Male">{isBn ? 'পুরুষ (Male)' : 'Male'}</option>
@@ -1899,7 +1943,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                           );
                         })() : (
                           <p className="text-[10px] text-slate-400 font-medium">
-                            {isBn ? 'রক্তদানের তারিখ দিলে ১২০ দিনের (৪ মাস) কুলডাউন হিসাব স্বয়ংক্রিয়ভাবে দেখাবে' : 'Cooldown status calculated on 120-day interval rule'}
+                            {isBn ? 'রক্তদানের তারিখ দিলে ৯০ দিনের (৩ মাস) কুলডাউন হিসাব স্বয়ংক্রিয়ভাবে দেখাবে' : 'Cooldown status calculated on 90-day interval rule'}
                           </p>
                         )}
                       </div>
@@ -1934,19 +1978,42 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                       </span>
                     </label>
 
-                    <label className="flex items-start gap-2.5 cursor-pointer text-xs text-slate-700 leading-relaxed">
-                      <input
-                        type="checkbox"
-                        checked={regShowPhone}
-                        onChange={(e) => setRegShowPhone(e.target.checked)}
-                        className="w-4 h-4 text-[#006A4E] rounded-md mt-0.5 focus:ring-[#006A4E]"
-                      />
-                      <span>
-                        {isBn
-                          ? 'রক্তগ্রহীতা যাতে সরাসরি আমার নম্বরে কল করতে পারেন, তার অনুমতি দিচ্ছি (বন্ধ রাখলে হেল্পলাইনের মাধ্যমে সমন্বয় করা হবে)।'
-                          : 'Allow public users to view direct call button (if disabled, requests route through 24/7 Helpline).'}
-                      </span>
-                    </label>
+                    {regGender === 'Male' ? (
+                      <div className="p-3.5 rounded-2xl bg-emerald-50/90 border border-emerald-200 text-xs text-emerald-950 flex items-start gap-2.5 leading-relaxed">
+                        <ShieldCheck className="w-4 h-4 text-[#006A4E] shrink-0 mt-0.5" />
+                        <div>
+                          <span className="font-bold text-[#00523C]">
+                            {isBn ? 'মোবাইল নম্বর স্বয়ংক্রিয়ভাবে উন্মুক্ত (পাবলিক) থাকবে' : 'Mobile number will be automatically public'}
+                          </span>
+                          <p className="text-[11px] text-slate-600 mt-0.5">
+                            {isBn
+                              ? 'পুরুষ রক্তদাতাদের ক্ষেত্রে জরুরি প্রয়োজনে দ্রুত রক্ত পাওয়ার স্বার্থে যোগাযোগের নম্বর উন্মুক্ত রাখা হয় (তবে রক্তদানের পর ৯০ দিন সবার নম্বরই স্বয়ংক্রিয়ভাবে হাইড থাকবে)।'
+                              : 'Male donor contact numbers are automatically public for rapid emergency coordination (kept hidden for 90 days after each donation).'}
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <label className="flex items-start gap-2.5 cursor-pointer text-xs text-slate-700 leading-relaxed p-3.5 rounded-2xl bg-rose-50/40 border border-rose-200/60">
+                        <input
+                          type="checkbox"
+                          checked={regShowPhone}
+                          onChange={(e) => setRegShowPhone(e.target.checked)}
+                          className="w-4 h-4 text-[#006A4E] rounded-md mt-0.5 focus:ring-[#006A4E]"
+                        />
+                        <div>
+                          <span className="font-bold text-slate-800">
+                            {isBn
+                              ? 'নারী রক্তদাতা প্রাইভেসি: পাবলিক ডিরেক্টরিতে সরাসরি কল অপশন ও নম্বর উন্মুক্ত রাখুন'
+                              : 'Female Donor Privacy: Allow direct public call button and phone number'}
+                          </span>
+                          <p className="text-[11px] text-slate-500 mt-0.5">
+                            {isBn
+                              ? 'প্রাইভেসি সুরক্ষায় এটি আনচেক রাখলে আপনার নম্বর জনসাধারণের কাছে গোপন থাকবে এবং হেল্পলাইনের মাধ্যমে রক্তের ব্যবস্থা করা হবে।'
+                              : 'For privacy, keeping this unchecked hides your phone number from the public; requests route through 24/7 Helpline.'}
+                          </p>
+                        </div>
+                      </label>
+                    )}
                   </div>
 
                   {/* Prominent Error Banner */}
@@ -2003,8 +2070,8 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                   </h2>
                   <p className="text-xs sm:text-sm text-slate-500 max-w-xl">
                     {isBn
-                      ? 'নিবন্ধিত মোবাইল নম্বর দিয়ে প্রোফাইল খুঁজুন। সর্বশেষ রক্তদানের তারিখ (১২০ দিনের কুলডাউন হিসাবসহ), ছবি, এলাকা/ঠিকানা ও প্রাপ্যতা সহজে আপডেট করুন।'
-                      : 'Find your profile by registered mobile number. Easily update your last donation date (with 120-day cooldown calculation), photo, address, and availability.'}
+                      ? 'নিবন্ধিত মোবাইল নম্বর দিয়ে প্রোফাইল খুঁজুন। সর্বশেষ রক্তদানের তারিখ (৯০ দিনের কুলডাউন হিসাবসহ), ছবি, এলাকা/ঠিকানা ও প্রাপ্যতা সহজে আপডেট করুন।'
+                      : 'Find your profile by registered mobile number. Easily update your last donation date (with 90-day cooldown calculation), photo, address, and availability.'}
                   </p>
                 </div>
 
@@ -2014,7 +2081,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                     <span>{isBn ? 'নিরাপদ রক্তদানের ব্যবধান' : 'Safe Donation Interval'}</span>
                   </div>
                   <p className="text-lg font-extrabold text-white font-display mt-0.5">
-                    {isBn ? '১২০ দিন (৪ মাস)' : '120 Days (4 Months)'}
+                    {isBn ? '৯০ দিন (৩ মাস)' : '90 Days (3 Months)'}
                   </p>
                   <p className="text-[10px] text-emerald-300/80">
                     {isBn ? 'স্বাস্থ্যের পূর্ণ সুরক্ষায়' : 'For optimal health & recovery'}
@@ -2210,7 +2277,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                       <div className="space-y-0.5">
                         <h4 className="text-sm font-extrabold uppercase tracking-wider text-slate-900 flex items-center gap-2 font-display">
                           <Clock className="w-4 h-4 text-rose-600" />
-                          <span>{isBn ? '১. সর্বশেষ রক্তদান ও ১২০ দিনের কুলডাউন হিসাব' : '1. Last Donation & 120-Day Cooldown Tracker'}</span>
+                          <span>{isBn ? '১. সর্বশেষ রক্তদান ও ৯০ দিনের কুলডাউন হিসাব' : '1. Last Donation & 90-Day Cooldown Tracker'}</span>
                         </h4>
                         <p className="text-[11px] text-slate-500">
                           {isBn ? 'রক্তদানের তারিখ আপডেট করলে মোট রক্তদান বৃদ্ধি পাবে ও কুলডাউন হিসাব আপডেট হবে' : 'Updating donation date calculates cooldown status and increments total count'}
@@ -2291,7 +2358,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                       </div>
                     </div>
 
-                    {/* Live 120-Day Cooldown Status Card */}
+                    {/* Live 90-Day Cooldown Status Card */}
                     {updLastDonationDate ? (() => {
                       const cooldown = getCooldownStatusInfo(updLastDonationDate, isBn);
                       return (
@@ -2314,8 +2381,8 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                             {!cooldown.isEligible && (
                               <p className="text-[11px] font-bold text-rose-900 bg-rose-100/80 p-2 rounded-xl border border-rose-200 mt-1">
                                 💡 {isBn
-                                  ? 'পরামর্শ: যেহেতু ১২০ দিন পূর্ণ হয়নি, আপনার প্রাপ্যতা স্ট্যাটাস "সাময়িক বিরতিতে আছেন" নির্বাচন করা শ্রেয়।'
-                                  : 'Advice: As 120 days have not passed, setting availability to "Temporarily Unavailable" is recommended.'}
+                                  ? 'পরামর্শ: যেহেতু ৯০ দিন পূর্ণ হয়নি, আপনার প্রাপ্যতা স্ট্যাটাস "সাময়িক বিরতিতে আছেন" নির্বাচন করা শ্রেয়।'
+                                  : 'Advice: As 90 days have not passed, setting availability to "Temporarily Unavailable" is recommended.'}
                               </p>
                             )}
                           </div>
@@ -2323,7 +2390,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                       );
                     })() : (
                       <p className="text-[11px] text-slate-500 italic">
-                        {isBn ? 'রক্তদানের তারিখ নির্বাচন করলে এখানে ১২০ দিনের কুলডাউন হিসাব প্রদর্শিত হবে।' : 'Select a donation date to compute the 120-day cooldown status.'}
+                        {isBn ? 'রক্তদানের তারিখ নির্বাচন করলে এখানে ৯০ দিনের কুলডাউন হিসাব প্রদর্শিত হবে।' : 'Select a donation date to compute the 90-day cooldown status.'}
                       </p>
                     )}
                   </div>
@@ -2553,7 +2620,13 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                         <label className="block text-xs font-bold text-slate-800">{isBn ? 'লিঙ্গ (Gender) *' : 'Gender *'}</label>
                         <select
                           value={updGender}
-                          onChange={(e) => setUpdGender(e.target.value)}
+                          onChange={(e) => {
+                            const newGender = e.target.value;
+                            setUpdGender(newGender);
+                            if (newGender === 'Male') {
+                              setUpdShowPhone(true);
+                            }
+                          }}
                           className="w-full px-4 py-2.5 rounded-xl border border-[#EAE3D9] bg-[#FAF7F2] text-xs sm:text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-[#006A4E] focus:outline-none"
                         >
                           <option value="Male">{isBn ? 'পুরুষ (Male)' : 'Male'}</option>
@@ -2660,19 +2733,42 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                       />
                     </div>
 
-                    <label className="flex items-start gap-2.5 cursor-pointer text-xs text-slate-700 leading-relaxed pt-1">
-                      <input
-                        type="checkbox"
-                        checked={updShowPhone}
-                        onChange={(e) => setUpdShowPhone(e.target.checked)}
-                        className="w-4 h-4 text-[#006A4E] rounded-md mt-0.5 focus:ring-[#006A4E]"
-                      />
-                      <span>
-                        {isBn
-                          ? 'রক্তগ্রহীতা যাতে সরাসরি আমার নম্বরে কল করতে পারেন, তার অনুমতি দিচ্ছি (বন্ধ রাখলে হেল্পলাইনের মাধ্যমে সমন্বয় করা হবে)।'
-                          : 'Allow public users to view direct call button (if disabled, requests route through 24/7 Helpline).'}
-                      </span>
-                    </label>
+                    {updGender === 'Male' ? (
+                      <div className="p-3.5 rounded-2xl bg-emerald-50/90 border border-emerald-200 text-xs text-emerald-950 flex items-start gap-2.5 leading-relaxed pt-1">
+                        <ShieldCheck className="w-4 h-4 text-[#006A4E] shrink-0 mt-0.5" />
+                        <div>
+                          <span className="font-bold text-[#00523C]">
+                            {isBn ? 'মোবাইল নম্বর স্বয়ংক্রিয়ভাবে উন্মুক্ত (পাবলিক) থাকবে' : 'Mobile number will be automatically public'}
+                          </span>
+                          <p className="text-[11px] text-slate-600 mt-0.5">
+                            {isBn
+                              ? 'পুরুষ রক্তদাতাদের যোগাযোগের নম্বর উন্মুক্ত রাখা হয় যাতে প্রয়োজনে দ্রুত যোগাযোগ করা যায় (তবে রক্তদানের পর ৯০ দিন সবার নম্বরই স্বয়ংক্রিয়ভাবে হাইড থাকবে)।'
+                              : 'Male donor phone numbers remain public for direct emergency access (hidden for 90 days after donation).'}
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <label className="flex items-start gap-2.5 cursor-pointer text-xs text-slate-700 leading-relaxed p-3.5 rounded-2xl bg-rose-50/40 border border-rose-200/60 pt-1">
+                        <input
+                          type="checkbox"
+                          checked={updShowPhone}
+                          onChange={(e) => setUpdShowPhone(e.target.checked)}
+                          className="w-4 h-4 text-[#006A4E] rounded-md mt-0.5 focus:ring-[#006A4E]"
+                        />
+                        <div>
+                          <span className="font-bold text-slate-800">
+                            {isBn
+                              ? 'নারী রক্তদাতা প্রাইভেসি: পাবলিক ডিরেক্টরিতে সরাসরি কল অপশন ও নম্বর উন্মুক্ত রাখুন'
+                              : 'Female Donor Privacy: Allow direct public call button and phone number'}
+                          </span>
+                          <p className="text-[11px] text-slate-500 mt-0.5">
+                            {isBn
+                              ? 'প্রাইভেসি সুরক্ষায় এটি আনচেক রাখলে আপনার নম্বর জনসাধারণের কাছে গোপন থাকবে এবং হেল্পলাইনের মাধ্যমে রক্তের ব্যবস্থা করা হবে।'
+                              : 'For privacy, keeping this unchecked hides your phone number from the public; requests route through 24/7 Helpline.'}
+                          </p>
+                        </div>
+                      </label>
+                    )}
                   </div>
 
                   {/* Form Error Banner */}
@@ -3324,7 +3420,7 @@ export const BloodDonationPage: React.FC<BloodDonationPageProps> = ({
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-[#006A4E] shrink-0 mt-0.5" />
-                    <span>{isBn ? 'ব্যবধান: পূর্ববর্তী রক্তদানের পর কমপক্ষে ৪ মাস (১২০ দিন) অতিক্রান্ত হতে হবে।' : 'Interval: At least 120 days (4 months) since last donation.'}</span>
+                    <span>{isBn ? 'ব্যবধান: পূর্ববর্তী রক্তদানের পর কমপক্ষে ৩ মাস (৯০ দিন) অতিক্রান্ত হতে হবে।' : 'Interval: At least 90 days (3 months) since last donation.'}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <Check className="w-4 h-4 text-[#006A4E] shrink-0 mt-0.5" />
